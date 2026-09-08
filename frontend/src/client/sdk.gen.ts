@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsPasswordResetEmailData, accountsPasswordResetEmailErrors, accountsPasswordResetEmailResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsResetPasswordData, accountsResetPasswordErrors, accountsResetPasswordResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, capabilitiesReadCatalogData, capabilitiesReadCatalogResponses, healthHealthData, healthHealthResponses, modelconfigDeleteConfigData, modelconfigDeleteConfigErrors, modelconfigDeleteConfigResponses, modelconfigProbeData, modelconfigProbeErrors, modelconfigProbeResponses, modelconfigReadConfigData, modelconfigReadConfigResponses, modelconfigSaveConfigData, modelconfigSaveConfigErrors, modelconfigSaveConfigResponses, projectsLatestProjectsData, projectsLatestProjectsResponses, projectsReadProjectData, projectsReadProjectErrors, projectsReadProjectResponses, projectsRetryProjectData, projectsRetryProjectErrors, projectsRetryProjectResponses, projectsStartProjectData, projectsStartProjectErrors, projectsStartProjectResponses, projectsStopProjectData, projectsStopProjectErrors, projectsStopProjectResponses, submissionsReadSubmissionsData, submissionsReadSubmissionsErrors, submissionsReadSubmissionsResponses, submissionsRetrySubmissionData, submissionsRetrySubmissionErrors, submissionsRetrySubmissionResponses, submissionsStopSubmissionData, submissionsStopSubmissionErrors, submissionsStopSubmissionResponses, submissionsSubmitData, submissionsSubmitErrors, submissionsSubmitResponses, trainingLatestData, trainingLatestResponses, trainingReadData, trainingReadErrors, trainingReadResponses, trainingStartData, trainingStartErrors, trainingStartResponses, trainingStopData, trainingStopErrors, trainingStopResponses } from './types.gen';
+import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsPasswordResetEmailData, accountsPasswordResetEmailErrors, accountsPasswordResetEmailResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsResetPasswordData, accountsResetPasswordErrors, accountsResetPasswordResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, capabilitiesReadCatalogData, capabilitiesReadCatalogResponses, evaluationsClarifyEvaluationData, evaluationsClarifyEvaluationErrors, evaluationsClarifyEvaluationResponses, evaluationsReadEvaluationData, evaluationsReadEvaluationErrors, evaluationsReadEvaluationResponses, evaluationsRetryEvaluationData, evaluationsRetryEvaluationErrors, evaluationsRetryEvaluationResponses, evaluationsStartEvaluationData, evaluationsStartEvaluationErrors, evaluationsStartEvaluationResponses, evaluationsStopEvaluationData, evaluationsStopEvaluationErrors, evaluationsStopEvaluationResponses, healthHealthData, healthHealthResponses, modelconfigDeleteConfigData, modelconfigDeleteConfigErrors, modelconfigDeleteConfigResponses, modelconfigProbeData, modelconfigProbeErrors, modelconfigProbeResponses, modelconfigReadConfigData, modelconfigReadConfigResponses, modelconfigSaveConfigData, modelconfigSaveConfigErrors, modelconfigSaveConfigResponses, projectsLatestProjectsData, projectsLatestProjectsResponses, projectsReadProjectData, projectsReadProjectErrors, projectsReadProjectResponses, projectsRetryProjectData, projectsRetryProjectErrors, projectsRetryProjectResponses, projectsStartProjectData, projectsStartProjectErrors, projectsStartProjectResponses, projectsStopProjectData, projectsStopProjectErrors, projectsStopProjectResponses, submissionsReadSubmissionsData, submissionsReadSubmissionsErrors, submissionsReadSubmissionsResponses, submissionsRetrySubmissionData, submissionsRetrySubmissionErrors, submissionsRetrySubmissionResponses, submissionsStopSubmissionData, submissionsStopSubmissionErrors, submissionsStopSubmissionResponses, submissionsSubmitData, submissionsSubmitErrors, submissionsSubmitResponses, trainingLatestData, trainingLatestResponses, trainingReadData, trainingReadErrors, trainingReadResponses, trainingStartData, trainingStartErrors, trainingStartResponses, trainingStopData, trainingStopErrors, trainingStopResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -421,6 +421,76 @@ export class ProjectsService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/projects/{run_id}/stop',
+            ...options
+        });
+    }
+}
+
+export class EvaluationsService {
+    /**
+     * Read Evaluation
+     */
+    public static readEvaluation<ThrowOnError extends boolean = true>(options: Options<evaluationsReadEvaluationData, ThrowOnError>) {
+        return (options.client ?? client).get<evaluationsReadEvaluationResponses, evaluationsReadEvaluationErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/evaluation',
+            ...options
+        });
+    }
+
+    /**
+     * Start Evaluation
+     */
+    public static startEvaluation<ThrowOnError extends boolean = true>(options: Options<evaluationsStartEvaluationData, ThrowOnError>) {
+        return (options.client ?? client).post<evaluationsStartEvaluationResponses, evaluationsStartEvaluationErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/evaluation',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+
+    /**
+     * Clarify Evaluation
+     */
+    public static clarifyEvaluation<ThrowOnError extends boolean = true>(options: Options<evaluationsClarifyEvaluationData, ThrowOnError>) {
+        return (options.client ?? client).post<evaluationsClarifyEvaluationResponses, evaluationsClarifyEvaluationErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/evaluation/clarification',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+
+    /**
+     * Retry Evaluation
+     */
+    public static retryEvaluation<ThrowOnError extends boolean = true>(options: Options<evaluationsRetryEvaluationData, ThrowOnError>) {
+        return (options.client ?? client).post<evaluationsRetryEvaluationResponses, evaluationsRetryEvaluationErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/evaluation/retry',
+            ...options
+        });
+    }
+
+    /**
+     * Stop Evaluation
+     */
+    public static stopEvaluation<ThrowOnError extends boolean = true>(options: Options<evaluationsStopEvaluationData, ThrowOnError>) {
+        return (options.client ?? client).post<evaluationsStopEvaluationResponses, evaluationsStopEvaluationErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/evaluation/stop',
             ...options
         });
     }
