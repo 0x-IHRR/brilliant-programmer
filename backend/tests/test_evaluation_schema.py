@@ -106,6 +106,16 @@ def example(kind="prediction"):
                 "interpreted_value": "执行状态未知"
                 if kind == "prediction"
                 else answer["value"],
+                "interpreted_reasoning": "执行状态未知"
+                if kind == "prediction"
+                else answer["value"],
+                "reason_claims": [
+                    {
+                        "answer_quote": 0,
+                        "grounding": 0,
+                        "interpreted_fact_value": "false",
+                    }
+                ],
                 "rule_quote": case.rubric[0].reasoning,
                 "counterexample_quote": None,
                 "explanation": "原答指出了回话丢失这种可能，不能只凭没有确认断定未执行。",
@@ -136,6 +146,7 @@ def test_frozen_multiple_valid_solutions_and_plain_language(kind):
     ]
     item["answer_quotes"][0]["quote"] = original.answers[0]["reason"]
     item["interpreted_value"] = alternative
+    item["interpreted_reasoning"] = alternative
     assert (
         validate_grading(
             json.dumps(result), case, sources, evaluation_inputs([original]), "fake-key"
@@ -227,6 +238,8 @@ def test_evidenced_failure_and_unresolved_answer_remain_distinct():
     item.update(
         conclusion="unclear",
         interpreted_value=None,
+        interpreted_reasoning=None,
+        reason_claims=[],
         grounding=[],
         rule_quote=None,
         counterexample_quote=None,
@@ -240,6 +253,77 @@ def test_evidenced_failure_and_unresolved_answer_remain_distinct():
         .conclusion
         == "unclear"
     )
+
+
+@pytest.mark.parametrize("conflict", ["fact", "inference"])
+def test_correct_choice_does_not_hide_evidenced_wrong_reason(conflict):
+    case, sources, original, result = example("choice")
+    item = result["items"][0]
+    if conflict == "fact":
+        original.answers[0]["reason"] = "已经收到确认了，不过我选尚不能确定"
+        item["reason_claims"][0]["interpreted_fact_value"] = "true"
+    else:
+        original.answers[0]["reason"] = "没有确认，所以一定没有执行"
+        item["interpreted_reasoning"] = 2
+        item["counterexample_quote"] = case.rubric[0].counterexample
+    item["answer_quotes"][0]["quote"] = original.answers[0]["reason"]
+    # A matching choice and copied rule cannot turn wrong reasoning into a pass.
+    with pytest.raises(ValueError):
+        validate_grading(
+            json.dumps(result), case, sources, evaluation_inputs([original]), "fake-key"
+        )
+    item.update(conclusion="evidenced_fail", gap="理由与冻结事实或其允许的判断冲突")
+    assert (
+        validate_grading(
+            json.dumps(result), case, sources, evaluation_inputs([original]), "fake-key"
+        )
+        .items[0]
+        .conclusion
+        == "evidenced_fail"
+    )
+
+
+def test_wrong_choice_with_related_reason_is_not_a_completion_decision():
+    case, sources, original, result = example("choice")
+    item = result["items"][0]
+    original.answers[0]["value"] = item["interpreted_value"] = 2
+    original.answers[0]["reason"] = "没有收到确认，需要补充执行记录才能确定"
+    item["answer_quotes"][0]["quote"] = original.answers[0]["reason"]
+    item["interpreted_reasoning"] = 1
+    item.update(
+        conclusion="evidenced_fail",
+        gap="实际选择断定未执行，但材料不能支持该断言",
+        counterexample_quote=case.rubric[0].counterexample,
+    )
+    assert (
+        validate_grading(
+            json.dumps(result), case, sources, evaluation_inputs([original]), "fake-key"
+        )
+        .items[0]
+        .conclusion
+        == "evidenced_fail"
+    )
+    assert original.answers[0]["reason"] == "没有收到确认，需要补充执行记录才能确定"
+
+
+@pytest.mark.parametrize(
+    "fault", ["bare_rule", "missing_inference", "unlinked", "unresolved_fact"]
+)
+def test_reasoning_requires_linked_interpretation_not_a_rule_identity(fault):
+    case, sources, original, result = example("choice")
+    item = result["items"][0]
+    if fault == "bare_rule":
+        item["reason_claims"] = []
+    elif fault == "missing_inference":
+        item["interpreted_reasoning"] = None
+    elif fault == "unlinked":
+        item["reason_claims"][0]["grounding"] = 1
+    else:
+        item["reason_claims"][0]["interpreted_fact_value"] = "也许不是"
+    with pytest.raises(ValueError):
+        validate_grading(
+            json.dumps(result), case, sources, evaluation_inputs([original]), "fake-key"
+        )
 
 
 def test_original_and_one_permitted_clarification_exclude_supplement():

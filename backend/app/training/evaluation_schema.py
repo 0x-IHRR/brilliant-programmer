@@ -82,6 +82,13 @@ class Grounding(Strict):
     citation: Citation
 
 
+class ReasonClaim(Strict):
+    # References the full reason and a separately verified frozen fact.
+    answer_quote: int = Field(ge=0, le=7)
+    grounding: int = Field(ge=0, le=11)
+    interpreted_fact_value: Text
+
+
 class GradingItem(Strict):
     judgment_id: Text
     conclusion: Literal["pass", "evidenced_fail", "unclear"]
@@ -89,6 +96,8 @@ class GradingItem(Strict):
     grounding: list[Grounding] = Field(max_length=12)
     # Meaning is a candidate interpretation, not a keyword score or confidence.
     interpreted_value: int | list[int] | Text | None
+    interpreted_reasoning: int | list[int] | Text | None
+    reason_claims: list[ReasonClaim] = Field(max_length=12)
     rule_quote: Text | None
     counterexample_quote: Text | None
     explanation: Text
@@ -163,11 +172,34 @@ def validate_grading(
             and item.counterexample_quote != rubric.counterexample
         ):
             raise ValueError("different frozen counterexample")
+        fact_conflict = False
+        fact_unknown = False
+        for claim in item.reason_claims:
+            if (
+                claim.answer_quote >= len(item.answer_quotes)
+                or claim.grounding >= len(item.grounding)
+                or item.answer_quotes[claim.answer_quote].field != "reason"
+            ):
+                raise ValueError("unlinked reasoning claim")
+            actual = item.grounding[claim.grounding].value
+            if claim.interpreted_fact_value != actual:
+                # Only opposite canonical booleans establish contradiction here;
+                # unequal free text may be synonyms, not contradictory facts.
+                if {actual, claim.interpreted_fact_value} == {"true", "false"}:
+                    fact_conflict = True
+                else:
+                    fact_unknown = True
         if item.conclusion == "unclear":
             if not item.gap:
                 raise ValueError("missing uncertainty")
             continue
-        if not item.grounding or item.rule_quote is None:
+        if (
+            not item.grounding
+            or not item.reason_claims
+            or item.interpreted_reasoning is None
+            or item.rule_quote is None
+            or fact_unknown
+        ):
             raise ValueError("unwitnessed conclusion")
         answer = next(
             a
@@ -180,6 +212,17 @@ def validate_grading(
             item.interpreted_value, str
         ):
             raise ValueError("missing interpreted prediction")
+        # Reuse the answer boundary: invented choice IDs or incomplete orderings
+        # are not valid interpretations of the reason either.
+        validate_answers(
+            case,
+            [
+                a.model_copy(update={"value": item.interpreted_reasoning})
+                if a.judgment_id == judgment.id
+                else a
+                for a in (inputs.clarification or inputs.original).answers
+            ],
+        )
         acceptable = (
             rubric.acceptable_options
             if judgment.kind == "choice"
@@ -187,11 +230,19 @@ def validate_grading(
             if judgment.kind == "order"
             else rubric.acceptable_predictions
         )
-        supported = item.interpreted_value in acceptable
-        if item.conclusion == "pass" and (not supported or item.gap is not None):
+        decision_supported = item.interpreted_value in acceptable
+        reasoning_supported = item.interpreted_reasoning in acceptable
+        if item.conclusion == "pass" and (
+            not decision_supported
+            or not reasoning_supported
+            or fact_conflict
+            or item.gap is not None
+        ):
             raise ValueError("unsupported pass or invented gap")
         if item.conclusion == "evidenced_fail" and (
-            supported or item.counterexample_quote is None or not item.gap
+            (decision_supported and reasoning_supported and not fact_conflict)
+            or (not fact_conflict and item.counterexample_quote is None)
+            or not item.gap
         ):
             raise ValueError("unsupported failure")
     return result
