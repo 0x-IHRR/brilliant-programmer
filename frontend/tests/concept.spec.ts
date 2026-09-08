@@ -129,12 +129,34 @@ test("卸载与会话更换取消待渲染回执，保留原未知尝试", async
       },
     })
   })
+  const pendingFrames = () =>
+    page.evaluate(() =>
+      (window as unknown as { conceptPending: () => number }).conceptPending(),
+    )
+  // Hold the post-publication history read: visible prose is not action completion.
+  let releaseHistory!: () => void
+  const historyGate = new Promise<void>((resolve) => {
+    releaseHistory = resolve
+  })
+  await page.route("**/help", async (route) => {
+    if (route.request().method() === "GET") await historyGate
+    await route.continue()
+  })
   // Dispatch without Playwright actionability's own RAF dependency.
   await coach
     .getByRole("button", { name: "查看说明" })
     .first()
     .dispatchEvent("click")
   await expect(coach.getByText(/^白话：/)).toBeVisible()
+  await expect(
+    coach.getByRole("button", { name: "查看说明" }).first(),
+  ).toBeDisabled()
+  releaseHistory()
+  await expect(
+    coach.getByRole("button", { name: "查看说明" }).first(),
+  ).toBeEnabled()
+  await page.unroute("**/help")
+  await expect.poll(pendingFrames).toBeGreaterThan(0)
   await page.evaluate(() => {
     sessionStorage.setItem("token", "synthetic-changed-session")
     ;(window as unknown as { conceptFlush: () => void }).conceptFlush()
@@ -144,22 +166,23 @@ test("卸载与会话更换取消待渲染回执，保留原未知尝试", async
     (token) => sessionStorage.setItem("token", token!),
     process.env.CONCEPT_BROWSER_TOKEN,
   )
+  await expect(
+    coach.getByRole("button", { name: "查看说明" }).first(),
+  ).toBeEnabled()
+  const secondPublication = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/deliver") &&
+      response.request().method() === "POST",
+  )
   await coach
     .getByRole("button", { name: "查看说明" })
     .first()
     .dispatchEvent("click")
+  expect((await secondPublication).ok()).toBe(true)
   await expect(
     coach.getByRole("button", { name: "查看说明" }).first(),
   ).toBeEnabled()
-  await expect
-    .poll(() =>
-      page.evaluate(() =>
-        (
-          window as unknown as { conceptPending: () => number }
-        ).conceptPending(),
-      ),
-    )
-    .toBeGreaterThan(0)
+  await expect.poll(pendingFrames).toBeGreaterThan(0)
   await page.evaluate(() => {
     ;(
       window as unknown as { conceptRestoreScheduler: () => void }
