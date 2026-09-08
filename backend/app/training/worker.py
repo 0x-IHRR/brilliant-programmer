@@ -13,6 +13,10 @@ from app.training.models import TrainingAttempt, TrainingRun
 from app.training.queue import queue
 from app.training.schema import Source, scenario_fingerprint, validate_candidate
 from app.training.sources import acquire_source
+from app.training.submission_worker import (  # noqa: F401
+    check_submission,
+    reconcile_failed_submissions,
+)
 
 TERMINAL = {"completed", "failed", "stopped"}
 
@@ -317,8 +321,10 @@ async def generate_training(run_id: str) -> None:
 @queue.task(name="training.recover", queueing_lock="training-recovery")
 async def recover(timestamp: int = 0) -> None:
     del timestamp
-    for job in await queue.job_manager.get_stalled_jobs(task_name="training.generate"):
-        await queue.job_manager.retry_job(job)
+    await asyncio.to_thread(reconcile_failed_submissions)
+    for task_name in ("training.generate", "training.check_submission"):
+        for job in await queue.job_manager.get_stalled_jobs(task_name=task_name):
+            await queue.job_manager.retry_job(job)
 
 
 async def main() -> None:

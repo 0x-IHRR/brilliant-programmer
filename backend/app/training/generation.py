@@ -58,6 +58,12 @@ async def generate(
         ensure_ascii=False,
     ).encode()
     raw, content_type, counts = await request_raw(service_url, key, payload)
+    return extract_content(raw, content_type, counts, key)
+
+
+def extract_content(
+    raw: bytes, content_type: str, counts: dict[str, int | None], key: str
+) -> tuple[str, dict[str, int | None]]:
     try:
         if content_type == "application/json":
             result = json.loads(raw)["choices"][0]["message"]["content"]

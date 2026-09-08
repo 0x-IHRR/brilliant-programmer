@@ -5,11 +5,14 @@ from typing import Any
 from sqlalchemy import JSON, BigInteger, Column, DateTime, UniqueConstraint
 from sqlmodel import Field, SQLModel
 
+from app.training.submission_models import REWARD_RULE
+
 
 class TrainingRun(SQLModel, table=True):
     __tablename__ = "training_run"
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", index=True)
+    completion_rule_version: str = REWARD_RULE
     config_version: uuid.UUID
     destination: str
     model_id: str

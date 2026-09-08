@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 
 from app.model_config import connection
-from app.training import sources, worker
+from app.training import sources, submission_worker, worker
 from app.training.queue import queue
 
 control = Path(sys.argv[1])
@@ -57,14 +57,33 @@ def accept(*args):
 
 
 worker.accept_candidate = accept
+original_settle = submission_worker.settle
+original_fail = submission_worker.fail
+
+
+def fail_settle(*args):
+    if json.loads(control.read_text()).get("fail_settlement"):
+        raise RuntimeError("PRIVATE_SUBMISSION_SENTINEL")
+    return original_settle(*args)
+
+
+def fail_marker(*args):
+    if json.loads(control.read_text()).get("fail_marker"):
+        raise RuntimeError("PRIVATE_SUBMISSION_SENTINEL")
+    return original_fail(*args)
+
+
+submission_worker.settle = fail_settle
+submission_worker.fail = fail_marker
 
 
 async def run():
     async with queue.open_async():
-        for job in await queue.job_manager.get_stalled_jobs(
-            task_name="training.generate", seconds_since_heartbeat=0.5
-        ):
-            await queue.job_manager.retry_job(job)
+        for task_name in ("training.generate", "training.check_submission"):
+            for job in await queue.job_manager.get_stalled_jobs(
+                task_name=task_name, seconds_since_heartbeat=0.5
+            ):
+                await queue.job_manager.retry_job(job)
         await queue.run_worker_async(
             update_heartbeat_interval=0.1,
             stalled_worker_timeout=0.5,
