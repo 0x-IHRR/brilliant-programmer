@@ -115,7 +115,7 @@ def fail(identity: uuid.UUID, code: str, message: str) -> None:
         session.commit()
 
 
-def settle(identity: uuid.UUID, result: Relevance) -> None:
+def settle(identity: uuid.UUID, result: Relevance) -> bool:
     with Session(engine) as session:
         submission = session.get(Submission, identity)
         assert submission
@@ -131,7 +131,7 @@ def settle(identity: uuid.UUID, result: Relevance) -> None:
         ).one()
         session.refresh(run)
         if submission.status != "checking" or submission.stop_requested:
-            return
+            return False
         config = session.get(ModelConfig, run.user_id, populate_existing=True)
         if not config or config.version != submission.config_version:
             raise HTTPException(409, "configuration revoked")
@@ -172,6 +172,7 @@ def settle(identity: uuid.UUID, result: Relevance) -> None:
                 submission.message = "理由仍无关或相关性无法确认，保留待补充；未完成、未结算，不记录能力失败。原答已保留。"
         session.add(submission)
         session.commit()
+        return True
 
 
 def context_for(submission: Submission, run: TrainingRun) -> dict[str, Any]:
@@ -235,6 +236,9 @@ async def process_submission(identity: uuid.UUID) -> None:
                 raw, content_type, counts = await request_raw(
                     config.service_url, key.get_secret_value(), payload
                 )
+                # Preserve received usage even if parsing, revocation or settlement fails.
+                # The outcome remains unknown until the immutable result commits.
+                await asyncio.to_thread(record_attempt, attempt.id, "unknown", counts)
                 text, counts = extract_content(
                     raw, content_type, counts, key.get_secret_value()
                 )
@@ -251,8 +255,8 @@ async def process_submission(identity: uuid.UUID) -> None:
                         counts=counts,
                     ) from None
             # Keep 'unknown' until the result and award commit: a crash can retry within the durable budget.
-            await asyncio.to_thread(settle, identity, result)
-            await asyncio.to_thread(record_attempt, attempt.id, "ok", counts)
+            if await asyncio.to_thread(settle, identity, result):
+                await asyncio.to_thread(record_attempt, attempt.id, "ok", counts)
             return
         except ProbeError as error:
             if attempt:
@@ -261,7 +265,9 @@ async def process_submission(identity: uuid.UUID) -> None:
                 )
             submission, _ = await asyncio.to_thread(read_submission, identity)
             if error.retry and submission.attempts < submission.attempt_limit:
-                await asyncio.sleep(BACKOFF_SECONDS[(submission.attempts - 1) % 3])
+                # A dispatch has at most three attempts: two remaining -> 1s, one -> 2s.
+                remaining = submission.attempt_limit - submission.attempts
+                await asyncio.sleep(BACKOFF_SECONDS[2 - remaining])
                 continue
             await asyncio.to_thread(
                 fail,

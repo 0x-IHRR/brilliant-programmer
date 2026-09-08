@@ -35,9 +35,9 @@ export function SubmissionForm({ runId, caseData, config }: { runId: string; cas
     }, 1000)
     return () => { active = false; window.clearInterval(timer) }
   }, [runId, checking])
-  function edit(index: number, update: Partial<Answer>) {
+  function edit(judgmentId: string, update: Partial<Answer>) {
     dirty.current = true
-    setAnswers(items => items.map((answer, position) => position === index ? { ...answer, ...update } : answer))
+    setAnswers(items => items.map(answer => answer.judgment_id === judgmentId ? { ...answer, ...update } : answer))
   }
   async function act(operation: () => Promise<{ data: SubmissionState }>) {
     setBusy(true); setError("")
@@ -77,14 +77,16 @@ export function SubmissionForm({ runId, caseData, config }: { runId: string; cas
       pending.current = body
       void act(() => SubmissionsService.submit({ path: { run_id: runId }, body }))
     }}>
-      {caseData.judgments.map((judgment, index) => <fieldset disabled={busy || Boolean(checking)} key={judgment.id} className="min-w-0 space-y-2 border p-2">
+      {caseData.judgments.map(judgment => {
+        const answer = answers.find(item => item.judgment_id === judgment.id)!
+        return <fieldset disabled={busy || Boolean(checking)} key={judgment.id} className="min-w-0 space-y-2 border p-2">
         <legend>{judgment.prompt}</legend>
-        {judgment.kind === "choice" && judgment.options.map((option, position) => <label className="flex items-start gap-2" key={position}><input required type="radio" name={`${runId}-${judgment.id}`} checked={answers[index].value === position} onChange={() => edit(index, { value: position })} /><span>{option}</span></label>)}
-        {judgment.kind === "order" && judgment.options.map((_, step) => <label key={step} className="block">第 {step + 1} 步<select required className={inputClass} value={(answers[index].value as number[])[step] < 0 ? "" : (answers[index].value as number[])[step]} onChange={e => edit(index, { value: (answers[index].value as number[]).map((value, i) => i === step ? Number(e.target.value) : value) })}><option value="">请选择顺序</option>{judgment.options.map((item, position) => <option key={position} value={position}>{item}</option>)}</select></label>)}
-        {judgment.kind === "prediction" && <label className="block">你的预测<textarea required maxLength={6000} className={inputClass} value={String(answers[index].value)} onChange={e => edit(index, { value: e.target.value })} /></label>}
-        <label className="block">这一判断的理由<textarea required maxLength={6000} className={inputClass} value={answers[index].reason} onChange={e => edit(index, { reason: e.target.value })} /></label>
+        {judgment.kind === "choice" && judgment.options.map((option, position) => <label className="flex items-start gap-2" key={position}><input required type="radio" name={`${runId}-${judgment.id}`} checked={answer.value === position} onChange={() => edit(judgment.id, { value: position })} /><span>{option}</span></label>)}
+        {judgment.kind === "order" && judgment.options.map((_, step) => <label key={step} className="block">第 {step + 1} 步<select required className={inputClass} value={(answer.value as number[])[step] < 0 ? "" : (answer.value as number[])[step]} onChange={e => edit(judgment.id, { value: (answer.value as number[]).map((value, i) => i === step ? Number(e.target.value) : value) })}><option value="">请选择顺序</option>{judgment.options.map((item, position) => <option key={position} value={position}>{item}</option>)}</select></label>)}
+        {judgment.kind === "prediction" && <label className="block">你的预测<textarea required maxLength={6000} className={inputClass} value={String(answer.value)} onChange={e => edit(judgment.id, { value: e.target.value })} /></label>}
+        <label className="block">这一判断的理由<textarea required maxLength={6000} className={inputClass} value={answer.reason} onChange={e => edit(judgment.id, { reason: e.target.value })} /></label>
         {latest?.relevance.find(item => item.judgment_id === judgment.id && item.status !== "related") && <p>此项理由待补充，与正确性无关。</p>}
-      </fieldset>)}
+      </fieldset>})}
       {config ? <>
         <p className="break-all">本次交卷检查接收方：{config.service_url} · {config.model_id}</p>
         <label className="flex items-start gap-2"><input type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} /><span>允许将当前公开题面和本次作答发送给此模型，仅检查理由相关性。每次最多 3 次尝试，同一提交至多 6 次；重试可能计费，可靠性未验证。</span></label>

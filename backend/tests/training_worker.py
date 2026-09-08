@@ -62,7 +62,33 @@ original_fail = submission_worker.fail
 
 
 def fail_settle(*args):
-    if json.loads(control.read_text()).get("fail_settlement"):
+    options = json.loads(control.read_text())
+    if options.get("revoke_at_settlement") or options.get("stop_at_settlement"):
+        import uuid
+
+        from sqlmodel import Session
+
+        from app.core.db import engine
+        from app.model_config.models import ModelConfig
+        from app.model_config.service import decrypt, encrypt
+        from app.training.models import TrainingRun
+        from app.training.submission_models import Submission
+
+        with Session(engine) as session:
+            submission = session.get(Submission, args[0])
+            if options.get("stop_at_settlement"):
+                submission.stop_requested = True
+                submission.status, submission.code = "stopped", "stopped"
+                session.add(submission)
+            else:
+                run = session.get(TrainingRun, submission.run_id)
+                config = session.get(ModelConfig, run.user_id)
+                secret = decrypt(config)
+                config.version = uuid.uuid4()
+                config.encrypted_key = encrypt(config, secret)
+                session.add(config)
+            session.commit()
+    if options.get("fail_settlement"):
         raise RuntimeError("PRIVATE_SUBMISSION_SENTINEL")
     return original_settle(*args)
 

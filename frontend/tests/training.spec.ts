@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { expect, test } from "@playwright/test"
 
 test("真实任务恢复、隐藏答案隔离和320px键盘工作台", async ({ page }) => {
@@ -33,9 +34,34 @@ test("真实任务恢复、隐藏答案隔离和320px键盘工作台", async ({ 
   await page.keyboard.press("Enter")
   await expect(training.getByText(/理由仍无关或相关性无法确认/)).toBeVisible()
   await expect(training.getByText(/本轮修为：0 点/)).toBeVisible()
-  for (let i = 0; i < 3; i++) await reasons.nth(i).fill("我还是不明白。")
-  await training.getByRole("button", { name: "提交同轮补充（保留原答）", exact: true }).click()
+  const headers = { Authorization: `Bearer ${process.env.TRAINING_BROWSER_TOKEN}` }
+  const tasks = await (await page.request.get("/api/v1/training/tasks", { headers })).json()
+  const submissionUrl = `/api/v1/training/tasks/${tasks[0].id}/submissions`
+  const original = (await (await page.request.get(submissionUrl, { headers })).json()).submissions[0]
+  const reordered = [
+    { judgment_id: "j3", value: "不会执行", reason: "午饭准备吃饺子。" },
+    { judgment_id: "j2", value: [2, 1, 0], reason: "仍旧不明白。" },
+    { judgment_id: "j1", value: 1, reason: "我还是不明白。" },
+  ]
+  const acceptedApi = await page.request.post(submissionUrl, { headers, data: {
+    request_id: randomUUID(), expected_config_version: tasks[0].config_version,
+    disclosure_accepted: true, previous_submission_id: original.id, answers: reordered,
+  } })
+  expect(acceptedApi.status()).toBe(202)
+  await page.reload()
+  await training.getByRole("button", { name: "判断", exact: true }).click()
   await expect(training.getByText(/请补充：你的理由与当前任务有什么关系/)).toBeVisible()
+  await expect(training.getByRole("radio").nth(1)).toBeChecked()
+  await expect(training.getByLabel("第 1 步")).toHaveValue("2")
+  await expect(training.getByLabel("第 2 步")).toHaveValue("1")
+  await expect(training.getByLabel("第 3 步")).toHaveValue("0")
+  await expect(reasons.nth(0)).toHaveValue("我还是不明白。")
+  await expect(reasons.nth(1)).toHaveValue("仍旧不明白。")
+  await expect(reasons.nth(2)).toHaveValue("午饭准备吃饺子。")
+  await training.getByLabel("第 1 步").selectOption("0")
+  await training.getByLabel("第 3 步").selectOption("2")
+  await training.getByRole("checkbox").last().check()
+  expect((await (await page.request.get(submissionUrl, { headers })).json()).submissions[1].answers).toEqual(reordered)
   for (let i = 0; i < 3; i++) await reasons.nth(i).fill("仍旧不明白。")
   await training.getByRole("button", { name: "提交同轮补充（保留原答）", exact: true }).click()
   await expect(training.getByText(/理由仍无关或相关性无法确认/)).toBeVisible()

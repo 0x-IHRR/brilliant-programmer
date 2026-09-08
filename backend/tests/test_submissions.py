@@ -560,3 +560,70 @@ def test_unexpected_settlement_failure_has_safe_recovery(
     state = wait_submission(auth, run_id)
     assert state["total_points"] == 10 and len(state["submissions"]) == 1
     assert len(state["submissions"][0]["attempts"]) == 2
+
+
+def test_early_stop_retry_uses_all_three_remaining_attempts(ready, provider):
+    _, auth, run_id, config, _, _ = ready
+    provider["mode"] = "hold"
+    provider["received"].clear()
+    body = payload(config)
+    assert client.post(url(run_id), headers=auth, json=body).status_code == 202
+    assert provider["received"].wait(8)
+    assert (
+        client.post(
+            url(run_id) + f"/{body['request_id']}/stop", headers=auth
+        ).status_code
+        == 200
+    )
+    provider["mode"] = "temporary"
+    provider["release"].set()
+    assert (
+        client.post(
+            url(run_id) + f"/{body['request_id']}/retry", headers=auth
+        ).status_code
+        == 202
+    )
+    state = wait_submission(auth, run_id)
+    submission = state["submissions"][0]
+    assert len(submission["attempts"]) == 4
+    assert [a["code"] for a in submission["attempts"]][1:] == ["temporary_service"] * 3
+    assert submission["code"] == "temporary_service"
+    assert state["total_points"] == 0 and state["completed_at"] is None
+
+
+@pytest.mark.parametrize(
+    "boundary", ["fail_settlement", "revoke_at_settlement", "stop_at_settlement"]
+)
+def test_received_usage_survives_settlement_outcome(ready, provider, boundary):
+    _, auth, run_id, config, _, control = ready
+    options = json.loads(control.read_text())
+    control.write_text(json.dumps({**options, boundary: True}))
+    body = payload(config)
+    assert client.post(url(run_id), headers=auth, json=body).status_code == 202
+    state = wait_submission(auth, run_id)
+    submission = state["submissions"][0]
+    assert submission["attempts"][0]["prompt_tokens"] == 11
+    assert submission["attempts"][0]["completion_tokens"] == 9
+    assert submission["attempts"][0]["total_tokens"] == 20
+    assert submission["attempts"][0]["code"] == "unknown"
+    assert submission["answers"] == body["answers"]
+    assert len(submission["attempts"]) == 1
+    assert state["total_points"] == 0 and state["completed_at"] is None
+    assert len(provider["requests"]) == 2
+    if boundary != "stop_at_settlement":
+        assert submission["status"] == "failed"
+        assert submission["code"] == (
+            "configuration_revoked" if boundary == "revoke_at_settlement" else "internal_failure"
+        )
+    if boundary == "stop_at_settlement":
+        assert submission["status"] == "stopped" and submission["can_retry"]
+        control.write_text(json.dumps(options))
+        assert (
+            client.post(
+                url(run_id) + f"/{body['request_id']}/retry", headers=auth
+            ).status_code
+            == 202
+        )
+        state = wait_submission(auth, run_id)
+        assert state["total_points"] == 10 and len(state["submissions"]) == 1
+        assert len(state["submissions"][0]["attempts"]) == 2
