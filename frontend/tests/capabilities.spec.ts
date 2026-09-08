@@ -50,6 +50,7 @@ test("verified catalog, keyboard prerequisites, mobile zoom and retry", async ({
   await page.setViewportSize({ width: 320, height: 800 })
   await page.evaluate(() => { document.documentElement.style.fontSize = "200%" })
   await map.scrollIntoViewIfNeeded()
+  await page.screenshot({ path: "test-results/capability-map-mobile-viewport.png" })
   await page.screenshot({ path: "test-results/capability-map-mobile.png", fullPage: true })
   const overflow = await page.evaluate(() => Array.from(document.querySelectorAll("body *")).filter(el => el.getBoundingClientRect().right > innerWidth).map(el => `${el.tagName}#${el.id}`))
   expect(overflow).toEqual([])
