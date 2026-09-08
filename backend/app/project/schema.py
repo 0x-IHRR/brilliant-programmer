@@ -2,6 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
+from app.model_config.output import check_output
 from app.training.schema import Strict, Text
 
 Sha = Annotated[str, Field(pattern=r"^[0-9a-f]{40}$")]
@@ -76,8 +77,7 @@ class Snapshot(Strict):
 
 
 def validate_map(raw: str, fragments: list[Fragment], key: str) -> MapCandidate:
-    if key and key in raw:
-        raise ValueError("secret echoed")
+    check_output(raw, key)
     candidate = MapCandidate.model_validate_json(raw)
     for finding in candidate.findings:
         for location in finding.evidence:

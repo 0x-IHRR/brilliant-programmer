@@ -19,6 +19,7 @@ class Submit(BaseModel):
     request_id: uuid.UUID
     expected_config_version: uuid.UUID
     disclosure_accepted: bool
+    evaluate_after_submit: bool = False
     answers: list[Answer] = Field(min_length=1, max_length=4)
     # Optimistic lineage stops two different devices silently replacing one another.
     previous_submission_id: uuid.UUID | None = None

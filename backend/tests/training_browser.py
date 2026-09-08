@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from tests.test_evaluations import grading
 from tests.test_model_config import account, save
 from tests.test_training import provider, start_worker, stop_worker
 
@@ -13,6 +14,7 @@ with tempfile.TemporaryDirectory(prefix="training-browser-") as directory:
     fixture = provider.__wrapped__(path)
     supplier = next(fixture)
     supplier["all_kinds"] = True
+    supplier["grading"] = lambda context: grading(context, "unclear")
     supplier["relevance_labels"] = {"午饭准备吃饺子。": "unrelated", "我还是不明白。": "unclear", "仍旧不明白。": "unclear"}
     process = None
     try:
