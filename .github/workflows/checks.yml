@@ -35,6 +35,8 @@ jobs:
       - run: bun run --cwd frontend build
       - run: cd frontend && bunx playwright install --with-deps chromium
       - run: |
-          uv run --directory backend uvicorn app.main:app --host 127.0.0.1 --port 18080 --no-proxy-headers > /tmp/api.log 2>&1 &
+          (cd backend && exec ../.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 18080 --no-proxy-headers) > /tmp/api.log 2>&1 &
+          api_pid=$!
+          trap 'kill "$api_pid" 2>/dev/null || true; wait "$api_pid" 2>/dev/null || true' EXIT
           for attempt in $(seq 1 30); do curl -fsS http://127.0.0.1:18080/health && break; sleep 1; done
           bun run --cwd frontend test
