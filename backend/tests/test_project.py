@@ -541,3 +541,70 @@ def test_repeated_queue_dispatch_cannot_reanalyze_completed_task(tmp_path, provi
         assert wait_run(auth, identity) == original and len(provider["requests"]) == 1
     finally:
         stop_worker(process)
+
+
+@pytest.mark.parametrize("failure_after", [0, 4])
+def test_source_retry_preserves_stage_and_budget(tmp_path, provider, failure_after):
+    if failure_after:
+        provider["github_fail_after"] = failure_after
+    else:
+        provider["github_status"] = 429
+    auth, identity = start_project(provider)
+    process, _ = start_worker(tmp_path, provider, identity)
+    try:
+        result = wait_run(auth, identity)
+        assert result["code"] == "github_rate_limited", result
+        assert result["attempts"] == [] and provider["requests"] == []
+        with Session(engine) as session:
+            run = session.get(ProjectRun, uuid.UUID(identity))
+            assert not run.acquisition_done
+            before = run.source_requests
+            assert before == len(provider["gets"])
+            if failure_after:
+                assert run.snapshot["requests"] == before
+                assert run.commit == SHA
+        provider.pop("github_fail_after", None)
+        provider.pop("github_status", None)
+        assert (
+            client.post(f"/api/v1/projects/{identity}/retry", headers=auth).status_code
+            == 202
+        )
+        result = wait_run(auth, identity)
+        assert result["status"] == "completed", result
+        assert len(provider["requests"]) == 1
+        with Session(engine) as session:
+            run = session.get(ProjectRun, uuid.UUID(identity))
+            assert run.source_requests == len(provider["gets"]) > before
+            assert run.snapshot["requests"] == run.source_requests
+            assert run.source_bytes > 0
+            assert run.commit == SHA
+    finally:
+        stop_worker(process)
+
+
+def test_source_retry_cannot_reset_request_limit(tmp_path, provider):
+    provider["github_status"] = 429
+    auth, identity = start_project(provider)
+    process, _ = start_worker(tmp_path, provider, identity)
+    try:
+        assert wait_run(auth, identity)["code"] == "github_rate_limited"
+        with Session(engine) as session:
+            run = session.get(ProjectRun, uuid.UUID(identity))
+            run.source_requests = 47
+            session.add(run)
+            session.commit()
+        assert (
+            client.post(f"/api/v1/projects/{identity}/retry", headers=auth).status_code
+            == 202
+        )
+        assert wait_run(auth, identity)["code"] == "github_rate_limited"
+        assert len(provider["gets"]) == 2
+        assert (
+            client.post(f"/api/v1/projects/{identity}/retry", headers=auth).status_code
+            == 409
+        )
+        assert provider["requests"] == []
+        with Session(engine) as session:
+            assert session.get(ProjectRun, uuid.UUID(identity)).source_requests == 48
+    finally:
+        stop_worker(process)

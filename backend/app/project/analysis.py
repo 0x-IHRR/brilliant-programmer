@@ -10,6 +10,23 @@ from app.project.schema import Finding, Fragment, Location, ProjectMap
 def syntax_map(fragments: list[Fragment]) -> ProjectMap:
     findings: list[Finding] = []
     missing: list[str] = []
+    contexts: dict[str, str] = {}
+    for path in {item.path for item in fragments}:
+        parts = sorted(
+            (item for item in fragments if item.path == path),
+            key=lambda item: item.start,
+        )
+        next_line = 1
+        texts: list[str] = []
+        for part in parts:
+            if part.start != next_line or part.blob != parts[0].blob:
+                break
+            texts.append(part.text)
+            next_line = part.end + 1
+        if parts and next_line == parts[0].total_lines + 1:
+            contexts[path] = "\n".join(
+                line for text in texts for line in text.splitlines()
+            )
     for fragment in fragments:
         path = fragment.path
         lines = fragment.text.splitlines()
@@ -61,13 +78,29 @@ def syntax_map(fragments: list[Fragment]) -> ProjectMap:
         )
         if path.endswith(".py"):
             try:
-                tree = ast.parse(fragment.text)
+                if path not in contexts:
+                    missing.append(
+                        f"{path}：缺少完整连续上下文，仅确认读取范围；语法关系未核实"
+                    )
+                    continue
+                tree = ast.parse(contexts[path])
+                # Rebase only nodes whose source starts inside this retained fragment.
+                nodes = [
+                    node
+                    for node in ast.walk(tree)
+                    if isinstance(node, (ast.stmt, ast.expr))
+                    and fragment.start <= node.lineno <= fragment.end
+                ]
+                for node in nodes:
+                    node.lineno -= fragment.start - 1
+                    if node.end_lineno is not None:
+                        node.end_lineno = node.end_lineno - fragment.start + 1
             except SyntaxError, ValueError, RecursionError:
                 missing.append(
                     f"{path}：片段无法完整解析 Python 语法，调用/状态/存储关系未核实"
                 )
                 continue
-            for node in ast.walk(tree):
+            for node in nodes:
                 if isinstance(node, ast.If) and ast.dump(node.test) == ast.dump(
                     ast.parse('__name__ == "__main__"', mode="eval").body
                 ):

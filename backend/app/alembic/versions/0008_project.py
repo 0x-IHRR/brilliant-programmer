@@ -26,6 +26,8 @@ def upgrade():
         sa.Column("message",sa.String(),nullable=False),
         sa.Column("stop_requested",sa.Boolean(),nullable=False),
         sa.Column("acquisition_done",sa.Boolean(),nullable=False),
+        sa.Column("source_requests",sa.Integer(),nullable=False,server_default="0"),
+        sa.Column("source_bytes",sa.BigInteger(),nullable=False,server_default="0"),
         sa.Column("attempts",sa.Integer(),nullable=False),
         sa.Column("generation",sa.Integer(),nullable=False),
         sa.Column("generation_attempts",sa.Integer(),nullable=False),

@@ -134,6 +134,10 @@ class GitHub:
                                 "github_rate_limited",
                                 "GitHub 限流；请稍后主动重试，已核对成果保留",
                             )
+                        if response.status in {500, 502, 503, 504}:
+                            raise ProbeError(
+                                "github_temporary", "GitHub 暂时不可用；可稍后主动继续"
+                            )
                         if response.status == 404:
                             raise ProbeError(
                                 "github_unavailable",
@@ -169,12 +173,13 @@ class GitHub:
             httpcore.NetworkError,
             httpcore.ProtocolError,
             httpcore.TimeoutException,
-            ValueError,
-            RecursionError,
         ):
             raise ProbeError(
-                "github_unavailable", "GitHub 无法安全读取；已核对成果保留，可主动重试"
+                "github_temporary", "GitHub 连接暂时失败；已核对成果保留，可主动重试"
             ) from None
+
+        except ValueError, RecursionError:
+            raise ProbeError("github_invalid", "GitHub 响应无法安全解析") from None
 
     async def resolve(self, url: str) -> Repository:
         owner, name, kind, tail = parse_url(url)

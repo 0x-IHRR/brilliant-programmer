@@ -215,3 +215,6 @@ API 全套测试需先完成迁移和 `app.initial_data`，并设置对应 Mailp
 可重复检查：`uv run --directory backend pytest tests/test_submissions.py -q`，再串行运行 `backend/tests/training_browser.py`（上文命令）。**同一数据库的受控 worker 测试必须串行**：各测试临时 TLS 证书不同，并行会互抢同队列任务，导致真实证书校验拒绝。证据覆盖三题型错误但相关的完成、缺项／无关／含糊、原答不变、同身份及同内容重放、并发不同输入、事务故障整体回滚、停止与结算两种精确锁顺序、旧配置撤销、六次预算、真实 SIGKILL 恢复；浏览器覆盖一次澄清、真实 202 响应丢失后恢复、手机键盘及 320px/200% 交卷和结果。截图在 `frontend/test-results/submission-input-mobile.png`、`submission-input-mobile-200.png`、`training-mobile.png`、`submission-mobile-200.png`。本机合成数据和受控 TLS 验证不能替代真实模型相关性准确性、完整评分或教学效果验收；未部署、未使用真实付费模型或外发邮件。
 
 本次本机检查：完整后端运行 154 项中 141 通过，13 项旧邮件测试因未显式设置本票 Mailpit 端口失败；设置 `MAILPIT_URL=http://127.0.0.1:18095 NO_PROXY=127.0.0.1,localhost` 后 `pytest tests --lf -q` 的 13 项全部通过。停止后主动重试 1 项、异常结算／失败标记不可用恢复 2 项另行通过，未将分次结果表述为单次全套通过。新空 schema 已从 0001 完整升级到 0007；额外 `alembic check` 对第三方 Procrastinate 自管表仍报告待删除（既有边界，未执行任何自动删除），本票 partial indexes 已与 ORM 对齐。失败标记不可用采用独立 worker 中的受控异常，未模拟整个 PostgreSQL 集群持续断网。
+
+
+项目来源恢复补充：GitHub 限流、连接暂时失败与 500/502/503/504 会保留原错误及读取阶段，可显式继续同一任务；固定 commit、片段、模型预算和累计来源请求/已接收字节不重置。请求在派发前持久预留，48 次上限包含失败与崩溃中的派发；认证、404、无效响应及范围错误不进入自动重试。语法确认仅使用已保留的完整连续文件上下文；单独中间范围仍可阅读和引用，但缺失前文时不确认调用或入口，避免把多行字符串内容误认代码。

@@ -11,10 +11,10 @@ from app.model_config.connection import Attempt
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.models import User
-from app.project.github import parse_url
+from app.project.github import MAX_REQUESTS, parse_url
 from app.project.models import ProjectAttempt, ProjectRun
 from app.project.schema import ProjectMap, Snapshot
-from app.project.worker import RETRYABLE, analyze_project
+from app.project.worker import RETRYABLE, SOURCE_RETRYABLE, analyze_project
 from app.training.queue import DSN
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -173,7 +173,8 @@ def retry_project(
         run.status != "failed"
         or run.attempts >= 6
         or run.generation_attempts >= 3
-        or run.code not in RETRYABLE | {"internal_failure"}
+        or run.code not in RETRYABLE | SOURCE_RETRYABLE | {"internal_failure"}
+        or (run.code in SOURCE_RETRYABLE and run.source_requests >= MAX_REQUESTS)
     ):
         raise HTTPException(
             409, "本轮不可继续重试或预算已耗尽；停止代表本轮结束，可主动重分析新一轮"

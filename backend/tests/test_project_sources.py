@@ -315,6 +315,7 @@ def test_malicious_source_is_only_parsed(tmp_path):
     [
         (200, b"", None),
         (404, b"", "github_unavailable"),
+        (503, b"", "github_temporary"),
         (403, b"X-RateLimit-Remaining: 0\r\n", "github_rate_limited"),
         (302, b"Location: https://evil.example/\r\n", "github_unavailable"),
         (200, b"Content-Encoding: gzip\r\n", "github_encoding"),
@@ -383,3 +384,37 @@ def test_actual_github_tls_request(tmp_path, monkeypatch, status, extra, expecte
     assert b"Authorization" not in requests[0] and requests[0].startswith(
         b"GET /repos/o/r "
     )
+
+
+def test_middle_docstring_is_not_confirmed_code():
+    text = '"""documentation\nif __name__ == "__main__":\n    open("fake.db")\n"""\n'
+
+    def part(start, end):
+        return Fragment(
+            path="main.py",
+            blob=SHA,
+            start=start,
+            end=end,
+            total_lines=4,
+            text="\n".join(text.splitlines()[start - 1 : end]),
+        )
+
+    middle = syntax_map([part(2, 3)])
+    assert {item.kind for item in middle.confirmed} == {"module"}
+    assert any("上下文" in item for item in middle.missing)
+    whole = syntax_map([part(1, 1), part(2, 3), part(4, 4)])
+    assert {item.kind for item in whole.confirmed} == {"module"}
+    code = Fragment(
+        path="main.py",
+        blob=SHA,
+        start=1,
+        end=2,
+        total_lines=2,
+        text='if __name__ == "__main__":\n    open("real.db")',
+    )
+    assert {item.kind for item in syntax_map([code]).confirmed} == {
+        "module",
+        "entry",
+        "call",
+        "storage",
+    }

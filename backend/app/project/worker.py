@@ -20,12 +20,14 @@ from app.model_config.connection import (
 from app.model_config.service import lock_owner
 from app.project.acquisition import acquire
 from app.project.analysis import syntax_map
-from app.project.github import SECRET, GitHub
+from app.project.github import MAX_REQUESTS, SECRET, GitHub
 from app.project.models import ProjectAttempt, ProjectRun
 from app.project.schema import MapCandidate, ProjectMap, Snapshot, validate_map
 from app.training.gate import call_credential
 from app.training.generation import extract_content
 from app.training.queue import queue
+
+SOURCE_RETRYABLE = {"github_rate_limited", "github_temporary"}
 
 TERMINAL = {"completed", "failed", "stopped"}
 RETRYABLE = {
@@ -45,6 +47,17 @@ def read_run(identity: uuid.UUID) -> ProjectRun:
         if not run:
             raise ValueError("missing project")
         return run
+
+
+def source_metrics(identity: uuid.UUID, requests: int, size: int) -> None:
+    with Session(engine) as session:
+        run = session.exec(
+            select(ProjectRun).where(ProjectRun.id == identity).with_for_update()
+        ).one()
+        run.source_requests = max(run.source_requests, requests)
+        run.source_bytes = max(run.source_bytes, size)
+        session.add(run)
+        session.commit()
 
 
 def finish(
@@ -227,9 +240,22 @@ async def process(identity: uuid.UUID) -> None:
             current = await asyncio.to_thread(read_run, identity)
             if current.stop_requested or current.status in TERMINAL:
                 raise asyncio.CancelledError
-            yield
+            # Reserve before dispatch so a killed worker cannot reuse this request slot.
+            await asyncio.to_thread(
+                source_metrics,
+                identity,
+                min(client.requests + 1, MAX_REQUESTS),
+                client.bytes,
+            )
+            try:
+                yield
+            finally:
+                await asyncio.to_thread(
+                    source_metrics, identity, client.requests, client.bytes
+                )
 
     client = GitHub(authorize_source)
+    client.requests, client.bytes = run.source_requests, run.source_bytes
     if run.snapshot is None:
         try:
             repository = await client.resolve(run.url)
@@ -248,8 +274,13 @@ async def process(identity: uuid.UUID) -> None:
             return
         run = await asyncio.to_thread(read_run, identity)
     snapshot = Snapshot.model_validate(run.snapshot)
+    snapshot = snapshot.model_copy(
+        update={
+            "requests": max(snapshot.requests, run.source_requests),
+            "bytes": max(snapshot.bytes, run.source_bytes),
+        }
+    )
     if not run.acquisition_done:
-        missing = None
         try:
             async for current in acquire(client, snapshot):
                 snapshot = current
@@ -257,17 +288,21 @@ async def process(identity: uuid.UUID) -> None:
                 if (await asyncio.to_thread(read_run, identity)).stop_requested:
                     return
         except ProbeError as error:
-            missing = error.message
-        await asyncio.to_thread(
-            checkpoint, identity, snapshot, done=True, missing=missing
-        )
+            snapshot = snapshot.model_copy(
+                update={"requests": client.requests, "bytes": client.bytes}
+            )
+            await asyncio.to_thread(
+                checkpoint, identity, snapshot, missing=error.message
+            )
+            await asyncio.to_thread(finish, identity, error.code, error.message)
+            return
+        await asyncio.to_thread(checkpoint, identity, snapshot, done=True)
         if not snapshot.fragments:
             await asyncio.to_thread(
                 finish,
                 identity,
                 "insufficient_sources",
-                missing
-                or "没有可安全读取的必要文本；已核对目录保留，请核对项目或指定文件范围",
+                "没有可安全读取的必要文本；已核对目录保留，请核对项目或指定文件范围",
             )
             return
     while True:
