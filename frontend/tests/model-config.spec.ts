@@ -29,7 +29,7 @@ test("personal config saves without provider requests, survives reload and delet
   await page.getByLabel("模型 ID", { exact: true }).fill("synthetic-model")
   const fakeKey = "browser-fake-key-no-provider"
   await page.getByLabel("API Key", { exact: true }).fill(fakeKey)
-  await page.getByRole("checkbox").check()
+  await page.getByRole("checkbox", { name: "我已知晓运营者可解密，以及上述指定服务和必要学习材料接收范围。" }).check()
   await page.getByRole("button", { name: "保存配置", exact: true }).click()
   await expect(page.getByText("配置已保存。未调用模型服务，连接和教学质量尚未验证。")).toBeVisible()
   await expect(page.locator("#model-key")).toHaveValue("")
@@ -120,7 +120,7 @@ test("personal config saves without provider requests, survives reload and delet
   await expect(page.locator("#model-key")).toHaveValue("")
   await page.getByLabel("模型 ID", { exact: true }).fill("synthetic-replacement")
   await page.locator("#model-key").fill("browser-replacement-fake-key")
-  await page.getByRole("checkbox").check()
+  await page.getByRole("checkbox", { name: "我已知晓运营者可解密，以及上述指定服务和必要学习材料接收范围。" }).check()
   // A failed save clears Key but preserves ordinary inputs and actual saved state.
   await page.route("**/api/v1/model-config", route => route.request().method() === "PUT" ? route.abort() : route.continue())
   await page.getByRole("button", { name: "保存配置", exact: true }).click()
