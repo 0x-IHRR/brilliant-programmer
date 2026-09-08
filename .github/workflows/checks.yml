@@ -1,0 +1,42 @@
+name: checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: bp
+          POSTGRES_PASSWORD: ci-only-database-password
+          POSTGRES_DB: bp
+        ports: ['15432:5432']
+        options: --health-cmd "pg_isready -U bp -d bp" --health-interval 2s --health-retries 20
+    env:
+      SECRET_KEY: ci-only-secret-32-characters-minimum
+      DATABASE_URL: postgresql://bp:ci-only-database-password@127.0.0.1:15432/bp
+      FIRST_SUPERUSER: admin@example.com
+      FIRST_SUPERUSER_PASSWORD: ci-only-admin-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.4
+      - run: uv sync --all-packages --locked
+      - run: uv run --directory backend alembic upgrade head
+      - run: uv run --directory backend python -m app.initial_data
+      - run: uv run --directory backend ruff check app tests
+      - run: uv run --directory backend mypy app
+      - run: uv run --directory backend pytest tests -q
+      - run: bun install --frozen-lockfile
+      - run: bun run --cwd frontend build
+      - run: cd frontend && bunx playwright install --with-deps chromium
+      - run: |
+          (cd backend && exec ../.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 18080 --no-proxy-headers) > /tmp/api.log 2>&1 &
+          api_pid=$!
+          trap 'kill "$api_pid" 2>/dev/null || true; wait "$api_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do curl -fsS http://127.0.0.1:18080/health && break; sleep 1; done
+          bun run --cwd frontend test
