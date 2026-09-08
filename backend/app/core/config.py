@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str | None = None
     SMTP_FROM: EmailStr = "verification@example.com"
     SMTP_PORT: int = Field(default=11025, ge=1, le=65535)
+    PASSWORD_RESET_EXPIRE_MINUTES: int = Field(default=30, ge=1, le=1440)
     VERIFICATION_EXPIRE_MINUTES: int = Field(default=30, ge=1, le=1440)
 
     @field_validator("DATABASE_URL", mode="before")

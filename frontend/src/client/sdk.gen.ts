@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, capabilitiesReadCatalogData, capabilitiesReadCatalogResponses, healthHealthData, healthHealthResponses, modelconfigDeleteConfigData, modelconfigDeleteConfigErrors, modelconfigDeleteConfigResponses, modelconfigReadConfigData, modelconfigReadConfigResponses, modelconfigSaveConfigData, modelconfigSaveConfigErrors, modelconfigSaveConfigResponses } from './types.gen';
+import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsPasswordResetEmailData, accountsPasswordResetEmailErrors, accountsPasswordResetEmailResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsResetPasswordData, accountsResetPasswordErrors, accountsResetPasswordResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, capabilitiesReadCatalogData, capabilitiesReadCatalogResponses, healthHealthData, healthHealthResponses, modelconfigDeleteConfigData, modelconfigDeleteConfigErrors, modelconfigDeleteConfigResponses, modelconfigReadConfigData, modelconfigReadConfigResponses, modelconfigSaveConfigData, modelconfigSaveConfigErrors, modelconfigSaveConfigResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -142,6 +142,36 @@ export class AccountsService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/users/me/verify-email',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+
+    /**
+     * Password Reset Email
+     */
+    public static passwordResetEmail<ThrowOnError extends boolean = true>(options: Options<accountsPasswordResetEmailData, ThrowOnError>) {
+        return (options.client ?? client).post<accountsPasswordResetEmailResponses, accountsPasswordResetEmailErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/password-reset/request',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+
+    /**
+     * Reset Password
+     */
+    public static resetPassword<ThrowOnError extends boolean = true>(options: Options<accountsResetPasswordData, ThrowOnError>) {
+        return (options.client ?? client).post<accountsResetPasswordResponses, accountsResetPasswordErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/password-reset/confirm',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
