@@ -77,6 +77,17 @@ def accept(*args):
 
 
 worker.accept_candidate = accept
+original_record_submission = submission_worker.record_attempt
+
+
+def record_submission(*args):
+    while args[1] == "ok" and json.loads(control.read_text()).get("before_submission_ok"):
+        Path(str(control) + ".submission_ok_pending").touch()
+        time.sleep(0.02)
+    return original_record_submission(*args)
+
+
+submission_worker.record_attempt = record_submission
 original_settle = submission_worker.settle
 original_fail = submission_worker.fail
 

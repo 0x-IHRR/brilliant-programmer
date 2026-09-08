@@ -491,9 +491,24 @@ def test_worker_kill_recovers_same_submission_budget(ready, provider):
     time.sleep(0.7)
     provider["mode"] = "ok"
     provider["release"].set()
-    recovered, _ = start_worker(control.parent, provider, run_id)
+    recovered, _ = start_worker(control.parent, provider, run_id, before_submission_ok=True)
     try:
+        deadline = time.monotonic() + 5
+        while not control.with_name(control.name + ".submission_ok_pending").exists():
+            assert time.monotonic() < deadline, "worker did not reach final attempt write"
+            time.sleep(0.02)
         state = wait_submission(auth, run_id)
+        # Settlement commits before the separate durable attempt outcome.
+        assert state["total_points"] == 10
+        assert [a["code"] for a in state["submissions"][0]["attempts"]] == ["unknown", "unknown"]
+        options = json.loads(control.read_text())
+        options["before_submission_ok"] = False
+        control.write_text(json.dumps(options))
+        deadline = time.monotonic() + 5
+        while state["submissions"][0]["attempts"][-1]["code"] == "unknown":
+            assert time.monotonic() < deadline, "final attempt outcome was not persisted"
+            state = wait_submission(auth, run_id)
+            time.sleep(0.02)
         assert state["total_points"] == 10
         assert (
             len(state["submissions"]) == 1
@@ -505,6 +520,9 @@ def test_worker_kill_recovers_same_submission_budget(ready, provider):
         ]
         assert len(provider["requests"]) == 3
     finally:
+        options = json.loads(control.read_text())
+        options["before_submission_ok"] = False
+        control.write_text(json.dumps(options))
         stop_worker(recovered)
 
 
