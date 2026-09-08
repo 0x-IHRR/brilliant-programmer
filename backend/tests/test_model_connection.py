@@ -11,6 +11,7 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
+from fastapi import Response
 
 from app.model_config import connection, routes
 from app.model_config.connection import (
@@ -131,6 +132,15 @@ def certificate(tmp_path, hostname):
         "temporary",
         "invalid",
         "compressed",
+        "auth_slow",
+        "forbidden_slow",
+        "balance_slow",
+        "failure_usage",
+        "invalid_usage",
+        "sse_incomplete_usage",
+        "sse_timeout_usage",
+        "sse_cut_usage",
+        "partial_json_usage",
     ],
 )
 def test_real_tls_http_boundary(tmp_path, monkeypatch, mode, caplog):
@@ -223,15 +233,35 @@ def test_real_tls_http_boundary(tmp_path, monkeypatch, mode, caplog):
                     ).encode()
                 if mode == "compressed":
                     extra = b"Content-Encoding: gzip\r\n"
+                if mode in ("auth_slow", "forbidden_slow", "balance_slow"):
+                    status = {
+                        "auth_slow": 401,
+                        "forbidden_slow": 403,
+                        "balance_slow": 402,
+                    }[mode]
+                if mode in ("failure_usage", "invalid_usage", "partial_json_usage"):
+                    status = 503 if mode == "failure_usage" else 200
+                    content = b'{"usage":{"prompt_tokens":3,"completion_tokens":false,"total_tokens":9},"choices":[]}'
+                    if mode == "partial_json_usage":
+                        content = content[:-1]
+                if mode.startswith("sse_"):
+                    mime = "text/event-stream"
+                    content = b'data: {"choices":[],"usage":{"prompt_tokens":3,"completion_tokens":false,"total_tokens":9}}\n\n'
+                length = len(content) + (
+                    20 if mode in ("sse_timeout_usage", "sse_cut_usage") else 0
+                )
                 writer.write(
-                    f"HTTP/1.1 {status} Reply\r\nContent-Type: {mime}\r\nContent-Length: {len(content)}\r\nConnection: close\r\n".encode()
+                    f"HTTP/1.1 {status} Reply\r\nContent-Type: {mime}\r\nContent-Length: {length}\r\nConnection: close\r\n".encode()
                     + extra
                     + b"\r\n"
                 )
-                if mode == "slow":
+                if mode in ("slow", "auth_slow", "forbidden_slow", "balance_slow"):
+                    await writer.drain()
                     await asyncio.sleep(0.2)
                 writer.write(content)
                 await writer.drain()
+                if mode == "sse_timeout_usage":
+                    await asyncio.sleep(0.2)
             except ConnectionError, asyncio.IncompleteReadError:
                 pass
             finally:
@@ -273,7 +303,13 @@ def test_real_tls_http_boundary(tmp_path, monkeypatch, mode, caplog):
             return stream
 
         monkeypatch.setattr(httpcore.AnyIOBackend, "connect_tcp", local_wire)
-        if mode == "slow":
+        if mode in (
+            "slow",
+            "auth_slow",
+            "forbidden_slow",
+            "balance_slow",
+            "sse_timeout_usage",
+        ):
             monkeypatch.setattr(connection, "ATTEMPT_SECONDS", 0.05)
         try:
             draft = ProbeInput(
@@ -293,13 +329,54 @@ def test_real_tls_http_boundary(tmp_path, monkeypatch, mode, caplog):
                 "temporary": "temporary_service",
                 "invalid": "service_rejected",
                 "compressed": "encoding",
+                "failure_usage": "temporary_service",
+                "invalid_usage": "invalid_response",
+                "sse_incomplete_usage": "invalid_response",
+                "sse_timeout_usage": "timeout",
+                "sse_cut_usage": "transport",
+                "partial_json_usage": "invalid_response",
             }
-            if mode in errors:
+            if mode in ("auth_slow", "forbidden_slow", "balance_slow"):
+                monkeypatch.setattr(routes, "recheck_caller", lambda _token: None)
+                result = await routes.probe(
+                    "test", draft, "synthetic", None, Response()
+                )
+                assert not result.ok and result.code == (
+                    "balance" if mode == "balance_slow" else "authentication"
+                )
+                assert (
+                    len(result.attempts) == 1
+                    and result.attempts[0].total_tokens is None
+                )
+            elif mode in errors:
                 with pytest.raises(ProbeError) as error:
                     await request_once(draft, "test")
                 assert error.value.code == errors[mode], repr(error.value.__context__)
-                assert error.value.retry == (mode in ("slow", "limited", "temporary"))
+                assert error.value.retry == (
+                    mode
+                    in (
+                        "slow",
+                        "limited",
+                        "temporary",
+                        "failure_usage",
+                        "sse_timeout_usage",
+                    )
+                )
                 assert FAKE_KEY not in error.value.message
+                if mode in (
+                    "failure_usage",
+                    "invalid_usage",
+                    "sse_incomplete_usage",
+                    "sse_timeout_usage",
+                    "sse_cut_usage",
+                ):
+                    assert error.value.counts == {
+                        "prompt_tokens": 3,
+                        "completion_tokens": None,
+                        "total_tokens": 9,
+                    }
+                else:
+                    assert error.value.counts == connection.usage(None)
             else:
                 models, counts = await request_once(
                     draft, "models" if mode == "list" else "test"
@@ -426,10 +503,14 @@ def test_api_draft_is_explicit_owned_and_three_attempts_are_bounded(
 
     async def temporary(*_args):
         calls.append(1)
-        raise ProbeError("timeout", "超时", True)
+        raise ProbeError(
+            "timeout", "超时", True, counts=connection.usage({"total_tokens": 9})
+        )
 
     monkeypatch.setattr(routes, "request_once", temporary)
-    assert len(client.post(url, headers=auth, json=body()).json()["attempts"]) == 3
+    failed = client.post(url, headers=auth, json=body()).json()["attempts"]
+    assert len(failed) == 3
+    assert all(a["total_tokens"] == 9 and a["prompt_tokens"] is None for a in failed)
     assert len(calls) == 3
     assert FAKE_KEY not in caplog.text
 

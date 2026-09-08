@@ -113,7 +113,7 @@ async def probe(
         try:
             models, counts = await request_once(body, kind)
         except ProbeError as error:
-            attempts.append(Attempt(number=index + 1, code=error.code))
+            attempts.append(Attempt(number=index + 1, code=error.code, **error.counts))
             if error.retry and index < 2:
                 await asyncio.sleep(BACKOFF_SECONDS[index])
                 continue

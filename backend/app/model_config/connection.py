@@ -50,8 +50,15 @@ class ProbeResult(BaseModel):
 
 
 class ProbeError(Exception):
-    def __init__(self, code: str, message: str, retry: bool = False):
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        retry: bool = False,
+        counts: dict[str, int | None] | None = None,
+    ):
         self.code, self.message, self.retry = code, message, retry
+        self.counts = counts if counts is not None else usage(None)
         super().__init__(message)
 
 
@@ -115,17 +122,48 @@ def usage(value: Any) -> dict[str, int | None]:
     }
 
 
+def received_usage(
+    raw: bytes, content_type: str, complete: bool
+) -> dict[str, int | None]:
+    """Keep only complete provider JSON/ SSE events, even when the reply failed."""
+    counts = usage(None)
+    if content_type == "application/json":
+        events = [raw] if complete else []
+    elif content_type == "text/event-stream":
+        events = [
+            b"\n".join(
+                line[5:].lstrip(b" ")
+                for line in event.splitlines()
+                if line.startswith(b"data:")
+            )
+            for event in raw.replace(b"\r\n", b"\n").split(b"\n\n")[:-1]
+        ]
+    else:
+        events = []
+    for event in events:
+        try:
+            current = usage(json.loads(event).get("usage"))
+        except ValueError, TypeError, AttributeError, RecursionError:
+            continue
+        counts.update(
+            {name: value for name, value in current.items() if value is not None}
+        )
+    return counts
+
+
 def parse_reply(
     raw: bytes, content_type: str, listing: bool, key: str
 ) -> tuple[list[str], dict[str, int | None]]:
+    counts = received_usage(raw, content_type, True)
     invalid = ProbeError(
-        "invalid_response", "服务响应格式无效；可修改配置后主动重试或手填模型 ID"
+        "invalid_response",
+        "服务响应格式无效；可修改配置后主动重试或手填模型 ID",
+        counts=counts,
     )
     try:
         text = raw.decode("utf-8")
         if not listing and content_type == "text/event-stream":
             parts: list[str] = []
-            counts = usage(None)
             done = False
             for event in text.replace("\r\n", "\n").split("\n\n"):
                 data = "\n".join(
@@ -151,15 +189,12 @@ def parse_reply(
                             if not isinstance(content, str):
                                 raise invalid
                             parts.append(content)
-                if chunk.get("usage") is not None:
-                    counts = usage(chunk["usage"])
             if not done or not "".join(parts).strip():
                 raise invalid
             return [], counts
         if content_type != "application/json":
             raise invalid
         value = json.loads(text)
-        counts = usage(value.get("usage"))
         if listing:
             entries = value["data"]
             if not isinstance(entries, list) or len(entries) > 2000:
@@ -203,6 +238,9 @@ async def request_once(
         ).encode()
     )
     key = body.api_key.get_secret_value()
+    raw = bytearray()
+    content_type = ""
+    complete = False
     try:
         async with asyncio.timeout(ATTEMPT_SECONDS):
             # Direct pool has no environment proxies, redirects, retries or persisted connections.
@@ -226,17 +264,40 @@ async def request_once(
                         )
                     },
                 ) as response:
+                    # These status headers alone are final. Do not wait for an error body.
+                    if response.status in (401, 403):
+                        raise ProbeError(
+                            "authentication",
+                            "服务拒绝认证或权限，请检查 Key 与模型权限",
+                        )
+                    if response.status == 402:
+                        raise ProbeError(
+                            "balance", "服务报告余额或额度不足，请到服务商核对"
+                        )
                     if 300 <= response.status < 400:
                         raise ProbeError(
                             "redirect", "服务返回跳转，未跟随；请核对最终服务地址"
                         )
-                    raw = bytearray()
+                    headers = {name.lower(): value for name, value in response.headers}
+                    if (
+                        headers.get(b"content-encoding", b"identity").lower()
+                        != b"identity"
+                    ):
+                        raise ProbeError("encoding", "服务返回不支持的压缩格式")
+                    content_type = (
+                        headers.get(b"content-type", b"")
+                        .decode("ascii", "replace")
+                        .split(";")[0]
+                        .strip()
+                        .lower()
+                    )
                     async for chunk in response.aiter_stream():
                         raw.extend(chunk)
                         if len(raw) > MAX_BYTES:
                             raise ProbeError(
                                 "too_large", "服务响应超过 1 MiB，已停止读取"
                             )
+                    complete = True
                     if response.status != 200:
                         # Only machine-readable known quota codes influence retries; never echo text.
                         quota = False
@@ -253,12 +314,7 @@ async def request_once(
                             )
                         except ValueError, AttributeError, TypeError, RecursionError:
                             pass
-                        if response.status in (401, 403):
-                            raise ProbeError(
-                                "authentication",
-                                "服务拒绝认证或权限，请检查 Key 与模型权限",
-                            )
-                        if quota or response.status == 402:
+                        if quota:
                             raise ProbeError(
                                 "balance", "服务报告余额或额度不足，请到服务商核对"
                             )
@@ -278,23 +334,16 @@ async def request_once(
                             "service_rejected",
                             "服务不支持或拒绝本次请求；可检查配置、手填模型 ID",
                         )
-                    headers = {name.lower(): value for name, value in response.headers}
-                    if (
-                        headers.get(b"content-encoding", b"identity").lower()
-                        != b"identity"
-                    ):
-                        raise ProbeError("encoding", "服务返回不支持的压缩格式")
-                    content_type = (
-                        headers.get(b"content-type", b"")
-                        .decode("ascii", "replace")
-                        .split(";")[0]
-                        .strip()
-                        .lower()
-                    )
                     return parse_reply(bytes(raw), content_type, listing, key)
+    except ProbeError as error:
+        error.counts = received_usage(bytes(raw[:MAX_BYTES]), content_type, complete)
+        raise
     except TimeoutError, httpcore.TimeoutException:
         raise ProbeError(
-            "timeout", "模型调用超时，可主动重试；已发请求可能计费", True
+            "timeout",
+            "模型调用超时，可主动重试；已发请求可能计费",
+            True,
+            counts=received_usage(bytes(raw), content_type, complete),
         ) from None
     except httpcore.ConnectError as exc:
         cause: BaseException | None = exc
@@ -309,5 +358,7 @@ async def request_once(
         raise ProbeError("connection", "暂时无法连接模型服务", True) from None
     except httpcore.NetworkError, httpcore.ProtocolError:
         raise ProbeError(
-            "transport", "服务连接中断或协议无效；请检查配置后主动重试"
+            "transport",
+            "服务连接中断或协议无效；请检查配置后主动重试",
+            counts=received_usage(bytes(raw), content_type, complete),
         ) from None

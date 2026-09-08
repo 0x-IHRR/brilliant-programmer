@@ -16,6 +16,7 @@ export function ModelConfig({ action, busy }: Props) {
   const [probe, setProbe] = useState<ProbeResult | null>(null)
   const [hasDraftKey, setHasDraftKey] = useState(false)
   const editVersion = useRef(0)
+  const keyVersion = useRef(0)
   const keyInput = useRef<HTMLInputElement>(null)
   function changed() {
     editVersion.current++
@@ -42,6 +43,7 @@ export function ModelConfig({ action, busy }: Props) {
     event.preventDefault()
     changed()
     const version = editVersion.current
+    const submittedKeyVersion = keyVersion.current
     await action(async () => {
       const key = keyInput.current?.value ?? ""
       try {
@@ -56,7 +58,7 @@ export function ModelConfig({ action, busy }: Props) {
           setNotice("配置已保存。未调用模型服务，连接和教学质量尚未验证。")
         }
       } finally {
-        if (version === editVersion.current) {
+        if (submittedKeyVersion === keyVersion.current) {
           if (keyInput.current) keyInput.current.value = ""
           setHasDraftKey(false)
         }
@@ -66,6 +68,7 @@ export function ModelConfig({ action, busy }: Props) {
   async function runProbe(kind: "test" | "models") {
     changed()
     const version = editVersion.current
+    const submittedKeyVersion = keyVersion.current
     const key = keyInput.current?.value ?? ""
     if (!url || !key || !accepted || (kind === "test" && !model)) return
     await action(async () => {
@@ -77,7 +80,7 @@ export function ModelConfig({ action, busy }: Props) {
       } catch (error) {
         if (version === editVersion.current) throw error
       } finally {
-        if (version === editVersion.current) {
+        if (submittedKeyVersion === keyVersion.current) {
           if (keyInput.current) keyInput.current.value = ""
           setHasDraftKey(false)
         }
@@ -95,7 +98,7 @@ export function ModelConfig({ action, busy }: Props) {
       <div><Label htmlFor="model-id">模型 ID</Label>
         <Input id="model-id" required maxLength={255} value={model} onChange={e => { changed(); setModel(e.target.value) }} /></div>
       <div><Label htmlFor="model-key">API Key{saved ? "（留空保留，变更地址必须重填）" : ""}</Label>
-        <Input id="model-key" ref={keyInput} type="password" autoComplete="new-password" required={!saved || url.replace(/\/+$/, "") !== saved.service_url} maxLength={4096} onChange={e => { changed(); setHasDraftKey(Boolean(e.target.value)) }} />
+        <Input id="model-key" ref={keyInput} type="password" autoComplete="new-password" required={!saved || url.replace(/\/+$/, "") !== saved.service_url} maxLength={4096} onChange={e => { keyVersion.current++; changed(); setHasDraftKey(Boolean(e.target.value)) }} />
         <p>Key 仅在输入期间暂存；每次提交后清空，失败时请重新输入。</p></div>
       <label className="flex gap-2 items-start"><input type="checkbox" checked={accepted} onChange={e => { changed(); setAccepted(e.target.checked) }} required />我已知晓运营者可解密，以及上述指定服务和必要学习材料接收范围。</label>
       <Button type="submit" disabled={busy || !loaded}>保存配置</Button>
@@ -111,7 +114,7 @@ export function ModelConfig({ action, busy }: Props) {
           <option value="">请选择，不自动替换当前模型</option>
           {(probe.models ?? []).map(id => <option key={id} value={id}>{id}</option>)}
         </select></div>}
-      <p>本次操作共 {(probe.attempts ?? []).length} 次尝试；以下为服务商返回的 token，不是完整账单。</p>
+      <p>本次操作共 {(probe.attempts ?? []).length} 次尝试；以下为服务商返回的 token，不是完整账单。实际费用请查看模型服务商账单。</p>
       {(probe.attempts ?? []).map(a => <p key={a.number}>第 {a.number} 次：{a.code}；输入 {a.prompt_tokens ?? "未知"}，输出 {a.completion_tokens ?? "未知"}，合计 {a.total_tokens ?? "未知"}。</p>)}
     </div>}
     <Button variant="outline" disabled={busy} onClick={() => action(async () => { await load(); setNotice("已读取服务端配置，未保存输入已丢弃。") })}>刷新配置</Button>

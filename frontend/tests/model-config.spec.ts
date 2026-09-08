@@ -63,6 +63,7 @@ test("personal config saves without provider requests, survives reload and delet
   await expect(page.locator("#model-id")).toHaveValue("")
   expect(probes[0]).toMatchObject({ model_id: "", api_key: "fake-draft-key" })
   await expect(page.getByText("第 1 次：ok；输入 未知，输出 未知，合计 未知。")).toBeVisible()
+  await expect(page.getByText("实际费用请查看模型服务商账单。", { exact: false })).toBeVisible()
   expect(await page.locator("script").filter({ hasText: "unsafe" }).count()).toBe(0)
   await page.locator("#returned-model").selectOption("actual-service-model")
   await expect(page.locator("#model-id")).toHaveValue("actual-service-model")
@@ -77,8 +78,17 @@ test("personal config saves without provider requests, survives reload and delet
   await expect(page.getByRole("button", { name: "获取模型 ID", exact: true })).toBeEnabled()
   await expect(page.locator("#returned-model")).toHaveCount(0)
   await expect(page.locator("#model-key")).toHaveValue("fake-new-draft-key")
+  // Ordinary edits still discard the submitted Key when the delayed probe finishes.
+  release = undefined
+  await page.getByRole("button", { name: "获取模型 ID", exact: true }).click()
+  await expect.poll(() => Boolean(release)).toBe(true)
+  await page.locator("#model-id").fill("changed-during-probe")
+  release!()
+  await expect(page.getByRole("button", { name: "保存配置", exact: true })).toBeEnabled()
+  await expect(page.locator("#model-key")).toHaveValue("")
   delay = false
   fail = true
+  await page.locator("#model-key").fill("fake-draft-key")
   await page.getByRole("button", { name: "获取模型 ID", exact: true }).click()
   await expect(page.getByText("服务不支持模型列表，可继续手填。")).toBeVisible()
   await page.locator("#model-id").fill("manual-after-failure")
@@ -87,6 +97,24 @@ test("personal config saves without provider requests, survives reload and delet
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   expect((await (await request.get("/api/v1/model-config", { headers })).json()).version).toBe(oldVersion)
   await page.unroute("**/api/v1/model-config/probe/*")
+  // The same Key-specific cleanup rule applies to failed saves.
+  let releaseSave: (() => void) | undefined
+  await page.route("**/api/v1/model-config", async route => {
+    if (route.request().method() !== "PUT") return route.continue()
+    await new Promise<void>(resolve => { releaseSave = resolve })
+    await route.abort()
+  })
+  for (const editKey of [false, true]) {
+    releaseSave = undefined
+    await page.locator("#model-key").fill("fake-submitted-save-key")
+    await page.getByRole("button", { name: "保存配置", exact: true }).click()
+    await expect.poll(() => Boolean(releaseSave)).toBe(true)
+    await page.locator(editKey ? "#model-key" : "#model-id").fill(editKey ? "fake-new-save-key" : "changed-during-save")
+    releaseSave!()
+    await expect(page.getByRole("button", { name: "保存配置", exact: true })).toBeEnabled()
+    await expect(page.locator("#model-key")).toHaveValue(editKey ? "fake-new-save-key" : "")
+  }
+  await page.unroute("**/api/v1/model-config")
   await page.reload()
   await expect(page.getByLabel("模型 ID", { exact: true })).toHaveValue("synthetic-model")
   await expect(page.locator("#model-key")).toHaveValue("")
