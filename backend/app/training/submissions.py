@@ -11,6 +11,8 @@ from app.api.deps import SessionDep
 from app.model_config.connection import Attempt
 from app.model_config.models import ModelConfig
 from app.model_config.service import decrypt, lock_owner
+from app.training.evaluation_models import Evaluation
+from app.training.events import next_event
 from app.training.queue import DSN
 from app.training.routes import VerifiedUser, owned
 from app.training.schema import Candidate
@@ -130,7 +132,11 @@ def submit(
         ensure_ascii=False,
     )
     digest = hashlib.sha256(
-        (str(body.expected_config_version) + serialized).encode()
+        (
+            str(body.expected_config_version)
+            + ("evaluation" if body.evaluate_after_submit else "")
+            + serialized
+        ).encode()
     ).hexdigest()
     existing = session.get(Submission, body.request_id)
     if existing:
@@ -144,7 +150,13 @@ def submit(
     ).first()
     if duplicate:
         return state(session, run_id, user.id)
-    if run.formal_submitted_at:
+    evaluation = session.get(Evaluation, run.id)
+    review = bool(evaluation and evaluation.frozen_sequence is not None)
+    if evaluation and not review:
+        raise HTTPException(
+            409, "本轮评估已开始；许可中性补答请使用评分区域，原答不能覆盖"
+        )
+    if run.formal_submitted_at and not review:
         raise HTTPException(409, "本轮已完成，原答不可覆盖；复盘改答由后续功能提供")
     latest = session.exec(
         select(Submission)
@@ -166,11 +178,15 @@ def submit(
         raise HTTPException(422, "作答疑似包含秘密，请脱敏后提交；检测不保证零漏报")
     submission = Submission(
         id=body.request_id,
+        sequence=next_event(session, run.id),
+        evaluate_after_submit=body.evaluate_after_submit,
         run_id=run.id,
         answers=answers,
         input_hash=digest,
         original_id=(latest.original_id or latest.id) if latest else None,
-        kind="clarification"
+        kind="supplement"
+        if review
+        else "clarification"
         if latest and latest.neutral_clarification
         else "supplement"
         if latest
@@ -181,7 +197,15 @@ def submit(
     )
     session.add(submission)
     session.flush()
-    enqueue(session, submission)
+    if review:
+        submission.status, submission.code, submission.message = (
+            "completed",
+            "review_saved",
+            "复盘补充已保存，原答和冻结评分不变；未再次调用模型、评分或奖励",
+        )
+        session.add(submission)
+    else:
+        enqueue(session, submission)
     session.commit()
     return state(session, run_id, user.id)
 

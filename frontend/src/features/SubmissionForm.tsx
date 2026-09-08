@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react"
 import { SubmissionsService, type Answer, type ModelConfigPublic, type PublicCase, type SubmissionState, type Submit } from "../client"
+import { Evaluation } from "./Evaluation"
 import { Button } from "../components/ui/button"
 
 export function SubmissionForm({ runId, caseData, config }: { runId: string; caseData: PublicCase; config: ModelConfigPublic | null }) {
   const [answers, setAnswers] = useState<Answer[]>(caseData.judgments.map(j => ({ judgment_id: j.id, value: j.kind === "order" ? j.options.map(() => -1) : "", reason: "" })))
   const [state, setState] = useState<SubmissionState | null>(null)
   const [accepted, setAccepted] = useState(false)
+  const [reviewAllowed, setReviewAllowed] = useState(false)
+  const [reviewing, setReviewing] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState("")
   const dirty = useRef(false)
@@ -68,10 +71,11 @@ export function SubmissionForm({ runId, caseData, config }: { runId: string; cas
       {latest.can_retry && <Button className={buttonClass} disabled={busy} onClick={() => act(() => SubmissionsService.retrySubmission({ path: { run_id: runId, submission_id: latest.id } }))}>重试原提交检查（可能计费）</Button>}
     </>}
     {error && <p role="alert">{error}</p>}
-    {!completed && <form className="space-y-3" onSubmit={event => {
+    {completed && reviewAllowed && <Button className={buttonClass} variant="outline" onClick={() => setReviewing(value => !value)}>{reviewing ? "收起复盘补充" : "编辑复盘补充"}</Button>}
+    {(!completed || reviewing) && <form className="space-y-3" onSubmit={event => {
       event.preventDefault()
       if (!config || !accepted || !state) return
-      const body: Submit = { request_id: "", answers, disclosure_accepted: true, expected_config_version: config.version, previous_submission_id: latest?.id ?? null }
+      const body: Submit = { request_id: "", answers, disclosure_accepted: true, evaluate_after_submit: !completed, expected_config_version: config.version, previous_submission_id: latest?.id ?? null }
       const old = pending.current
       body.request_id = old && JSON.stringify({ ...old, request_id: "" }) === JSON.stringify(body) ? old.request_id : crypto.randomUUID()
       pending.current = body
@@ -89,9 +93,10 @@ export function SubmissionForm({ runId, caseData, config }: { runId: string; cas
       </fieldset>})}
       {config ? <>
         <p className="break-all">本次交卷检查接收方：{config.service_url} · {config.model_id}</p>
-        <label className="flex items-start gap-2"><input type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} /><span>允许将当前公开题面和本次作答发送给此模型，仅检查理由相关性。每次最多 3 次尝试，同一提交至多 6 次；重试可能计费，可靠性未验证。</span></label>
-        <Button className={buttonClass} type="submit" disabled={!state || !accepted || busy || Boolean(checking)}>{latest ? "提交同轮补充（保留原答）" : "正式交卷"}</Button>
+        <label className="flex items-start gap-2"><input type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} /><span>{completed ? "保存本轮复盘补充，保留原答及冻结评分；不再次调用模型、评分或奖励。" : "允许将当前公开题面与作答发送给此模型检查相关性；完成后继续发送当前冻结题、来源、原答及一次许可补答，逐项生成简短反馈。每次最多 3 次尝试，同一提交至多 6 次；重试可能计费，可靠性未验证。"}</span></label>
+        <Button className={buttonClass} type="submit" disabled={!state || !accepted || busy || Boolean(checking)}>{completed ? "保存复盘补充（不重评）" : latest ? "提交同轮补充（保留原答）" : "正式交卷"}</Button>
       </> : <p>请保存模型配置并重新读取目的地后交卷；已有记录仍保留。</p>}
     </form>}
+    <Evaluation runId={runId} caseData={caseData} config={config} submitted={completed} onFrozen={setReviewAllowed} />
   </div>
 }

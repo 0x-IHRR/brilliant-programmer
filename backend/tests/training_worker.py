@@ -105,7 +105,7 @@ submission_worker.fail = fail_marker
 
 async def run():
     async with queue.open_async():
-        for task_name in ("training.generate", "training.check_submission"):
+        for task_name in ("training.generate", "training.check_submission", "training.evaluate"):
             for job in await queue.job_manager.get_stalled_jobs(
                 task_name=task_name, seconds_since_heartbeat=0.5
             ):
