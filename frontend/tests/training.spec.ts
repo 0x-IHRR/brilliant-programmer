@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { expect, test } from "@playwright/test"
 
 test("真实任务恢复、隐藏答案隔离和320px键盘工作台", async ({ page }) => {
@@ -20,12 +21,90 @@ test("真实任务恢复、隐藏答案隔离和320px键盘工作台", async ({ 
   await training.getByRole("radio").first().focus()
   await page.keyboard.press("Space")
   await expect(training.getByRole("radio").first()).toBeChecked()
-  await training.getByRole("textbox", { name: "这一判断的理由" }).fill("应先核对确认是否丢失。")
-  await expect(training.getByText(/尚未保存或正式交卷/)).toBeVisible()
+  const reasons = training.getByRole("textbox", { name: "这一判断的理由" })
+  await training.getByRole("radio").nth(1).check()
+  await training.getByLabel("第 1 步").selectOption("2")
+  await training.getByLabel("第 2 步").selectOption("1")
+  await training.getByLabel("第 3 步").selectOption("0")
+  await training.getByRole("textbox", { name: "你的预测", exact: true }).fill("不会执行")
+  await expect(training.getByText(/编辑中的输入尚未自动保存/)).toBeVisible()
+  for (let i = 0; i < 3; i++) await reasons.nth(i).fill("午饭准备吃饺子。")
+  await training.getByRole("checkbox").last().check()
+  await training.getByRole("button", { name: "正式交卷", exact: true }).focus()
+  await page.keyboard.press("Enter")
+  await expect(training.getByText(/理由仍无关或相关性无法确认/)).toBeVisible()
+  await expect(training.getByText(/本轮修为：0 点/)).toBeVisible()
+  const headers = { Authorization: `Bearer ${process.env.TRAINING_BROWSER_TOKEN}` }
+  const tasks = await (await page.request.get("/api/v1/training/tasks", { headers })).json()
+  const submissionUrl = `/api/v1/training/tasks/${tasks[0].id}/submissions`
+  const original = (await (await page.request.get(submissionUrl, { headers })).json()).submissions[0]
+  const reordered = [
+    { judgment_id: "j3", value: "不会执行", reason: "午饭准备吃饺子。" },
+    { judgment_id: "j2", value: [2, 1, 0], reason: "仍旧不明白。" },
+    { judgment_id: "j1", value: 1, reason: "我还是不明白。" },
+  ]
+  const acceptedApi = await page.request.post(submissionUrl, { headers, data: {
+    request_id: randomUUID(), expected_config_version: tasks[0].config_version,
+    disclosure_accepted: true, previous_submission_id: original.id, answers: reordered,
+  } })
+  expect(acceptedApi.status()).toBe(202)
+  await page.reload()
+  await training.getByRole("button", { name: "判断", exact: true }).click()
+  await expect(training.getByText(/请补充：你的理由与当前任务有什么关系/)).toBeVisible()
+  await expect(training.getByRole("radio").nth(1)).toBeChecked()
+  await expect(training.getByLabel("第 1 步")).toHaveValue("2")
+  await expect(training.getByLabel("第 2 步")).toHaveValue("1")
+  await expect(training.getByLabel("第 3 步")).toHaveValue("0")
+  await expect(reasons.nth(0)).toHaveValue("我还是不明白。")
+  await expect(reasons.nth(1)).toHaveValue("仍旧不明白。")
+  await expect(reasons.nth(2)).toHaveValue("午饭准备吃饺子。")
+  await training.getByLabel("第 1 步").selectOption("0")
+  await training.getByLabel("第 3 步").selectOption("2")
+  await training.getByRole("checkbox").last().check()
+  expect((await (await page.request.get(submissionUrl, { headers })).json()).submissions[1].answers).toEqual(reordered)
+  for (let i = 0; i < 3; i++) await reasons.nth(i).fill("仍旧不明白。")
+  await training.getByRole("button", { name: "提交同轮补充（保留原答）", exact: true }).click()
+  await expect(training.getByText(/理由仍无关或相关性无法确认/)).toBeVisible()
+  await expect(training.getByText(/请补充：你的理由与当前任务有什么关系/)).toHaveCount(0)
+  for (let i = 0; i < 3; i++) await reasons.nth(i).fill("不知道原因，需要查看本题请求和确认材料。")
+  await page.evaluate(() => { document.documentElement.style.fontSize = "200%" })
+  const submitButton = training.getByRole("button", { name: "提交同轮补充（保留原答）", exact: true })
+  await submitButton.scrollIntoViewIfNeeded()
+  await expect(submitButton).toBeVisible()
+  await page.screenshot({ path: "test-results/submission-input-mobile-200.png" })
+  const overflow = await page.evaluate(() => [...document.querySelectorAll("body *")].filter(e => e.getBoundingClientRect().right > innerWidth + 1).map(e => ({ tag: e.tagName, cls: e.className, width: e.getBoundingClientRect().width })))
+  expect(overflow).toEqual([])
+  await page.evaluate(() => { document.documentElement.style.fontSize = "" })
+  await submitButton.scrollIntoViewIfNeeded()
+  await page.screenshot({ path: "test-results/submission-input-mobile.png" })
+  await page.route("**/api/v1/training/tasks/*/submissions", async route => {
+    if (route.request().method() !== "POST") return route.continue()
+    // The real API accepted the immutable input; only the response is lost.
+    await route.fetch()
+    await route.abort("connectionreset")
+  })
+  await training.getByRole("button", { name: "提交同轮补充（保留原答）", exact: true }).click()
+  await expect(training.getByRole("alert")).toContainText("未确认交卷结果")
+  await expect(reasons.first()).toHaveValue("不知道原因，需要查看本题请求和确认材料。")
+  await page.unroute("**/api/v1/training/tasks/*/submissions")
+  await training.getByRole("button", { name: "重新读取提交结果", exact: true }).click()
+  await expect(training.getByText(/本轮已完成，自动获得 10 点修为/)).toBeVisible()
+  await expect(training.getByText(/本轮修为：10 点 · 累计修为：10 点/)).toBeVisible()
+  await page.reload()
+  await training.getByRole("button", { name: "判断", exact: true }).click()
+  await expect(training.getByText(/本轮修为：10 点 · 累计修为：10 点/)).toBeVisible()
+  await training.getByText("已保存原答与补充记录（4 份）", { exact: true }).click()
+  await expect(training.getByText(/原始作答 · 序号/)).toBeVisible()
+  await expect(training.getByText(/午饭准备吃饺子/).first()).toBeVisible()
   expect(await page.content()).not.toContain("HIDDEN_REASON")
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
-  await training.getByRole("heading", { name: "比较请求证据" }).scrollIntoViewIfNeeded()
+  await training.getByText(/本轮修为：10 点 · 累计修为：10 点/).scrollIntoViewIfNeeded()
   await page.screenshot({ path: "test-results/training-mobile.png" })
+  await page.evaluate(() => { document.documentElement.style.fontSize = "200%" })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await training.getByText(/本轮修为：10 点 · 累计修为：10 点/).scrollIntoViewIfNeeded()
+  await page.screenshot({ path: "test-results/submission-mobile-200.png" })
+  await page.evaluate(() => { document.documentElement.style.fontSize = "" })
   await page.setViewportSize({ width: 1280, height: 900 })
   await expect(training.getByRole("region", { name: "案例材料" })).toBeVisible()
   await expect(training.getByRole("region", { name: "必答判断" })).toBeVisible()

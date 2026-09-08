@@ -21,6 +21,7 @@ fileConfig(config.config_file_name)
 
 from app.model_config.models import ModelConfig  # noqa
 from app.training.models import TrainingRun, TrainingAttempt  # noqa
+from app.training.submission_models import Submission, SubmissionAttempt, PracticeAward  # noqa
 from app.models import SQLModel  # noqa
 from app.core.config import settings # noqa
 

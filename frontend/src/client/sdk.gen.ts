@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsPasswordResetEmailData, accountsPasswordResetEmailErrors, accountsPasswordResetEmailResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsResetPasswordData, accountsResetPasswordErrors, accountsResetPasswordResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, capabilitiesReadCatalogData, capabilitiesReadCatalogResponses, healthHealthData, healthHealthResponses, modelconfigDeleteConfigData, modelconfigDeleteConfigErrors, modelconfigDeleteConfigResponses, modelconfigProbeData, modelconfigProbeErrors, modelconfigProbeResponses, modelconfigReadConfigData, modelconfigReadConfigResponses, modelconfigSaveConfigData, modelconfigSaveConfigErrors, modelconfigSaveConfigResponses, trainingLatestData, trainingLatestResponses, trainingReadData, trainingReadErrors, trainingReadResponses, trainingStartData, trainingStartErrors, trainingStartResponses, trainingStopData, trainingStopErrors, trainingStopResponses } from './types.gen';
+import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsPasswordResetEmailData, accountsPasswordResetEmailErrors, accountsPasswordResetEmailResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsResetPasswordData, accountsResetPasswordErrors, accountsResetPasswordResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, capabilitiesReadCatalogData, capabilitiesReadCatalogResponses, healthHealthData, healthHealthResponses, modelconfigDeleteConfigData, modelconfigDeleteConfigErrors, modelconfigDeleteConfigResponses, modelconfigProbeData, modelconfigProbeErrors, modelconfigProbeResponses, modelconfigReadConfigData, modelconfigReadConfigResponses, modelconfigSaveConfigData, modelconfigSaveConfigErrors, modelconfigSaveConfigResponses, submissionsReadSubmissionsData, submissionsReadSubmissionsErrors, submissionsReadSubmissionsResponses, submissionsRetrySubmissionData, submissionsRetrySubmissionErrors, submissionsRetrySubmissionResponses, submissionsStopSubmissionData, submissionsStopSubmissionErrors, submissionsStopSubmissionResponses, submissionsSubmitData, submissionsSubmitErrors, submissionsSubmitResponses, trainingLatestData, trainingLatestResponses, trainingReadData, trainingReadErrors, trainingReadResponses, trainingStartData, trainingStartErrors, trainingStartResponses, trainingStopData, trainingStopErrors, trainingStopResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -301,6 +301,60 @@ export class TrainingService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/training/tasks/{run_id}/stop',
+            ...options
+        });
+    }
+}
+
+export class SubmissionsService {
+    /**
+     * Read Submissions
+     */
+    public static readSubmissions<ThrowOnError extends boolean = true>(options: Options<submissionsReadSubmissionsData, ThrowOnError>) {
+        return (options.client ?? client).get<submissionsReadSubmissionsResponses, submissionsReadSubmissionsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/submissions',
+            ...options
+        });
+    }
+
+    /**
+     * Submit
+     */
+    public static submit<ThrowOnError extends boolean = true>(options: Options<submissionsSubmitData, ThrowOnError>) {
+        return (options.client ?? client).post<submissionsSubmitResponses, submissionsSubmitErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/submissions',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+
+    /**
+     * Retry Submission
+     */
+    public static retrySubmission<ThrowOnError extends boolean = true>(options: Options<submissionsRetrySubmissionData, ThrowOnError>) {
+        return (options.client ?? client).post<submissionsRetrySubmissionResponses, submissionsRetrySubmissionErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/submissions/{submission_id}/retry',
+            ...options
+        });
+    }
+
+    /**
+     * Stop Submission
+     */
+    public static stopSubmission<ThrowOnError extends boolean = true>(options: Options<submissionsStopSubmissionData, ThrowOnError>) {
+        return (options.client ?? client).post<submissionsStopSubmissionResponses, submissionsStopSubmissionErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/submissions/{submission_id}/stop',
             ...options
         });
     }

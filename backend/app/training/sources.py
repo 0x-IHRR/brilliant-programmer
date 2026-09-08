@@ -30,6 +30,15 @@ REFERENCES = {
 }
 
 
+def contains_secret(text: str) -> bool:
+    return bool(
+        re.search(
+            r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bAKIA[A-Z0-9]{16}\b|\bsk-[A-Za-z0-9_-]{24,}",
+            text,
+        )
+    )
+
+
 class PlainText(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
@@ -89,10 +98,7 @@ async def acquire_source(capability_id: str) -> list[Source]:
             )
             offset = max(0, text.rfind(marker))
         text = text[offset : offset + 6000]
-        if re.search(
-            r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bAKIA[A-Z0-9]{16}\b|\bsk-[A-Za-z0-9_-]{24,}",
-            text,
-        ):
+        if contains_secret(text):
             raise ProbeError(
                 "source_secret", "必要公开片段疑似包含秘密，未发送；请更换方向"
             )

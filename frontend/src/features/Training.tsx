@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { ModelconfigService, TrainingService, type ModelConfigPublic, type TaskPublic } from "../client"
+import { SubmissionForm } from "./SubmissionForm"
 import { Button } from "../components/ui/button"
 
 export function Training() {
@@ -81,7 +82,7 @@ export function Training() {
         <h3 className="text-lg font-semibold">{run.case.title}</h3>
         <p className="whitespace-pre-wrap">{run.case.task}</p>
         <p>{run.case.quality}</p>
-        <div className="flex gap-2 md:hidden"><Button variant="outline" onClick={() => setPanel("materials")}>材料</Button><Button variant="outline" onClick={() => setPanel("judgments")}>判断</Button></div>
+        <div className="flex flex-wrap gap-2 md:hidden"><Button variant="outline" onClick={() => setPanel("materials")}>材料</Button><Button variant="outline" onClick={() => setPanel("judgments")}>判断</Button></div>
         <div className="grid gap-4 md:grid-cols-2">
           <section aria-label="案例材料" className={`${panel === "materials" ? "block" : "hidden"} min-w-0 space-y-3 md:block`}>
             <h4 className="font-semibold">材料与假设</h4>
@@ -91,13 +92,7 @@ export function Training() {
           </section>
           <section aria-label="必答判断" className={`${panel === "judgments" ? "block" : "hidden"} min-w-0 space-y-3 md:block`}>
             <h4 className="font-semibold">作判断</h4>
-            <p>下方输入仅用于当前页面思考，尚未保存或正式交卷。正式作答与反馈将在后续功能接入。</p>
-            {run.case.judgments.map(judgment => <fieldset key={judgment.id} className="space-y-2 border p-2"><legend>{judgment.prompt}</legend>
-              {judgment.kind === "choice" && judgment.options.map((option, index) => <label className="flex items-start gap-2" key={index}><input type="radio" name={`${run.id}-${judgment.id}`} value={index} /><span>{option}</span></label>)}
-              {judgment.kind === "order" && judgment.options.map((option, index) => <label key={index} className="block">第 {index + 1} 步<select className="block w-full min-w-0 rounded border p-2" defaultValue=""><option value="">请选择顺序</option>{judgment.options.map((item, position) => <option key={position} value={position}>{item}</option>)}</select><span className="sr-only">{option}</span></label>)}
-              {judgment.kind === "prediction" && <label className="block">你的预测<textarea className="block w-full rounded border p-2" /></label>}
-              <label className="block">这一判断的理由<textarea className="block w-full rounded border p-2" /></label>
-            </fieldset>)}
+            <SubmissionForm runId={run.id} caseData={run.case} config={config} />
           </section>
         </div>
       </div>}

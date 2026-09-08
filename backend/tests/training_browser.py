@@ -12,6 +12,8 @@ with tempfile.TemporaryDirectory(prefix="training-browser-") as directory:
     path = Path(directory)
     fixture = provider.__wrapped__(path)
     supplier = next(fixture)
+    supplier["all_kinds"] = True
+    supplier["relevance_labels"] = {"午饭准备吃饺子。": "unrelated", "我还是不明白。": "unclear", "仍旧不明白。": "unclear"}
     process = None
     try:
         _, unconfigured_auth = account()
