@@ -120,6 +120,8 @@ def provider(tmp_path):
             context_data = json.loads(payload["messages"][1]["content"])
             if context_data.get("purpose") == "evidence_feedback":
                 value = state["grading"](context_data)
+            elif context_data.get("purpose") in {"concept_generate", "concept_inspect"}:
+                value = state["coach"](context_data)
             elif context_data.get("purpose") == "reason_relevance":
                 value = {
                     "items": [

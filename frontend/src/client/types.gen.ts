@@ -208,6 +208,32 @@ export type Clarify = {
 };
 
 /**
+ * ConceptContent
+ */
+export type ConceptContent = {
+    /**
+     * Plain
+     */
+    plain: string;
+    /**
+     * Example
+     */
+    example: string;
+    /**
+     * Relation
+     */
+    relation: string;
+    /**
+     * Evidence Ids
+     */
+    evidence_ids: Array<string>;
+    /**
+     * Principle
+     */
+    principle?: string | null;
+};
+
+/**
  * Domain
  */
 export type Domain = {
@@ -516,6 +542,163 @@ export type HTTPValidationError = {
      * Detail
      */
     detail?: Array<ValidationError>;
+};
+
+/**
+ * HelpAnswer
+ */
+export type HelpAnswer = {
+    /**
+     * Judgment Id
+     */
+    judgment_id: string;
+    /**
+     * Value
+     */
+    value?: number | Array<number> | string | null;
+    /**
+     * Reason
+     */
+    reason?: string;
+};
+
+/**
+ * HelpCreate
+ */
+export type HelpCreate = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+    input: HelpInput;
+    /**
+     * Parent Id
+     */
+    parent_id?: string | null;
+};
+
+/**
+ * HelpInput
+ */
+export type HelpInput = {
+    /**
+     * Question
+     */
+    question: string;
+    /**
+     * Depth
+     */
+    depth?: 'basic' | 'deep';
+    /**
+     * Answers
+     */
+    answers?: Array<HelpAnswer>;
+};
+
+/**
+ * HelpPublic
+ */
+export type HelpPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Parent Id
+     */
+    parent_id: string | null;
+    input: HelpInput;
+    /**
+     * Created Sequence
+     */
+    created_sequence: number;
+    /**
+     * Generated Sequence
+     */
+    generated_sequence: number | null;
+    /**
+     * Checked Sequence
+     */
+    checked_sequence: number | null;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Direction
+     */
+    direction: string | null;
+    /**
+     * Requires Independent Confirmation
+     */
+    requires_independent_confirmation: boolean;
+    /**
+     * Attempts
+     */
+    attempts: Array<Attempt>;
+    /**
+     * Deliveries
+     */
+    deliveries: Array<PublicDelivery>;
+    /**
+     * Can Retry
+     */
+    can_retry: boolean;
+};
+
+/**
+ * HelpPublication
+ */
+export type HelpPublication = {
+    /**
+     * Help Id
+     */
+    help_id: string;
+    /**
+     * Delivery Id
+     */
+    delivery_id: string;
+    /**
+     * Receipt Token
+     */
+    receipt_token: string;
+    content: ConceptContent;
+    /**
+     * Content Hash
+     */
+    content_hash: string;
+    /**
+     * Exposure Sequence
+     */
+    exposure_sequence: number;
 };
 
 /**
@@ -868,6 +1051,48 @@ export type PublicCase = {
 };
 
 /**
+ * PublicDelivery
+ */
+export type PublicDelivery = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Sequence
+     */
+    sequence: number;
+    /**
+     * Exposure Sequence
+     */
+    exposure_sequence: number;
+    /**
+     * Attempt Id
+     */
+    attempt_id: string | null;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Delivered Text
+     */
+    delivered_text: string;
+    /**
+     * Direction
+     */
+    direction: string | null;
+    /**
+     * Occurred At
+     */
+    occurred_at: string;
+    /**
+     * Evidence
+     */
+    evidence: string;
+};
+
+/**
  * PublicEvidence
  */
 export type PublicEvidence = {
@@ -953,6 +1178,16 @@ export type RelevanceItem = {
      * Status
      */
     status: 'related' | 'unrelated' | 'unclear';
+};
+
+/**
+ * RenderingReceipt
+ */
+export type RenderingReceipt = {
+    /**
+     * Token
+     */
+    token: string;
 };
 
 /**
@@ -2327,6 +2562,208 @@ export type evaluationsStopEvaluationResponses = {
 };
 
 export type evaluationsStopEvaluationResponse = evaluationsStopEvaluationResponses[keyof evaluationsStopEvaluationResponses];
+
+export type conceptsListHelpData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help';
+};
+
+export type conceptsListHelpErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type conceptsListHelpError = conceptsListHelpErrors[keyof conceptsListHelpErrors];
+
+export type conceptsListHelpResponses = {
+    /**
+     * Response Concepts-List Help
+     *
+     * Successful Response
+     */
+    200: Array<HelpPublic>;
+};
+
+export type conceptsListHelpResponse = conceptsListHelpResponses[keyof conceptsListHelpResponses];
+
+export type conceptsRequestHelpData = {
+    body: HelpCreate;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help';
+};
+
+export type conceptsRequestHelpErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type conceptsRequestHelpError = conceptsRequestHelpErrors[keyof conceptsRequestHelpErrors];
+
+export type conceptsRequestHelpResponses = {
+    /**
+     * Successful Response
+     */
+    202: HelpPublic;
+};
+
+export type conceptsRequestHelpResponse = conceptsRequestHelpResponses[keyof conceptsRequestHelpResponses];
+
+export type conceptsRetryHelpData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/retry';
+};
+
+export type conceptsRetryHelpErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type conceptsRetryHelpError = conceptsRetryHelpErrors[keyof conceptsRetryHelpErrors];
+
+export type conceptsRetryHelpResponses = {
+    /**
+     * Successful Response
+     */
+    202: HelpPublic;
+};
+
+export type conceptsRetryHelpResponse = conceptsRetryHelpResponses[keyof conceptsRetryHelpResponses];
+
+export type conceptsStopHelpData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/stop';
+};
+
+export type conceptsStopHelpErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type conceptsStopHelpError = conceptsStopHelpErrors[keyof conceptsStopHelpErrors];
+
+export type conceptsStopHelpResponses = {
+    /**
+     * Successful Response
+     */
+    200: HelpPublic;
+};
+
+export type conceptsStopHelpResponse = conceptsStopHelpResponses[keyof conceptsStopHelpResponses];
+
+export type conceptsPublishHelpData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/deliver';
+};
+
+export type conceptsPublishHelpErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type conceptsPublishHelpError = conceptsPublishHelpErrors[keyof conceptsPublishHelpErrors];
+
+export type conceptsPublishHelpResponses = {
+    /**
+     * Successful Response
+     */
+    200: HelpPublication;
+};
+
+export type conceptsPublishHelpResponse = conceptsPublishHelpResponses[keyof conceptsPublishHelpResponses];
+
+export type conceptsConfirmRenderingData = {
+    body: RenderingReceipt;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+        /**
+         * Delivery Id
+         */
+        delivery_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/deliveries/{delivery_id}/receipt';
+};
+
+export type conceptsConfirmRenderingErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type conceptsConfirmRenderingError = conceptsConfirmRenderingErrors[keyof conceptsConfirmRenderingErrors];
+
+export type conceptsConfirmRenderingResponses = {
+    /**
+     * Successful Response
+     */
+    200: HelpPublic;
+};
+
+export type conceptsConfirmRenderingResponse = conceptsConfirmRenderingResponses[keyof conceptsConfirmRenderingResponses];
 
 export type healthHealthData = {
     body?: never;

@@ -228,10 +228,10 @@ function App() {
           >
             退出登录
           </Button>
-          {user.email_verified && <Training key={user.id} />}
-          {user.email_verified && <Project key={user.id} />}
-          {user.email_verified && <CapabilityMap key={user.id} />}
-          {user.email_verified && <ModelConfig key={user.id} action={action} busy={busy} />}
+          {user.email_verified && <Training key={`training:${user.id}`} />}
+          {user.email_verified && <Project key={`project:${user.id}`} />}
+          {user.email_verified && <CapabilityMap key={`capabilitymap:${user.id}`} />}
+          {user.email_verified && <ModelConfig key={`modelconfig:${user.id}`} action={action} busy={busy} />}
           {user.is_superuser && (
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">邀请管理</h2>

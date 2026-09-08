@@ -5,6 +5,7 @@ import re
 from typing import Any, Literal
 
 from app.model_config.connection import ProbeError, request_raw
+from app.model_config.output import check_output
 from app.training.concept_schema import (
     ConceptContent,
     ContentReview,
@@ -54,7 +55,7 @@ def context_for(
         if judgment is None:
             raise ValueError("unknown judgment")
         value = answer.value
-        if value is None:
+        if value is None or value == "":
             continue
         if judgment.kind == "choice":
             valid = type(value) is int and 0 <= value < len(judgment.options)
@@ -62,9 +63,9 @@ def context_for(
             valid = (
                 isinstance(value, list)
                 and all(
-                    type(i) is int and 0 <= i < len(judgment.options) for i in value
+                    type(i) is int and -1 <= i < len(judgment.options) for i in value
                 )
-                and len(set(value)) == len(value)
+                and len(value) <= len(judgment.options)
             )
         else:
             valid = isinstance(value, str) and len(value) <= 6000
@@ -89,8 +90,7 @@ def context_for(
 def validate_content(
     raw: str, request: HelpInput, candidate: Candidate, key: str
 ) -> ConceptContent:
-    if (key and key in raw) or contains_secret(raw):
-        raise ValueError("secret in content")
+    check_output(raw, key)
     content = ConceptContent.model_validate_json(raw)
     if (content.principle is not None) != (request.depth == "deep"):
         raise ValueError("principle requires explicit request")
@@ -118,7 +118,12 @@ async def coach_call(
 ) -> tuple[str, dict[str, int | None]]:
     schema = ConceptContent if stage == "generate" else ContentReview
     user_data = json.dumps(
-        {**context, "schema": schema.model_json_schema()}, ensure_ascii=False
+        {
+            **context,
+            "purpose": "concept_" + stage,
+            "schema": schema.model_json_schema(),
+        },
+        ensure_ascii=False,
     )
     if (key and key in user_data) or contains_secret(user_data):
         raise ProbeError("input_secret", "必要材料疑似含秘密，未发送；请提供脱敏版本。")
@@ -154,8 +159,7 @@ def inspection_context(
 
 
 def validate_inspection(raw: str, content: ConceptContent, key: str) -> ContentReview:
-    if (key and key in raw) or contains_secret(raw):
-        raise ValueError("secret in inspection")
+    check_output(raw, key)
     review = ContentReview.model_validate_json(raw)
     classify_content(content, review)
     return review

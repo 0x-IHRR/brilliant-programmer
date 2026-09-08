@@ -46,4 +46,5 @@ jobs:
           (cd backend && ../.venv/bin/python tests/training_browser.py)
           (cd backend && ../.venv/bin/python tests/project_browser.py)
           (cd backend && ../.venv/bin/python tests/evaluation_browser.py)
+          (cd backend && ../.venv/bin/python tests/concept_browser.py)
           bun run --cwd frontend test

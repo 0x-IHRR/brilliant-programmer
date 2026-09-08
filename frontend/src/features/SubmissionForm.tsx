@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react"
 import { SubmissionsService, type Answer, type ModelConfigPublic, type PublicCase, type SubmissionState, type Submit } from "../client"
+import { ConceptCoach } from "./ConceptCoach"
 import { Evaluation } from "./Evaluation"
 import { Button } from "../components/ui/button"
 
-export function SubmissionForm({ runId, caseData, config }: { runId: string; caseData: PublicCase; config: ModelConfigPublic | null }) {
+export function SubmissionForm({ runId, caseData, config, panel = "judgments" }: { runId: string; caseData: PublicCase; config: ModelConfigPublic | null; panel?: string }) {
   const [answers, setAnswers] = useState<Answer[]>(caseData.judgments.map(j => ({ judgment_id: j.id, value: j.kind === "order" ? j.options.map(() => -1) : "", reason: "" })))
   const [state, setState] = useState<SubmissionState | null>(null)
   const [accepted, setAccepted] = useState(false)
@@ -51,6 +52,7 @@ export function SubmissionForm({ runId, caseData, config }: { runId: string; cas
     } finally { setBusy(false) }
   }
   return <div className="space-y-3">
+    <div className={`${panel === "coach" ? "hidden" : "block"} md:block space-y-3`}>
     <p>每个判断和相关理由都是必填；答错仍可完成。可以用白话说不知道原因、还需要看哪份材料。不要粘贴秘密或未授权资料。</p>
     {!completed && <p>编辑中的输入尚未自动保存；点击交卷后才保存不可覆盖的提交快照。理由相关性确认前不算完成。</p>}
     <Button className={buttonClass} variant="outline" disabled={busy} onClick={() => act(() => SubmissionsService.readSubmissions({ path: { run_id: runId } }))}>重新读取提交结果</Button>
@@ -98,5 +100,7 @@ export function SubmissionForm({ runId, caseData, config }: { runId: string; cas
       </> : <p>请保存模型配置并重新读取目的地后交卷；已有记录仍保留。</p>}
     </form>}
     <Evaluation runId={runId} caseData={caseData} config={config} submitted={completed} onFrozen={setReviewAllowed} />
+    </div>
+    <div className={`${panel === "coach" ? "block" : "hidden"} md:block`}><ConceptCoach key={runId} runId={runId} answers={answers} config={config} /></div>
   </div>
 }
