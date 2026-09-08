@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsPasswordResetEmailData, accountsPasswordResetEmailErrors, accountsPasswordResetEmailResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsResetPasswordData, accountsResetPasswordErrors, accountsResetPasswordResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, capabilitiesReadCatalogData, capabilitiesReadCatalogResponses, evaluationsClarifyEvaluationData, evaluationsClarifyEvaluationErrors, evaluationsClarifyEvaluationResponses, evaluationsReadEvaluationData, evaluationsReadEvaluationErrors, evaluationsReadEvaluationResponses, evaluationsRetryEvaluationData, evaluationsRetryEvaluationErrors, evaluationsRetryEvaluationResponses, evaluationsStartEvaluationData, evaluationsStartEvaluationErrors, evaluationsStartEvaluationResponses, evaluationsStopEvaluationData, evaluationsStopEvaluationErrors, evaluationsStopEvaluationResponses, healthHealthData, healthHealthResponses, modelconfigDeleteConfigData, modelconfigDeleteConfigErrors, modelconfigDeleteConfigResponses, modelconfigProbeData, modelconfigProbeErrors, modelconfigProbeResponses, modelconfigReadConfigData, modelconfigReadConfigResponses, modelconfigSaveConfigData, modelconfigSaveConfigErrors, modelconfigSaveConfigResponses, projectsLatestProjectsData, projectsLatestProjectsResponses, projectsReadProjectData, projectsReadProjectErrors, projectsReadProjectResponses, projectsRetryProjectData, projectsRetryProjectErrors, projectsRetryProjectResponses, projectsStartProjectData, projectsStartProjectErrors, projectsStartProjectResponses, projectsStopProjectData, projectsStopProjectErrors, projectsStopProjectResponses, submissionsReadSubmissionsData, submissionsReadSubmissionsErrors, submissionsReadSubmissionsResponses, submissionsRetrySubmissionData, submissionsRetrySubmissionErrors, submissionsRetrySubmissionResponses, submissionsStopSubmissionData, submissionsStopSubmissionErrors, submissionsStopSubmissionResponses, submissionsSubmitData, submissionsSubmitErrors, submissionsSubmitResponses, trainingLatestData, trainingLatestResponses, trainingReadData, trainingReadErrors, trainingReadResponses, trainingStartData, trainingStartErrors, trainingStartResponses, trainingStopData, trainingStopErrors, trainingStopResponses } from './types.gen';
+import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsPasswordResetEmailData, accountsPasswordResetEmailErrors, accountsPasswordResetEmailResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsResetPasswordData, accountsResetPasswordErrors, accountsResetPasswordResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, capabilitiesReadCatalogData, capabilitiesReadCatalogResponses, conceptsConfirmRenderingData, conceptsConfirmRenderingErrors, conceptsConfirmRenderingResponses, conceptsListHelpData, conceptsListHelpErrors, conceptsListHelpResponses, conceptsPublishHelpData, conceptsPublishHelpErrors, conceptsPublishHelpResponses, conceptsRequestHelpData, conceptsRequestHelpErrors, conceptsRequestHelpResponses, conceptsRetryHelpData, conceptsRetryHelpErrors, conceptsRetryHelpResponses, conceptsStopHelpData, conceptsStopHelpErrors, conceptsStopHelpResponses, evaluationsClarifyEvaluationData, evaluationsClarifyEvaluationErrors, evaluationsClarifyEvaluationResponses, evaluationsReadEvaluationData, evaluationsReadEvaluationErrors, evaluationsReadEvaluationResponses, evaluationsRetryEvaluationData, evaluationsRetryEvaluationErrors, evaluationsRetryEvaluationResponses, evaluationsStartEvaluationData, evaluationsStartEvaluationErrors, evaluationsStartEvaluationResponses, evaluationsStopEvaluationData, evaluationsStopEvaluationErrors, evaluationsStopEvaluationResponses, healthHealthData, healthHealthResponses, modelconfigDeleteConfigData, modelconfigDeleteConfigErrors, modelconfigDeleteConfigResponses, modelconfigProbeData, modelconfigProbeErrors, modelconfigProbeResponses, modelconfigReadConfigData, modelconfigReadConfigResponses, modelconfigSaveConfigData, modelconfigSaveConfigErrors, modelconfigSaveConfigResponses, projectsLatestProjectsData, projectsLatestProjectsResponses, projectsReadProjectData, projectsReadProjectErrors, projectsReadProjectResponses, projectsRetryProjectData, projectsRetryProjectErrors, projectsRetryProjectResponses, projectsStartProjectData, projectsStartProjectErrors, projectsStartProjectResponses, projectsStopProjectData, projectsStopProjectErrors, projectsStopProjectResponses, submissionsReadSubmissionsData, submissionsReadSubmissionsErrors, submissionsReadSubmissionsResponses, submissionsRetrySubmissionData, submissionsRetrySubmissionErrors, submissionsRetrySubmissionResponses, submissionsStopSubmissionData, submissionsStopSubmissionErrors, submissionsStopSubmissionResponses, submissionsSubmitData, submissionsSubmitErrors, submissionsSubmitResponses, trainingLatestData, trainingLatestResponses, trainingReadData, trainingReadErrors, trainingReadResponses, trainingStartData, trainingStartErrors, trainingStartResponses, trainingStopData, trainingStopErrors, trainingStopResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -492,6 +492,88 @@ export class EvaluationsService {
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/training/tasks/{run_id}/evaluation/stop',
             ...options
+        });
+    }
+}
+
+export class ConceptsService {
+    /**
+     * List Help
+     */
+    public static listHelp<ThrowOnError extends boolean = true>(options: Options<conceptsListHelpData, ThrowOnError>) {
+        return (options.client ?? client).get<conceptsListHelpResponses, conceptsListHelpErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/help',
+            ...options
+        });
+    }
+
+    /**
+     * Request Help
+     */
+    public static requestHelp<ThrowOnError extends boolean = true>(options: Options<conceptsRequestHelpData, ThrowOnError>) {
+        return (options.client ?? client).post<conceptsRequestHelpResponses, conceptsRequestHelpErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/help',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+
+    /**
+     * Retry Help
+     */
+    public static retryHelp<ThrowOnError extends boolean = true>(options: Options<conceptsRetryHelpData, ThrowOnError>) {
+        return (options.client ?? client).post<conceptsRetryHelpResponses, conceptsRetryHelpErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/help/{help_id}/retry',
+            ...options
+        });
+    }
+
+    /**
+     * Stop Help
+     */
+    public static stopHelp<ThrowOnError extends boolean = true>(options: Options<conceptsStopHelpData, ThrowOnError>) {
+        return (options.client ?? client).post<conceptsStopHelpResponses, conceptsStopHelpErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/help/{help_id}/stop',
+            ...options
+        });
+    }
+
+    /**
+     * Publish Help
+     */
+    public static publishHelp<ThrowOnError extends boolean = true>(options: Options<conceptsPublishHelpData, ThrowOnError>) {
+        return (options.client ?? client).post<conceptsPublishHelpResponses, conceptsPublishHelpErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/help/{help_id}/deliver',
+            ...options
+        });
+    }
+
+    /**
+     * Confirm Rendering
+     */
+    public static confirmRendering<ThrowOnError extends boolean = true>(options: Options<conceptsConfirmRenderingData, ThrowOnError>) {
+        return (options.client ?? client).post<conceptsConfirmRenderingResponses, conceptsConfirmRenderingErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/training/tasks/{run_id}/help/{help_id}/deliveries/{delivery_id}/receipt',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
         });
     }
 }

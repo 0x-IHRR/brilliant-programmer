@@ -46,6 +46,26 @@ async def connect(self, *args, **kwargs):
 connection.PublicBackend.connect_tcp = connect
 
 
+original_stream = connection.httpcore.Response.aiter_stream
+
+
+async def observed_stream(response):
+    observed = bytearray()
+    async for chunk in original_stream(response):
+        yield chunk
+        # Resumption means the real request_raw loop has already consumed this chunk.
+        observed.extend(chunk)
+        if (
+            json.loads(control.read_text()).get("observe_usage")
+            and connection.received_usage(
+                bytes(observed), "text/event-stream", False
+            ).get("prompt_tokens")
+            == 11
+        ):
+            Path(str(control) + ".usage_received").touch()
+
+
+connection.httpcore.Response.aiter_stream = observed_stream
 original_accept = worker.accept_candidate
 
 
@@ -57,6 +77,17 @@ def accept(*args):
 
 
 worker.accept_candidate = accept
+original_record_submission = submission_worker.record_attempt
+
+
+def record_submission(*args):
+    while args[1] == "ok" and json.loads(control.read_text()).get("before_submission_ok"):
+        Path(str(control) + ".submission_ok_pending").touch()
+        time.sleep(0.02)
+    return original_record_submission(*args)
+
+
+submission_worker.record_attempt = record_submission
 original_settle = submission_worker.settle
 original_fail = submission_worker.fail
 
@@ -105,7 +136,7 @@ submission_worker.fail = fail_marker
 
 async def run():
     async with queue.open_async():
-        for task_name in ("training.generate", "training.check_submission", "training.evaluate"):
+        for task_name in ("training.generate", "training.check_submission", "training.evaluate", "training.concept"):
             for job in await queue.job_manager.get_stalled_jobs(
                 task_name=task_name, seconds_since_heartbeat=0.5
             ):

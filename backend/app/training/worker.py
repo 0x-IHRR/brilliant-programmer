@@ -8,6 +8,7 @@ from app.capabilities.catalog import CATALOG, EvidenceKey
 from app.core.db import engine
 from app.model_config.connection import BACKOFF_SECONDS, CancelledCall, ProbeError
 from app.project.worker import reconcile_failed_projects
+from app.training.concept_worker import reconcile_concepts
 from app.training.evaluation_worker import reconcile_failed_evaluations
 from app.training.gate import call_credential
 from app.training.generation import generate
@@ -326,11 +327,13 @@ async def recover(timestamp: int = 0) -> None:
     await asyncio.to_thread(reconcile_failed_submissions)
     await asyncio.to_thread(reconcile_failed_projects)
     await asyncio.to_thread(reconcile_failed_evaluations)
+    await asyncio.to_thread(reconcile_concepts)
     for task_name in (
         "training.generate",
         "training.check_submission",
         "project.analyze",
         "training.evaluate",
+        "training.concept",
     ):
         for job in await queue.job_manager.get_stalled_jobs(task_name=task_name):
             await queue.job_manager.retry_job(job)
