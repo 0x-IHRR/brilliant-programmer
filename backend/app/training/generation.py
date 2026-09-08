@@ -2,6 +2,7 @@ import json
 
 from app.capabilities.catalog import CATALOG, EvidenceKey
 from app.model_config.connection import ProbeError, request_raw
+from app.model_config.output import check_output
 from app.training.schema import Candidate, Source
 
 
@@ -98,6 +99,7 @@ def extract_content(
             raise ValueError
         if not isinstance(result, str) or not result.strip() or key in result:
             raise ValueError
+        check_output(result, key)
         return result, counts
     except ValueError, KeyError, TypeError, IndexError, AttributeError, RecursionError:
         raise ProbeError(

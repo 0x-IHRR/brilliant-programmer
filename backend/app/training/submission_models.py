@@ -24,6 +24,7 @@ class Submission(SQLModel, table=True):
     __tablename__ = "training_submission"
     __table_args__ = (
         UniqueConstraint("run_id", "input_hash"),
+        UniqueConstraint("run_id", "sequence", name="submission_run_sequence"),
         Index(
             "one_original_per_run",
             "run_id",
@@ -46,7 +47,7 @@ class Submission(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     sequence: int | None = Field(
         default=None,
-        sa_column=Column(BigInteger, Identity(), unique=True, nullable=False),
+        sa_column=Column(BigInteger, Identity(), nullable=False),
     )
     run_id: uuid.UUID = Field(foreign_key="training_run.id", index=True)
     original_id: uuid.UUID | None = Field(
@@ -70,6 +71,7 @@ class Submission(SQLModel, table=True):
         default_factory=list, sa_column=Column(JSON, nullable=False)
     )
     neutral_clarification: bool = False
+    evaluate_after_submit: bool = False
     attempts: int = 0
     attempt_limit: int = 3
     queue_job_id: int | None = Field(default=None, sa_column=Column(BigInteger))

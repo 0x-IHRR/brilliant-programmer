@@ -23,6 +23,24 @@ export type Answer = {
 };
 
 /**
+ * AnswerQuote
+ */
+export type AnswerQuote = {
+    /**
+     * Input
+     */
+    input: 'original' | 'clarification';
+    /**
+     * Field
+     */
+    field: 'value' | 'reason';
+    /**
+     * Quote
+     */
+    quote: string;
+};
+
+/**
  * Attempt
  */
 export type Attempt = {
@@ -180,6 +198,16 @@ export type Citation = {
 };
 
 /**
+ * Clarify
+ */
+export type Clarify = {
+    /**
+     * Answers
+     */
+    answers?: Array<Answer> | null;
+};
+
+/**
  * Domain
  */
 export type Domain = {
@@ -199,6 +227,80 @@ export type Domain = {
      * Examples
      */
     examples: Array<Example>;
+};
+
+/**
+ * EvaluationInputs
+ */
+export type EvaluationInputs = {
+    original: InputSnapshot;
+    clarification?: InputSnapshot | null;
+    /**
+     * Clarification Used
+     */
+    clarification_used: boolean;
+};
+
+/**
+ * EvaluationPublic
+ */
+export type EvaluationPublic = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Frozen Sequence
+     */
+    frozen_sequence: number | null;
+    /**
+     * Frozen At
+     */
+    frozen_at: string | null;
+    inputs: EvaluationInputs;
+    result: GradingCandidate | null;
+    /**
+     * Attempts
+     */
+    attempts: Array<Attempt>;
+    /**
+     * Can Retry
+     */
+    can_retry: boolean;
+};
+
+/**
+ * EvaluationStart
+ */
+export type EvaluationStart = {
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
 };
 
 /**
@@ -328,6 +430,85 @@ export type Fragment = {
 };
 
 /**
+ * GradingCandidate
+ */
+export type GradingCandidate = {
+    /**
+     * Items
+     */
+    items: Array<GradingItem>;
+};
+
+/**
+ * GradingItem
+ */
+export type GradingItem = {
+    /**
+     * Judgment Id
+     */
+    judgment_id: string;
+    /**
+     * Conclusion
+     */
+    conclusion: 'pass' | 'evidenced_fail' | 'unclear';
+    /**
+     * Answer Quotes
+     */
+    answer_quotes: Array<AnswerQuote>;
+    /**
+     * Grounding
+     */
+    grounding: Array<Grounding>;
+    /**
+     * Interpreted Value
+     */
+    interpreted_value: number | Array<number> | string | null;
+    /**
+     * Interpreted Reasoning
+     */
+    interpreted_reasoning: number | Array<number> | string | null;
+    /**
+     * Reason Claims
+     */
+    reason_claims: Array<ReasonClaim>;
+    /**
+     * Rule Quote
+     */
+    rule_quote: string | null;
+    /**
+     * Counterexample Quote
+     */
+    counterexample_quote: string | null;
+    /**
+     * Explanation
+     */
+    explanation: string;
+    /**
+     * Gap
+     */
+    gap: string | null;
+};
+
+/**
+ * Grounding
+ */
+export type Grounding = {
+    /**
+     * Evidence Id
+     */
+    evidence_id: string;
+    /**
+     * Fact
+     */
+    fact: string;
+    /**
+     * Value
+     */
+    value: string;
+    citation: Citation;
+};
+
+/**
  * HTTPValidationError
  */
 export type HTTPValidationError = {
@@ -335,6 +516,24 @@ export type HTTPValidationError = {
      * Detail
      */
     detail?: Array<ValidationError>;
+};
+
+/**
+ * InputSnapshot
+ */
+export type InputSnapshot = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Sequence
+     */
+    sequence: number;
+    /**
+     * Answers
+     */
+    answers: Array<Answer>;
 };
 
 /**
@@ -691,6 +890,24 @@ export type PublicEvidence = {
 };
 
 /**
+ * ReasonClaim
+ */
+export type ReasonClaim = {
+    /**
+     * Answer Quote
+     */
+    answer_quote: number;
+    /**
+     * Grounding
+     */
+    grounding: number;
+    /**
+     * Interpreted Fact Value
+     */
+    interpreted_fact_value: string;
+};
+
+/**
  * RegistrationPublic
  */
 export type RegistrationPublic = {
@@ -983,6 +1200,10 @@ export type Submit = {
      * Disclosure Accepted
      */
     disclosure_accepted: boolean;
+    /**
+     * Evaluate After Submit
+     */
+    evaluate_after_submit?: boolean;
     /**
      * Answers
      */
@@ -1954,6 +2175,158 @@ export type projectsStopProjectResponses = {
 };
 
 export type projectsStopProjectResponse = projectsStopProjectResponses[keyof projectsStopProjectResponses];
+
+export type evaluationsReadEvaluationData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/evaluation';
+};
+
+export type evaluationsReadEvaluationErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type evaluationsReadEvaluationError = evaluationsReadEvaluationErrors[keyof evaluationsReadEvaluationErrors];
+
+export type evaluationsReadEvaluationResponses = {
+    /**
+     * Response Evaluations-Read Evaluation
+     *
+     * Successful Response
+     */
+    200: EvaluationPublic | null;
+};
+
+export type evaluationsReadEvaluationResponse = evaluationsReadEvaluationResponses[keyof evaluationsReadEvaluationResponses];
+
+export type evaluationsStartEvaluationData = {
+    body: EvaluationStart;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/evaluation';
+};
+
+export type evaluationsStartEvaluationErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type evaluationsStartEvaluationError = evaluationsStartEvaluationErrors[keyof evaluationsStartEvaluationErrors];
+
+export type evaluationsStartEvaluationResponses = {
+    /**
+     * Successful Response
+     */
+    202: EvaluationPublic;
+};
+
+export type evaluationsStartEvaluationResponse = evaluationsStartEvaluationResponses[keyof evaluationsStartEvaluationResponses];
+
+export type evaluationsClarifyEvaluationData = {
+    body: Clarify;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/evaluation/clarification';
+};
+
+export type evaluationsClarifyEvaluationErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type evaluationsClarifyEvaluationError = evaluationsClarifyEvaluationErrors[keyof evaluationsClarifyEvaluationErrors];
+
+export type evaluationsClarifyEvaluationResponses = {
+    /**
+     * Successful Response
+     */
+    202: EvaluationPublic;
+};
+
+export type evaluationsClarifyEvaluationResponse = evaluationsClarifyEvaluationResponses[keyof evaluationsClarifyEvaluationResponses];
+
+export type evaluationsRetryEvaluationData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/evaluation/retry';
+};
+
+export type evaluationsRetryEvaluationErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type evaluationsRetryEvaluationError = evaluationsRetryEvaluationErrors[keyof evaluationsRetryEvaluationErrors];
+
+export type evaluationsRetryEvaluationResponses = {
+    /**
+     * Successful Response
+     */
+    202: EvaluationPublic;
+};
+
+export type evaluationsRetryEvaluationResponse = evaluationsRetryEvaluationResponses[keyof evaluationsRetryEvaluationResponses];
+
+export type evaluationsStopEvaluationData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/evaluation/stop';
+};
+
+export type evaluationsStopEvaluationErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type evaluationsStopEvaluationError = evaluationsStopEvaluationErrors[keyof evaluationsStopEvaluationErrors];
+
+export type evaluationsStopEvaluationResponses = {
+    /**
+     * Successful Response
+     */
+    200: EvaluationPublic;
+};
+
+export type evaluationsStopEvaluationResponse = evaluationsStopEvaluationResponses[keyof evaluationsStopEvaluationResponses];
 
 export type healthHealthData = {
     body?: never;

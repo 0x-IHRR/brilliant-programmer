@@ -155,7 +155,7 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
             submission.status, submission.code, submission.message = (
                 "completed",
                 "complete",
-                "本轮已完成，自动获得 10 点修为。完成不等于答对或掌握；评分尚未接入。",
+                "本轮已完成，自动获得 10 点修为。完成不等于答对或掌握；可在反馈区域主动核对本次原答。",
             )
         else:
             submission.status, submission.code = "needs_supplement", "needs_supplement"
@@ -171,6 +171,11 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
             else:
                 submission.message = "理由仍无关或相关性无法确认，保留待补充；未完成、未结算，不记录能力失败。原答已保留。"
         session.add(submission)
+        session.flush()
+        if submission.status == "completed" and submission.evaluate_after_submit:
+            from app.training.evaluation_service import create_evaluation
+
+            create_evaluation(session, run, config)
         session.commit()
         return True
 

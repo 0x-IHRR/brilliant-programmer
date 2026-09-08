@@ -430,12 +430,24 @@ def test_configuration_revocation_prevents_retry(tmp_path, provider):
 def test_stop_inflight_keeps_partial_usage_and_does_not_resume(tmp_path, provider):
     provider["mode"] = "partial_usage"
     auth, identity = start_project(provider)
-    process, _ = start_worker(tmp_path, provider, identity)
+    process, control = start_worker(tmp_path, provider, identity, observe_usage=True)
     try:
         assert provider["received"].wait(8)
-        time.sleep(0.1)
+        deadline = time.monotonic() + 8
+        while not control.with_name(control.name + ".usage_received").exists():
+            assert time.monotonic() < deadline, (
+                "worker has not consumed the usage frame"
+            )
+            time.sleep(0.02)
         result = client.post(f"/api/v1/projects/{identity}/stop", headers=auth).json()
         assert result["status"] == "stopped"
+        deadline = time.monotonic() + 5
+        while (
+            result["attempts"][0]["prompt_tokens"] is None
+            and time.monotonic() < deadline
+        ):
+            time.sleep(0.02)
+            result = client.get(f"/api/v1/projects/{identity}", headers=auth).json()
         assert result["attempts"][0]["prompt_tokens"] == 11
         assert result["attempts"][0]["completion_tokens"] is None
         stop_worker(process)
