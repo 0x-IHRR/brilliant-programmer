@@ -21,7 +21,7 @@ def validate_service_url(value: str) -> str:
             or url.password is not None
             or url.query
             or url.fragment
-            or port not in (None, 443)
+            or (port is not None and not 1 <= port <= 65535)
             or "\\" in value
             or any(ord(c) <= 32 or ord(c) >= 127 for c in value)
             or "%" in host
@@ -49,7 +49,7 @@ def validate_service_url(value: str) -> str:
                 raise ValueError
     except ValueError:
         raise ValueError(
-            "服务地址须为公网 HTTPS 地址（443 端口），不能含账号、查询或片段"
+            "服务地址须为公网 HTTPS 地址（端口 1–65535），不能含账号、查询或片段"
         )
     return value.rstrip("/")
 

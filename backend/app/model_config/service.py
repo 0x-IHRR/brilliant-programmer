@@ -18,7 +18,10 @@ from app.models import User
 
 def lock_owner(session: Session, user_id: uuid.UUID) -> User:
     user = session.exec(
-        select(User).where(User.id == user_id).with_for_update()
+        select(User)
+        .where(User.id == user_id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
     ).one_or_none()
     if not user or not user.is_active or not user.email_verified:
         raise HTTPException(403, "账号不可用或邮箱尚未验证")

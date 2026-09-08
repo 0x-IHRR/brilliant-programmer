@@ -158,7 +158,9 @@ with Session(engine) as s:
         "https://api.example.com?key=secret",
         "https://a:b@api.example.com",
         "https://api.example.com/#secret",
-        "https://api.example.com:8080",
+        "https://api.example.com:0",
+        "https://api.example.com:65536",
+        "https://api.example.com:invalid",
         "https://api.example.com\\@127.0.0.1",
         "https://foo.internal",
         "https://api..example.com",
@@ -294,3 +296,30 @@ def test_call_lock_orders_revocation():
     with Session(engine) as session, pytest.raises(HTTPException):
         with credential_for_call(session, owner, uuid.UUID(first["version"])):
             pytest.fail("new call after deletion")
+
+
+@pytest.mark.parametrize("port", [1, 443, 8443, 65535])
+def test_https_custom_ports_are_valid(port):
+    from app.model_config.models import validate_service_url
+
+    url = f"https://api.example.com:{port}/v1"
+    assert validate_service_url(url) == url
+
+
+def test_call_gate_refreshes_previously_loaded_disabled_user():
+    owner, auth = account()
+    version = uuid.UUID(save(auth).json()["version"])
+    with Session(engine) as calling:
+        cached = calling.get(User, owner)
+        assert cached.is_active
+        with Session(engine) as disabling:
+            user = disabling.get(User, owner)
+            user.is_active = False
+            disabling.add(user)
+            disabling.commit()
+        assert cached.is_active  # The identity map still has the pre-disable value.
+        with pytest.raises(HTTPException) as error:
+            with credential_for_call(calling, owner, version):
+                pytest.fail("disabled cached user must not receive credentials")
+        assert error.value.status_code == 403
+        assert not cached.is_active
