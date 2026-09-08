@@ -32,3 +32,18 @@ test("真实任务恢复、隐藏答案隔离和320px键盘工作台", async ({ 
   await page.evaluate(() => { document.documentElement.style.fontSize = "200%" })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 })
+
+test("真实SDK读取null配置时不显示空接收方或启动入口", async ({ page, request }) => {
+  test.skip(!process.env.TRAINING_UNCONFIGURED_TOKEN, "由training_browser.py提供真实未配置账号")
+  const token = process.env.TRAINING_UNCONFIGURED_TOKEN!
+  const response = await request.get("/api/v1/model-config", { headers: { Authorization: `Bearer ${token}` } })
+  expect(await response.json()).toBeNull()
+  await page.goto("/")
+  await page.evaluate(value => sessionStorage.setItem("token", value), token)
+  await page.reload()
+  const training = page.getByRole("region", { name: "随机第一关" })
+  await expect(training.getByText("请在账号与模型区域保存配置，再重新读取目的地。")).toBeVisible()
+  await expect(training.getByText(/本次资料接收方/)).toHaveCount(0)
+  await expect(training.getByRole("checkbox")).toHaveCount(0)
+  await expect(training.getByRole("button", { name: "帮我选一关" })).toHaveCount(0)
+})

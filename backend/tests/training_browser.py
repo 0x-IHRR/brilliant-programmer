@@ -14,6 +14,7 @@ with tempfile.TemporaryDirectory(prefix="training-browser-") as directory:
     supplier = next(fixture)
     process = None
     try:
+        _, unconfigured_auth = account()
         _, auth = account()
         assert save(auth, service_url=supplier["url"]).status_code == 200
         process, _ = start_worker(
@@ -22,6 +23,9 @@ with tempfile.TemporaryDirectory(prefix="training-browser-") as directory:
         environment = {
             **os.environ,
             "TRAINING_BROWSER_TOKEN": auth["Authorization"].removeprefix("Bearer "),
+            "TRAINING_UNCONFIGURED_TOKEN": unconfigured_auth[
+                "Authorization"
+            ].removeprefix("Bearer "),
         }
         subprocess.run(
             ["bun", "run", "--cwd", "../frontend", "test", "training.spec.ts"],

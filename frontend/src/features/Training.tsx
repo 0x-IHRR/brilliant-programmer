@@ -17,7 +17,7 @@ export function Training() {
     let active = true
     void Promise.all([ModelconfigService.readConfig(), TrainingService.latest()]).then(([model, tasks]) => {
       if (!active) return
-      setConfig(model.data)
+      setConfig(model.data?.version ? model.data : null)
       setRuns(tasks.data)
       setAccepted(false)
       setError("")
