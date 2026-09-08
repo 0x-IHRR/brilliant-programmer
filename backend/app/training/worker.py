@@ -7,6 +7,7 @@ from sqlmodel import Session, col, select
 from app.capabilities.catalog import CATALOG, EvidenceKey
 from app.core.db import engine
 from app.model_config.connection import BACKOFF_SECONDS, CancelledCall, ProbeError
+from app.project.worker import reconcile_failed_projects
 from app.training.gate import call_credential
 from app.training.generation import generate
 from app.training.models import TrainingAttempt, TrainingRun
@@ -322,7 +323,12 @@ async def generate_training(run_id: str) -> None:
 async def recover(timestamp: int = 0) -> None:
     del timestamp
     await asyncio.to_thread(reconcile_failed_submissions)
-    for task_name in ("training.generate", "training.check_submission"):
+    await asyncio.to_thread(reconcile_failed_projects)
+    for task_name in (
+        "training.generate",
+        "training.check_submission",
+        "project.analyze",
+    ):
         for job in await queue.job_manager.get_stalled_jobs(task_name=task_name):
             await queue.job_manager.retry_job(job)
 

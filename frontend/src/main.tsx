@@ -13,6 +13,7 @@ import { PasswordReset } from "./features/PasswordReset"
 import { ModelConfig } from "./features/ModelConfig"
 import "./index.css"
 import { Training } from "./features/Training"
+import { Project } from "./features/Project"
 import { CapabilityMap } from "./features/CapabilityMap"
 
 client.setConfig({ auth: () => sessionStorage.getItem("token") ?? undefined })
@@ -228,6 +229,7 @@ function App() {
             退出登录
           </Button>
           {user.email_verified && <Training key={user.id} />}
+          {user.email_verified && <Project key={user.id} />}
           {user.email_verified && <CapabilityMap key={user.id} />}
           {user.email_verified && <ModelConfig key={user.id} action={action} busy={busy} />}
           {user.is_superuser && (

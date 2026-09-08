@@ -6,6 +6,8 @@ import hashlib
 import json
 import re
 import ssl
+from collections.abc import Callable
+from contextlib import AbstractAsyncContextManager, AsyncExitStack
 from typing import Any
 from urllib.parse import quote, unquote, urlsplit
 
@@ -82,11 +84,20 @@ def parse_url(url: str) -> tuple[str, str, str, str]:
 
 
 class GitHub:
-    def __init__(self) -> None:
+    def __init__(
+        self, authorize: Callable[[], AbstractAsyncContextManager[None]] | None = None
+    ) -> None:
         self.requests = 0
         self.bytes = 0
+        self.authorize = authorize
 
     async def get(self, path: str) -> Any:
+        async with AsyncExitStack() as stack:
+            if self.authorize is not None:
+                await stack.enter_async_context(self.authorize())
+            return await self._get(path)
+
+    async def _get(self, path: str) -> Any:
         if self.requests >= MAX_REQUESTS:
             raise ProbeError(
                 "github_scope", "本次 GitHub 请求范围已用尽；已核对成果保留"
