@@ -34,7 +34,7 @@ export class AccountsService {
             }
         });
     }
-    
+
     /**
      * Me
      */
@@ -46,7 +46,7 @@ export class AccountsService {
             ...options
         });
     }
-    
+
     /**
      * Training Access
      */
@@ -58,7 +58,7 @@ export class AccountsService {
             ...options
         });
     }
-    
+
     /**
      * Register
      */
@@ -73,7 +73,7 @@ export class AccountsService {
             }
         });
     }
-    
+
     /**
      * Invitations
      */
@@ -85,7 +85,7 @@ export class AccountsService {
             ...options
         });
     }
-    
+
     /**
      * Generate Invitation
      */
@@ -97,7 +97,7 @@ export class AccountsService {
             ...options
         });
     }
-    
+
     /**
      * Revoke
      */
