@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
 
@@ -24,6 +26,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(api_router, prefix="/api/v1")
+
+
+@app.exception_handler(RequestValidationError)
+async def safe_validation_error(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    # Pydantic errors can include the rejected Key or malformed JSON body.
+    from fastapi.exception_handlers import request_validation_exception_handler
+
+    if request.url.path.rstrip("/") == "/api/v1/model-config":
+        return JSONResponse(
+            status_code=422,
+            content={"detail": "配置格式不正确，请检查地址、模型 ID 和 Key"},
+        )
+    return await request_validation_exception_handler(request, exc)
 
 
 @app.get("/health", tags=["health"])

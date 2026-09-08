@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, healthHealthData, healthHealthResponses } from './types.gen';
+import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, healthHealthData, healthHealthResponses, modelconfigDeleteConfigData, modelconfigDeleteConfigErrors, modelconfigDeleteConfigResponses, modelconfigReadConfigData, modelconfigReadConfigResponses, modelconfigSaveConfigData, modelconfigSaveConfigErrors, modelconfigSaveConfigResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -34,7 +34,7 @@ export class AccountsService {
             }
         });
     }
-
+    
     /**
      * Me
      */
@@ -46,7 +46,7 @@ export class AccountsService {
             ...options
         });
     }
-
+    
     /**
      * Training Access
      */
@@ -58,7 +58,7 @@ export class AccountsService {
             ...options
         });
     }
-
+    
     /**
      * Register
      */
@@ -73,7 +73,7 @@ export class AccountsService {
             }
         });
     }
-
+    
     /**
      * Invitations
      */
@@ -85,7 +85,7 @@ export class AccountsService {
             ...options
         });
     }
-
+    
     /**
      * Generate Invitation
      */
@@ -97,7 +97,7 @@ export class AccountsService {
             ...options
         });
     }
-
+    
     /**
      * Revoke
      */
@@ -109,7 +109,7 @@ export class AccountsService {
             ...options
         });
     }
-
+    
     /**
      * Logout
      */
@@ -121,7 +121,7 @@ export class AccountsService {
             ...options
         });
     }
-
+    
     /**
      * Resend Verification
      */
@@ -133,7 +133,7 @@ export class AccountsService {
             ...options
         });
     }
-
+    
     /**
      * Verify Email
      */
@@ -142,6 +142,47 @@ export class AccountsService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/users/me/verify-email',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+}
+
+export class ModelconfigService {
+    /**
+     * Delete Config
+     */
+    public static deleteConfig<ThrowOnError extends boolean = true>(options: Options<modelconfigDeleteConfigData, ThrowOnError>) {
+        return (options.client ?? client).delete<modelconfigDeleteConfigResponses, modelconfigDeleteConfigErrors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/model-config',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Config
+     */
+    public static readConfig<ThrowOnError extends boolean = true>(options?: Options<modelconfigReadConfigData, ThrowOnError>) {
+        return (options?.client ?? client).get<modelconfigReadConfigResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/model-config',
+            ...options
+        });
+    }
+    
+    /**
+     * Save Config
+     */
+    public static saveConfig<ThrowOnError extends boolean = true>(options: Options<modelconfigSaveConfigData, ThrowOnError>) {
+        return (options.client ?? client).put<modelconfigSaveConfigResponses, modelconfigSaveConfigErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/model-config',
             ...options,
             headers: {
                 'Content-Type': 'application/json',

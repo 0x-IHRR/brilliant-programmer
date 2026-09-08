@@ -67,6 +67,54 @@ export type InvitationPublic = {
 };
 
 /**
+ * ModelConfigPublic
+ */
+export type ModelConfigPublic = {
+    /**
+     * Version
+     */
+    version: string;
+    /**
+     * Service Url
+     */
+    service_url: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Has Key
+     */
+    has_key?: boolean;
+};
+
+/**
+ * ModelConfigSave
+ */
+export type ModelConfigSave = {
+    /**
+     * Service Url
+     */
+    service_url: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Api Key
+     */
+    api_key?: null;
+    /**
+     * Expected Version
+     */
+    expected_version?: string | null;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+};
+
+/**
  * RegistrationPublic
  */
 export type RegistrationPublic = {
@@ -198,6 +246,32 @@ export type VerificationRequest = {
      * Token
      */
     token: string;
+};
+
+/**
+ * ModelConfigSave
+ */
+export type ModelConfigSaveWritable = {
+    /**
+     * Service Url
+     */
+    service_url: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Api Key
+     */
+    api_key?: string | null;
+    /**
+     * Expected Version
+     */
+    expected_version?: string | null;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
 };
 
 export type accountsLoginData = {
@@ -428,6 +502,79 @@ export type accountsVerifyEmailResponses = {
 };
 
 export type accountsVerifyEmailResponse = accountsVerifyEmailResponses[keyof accountsVerifyEmailResponses];
+
+export type modelconfigDeleteConfigData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Expected Version
+         */
+        expected_version: string;
+    };
+    url: '/api/v1/model-config';
+};
+
+export type modelconfigDeleteConfigErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type modelconfigDeleteConfigError = modelconfigDeleteConfigErrors[keyof modelconfigDeleteConfigErrors];
+
+export type modelconfigDeleteConfigResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type modelconfigDeleteConfigResponse = modelconfigDeleteConfigResponses[keyof modelconfigDeleteConfigResponses];
+
+export type modelconfigReadConfigData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/model-config';
+};
+
+export type modelconfigReadConfigResponses = {
+    /**
+     * Response Modelconfig-Read Config
+     *
+     * Successful Response
+     */
+    200: ModelConfigPublic | null;
+};
+
+export type modelconfigReadConfigResponse = modelconfigReadConfigResponses[keyof modelconfigReadConfigResponses];
+
+export type modelconfigSaveConfigData = {
+    body: ModelConfigSaveWritable;
+    path?: never;
+    query?: never;
+    url: '/api/v1/model-config';
+};
+
+export type modelconfigSaveConfigErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type modelconfigSaveConfigError = modelconfigSaveConfigErrors[keyof modelconfigSaveConfigErrors];
+
+export type modelconfigSaveConfigResponses = {
+    /**
+     * Successful Response
+     */
+    200: ModelConfigPublic;
+};
+
+export type modelconfigSaveConfigResponse = modelconfigSaveConfigResponses[keyof modelconfigSaveConfigResponses];
 
 export type healthHealthData = {
     body?: never;
