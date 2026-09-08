@@ -246,6 +246,88 @@ export type Example = {
 };
 
 /**
+ * FileEntry
+ */
+export type FileEntry = {
+    /**
+     * Path
+     */
+    path: string;
+    /**
+     * Sha
+     */
+    sha: string;
+    /**
+     * Kind
+     */
+    kind: 'tree' | 'blob' | 'commit';
+    /**
+     * Mode
+     */
+    mode: string;
+    /**
+     * Size
+     */
+    size?: number;
+};
+
+/**
+ * Finding
+ */
+export type Finding = {
+    /**
+     * Kind
+     */
+    kind: 'module' | 'entry' | 'call' | 'state' | 'storage';
+    /**
+     * Subject
+     */
+    subject: string;
+    /**
+     * Relation
+     */
+    relation: string;
+    /**
+     * Target
+     */
+    target: string;
+    /**
+     * Evidence
+     */
+    evidence: Array<Location>;
+};
+
+/**
+ * Fragment
+ */
+export type Fragment = {
+    /**
+     * Path
+     */
+    path: string;
+    /**
+     * Blob
+     */
+    blob: string;
+    /**
+     * Start
+     */
+    start: number;
+    /**
+     * End
+     */
+    end: number;
+    /**
+     * Total Lines
+     */
+    total_lines: number;
+    /**
+     * Text
+     */
+    text: string;
+};
+
+/**
  * HTTPValidationError
  */
 export type HTTPValidationError = {
@@ -319,6 +401,28 @@ export type Level = {
      * Alternatives
      */
     alternatives?: Array<Array<EvidenceKey>>;
+};
+
+/**
+ * Location
+ */
+export type Location = {
+    /**
+     * Path
+     */
+    path: string;
+    /**
+     * Start
+     */
+    start: number;
+    /**
+     * End
+     */
+    end: number;
+    /**
+     * Quote
+     */
+    quote: string;
 };
 
 /**
@@ -438,6 +542,94 @@ export type ProbeResult = {
 };
 
 /**
+ * ProjectMap
+ */
+export type ProjectMap = {
+    /**
+     * Confirmed
+     */
+    confirmed?: Array<Finding>;
+    /**
+     * Unverified
+     */
+    unverified?: Array<Finding>;
+    /**
+     * Missing
+     */
+    missing?: Array<string>;
+};
+
+/**
+ * ProjectPublic
+ */
+export type ProjectPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Config Version
+     */
+    config_version: string;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Reused From Id
+     */
+    reused_from_id: string | null;
+    snapshot: Snapshot | null;
+    project_map: ProjectMap | null;
+    /**
+     * Attempts
+     */
+    attempts: Array<Attempt>;
+};
+
+/**
+ * ProjectStart
+ */
+export type ProjectStart = {
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Reanalyze
+     */
+    reanalyze?: boolean;
+};
+
+/**
  * PublicCase
  */
 export type PublicCase = {
@@ -544,6 +736,91 @@ export type RelevanceItem = {
      * Status
      */
     status: 'related' | 'unrelated' | 'unclear';
+};
+
+/**
+ * Repository
+ */
+export type Repository = {
+    /**
+     * Owner
+     */
+    owner: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Commit
+     */
+    commit: string;
+    /**
+     * Tree
+     */
+    tree: string;
+    /**
+     * Ref
+     */
+    ref: string;
+    /**
+     * Focus
+     */
+    focus?: string;
+    /**
+     * Start Line
+     */
+    start_line?: number;
+    /**
+     * End Line
+     */
+    end_line?: number | null;
+};
+
+/**
+ * Snapshot
+ */
+export type Snapshot = {
+    repository: Repository;
+    /**
+     * Entries
+     */
+    entries?: Array<FileEntry>;
+    /**
+     * Fragments
+     */
+    fragments?: Array<Fragment>;
+    /**
+     * Excluded
+     */
+    excluded?: {
+        [key: string]: string;
+    };
+    /**
+     * Directories
+     */
+    directories?: Array<FileEntry>;
+    /**
+     * Files
+     */
+    files?: Array<FileEntry>;
+    /**
+     * Offsets
+     */
+    offsets?: {
+        [key: string]: number;
+    };
+    /**
+     * Requests
+     */
+    requests?: number;
+    /**
+     * Bytes
+     */
+    bytes?: number;
+    /**
+     * Listing Complete
+     */
+    listing_complete?: boolean;
 };
 
 /**
@@ -1544,6 +1821,139 @@ export type submissionsStopSubmissionResponses = {
 };
 
 export type submissionsStopSubmissionResponse = submissionsStopSubmissionResponses[keyof submissionsStopSubmissionResponses];
+
+export type projectsLatestProjectsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/projects';
+};
+
+export type projectsLatestProjectsResponses = {
+    /**
+     * Response Projects-Latest Projects
+     *
+     * Successful Response
+     */
+    200: Array<ProjectPublic>;
+};
+
+export type projectsLatestProjectsResponse = projectsLatestProjectsResponses[keyof projectsLatestProjectsResponses];
+
+export type projectsStartProjectData = {
+    body: ProjectStart;
+    path?: never;
+    query?: never;
+    url: '/api/v1/projects';
+};
+
+export type projectsStartProjectErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type projectsStartProjectError = projectsStartProjectErrors[keyof projectsStartProjectErrors];
+
+export type projectsStartProjectResponses = {
+    /**
+     * Successful Response
+     */
+    202: ProjectPublic;
+};
+
+export type projectsStartProjectResponse = projectsStartProjectResponses[keyof projectsStartProjectResponses];
+
+export type projectsReadProjectData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{run_id}';
+};
+
+export type projectsReadProjectErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type projectsReadProjectError = projectsReadProjectErrors[keyof projectsReadProjectErrors];
+
+export type projectsReadProjectResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProjectPublic;
+};
+
+export type projectsReadProjectResponse = projectsReadProjectResponses[keyof projectsReadProjectResponses];
+
+export type projectsRetryProjectData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{run_id}/retry';
+};
+
+export type projectsRetryProjectErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type projectsRetryProjectError = projectsRetryProjectErrors[keyof projectsRetryProjectErrors];
+
+export type projectsRetryProjectResponses = {
+    /**
+     * Successful Response
+     */
+    202: ProjectPublic;
+};
+
+export type projectsRetryProjectResponse = projectsRetryProjectResponses[keyof projectsRetryProjectResponses];
+
+export type projectsStopProjectData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{run_id}/stop';
+};
+
+export type projectsStopProjectErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type projectsStopProjectError = projectsStopProjectErrors[keyof projectsStopProjectErrors];
+
+export type projectsStopProjectResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProjectPublic;
+};
+
+export type projectsStopProjectResponse = projectsStopProjectResponses[keyof projectsStopProjectResponses];
 
 export type healthHealthData = {
     body?: never;
