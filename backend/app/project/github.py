@@ -227,6 +227,14 @@ class GitHub:
                 + "/commits/"
                 + quote(resolved["sha"] if resolved else ref, safe="")
             )
+            start_line, end_line = 1, None
+            anchor = urlsplit(url).fragment
+            if kind == "blob" and anchor:
+                first, _, last = anchor.partition("-L")
+                start_line = int(first.removeprefix("L"))
+                end_line = int(last) if last else start_line
+                if end_line < start_line:
+                    raise ValueError
             repository = Repository(
                 owner=owner,
                 name=name,
@@ -234,6 +242,8 @@ class GitHub:
                 tree=commit["commit"]["tree"]["sha"],
                 ref=ref,
                 focus=focus,
+                start_line=start_line,
+                end_line=end_line,
             )
             if focus:
                 # Validate the path by walking this pinned commit's actual tree; no contents symlink dereference.
@@ -288,7 +298,14 @@ class GitHub:
         except KeyError, TypeError, ValueError, AttributeError:
             raise ProbeError("github_invalid", "目录响应无效，未继续读取") from None
 
-    async def fragment(self, repository: Repository, entry: FileEntry) -> Fragment:
+    async def fragment(
+        self,
+        repository: Repository,
+        entry: FileEntry,
+        *,
+        start: int = 1,
+        end: int | None = None,
+    ) -> Fragment:
         if entry.kind != "blob" or entry.mode not in {"100644", "100755"}:
             raise ProbeError("github_skipped", "符号链接与子模块只记目录，不读取目标")
         if entry.size > MAX_BLOB_BYTES:
@@ -323,8 +340,17 @@ class GitHub:
                     "文件疑似包含秘密，已排除；请提供脱敏版本，检测不保证零漏报",
                 )
             # Preserve complete lines only, with a verifiable range, never a permanent full-repo download.
+            all_lines = text.splitlines()
+            if (
+                start < 1
+                or start > len(all_lines)
+                or (end is not None and not start <= end <= len(all_lines))
+            ):
+                raise ProbeError(
+                    "github_range", "指定行范围在固定版本中不可读取，未猜测或替换来源"
+                )
             lines, size = [], 0
-            for line in text.splitlines():
+            for line in all_lines[start - 1 : end]:
                 size += len(line.encode()) + 1
                 if size > MAX_FRAGMENT_BYTES:
                     break
@@ -336,8 +362,9 @@ class GitHub:
             return Fragment(
                 path=entry.path,
                 blob=entry.sha,
-                start=1,
-                end=len(lines),
+                start=start,
+                end=start + len(lines) - 1,
+                total_lines=len(all_lines),
                 text="\n".join(lines),
             )
         except ValueError, KeyError, TypeError, UnicodeError, AttributeError:

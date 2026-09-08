@@ -114,7 +114,9 @@ def test_blob_exclusion_and_identity(monkeypatch, text, code):
 
 def test_syntax_evidence_and_model_claims_are_separate():
     text = 'import os\nclass Store:\n    __tablename__ = "records"\n    def put(self):\n        self.value = open("data.txt")\nif __name__ == "__main__":\n    Store().put()'
-    fragment = Fragment(path="app.py", blob=SHA, start=1, end=7, text=text)
+    fragment = Fragment(
+        path="app.py", blob=SHA, start=1, end=7, total_lines=7, text=text
+    )
     result = syntax_map([fragment])
     assert {finding.kind for finding in result.confirmed} == {
         "module",
@@ -155,9 +157,11 @@ def test_batches_resume_without_rereading_or_following_links(monkeypatch):
             ),
         ]
 
-    async def fragment(_self, _repo, entry):
+    async def fragment(_self, _repo, entry, **_kwargs):
         requests.append(entry.path)
-        return Fragment(path=entry.path, blob=SHA, start=1, end=1, text="print(1)")
+        return Fragment(
+            path=entry.path, blob=SHA, start=1, end=1, total_lines=1, text="print(1)"
+        )
 
     monkeypatch.setattr(GitHub, "directory", directory)
     monkeypatch.setattr(GitHub, "fragment", fragment)
@@ -204,6 +208,62 @@ def test_fragment_range_and_resource_ceiling(monkeypatch):
     assert fragment.end < 87000
 
 
+def test_large_file_later_lines_resume_and_explicit_range(monkeypatch):
+    text = b"# safe line\n" * 3000 + b'if __name__ == "__main__":\n    run()\n'
+    digest = hashlib.sha1(b"blob " + str(len(text)).encode() + b"\0" + text).hexdigest()
+    reads = []
+
+    async def get(_self, path, **_kwargs):
+        reads.append(path)
+        return {"encoding": "base64", "content": base64.b64encode(text).decode()}
+
+    monkeypatch.setattr(GitHub, "get", get)
+    entry = FileEntry(
+        path="main.py", sha=digest, kind="blob", mode="100644", size=len(text)
+    )
+    repo = Repository(owner="o", name="r", ref="main", commit=SHA, tree=TREE)
+
+    async def run():
+        initial = Snapshot(
+            repository=repo, entries=[entry], files=[entry], listing_complete=True
+        )
+        first = await anext(acquire(GitHub(), initial))
+        assert first.fragments[0].end == 2048 and first.offsets["main.py"] == 2049
+        saved = Snapshot.model_validate_json(first.model_dump_json())
+        resumed = saved
+        async for current in acquire(GitHub(), saved):
+            resumed = current
+        assert [(fragment.start, fragment.end) for fragment in resumed.fragments] == [
+            (1, 2048),
+            (2049, 3002),
+        ]
+        assert not resumed.files and resumed.offsets["main.py"] == 3003
+        facts = syntax_map(resumed.fragments)
+        assert any(
+            finding.kind == "entry" and finding.evidence[0].start == 3001
+            for finding in facts.confirmed
+        )
+        focused = initial.model_copy(
+            update={
+                "repository": repo.model_copy(
+                    update={"focus": "main.py", "start_line": 3001, "end_line": 3002}
+                )
+            }
+        )
+        selected = await anext(acquire(GitHub(), focused))
+        assert (
+            selected.fragments[0].start == 3001
+            and selected.fragments[0].end == 3002
+            and not selected.files
+        )
+        with pytest.raises(ProbeError) as caught:
+            await GitHub().fragment(repo, entry, start=3003)
+        assert caught.value.code == "github_range"
+
+    asyncio.run(run())
+    assert len(reads) == 4
+
+
 def test_ambiguous_refs_do_not_guess(monkeypatch):
     async def get(_self, path, **_kwargs):
         if path == "/repos/o/r":
@@ -245,7 +305,7 @@ def test_malicious_source_is_only_parsed(tmp_path):
     marker = tmp_path / "must-not-exist"
     text = f"__import__('pathlib').Path({str(marker)!r}).write_text('owned')"
     result = syntax_map(
-        [Fragment(path="setup.py", blob=SHA, start=1, end=1, text=text)]
+        [Fragment(path="setup.py", blob=SHA, start=1, end=1, total_lines=1, text=text)]
     )
     assert result.confirmed and not marker.exists()
 

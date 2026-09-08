@@ -14,6 +14,8 @@ class Repository(Strict):
     tree: Sha
     ref: str
     focus: str = ""
+    start_line: int = Field(default=1, ge=1)
+    end_line: int | None = Field(default=None, ge=1)
 
 
 class FileEntry(Strict):
@@ -29,6 +31,7 @@ class Fragment(Strict):
     blob: Sha
     start: int = Field(ge=1)
     end: int = Field(ge=1)
+    total_lines: int = Field(ge=1)
     text: str
 
 
@@ -66,6 +69,7 @@ class Snapshot(Strict):
     excluded: dict[str, str] = Field(default_factory=dict)
     directories: list[FileEntry] = Field(default_factory=list)
     files: list[FileEntry] = Field(default_factory=list)
+    offsets: dict[str, Annotated[int, Field(ge=1)]] = Field(default_factory=dict)
     requests: int = 0
     bytes: int = 0
     listing_complete: bool = False

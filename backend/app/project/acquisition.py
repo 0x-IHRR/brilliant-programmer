@@ -91,6 +91,7 @@ async def acquire(client: GitHub, snapshot: Snapshot) -> AsyncIterator[Snapshot]
     entries, fragments = list(snapshot.entries), list(snapshot.fragments)
     excluded = dict(snapshot.excluded)
     directories, files = list(snapshot.directories), list(snapshot.files)
+    offsets = dict(snapshot.offsets)
     if not entries and not directories and not snapshot.listing_complete:
         directories = [
             FileEntry(path="", sha=snapshot.repository.tree, kind="tree", mode="040000")
@@ -104,6 +105,7 @@ async def acquire(client: GitHub, snapshot: Snapshot) -> AsyncIterator[Snapshot]
             excluded=dict(excluded),
             directories=list(directories),
             files=list(files),
+            offsets=dict(offsets),
             requests=client.requests,
             bytes=client.bytes,
             listing_complete=not directories,
@@ -140,19 +142,31 @@ async def acquire(client: GitHub, snapshot: Snapshot) -> AsyncIterator[Snapshot]
             yield checkpoint()
         if files and len(fragments) < MAX_FILES:
             entry = files[0]
+            focused = entry.path == snapshot.repository.focus
+            start = offsets.get(
+                entry.path, snapshot.repository.start_line if focused else 1
+            )
+            end = snapshot.repository.end_line if focused else None
             try:
-                fragment = await client.fragment(snapshot.repository, entry)
+                fragment = await client.fragment(
+                    snapshot.repository, entry, start=start, end=end
+                )
             except ProbeError as error:
                 if error.code not in {
                     "source_secret",
                     "github_binary",
                     "github_skipped",
                     "github_invalid",
+                    "github_range",
                 }:
                     raise
                 excluded[entry.path] = error.message
             else:
                 fragments.append(fragment)
+                offsets[entry.path] = fragment.end + 1
+                if fragment.end < (end if end is not None else fragment.total_lines):
+                    # Rotate partial files rather than let one large file monopolize every batch.
+                    files.append(entry)
             files.pop(0)
             yield checkpoint()
         elif not directories:
