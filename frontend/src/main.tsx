@@ -10,6 +10,7 @@ import { Button } from "./components/ui/button"
 import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
 import "./index.css"
+import { CapabilityMap } from "./features/CapabilityMap"
 
 client.setConfig({ auth: () => sessionStorage.getItem("token") ?? undefined })
 
@@ -101,7 +102,7 @@ function App() {
     })
   }
   return (
-    <main className="mx-auto max-w-xl p-6 space-y-6">
+    <main className="mx-auto max-w-xl p-6 space-y-6 break-words">
       <h1 className="text-2xl font-bold">我是天才程序员</h1>
       <p role="status" className="break-words">
         {message}
@@ -207,6 +208,7 @@ function App() {
           >
             退出登录
           </Button>
+          {user.email_verified && <CapabilityMap key={user.id} />}
           {user.is_superuser && (
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">邀请管理</h2>

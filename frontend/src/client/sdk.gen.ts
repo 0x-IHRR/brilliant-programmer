@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, healthHealthData, healthHealthResponses } from './types.gen';
+import type { accountsGenerateInvitationData, accountsGenerateInvitationResponses, accountsInvitationsData, accountsInvitationsErrors, accountsInvitationsResponses, accountsLoginData, accountsLoginErrors, accountsLoginResponses, accountsLogoutData, accountsLogoutResponses, accountsMeData, accountsMeResponses, accountsRegisterData, accountsRegisterErrors, accountsRegisterResponses, accountsResendVerificationData, accountsResendVerificationResponses, accountsRevokeData, accountsRevokeErrors, accountsRevokeResponses, accountsTrainingAccessData, accountsTrainingAccessResponses, accountsVerifyEmailData, accountsVerifyEmailErrors, accountsVerifyEmailResponses, capabilitiesReadCatalogData, capabilitiesReadCatalogResponses, healthHealthData, healthHealthResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -147,6 +147,20 @@ export class AccountsService {
                 'Content-Type': 'application/json',
                 ...options.headers
             }
+        });
+    }
+}
+
+export class CapabilitiesService {
+    /**
+     * Read Catalog
+     */
+    public static readCatalog<ThrowOnError extends boolean = true>(options?: Options<capabilitiesReadCatalogData, ThrowOnError>) {
+        return (options?.client ?? client).get<capabilitiesReadCatalogResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/capabilities/catalog',
+            ...options
         });
     }
 }
