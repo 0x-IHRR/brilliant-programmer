@@ -8,7 +8,7 @@ from html.parser import HTMLParser
 import httpcore
 
 from app.model_config.connection import MAX_BYTES, ProbeError, PublicBackend
-from app.model_config.output import contains_secret
+from app.model_config.output import contains_secret as contains_secret
 from app.training.schema import Source
 
 # Release-owned starting references, not a question bank or a claim of human approval.
