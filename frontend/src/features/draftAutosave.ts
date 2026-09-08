@@ -43,6 +43,8 @@ export class DraftAutosave {
   edit(progress: DraftProgress) {
     this.desired = structuredClone(progress)
     this.due = Date.now() + 1000
+    // A flush queued for older input must not bypass this edit's debounce.
+    this.flushAfterFlight = false
     // Failed/unknown requests must be reconciled with their original identity.
     // Conflict resolution is explicit; further typing cannot silently pick a winner.
     if (this.status === "failed" || this.status === "conflict") return

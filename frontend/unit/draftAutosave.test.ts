@@ -98,3 +98,33 @@ test("wrong receipt and synchronous transport failure are retryable, never saved
   await saver.retry()
   expect(saver.status).toBe("saved")
 })
+
+test("a newer edit restarts debounce after an older timer expired during flight", async () => {
+  const writes: DraftWrite[] = []
+  const times: number[] = []
+  const gate = deferred<{ version: string; request_id: string }>()
+  const saver = new DraftAutosave(progress(), null, async request => {
+    writes.push(request)
+    times.push(Date.now())
+    return writes.length === 1 ? gate.promise : { version: "saved-" + request.request_id, request_id: request.request_id }
+  }, () => {})
+  saver.edit(progress("first"))
+  const first = saver.flush()
+  await pause(0)
+  saver.edit(progress("second"))
+  await pause(1100) // This timer expires while the first write is still in flight.
+  expect(writes).toHaveLength(1)
+  const lastEdit = Date.now()
+  saver.edit(progress("third"))
+  gate.resolve({ version: "saved-" + writes[0].request_id, request_id: writes[0].request_id })
+  await first
+  await pause(50)
+  expect(writes).toHaveLength(1)
+  expect(saver.status).toBe("saving")
+  await pause(1000)
+  expect(writes).toHaveLength(2)
+  expect(times[1] - lastEdit).toBeGreaterThanOrEqual(1000)
+  expect(writes[1].progress.answers[0].reason).toBe("third")
+  expect(writes[1].expected_version).toBe("saved-" + writes[0].request_id)
+  expect(saver.status).toBe("saved")
+})
