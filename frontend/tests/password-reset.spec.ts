@@ -87,3 +87,66 @@ test("password recovery revokes two devices; mobile keyboard and failure recover
   await second.close()
   await request.post("/api/v1/login/logout", { headers: adminHeaders })
 })
+
+
+for (const delayedPath of ["/api/v1/capabilities/catalog", "/api/v1/model-config"]) {
+  test(`late 401 from ${delayedPath} preserves replacement session`, async ({ page }) => {
+    // Real UI and generated SDK; controlled responses isolate the response-order race.
+    const users = {
+      A: { id: crypto.randomUUID(), email: "a@example.com", email_verified: true, is_active: true, is_superuser: false, level: "小白程序员" },
+      B: { id: crypto.randomUUID(), email: "b@example.com", email_verified: true, is_active: true, is_superuser: false, level: "小白程序员" },
+    }
+    let release!: () => void
+    const delayed = new Promise<void>(resolve => { release = resolve })
+    let started!: () => void
+    const pending = new Promise<void>(resolve => { started = resolve })
+    await page.route("**/api/v1/**", async route => {
+      const req = route.request()
+      const path = new URL(req.url()).pathname
+      const account = req.headers().authorization === "Bearer session-B" ? "B" : "A"
+      if (path === "/api/v1/login/access-token") {
+        const name = new URLSearchParams(req.postData()!).get("username") === users.B.email ? "B" : "A"
+        await route.fulfill({ json: { access_token: `session-${name}`, token_type: "bearer" } })
+      } else if (path === "/api/v1/users/me") {
+        await route.fulfill({ json: users[account] })
+      } else if (path === "/api/v1/login/logout") {
+        await route.fulfill({ json: { message: "已退出当前设备" } })
+      } else if (path === delayedPath && account === "A") {
+        started()
+        await delayed
+        await route.fulfill({ status: 401, json: { detail: "请重新登录" } })
+      } else if (path === "/api/v1/capabilities/catalog") {
+        await route.fulfill({ json: { version: "test", quality: "test", domains: [], backgrounds: [], difficulty_criteria: { 基础: "test" } } })
+      } else if (path === "/api/v1/model-config") {
+        await route.fulfill({ json: null })
+      } else if (path === "/api/v1/training/access") {
+        await route.fulfill({ status: 401, json: { detail: "请重新登录" } })
+      } else {
+        throw new Error(`Unexpected test request: ${path}`)
+      }
+    })
+    async function signIn(email: string) {
+      await page.getByLabel("邮箱", { exact: true }).fill(email)
+      await page.getByLabel("密码（12–128 字符）", { exact: true }).fill("synthetic-password")
+      await page.getByRole("button", { name: "登录", exact: true }).click()
+      await expect(page.getByRole("heading", { name: "我的训练首页" })).toBeVisible()
+    }
+    await page.goto("/")
+    await signIn(users.A.email)
+    await pending
+    await page.getByRole("button", { name: "退出登录" }).click()
+    await signIn(users.B.email)
+    const response = page.waitForResponse(r => new URL(r.url()).pathname === delayedPath && r.status() === 401)
+    release()
+    await (await response).finished()
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
+    expect(await page.evaluate(() => sessionStorage.getItem("token"))).toBe("session-B")
+    await expect(page.getByRole("heading", { name: "我的训练首页" })).toBeVisible()
+    await expect(page.getByRole("status")).not.toContainText("请重新登录")
+    // B's own authenticated failure still revokes B, including through App.action.
+    await page.getByRole("button", { name: "检查训练准入" }).click()
+    await expect(page.getByRole("status")).toContainText("请重新登录")
+    await expect(page.getByRole("heading", { name: "邮箱登录" })).toBeVisible()
+    expect(await page.evaluate(() => sessionStorage.getItem("token"))).toBeNull()
+  })
+}

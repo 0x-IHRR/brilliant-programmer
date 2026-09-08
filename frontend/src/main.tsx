@@ -39,7 +39,8 @@ function App() {
   }, [])
   useEffect(() => {
     const id = client.instance.interceptors.response.use(undefined, error => {
-      if (error.response?.status === 401 && error.config?.url !== "/api/v1/login/access-token") {
+      const token = sessionStorage.getItem("token")
+      if (error.response?.status === 401 && token && error.config?.headers?.Authorization === `Bearer ${token}`) {
         resetSession("登录状态已失效，请重新登录。")
       }
       return Promise.reject(error)
@@ -72,12 +73,11 @@ function App() {
     } catch (error: unknown) {
       const e = error as {
         response?: { status?: number; data?: { detail?: unknown } }
+        config?: { url?: string }
       }
-      if (e.response?.status === 401) {
-        sessionStorage.removeItem("token")
-        setUser(null)
-        setInvitations([])
-      }
+      // Authenticated 401s are handled once by the session-bound interceptor.
+      // A delayed failure from a previous account must not affect the current one.
+      if (e.response?.status === 401 && e.config?.url !== "/api/v1/login/access-token") return
       const detail = e.response?.data?.detail
       setMessage(
         typeof detail === "string"
