@@ -11,7 +11,7 @@ test("verified catalog, keyboard prerequisites, mobile zoom and retry", async ({
   expect((await request.post("/api/v1/users/signup", { data: { email, password, invitation_code: (await invitation.json()).code } })).status()).toBe(201)
   const login = await request.post("/api/v1/login/access-token", { form: { username: email, password } })
   const headers = { Authorization: `Bearer ${(await login.json()).access_token}` }
-  const mailpit = process.env.MAILPIT_URL!
+  const mailpit = process.env.MAILPIT_URL ?? "http://127.0.0.1:18025"
   const messages = (await (await request.get(`${mailpit}/api/v1/messages?limit=1000`)).json()).messages
   const message = messages.find((m: { To: { Address: string }[] }) => m.To.some(t => t.Address === email))
   const body = (await (await request.get(`${mailpit}/api/v1/message/${message.ID}`)).json()).Text as string
