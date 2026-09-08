@@ -5,6 +5,32 @@ export type ClientOptions = {
 };
 
 /**
+ * Attempt
+ */
+export type Attempt = {
+    /**
+     * Number
+     */
+    number: number;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Prompt Tokens
+     */
+    prompt_tokens?: number | null;
+    /**
+     * Completion Tokens
+     */
+    completion_tokens?: number | null;
+    /**
+     * Total Tokens
+     */
+    total_tokens?: number | null;
+};
+
+/**
  * Body_accounts-login
  */
 export type Body_accounts_login = {
@@ -112,6 +138,50 @@ export type ModelConfigSave = {
      * Disclosure Accepted
      */
     disclosure_accepted: boolean;
+};
+
+/**
+ * ProbeInput
+ */
+export type ProbeInput = {
+    /**
+     * Service Url
+     */
+    service_url: string;
+    /**
+     * Model Id
+     */
+    model_id?: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+};
+
+/**
+ * ProbeResult
+ */
+export type ProbeResult = {
+    /**
+     * Ok
+     */
+    ok: boolean;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Models
+     */
+    models?: Array<string>;
+    /**
+     * Attempts
+     */
+    attempts?: Array<Attempt>;
 };
 
 /**
@@ -268,6 +338,28 @@ export type ModelConfigSaveWritable = {
      * Expected Version
      */
     expected_version?: string | null;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+};
+
+/**
+ * ProbeInput
+ */
+export type ProbeInputWritable = {
+    /**
+     * Service Url
+     */
+    service_url: string;
+    /**
+     * Model Id
+     */
+    model_id?: string;
+    /**
+     * Api Key
+     */
+    api_key: string;
     /**
      * Disclosure Accepted
      */
@@ -575,6 +667,36 @@ export type modelconfigSaveConfigResponses = {
 };
 
 export type modelconfigSaveConfigResponse = modelconfigSaveConfigResponses[keyof modelconfigSaveConfigResponses];
+
+export type modelconfigProbeData = {
+    body: ProbeInputWritable;
+    path: {
+        /**
+         * Kind
+         */
+        kind: 'test' | 'models';
+    };
+    query?: never;
+    url: '/api/v1/model-config/probe/{kind}';
+};
+
+export type modelconfigProbeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type modelconfigProbeError = modelconfigProbeErrors[keyof modelconfigProbeErrors];
+
+export type modelconfigProbeResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProbeResult;
+};
+
+export type modelconfigProbeResponse = modelconfigProbeResponses[keyof modelconfigProbeResponses];
 
 export type healthHealthData = {
     body?: never;

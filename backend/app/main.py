@@ -35,7 +35,7 @@ async def safe_validation_error(
     # Pydantic errors can include the rejected Key or malformed JSON body.
     from fastapi.exception_handlers import request_validation_exception_handler
 
-    if request.url.path.rstrip("/") == "/api/v1/model-config":
+    if request.url.path.rstrip("/") == "/api/v1/model-config" or request.url.path.startswith("/api/v1/model-config/"):
         return JSONResponse(
             status_code=422,
             content={"detail": "配置格式不正确，请检查地址、模型 ID 和 Key"},
