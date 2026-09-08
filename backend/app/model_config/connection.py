@@ -221,23 +221,11 @@ def parse_reply(
         raise invalid from None
 
 
-async def request_once(
-    body: ProbeInput, kind: Literal["test", "models"]
-) -> tuple[list[str], dict[str, int | None]]:
-    base = validate_service_url(body.service_url)
-    listing = kind == "models"
-    payload = (
-        None
-        if listing
-        else json.dumps(
-            {
-                "model": body.model_id,
-                "messages": [{"role": "user", "content": "请仅回复 OK"}],
-                "stream": False,
-            }
-        ).encode()
-    )
-    key = body.api_key.get_secret_value()
+async def request_raw(
+    service_url: str, key: str, payload: bytes | None, listing: bool = False
+) -> tuple[bytes, str, dict[str, int | None]]:
+    """Shared server-only transport; callers own fixed probe or training context."""
+    base = validate_service_url(service_url)
     raw = bytearray()
     content_type = ""
     complete = False
@@ -334,7 +322,7 @@ async def request_once(
                             "service_rejected",
                             "服务不支持或拒绝本次请求；可检查配置、手填模型 ID",
                         )
-                    return parse_reply(bytes(raw), content_type, listing, key)
+                    return bytes(raw), content_type, received_usage(bytes(raw), content_type, True)
     except ProbeError as error:
         error.counts = received_usage(bytes(raw[:MAX_BYTES]), content_type, complete)
         raise
@@ -362,3 +350,17 @@ async def request_once(
             "服务连接中断或协议无效；请检查配置后主动重试",
             counts=received_usage(bytes(raw), content_type, complete),
         ) from None
+
+
+async def request_once(
+    body: ProbeInput, kind: Literal["test", "models"]
+) -> tuple[list[str], dict[str, int | None]]:
+    listing = kind == "models"
+    payload = None if listing else json.dumps({
+        "model": body.model_id,
+        "messages": [{"role": "user", "content": "请仅回复 OK"}],
+        "stream": False,
+    }).encode()
+    key = body.api_key.get_secret_value()
+    raw, content_type, _counts = await request_raw(body.service_url, key, payload, listing)
+    return parse_reply(raw, content_type, listing, key)
