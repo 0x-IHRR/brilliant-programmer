@@ -32,7 +32,7 @@ export function CapabilityMap() {
   return <section aria-labelledby="capability-map-title" className="space-y-4 break-words">
     <h2 id="capability-map-title" className="text-xl font-semibold">全栈能力与前置地图</h2>
     <p>未验证表示还没有对应证据，不表示不会。查看领域或难度不会解锁关卡，也不会改变等级。</p>
-    <p>能力证明与训练入口尚未接入。以后仅按同一能力、难度、技术背景的独立检验取证；不同框架或综合案例中仅出现过的组件不会自动获得证明。</p>
+    <p>独立检验与能力证明尚未接入。以后仅按同一能力、难度、技术背景的独立检验取证；不同框架或综合案例中仅出现过的组件不会自动获得证明。</p>
     {loading && <p aria-live="polite">正在读取能力目录…</p>}
     {error && <p role="alert">{error}</p>}
     <Button className="h-auto min-h-9 max-w-full whitespace-normal" variant="outline" disabled={loading} onClick={() => setAttempt(n => n + 1)}>重新读取能力目录</Button>

@@ -62,6 +62,12 @@ class ProbeError(Exception):
         super().__init__(message)
 
 
+class CancelledCall(asyncio.CancelledError):
+    def __init__(self, counts: dict[str, int | None]):
+        self.counts = counts
+        super().__init__("model request cancelled")
+
+
 def public_ip(value: str) -> bool:
     address = ipaddress.ip_address(value)
     if not address.is_global or address.is_multicast:
@@ -322,7 +328,15 @@ async def request_raw(
                             "service_rejected",
                             "服务不支持或拒绝本次请求；可检查配置、手填模型 ID",
                         )
-                    return bytes(raw), content_type, received_usage(bytes(raw), content_type, True)
+                    return (
+                        bytes(raw),
+                        content_type,
+                        received_usage(bytes(raw), content_type, True),
+                    )
+    except asyncio.CancelledError:
+        raise CancelledCall(
+            received_usage(bytes(raw[:MAX_BYTES]), content_type, complete)
+        ) from None
     except ProbeError as error:
         error.counts = received_usage(bytes(raw[:MAX_BYTES]), content_type, complete)
         raise
@@ -356,11 +370,19 @@ async def request_once(
     body: ProbeInput, kind: Literal["test", "models"]
 ) -> tuple[list[str], dict[str, int | None]]:
     listing = kind == "models"
-    payload = None if listing else json.dumps({
-        "model": body.model_id,
-        "messages": [{"role": "user", "content": "请仅回复 OK"}],
-        "stream": False,
-    }).encode()
+    payload = (
+        None
+        if listing
+        else json.dumps(
+            {
+                "model": body.model_id,
+                "messages": [{"role": "user", "content": "请仅回复 OK"}],
+                "stream": False,
+            }
+        ).encode()
+    )
     key = body.api_key.get_secret_value()
-    raw, content_type, _counts = await request_raw(body.service_url, key, payload, listing)
+    raw, content_type, _counts = await request_raw(
+        body.service_url, key, payload, listing
+    )
     return parse_reply(raw, content_type, listing, key)

@@ -2,11 +2,11 @@ import asyncio
 import uuid
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
-from app.capabilities.catalog import EvidenceKey
+from app.capabilities.catalog import CATALOG, EvidenceKey
 from app.core.db import engine
-from app.model_config.connection import BACKOFF_SECONDS, ProbeError
+from app.model_config.connection import BACKOFF_SECONDS, CancelledCall, ProbeError
 from app.training.gate import call_credential
 from app.training.generation import generate
 from app.training.models import TrainingAttempt, TrainingRun
@@ -25,9 +25,20 @@ def read_run(run_id: uuid.UUID) -> TrainingRun:
         return run
 
 
+def last_attempt(run_id: uuid.UUID) -> TrainingAttempt | None:
+    with Session(engine) as session:
+        return session.exec(
+            select(TrainingAttempt)
+            .where(TrainingAttempt.run_id == run_id)
+            .order_by(col(TrainingAttempt.number).desc())
+        ).first()
+
+
 def finish(run_id: uuid.UUID, code: str, message: str) -> None:
     with Session(engine) as session:
-        run = session.exec(select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()).one()
+        run = session.exec(
+            select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
+        ).one()
         if run.candidate:
             run.status = "stopped" if run.stop_requested else "completed"
         else:
@@ -39,13 +50,26 @@ def finish(run_id: uuid.UUID, code: str, message: str) -> None:
 
 def begin_attempt(run_id: uuid.UUID) -> TrainingAttempt | None:
     with Session(engine) as session:
-        run = session.exec(select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()).one()
-        if run.stop_requested or run.status in TERMINAL or run.attempts >= 6 or run.generation_attempts >= 3:
+        run = session.exec(
+            select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
+        ).one()
+        if (
+            run.stop_requested
+            or run.status in TERMINAL
+            or run.attempts >= 6
+            or run.generation_attempts >= 3
+        ):
             return None
-        run.status, run.code, run.message = "running", "generating", "模型正在生成并核对候选"
+        run.status, run.code, run.message = (
+            "running",
+            "generating",
+            "模型正在生成并核对候选",
+        )
         run.attempts += 1
         run.generation_attempts += 1
-        attempt = TrainingAttempt(run_id=run.id, number=run.attempts, generation=run.generation)
+        attempt = TrainingAttempt(
+            run_id=run.id, number=run.attempts, generation=run.generation
+        )
         session.add(run)
         session.add(attempt)
         session.commit()
@@ -53,7 +77,9 @@ def begin_attempt(run_id: uuid.UUID) -> TrainingAttempt | None:
         return attempt
 
 
-def record_attempt(attempt_id: uuid.UUID, code: str, counts: dict[str, int | None]) -> None:
+def record_attempt(
+    attempt_id: uuid.UUID, code: str, counts: dict[str, int | None]
+) -> None:
     with Session(engine) as session:
         attempt = session.get(TrainingAttempt, attempt_id)
         assert attempt
@@ -66,7 +92,11 @@ def record_attempt(attempt_id: uuid.UUID, code: str, counts: dict[str, int | Non
 
 def save_sources(run_id: uuid.UUID, sources: list[Source]) -> None:
     with Session(engine) as session:
-        run = session.exec(select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()).one()
+        run = session.exec(
+            select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
+        ).one()
+        if run.sources or run.candidate or run.stop_requested:
+            return
         run.sources = [source.model_dump() for source in sources]
         session.add(run)
         session.commit()
@@ -74,10 +104,23 @@ def save_sources(run_id: uuid.UUID, sources: list[Source]) -> None:
 
 def accept_candidate(run_id: uuid.UUID, raw: str, key: str) -> bool:
     with Session(engine) as session:
-        run = session.exec(select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()).one()
-        candidate = validate_candidate(raw, EvidenceKey.model_validate(run.target), [Source.model_validate(s) for s in run.sources], key)
+        run = session.exec(
+            select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
+        ).one()
+        candidate = validate_candidate(
+            raw,
+            EvidenceKey.model_validate(run.target),
+            [Source.model_validate(s) for s in run.sources],
+            key,
+        )
         fingerprint = scenario_fingerprint(candidate)
-        previous = session.exec(select(TrainingRun.id).where(TrainingRun.user_id == run.user_id, TrainingRun.scenario_hash == fingerprint, TrainingRun.id != run.id)).first()
+        previous = session.exec(
+            select(TrainingRun.id).where(
+                TrainingRun.user_id == run.user_id,
+                TrainingRun.scenario_hash == fingerprint,
+                TrainingRun.id != run.id,
+            )
+        ).first()
         if previous:
             raise ValueError("repeated scenario")
         run.candidate = candidate.model_dump()
@@ -91,7 +134,9 @@ def accept_candidate(run_id: uuid.UUID, raw: str, key: str) -> bool:
 
 def allow_correction(run_id: uuid.UUID) -> bool:
     with Session(engine) as session:
-        run = session.exec(select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()).one()
+        run = session.exec(
+            select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
+        ).one()
         if run.stop_requested or run.generation >= 1:
             return False
         run.generation += 1
@@ -110,49 +155,140 @@ async def process(run_id: uuid.UUID) -> None:
     run = await asyncio.to_thread(read_run, run_id)
     if run.status in TERMINAL or run.stop_requested:
         return
+    if run.selection.get("catalog_version", CATALOG.version) != CATALOG.version:
+        await asyncio.to_thread(
+            finish,
+            run_id,
+            "catalog_changed",
+            "能力目录版本已变化，请主动启动新任务；旧任务不改写目标",
+        )
+        return
     attempt: TrainingAttempt | None = None
+    # Reconcile a crash between recording an outcome and choosing its next step.
+    # Known malformed/permanent outcomes must not be retried as unknown requests.
+    previous = await asyncio.to_thread(last_attempt, run_id)
+    if (
+        previous
+        and previous.code in {"invalid_candidate", "invalid_response"}
+        and previous.generation == run.generation
+    ):
+        if not await asyncio.to_thread(allow_correction, run_id):
+            await asyncio.to_thread(
+                finish,
+                run_id,
+                previous.code,
+                "候选未通过核对，纠错预算已耗尽；可主动更换方向",
+            )
+            return
+        run = await asyncio.to_thread(read_run, run_id)
+    if previous and previous.code not in {
+        "unknown",
+        "ok",
+        "invalid_candidate",
+        "invalid_response",
+        "connection",
+        "timeout",
+        "rate_limited",
+        "temporary_service",
+        "dns",
+    }:
+        await asyncio.to_thread(
+            finish,
+            run_id,
+            previous.code,
+            "上次调用已确定失败，不能因重启自动重试；请核对配置或更换方向",
+        )
+        return
     try:
         if not run.sources:
-            sources = await acquire_source(EvidenceKey.model_validate(run.target).capability_id)
+            sources = await acquire_source(
+                EvidenceKey.model_validate(run.target).capability_id
+            )
             await asyncio.to_thread(save_sources, run_id, sources)
         while True:
             run = await asyncio.to_thread(read_run, run_id)
             if run.stop_requested:
-                await asyncio.to_thread(finish, run_id, "stopped", "已停止；在途费用请查看供应商账单")
+                await asyncio.to_thread(
+                    finish, run_id, "stopped", "已停止；在途费用请查看供应商账单"
+                )
                 return
             if run.attempts >= 6 or run.generation_attempts >= 3:
-                await asyncio.to_thread(finish, run_id, "budget_exhausted", "本步骤尝试预算已耗尽；未知请求可能计费，可主动更换方向")
+                await asyncio.to_thread(
+                    finish,
+                    run_id,
+                    "budget_exhausted",
+                    "本步骤尝试预算已耗尽；未知请求可能计费，可主动更换方向",
+                )
                 return
-            async with call_credential(run.user_id, run.config_version) as (config, secret):
+            async with call_credential(run.user_id, run.config_version) as (
+                config,
+                secret,
+            ):
                 attempt = await asyncio.to_thread(begin_attempt, run_id)
                 if attempt is None:
                     return
-                raw, counts = await generate(config.service_url, config.model_id, secret.get_secret_value(), EvidenceKey.model_validate(run.target), [Source.model_validate(s) for s in run.sources], run.generation > 0)
+                raw, counts = await generate(
+                    config.service_url,
+                    config.model_id,
+                    secret.get_secret_value(),
+                    EvidenceKey.model_validate(run.target),
+                    [Source.model_validate(s) for s in run.sources],
+                    run.generation > 0,
+                )
                 await asyncio.to_thread(record_attempt, attempt.id, "ok", counts)
                 try:
-                    await asyncio.to_thread(accept_candidate, run_id, raw, secret.get_secret_value())
+                    await asyncio.to_thread(
+                        accept_candidate, run_id, raw, secret.get_secret_value()
+                    )
                     return
                 except ValueError:
-                    await asyncio.to_thread(record_attempt, attempt.id, "invalid_candidate", counts)
+                    await asyncio.to_thread(
+                        record_attempt, attempt.id, "invalid_candidate", counts
+                    )
             if not await asyncio.to_thread(allow_correction, run_id):
-                await asyncio.to_thread(finish, run_id, "invalid_candidate", "候选字段、引用或证据未通过核对，未交付；可更换方向")
+                await asyncio.to_thread(
+                    finish,
+                    run_id,
+                    "invalid_candidate",
+                    "候选字段、引用或证据未通过核对，未交付；可更换方向",
+                )
                 return
     except ProbeError as error:
         if attempt:
-            await asyncio.to_thread(record_attempt, attempt.id, error.code, error.counts)
+            await asyncio.to_thread(
+                record_attempt, attempt.id, error.code, error.counts
+            )
         run = await asyncio.to_thread(read_run, run_id)
-        if error.code == "invalid_response" and await asyncio.to_thread(allow_correction, run_id):
+        if error.code == "invalid_response" and await asyncio.to_thread(
+            allow_correction, run_id
+        ):
             await process(run_id)
-        elif error.retry and run.generation_attempts < 3 and run.attempts < 6 and not run.stop_requested:
+        elif (
+            error.retry
+            and run.generation_attempts < 3
+            and run.attempts < 6
+            and not run.stop_requested
+        ):
             await asyncio.sleep(BACKOFF_SECONDS[max(0, run.generation_attempts - 1)])
             await process(run_id)
         else:
             await asyncio.to_thread(finish, run_id, error.code, error.message)
     except HTTPException:
-        await asyncio.to_thread(finish, run_id, "configuration_revoked", "配置已变更、删除或账号不可用；旧任务不再调用，请主动使用新配置启动")
-    except asyncio.CancelledError:
+        await asyncio.to_thread(
+            finish,
+            run_id,
+            "configuration_revoked",
+            "配置已变更、删除或账号不可用；旧任务不再调用，请主动使用新配置启动",
+        )
+    except asyncio.CancelledError as error:
+        if attempt and isinstance(error, CancelledCall):
+            await asyncio.to_thread(
+                record_attempt, attempt.id, "cancelled", error.counts
+            )
         # Received tokens already recorded above survive; interrupted attempts remain unknown.
-        await asyncio.to_thread(finish, run_id, "cancelled", "已尝试中断，未确认请求结果与用量保持未知")
+        await asyncio.to_thread(
+            finish, run_id, "cancelled", "已尝试中断，未确认请求结果与用量保持未知"
+        )
         raise
 
 
@@ -165,10 +301,10 @@ async def generate_training(run_id: str) -> None:
         done, _ = await asyncio.wait((work, stop), return_when=asyncio.FIRST_COMPLETED)
         if stop in done and not work.done():
             work.cancel()
-        await work
+        await asyncio.shield(work)
     finally:
         stop.cancel()
-        if not work.done():
+        if not work.done() and not work.cancelling():
             work.cancel()
         await asyncio.gather(work, stop, return_exceptions=True)
 

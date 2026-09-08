@@ -148,6 +148,20 @@ export type Catalog = {
 };
 
 /**
+ * Citation
+ */
+export type Citation = {
+    /**
+     * Source Id
+     */
+    source_id: string;
+    /**
+     * Quote
+     */
+    quote: string;
+};
+
+/**
  * Domain
  */
 export type Domain = {
@@ -243,6 +257,32 @@ export type InvitationPublic = {
      * Created At
      */
     created_at: string;
+};
+
+/**
+ * Judgment
+ */
+export type Judgment = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Kind
+     */
+    kind: 'choice' | 'order' | 'prediction';
+    /**
+     * Prompt
+     */
+    prompt: string;
+    /**
+     * Options
+     */
+    options: Array<string>;
+    /**
+     * Evidence Ids
+     */
+    evidence_ids: Array<string>;
 };
 
 /**
@@ -380,6 +420,67 @@ export type ProbeResult = {
 };
 
 /**
+ * PublicCase
+ */
+export type PublicCase = {
+    target: EvidenceKey;
+    /**
+     * Catalog Version
+     */
+    catalog_version: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Task
+     */
+    task: string;
+    /**
+     * Assumptions
+     */
+    assumptions: Array<string>;
+    /**
+     * Evidence
+     */
+    evidence: Array<PublicEvidence>;
+    /**
+     * Judgments
+     */
+    judgments: Array<Judgment>;
+    /**
+     * Sources
+     */
+    sources: Array<Source>;
+    /**
+     * Quality
+     */
+    quality?: string;
+};
+
+/**
+ * PublicEvidence
+ */
+export type PublicEvidence = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Label
+     */
+    label: '教学材料';
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Citations
+     */
+    citations: Array<Citation>;
+};
+
+/**
  * RegistrationPublic
  */
 export type RegistrationPublic = {
@@ -411,6 +512,94 @@ export type RegistrationPublic = {
      * Verification Sent
      */
     verification_sent: boolean;
+};
+
+/**
+ * Source
+ */
+export type Source = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Version
+     */
+    version: string;
+    /**
+     * Locator
+     */
+    locator: string;
+    /**
+     * Text
+     */
+    text: string;
+};
+
+/**
+ * Start
+ */
+export type Start = {
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Previous Run Id
+     */
+    previous_run_id?: string | null;
+};
+
+/**
+ * TaskPublic
+ */
+export type TaskPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Config Version
+     */
+    config_version: string;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    target: EvidenceKey;
+    /**
+     * Goal
+     */
+    goal: string;
+    /**
+     * Attempts
+     */
+    attempts: Array<Attempt>;
+    case: PublicCase | null;
 };
 
 /**
@@ -966,6 +1155,109 @@ export type modelconfigProbeResponses = {
 };
 
 export type modelconfigProbeResponse = modelconfigProbeResponses[keyof modelconfigProbeResponses];
+
+export type trainingStartData = {
+    body: Start;
+    path?: never;
+    query?: never;
+    url: '/api/v1/training/random';
+};
+
+export type trainingStartErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type trainingStartError = trainingStartErrors[keyof trainingStartErrors];
+
+export type trainingStartResponses = {
+    /**
+     * Successful Response
+     */
+    202: TaskPublic;
+};
+
+export type trainingStartResponse = trainingStartResponses[keyof trainingStartResponses];
+
+export type trainingLatestData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/training/tasks';
+};
+
+export type trainingLatestResponses = {
+    /**
+     * Response Training-Latest
+     *
+     * Successful Response
+     */
+    200: Array<TaskPublic>;
+};
+
+export type trainingLatestResponse = trainingLatestResponses[keyof trainingLatestResponses];
+
+export type trainingReadData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}';
+};
+
+export type trainingReadErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type trainingReadError = trainingReadErrors[keyof trainingReadErrors];
+
+export type trainingReadResponses = {
+    /**
+     * Successful Response
+     */
+    200: TaskPublic;
+};
+
+export type trainingReadResponse = trainingReadResponses[keyof trainingReadResponses];
+
+export type trainingStopData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/stop';
+};
+
+export type trainingStopErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type trainingStopError = trainingStopErrors[keyof trainingStopErrors];
+
+export type trainingStopResponses = {
+    /**
+     * Successful Response
+     */
+    200: TaskPublic;
+};
+
+export type trainingStopResponse = trainingStopResponses[keyof trainingStopResponses];
 
 export type healthHealthData = {
     body?: never;
