@@ -94,3 +94,21 @@ class VerificationRequest(SQLModel):
 
 class RegistrationPublic(UserPublic):
     verification_sent: bool
+
+
+class PasswordReset(SQLModel, table=True):
+    user_id: uuid.UUID = Field(foreign_key="user.id", primary_key=True)
+    email: str
+    token_hash: str = Field(unique=True, index=True)
+    expires_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False))
+    sent_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False))
+
+
+class PasswordResetEmail(SQLModel):
+    model_config = {"extra": "forbid"}
+    email: EmailStr = Field(max_length=255)
+
+
+class PasswordResetRequest(VerificationRequest):
+    model_config = {"extra": "forbid"}
+    password: str = Field(min_length=12, max_length=128)

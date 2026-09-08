@@ -6,6 +6,7 @@ from typing import Annotated
 import jwt
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import col, select
 
@@ -18,6 +19,7 @@ from app.api.deps import (
 )
 from app.api.rate_limit import protect_auth
 from app.core.config import settings
+from app.core.password_reset import request_password_reset
 from app.core.security import (
     ALGORITHM,
     create_access_token,
@@ -30,6 +32,9 @@ from app.models import (
     Invitation,
     InvitationPublic,
     LoginSession,
+    PasswordReset,
+    PasswordResetEmail,
+    PasswordResetRequest,
     RegistrationPublic,
     Token,
     TokenPayload,
@@ -49,7 +54,11 @@ DUMMY_HASH = get_password_hash(secrets.token_urlsafe(32))
 def login(
     session: SessionDep, form: Annotated[OAuth2PasswordRequestForm, Depends()]
 ) -> Token:
-    user = session.exec(select(User).where(User.email == form.username.lower())).first()
+    # Password verification and session creation serialize with password reset.
+    user = session.exec(
+        select(User).where(User.email == form.username.lower()).with_for_update()
+        .execution_options(populate_existing=True)
+    ).first()
     valid, _ = verify_password(
         form.password, user.hashed_password if user else DUMMY_HASH
     )
@@ -203,3 +212,31 @@ def verify_email(
     session.commit()
     session.refresh(user)
     return user
+
+
+@router.post("/password-reset/request", status_code=202, dependencies=[Depends(protect_auth)])
+def password_reset_email(body: PasswordResetEmail, session: SessionDep) -> dict[str, str]:
+    request_password_reset(session, body.email.lower())
+    return {"message": "请求已受理。如该邮箱对应已验证的有效账号，将尝试发送重置链接；未收到请一分钟后重试。此响应不确认账号存在或邮件送达。"}
+
+
+@router.post("/password-reset/confirm", dependencies=[Depends(protect_auth)])
+def reset_password(body: PasswordResetRequest, session: SessionDep) -> dict[str, str]:
+    digest = token_hash(body.token)
+    user_id = session.exec(select(PasswordReset.user_id).where(PasswordReset.token_hash == digest)).first()
+    if not user_id:
+        raise HTTPException(400, "重置链接无效、过期或已使用，请重新申请")
+    # Same lock as login/resend; refresh after waiting to observe any winning reset.
+    user = session.exec(select(User).where(User.id == user_id).with_for_update()
+        .execution_options(populate_existing=True)).one()
+    row = session.get(PasswordReset, user_id, populate_existing=True)
+    if (not user.is_active or not user.email_verified or not row
+        or row.email != user.email or row.expires_at <= datetime.now(UTC)
+        or not secrets.compare_digest(row.token_hash, digest)):
+        raise HTTPException(400, "重置链接无效、过期或已使用，请重新申请")
+    user.hashed_password = get_password_hash(body.password)
+    session.add(user)
+    session.delete(row)
+    session.exec(delete(LoginSession).where(col(LoginSession.user_id) == user.id))
+    session.commit()
+    return {"message": "密码已重置，所有设备均需使用新密码重新登录。"}

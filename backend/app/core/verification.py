@@ -46,6 +46,20 @@ def send_verification(session: Session, user_id: uuid.UUID) -> bool:
         f"{settings.FRONTEND_HOST}/#verify={token}\n"
         "没有发起注册请忽略；邮件不包含密码或邀请码。"
     )
+    if not send_email(message):
+        session.rollback()
+        return False
+    row = previous or EmailVerification(user_id=user.id)
+    row.email = user.email
+    row.token_hash = token_hash(token)
+    row.expires_at = now + timedelta(minutes=settings.VERIFICATION_EXPIRE_MINUTES)
+    row.sent_at = now
+    session.add(row)
+    session.commit()
+    return True
+
+
+def send_email(message: EmailMessage) -> bool:
     try:
         with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=5) as smtp:
             if settings.SMTP_STARTTLS:
@@ -56,13 +70,5 @@ def send_verification(session: Session, user_id: uuid.UUID) -> bool:
                 smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             smtp.send_message(message)
     except OSError, smtplib.SMTPException:
-        session.rollback()
         return False
-    row = previous or EmailVerification(user_id=user.id)
-    row.email = user.email
-    row.token_hash = token_hash(token)
-    row.expires_at = now + timedelta(minutes=settings.VERIFICATION_EXPIRE_MINUTES)
-    row.sent_at = now
-    session.add(row)
-    session.commit()
     return True
