@@ -1,4 +1,9 @@
 services:
+  mail:
+    image: axllent/mailpit@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d
+    ports:
+      - '127.0.0.1:${SMTP_PORT:-11025}:1025'
+      - '127.0.0.1:${MAILPIT_HTTP_PORT:-18025}:8025'
   db:
     image: postgres:17
     environment:

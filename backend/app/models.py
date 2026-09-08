@@ -60,6 +60,7 @@ class Token(SQLModel):
 
 class TokenPayload(SQLModel):
     sub: uuid.UUID
+    jti: uuid.UUID
 
 
 class AuthRate(SQLModel, table=True):
@@ -67,3 +68,29 @@ class AuthRate(SQLModel, table=True):
     key: str = Field(primary_key=True, max_length=64)
     minute: int = Field(sa_type=BigInteger)
     count: int = Field(sa_type=BigInteger)
+
+
+class LoginSession(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", index=True)
+    expires_at: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), nullable=False)
+    )
+
+
+class EmailVerification(SQLModel, table=True):
+    user_id: uuid.UUID = Field(foreign_key="user.id", primary_key=True)
+    email: str
+    token_hash: str = Field(unique=True, index=True)
+    expires_at: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), nullable=False)
+    )
+    sent_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False))
+
+
+class VerificationRequest(SQLModel):
+    token: str = Field(min_length=43, max_length=43)
+
+
+class RegistrationPublic(UserPublic):
+    verification_sent: bool

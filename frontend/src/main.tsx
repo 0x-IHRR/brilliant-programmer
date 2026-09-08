@@ -13,7 +13,19 @@ import "./index.css"
 
 client.setConfig({ auth: () => sessionStorage.getItem("token") ?? undefined })
 
+function readVerificationToken() {
+  const token = new URLSearchParams(location.hash.slice(1)).get("verify") ?? ""
+  if (token) history.replaceState(null, "", location.pathname + location.search)
+  return token
+}
+
 function App() {
+  const [verificationToken, setVerificationToken] = useState(readVerificationToken)
+  useEffect(() => {
+    const capture = () => setVerificationToken(readVerificationToken())
+    window.addEventListener("hashchange", capture)
+    return () => window.removeEventListener("hashchange", capture)
+  }, [])
   const [user, setUser] = useState<UserPublic | null>(null)
   const [signup, setSignup] = useState(false)
   const [message, setMessage] = useState("")
@@ -68,7 +80,7 @@ function App() {
       password = String(form.get("password"))
     await action(async () => {
       if (signup) {
-        await AccountsService.register({
+        const { data } = await AccountsService.register({
           body: {
             email,
             password,
@@ -76,7 +88,9 @@ function App() {
           },
         })
         setSignup(false)
-        setMessage("注册成功，等级：小白程序员。邮箱尚未验证，请登录查看账号。")
+        setMessage(data.verification_sent
+          ? "注册成功，验证邮件已交给本地收件服务。请登录并打开邮箱中的链接。"
+          : "注册成功，但验证邮件发送失败。请登录后重发验证邮件。")
       } else {
         const { data } = await AccountsService.login({
           body: { username: email, password },
@@ -92,6 +106,7 @@ function App() {
       <p role="status" className="break-words">
         {message}
       </p>
+      {verificationToken && <p>已读取验证链接，请登录对应邮箱账号后确认验证。</p>}
       {!user ? (
         <>
           <h2>{signup ? "受邀注册" : "邮箱登录"}</h2>
@@ -149,14 +164,25 @@ function App() {
         </>
       ) : (
         <>
+          <h2 className="text-xl font-semibold">我的训练首页</h2>
           <p>
             {user.email} · {user.level}
           </p>
           <p>
             {user.email_verified
               ? "邮箱已验证"
-              : "邮箱未验证，暂不能进入训练。邮箱验证功能将在后续任务提供。"}
+              : "邮箱未验证，暂不能进入训练。请查看验证邮件或重发。"}
           </p>
+          {verificationToken && <Button disabled={busy} onClick={() => action(async () => {
+            const { data } = await AccountsService.verifyEmail({ body: { token: verificationToken } })
+            setUser(data)
+            setVerificationToken("")
+            setMessage("邮箱验证成功。训练不会自动启动。")
+          })}>确认验证邮箱</Button>}
+          {!user.email_verified && <Button disabled={busy} variant="outline" onClick={() => action(async () => {
+            const { data } = await AccountsService.resendVerification()
+            setMessage(data.message)
+          })}>重发验证邮件</Button>}
           <Button
             disabled={busy}
             onClick={() =>
@@ -171,12 +197,13 @@ function App() {
           <Button
             disabled={busy}
             variant="outline"
-            onClick={() => {
+            onClick={() => action(async () => {
+              await AccountsService.logout()
               sessionStorage.removeItem("token")
               setUser(null)
               setInvitations([])
               setMessage("已退出当前设备")
-            }}
+            })}
           >
             退出登录
           </Button>

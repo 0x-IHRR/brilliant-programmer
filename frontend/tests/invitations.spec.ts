@@ -62,6 +62,7 @@ test("administrator copies invitation; guest registers and cannot train; revoke 
     fullPage: true,
   })
   await signup.getByRole("button", { name: "退出登录" }).click()
+  await expect(signup.getByRole("status")).toHaveText("已退出当前设备")
   expect(
     await signup.evaluate(() => sessionStorage.getItem("token")),
   ).toBeNull()

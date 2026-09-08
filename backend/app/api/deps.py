@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from datetime import UTC, datetime
 from typing import Annotated
 
 import jwt
@@ -10,7 +11,7 @@ from sqlmodel import Session
 from app.core.config import settings
 from app.core.db import engine
 from app.core.security import ALGORITHM
-from app.models import TokenPayload, User
+from app.models import LoginSession, TokenPayload, User
 
 
 def get_db() -> Generator[Session]:
@@ -27,9 +28,21 @@ TokenDep = Annotated[
 def get_current_user(session: SessionDep, token: TokenDep) -> User:
     try:
         payload = TokenPayload(
-            **jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+            **jwt.decode(
+                token,
+                settings.SECRET_KEY,
+                algorithms=[ALGORITHM],
+                options={"require": ["exp", "sub", "jti"]},
+            )
         )
     except jwt.InvalidTokenError, ValidationError:
+        raise HTTPException(401, "请重新登录")
+    login_session = session.get(LoginSession, payload.jti)
+    if (
+        not login_session
+        or login_session.user_id != payload.sub
+        or login_session.expires_at <= datetime.now(UTC)
+    ):
         raise HTTPException(401, "请重新登录")
     user = session.get(User, payload.sub)
     if not user or not user.is_active:
