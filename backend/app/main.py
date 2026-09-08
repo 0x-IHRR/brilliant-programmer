@@ -37,7 +37,7 @@ async def safe_validation_error(
 
     if request.url.path.rstrip("/") in {"/api/v1/password-reset/request", "/api/v1/password-reset/confirm"}:
         return JSONResponse(status_code=422, content={"detail": "邮箱、链接或密码格式不正确；新密码须为 12–128 字符"})
-    if request.url.path.rstrip("/") == "/api/v1/model-config":
+    if request.url.path.rstrip("/") == "/api/v1/model-config" or request.url.path.startswith("/api/v1/model-config/"):
         return JSONResponse(
             status_code=422,
             content={"detail": "配置格式不正确，请检查地址、模型 ID 和 Key"},

@@ -64,13 +64,11 @@ class ModelConfig(SQLModel, table=True):
     key_version: str
 
 
-class ModelConfigSave(BaseModel):
+class ModelConfigFields(BaseModel):
     model_config = ConfigDict(extra="forbid")
     service_url: str = Field(min_length=1, max_length=2048)
     model_id: str = Field(min_length=1, max_length=255)
     api_key: SecretStr | None = None
-    expected_version: uuid.UUID | None = None
-    disclosure_accepted: bool
 
     @field_validator("service_url")
     @classmethod
@@ -94,6 +92,11 @@ class ModelConfigSave(BaseModel):
             ):
                 raise ValueError("Key 须为 1–4096 个可打印 ASCII 字符且不含空白")
         return value
+
+
+class ModelConfigSave(ModelConfigFields):
+    expected_version: uuid.UUID | None = None
+    disclosure_accepted: bool
 
 
 class ModelConfigPublic(BaseModel):
