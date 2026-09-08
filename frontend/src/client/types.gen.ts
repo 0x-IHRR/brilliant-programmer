@@ -312,6 +312,30 @@ export type ModelConfigSave = {
 };
 
 /**
+ * PasswordResetEmail
+ */
+export type PasswordResetEmail = {
+    /**
+     * Email
+     */
+    email: string;
+};
+
+/**
+ * PasswordResetRequest
+ */
+export type PasswordResetRequest = {
+    /**
+     * Token
+     */
+    token: string;
+    /**
+     * Password
+     */
+    password: string;
+};
+
+/**
  * ProbeInput
  */
 export type ProbeInput = {
@@ -765,6 +789,64 @@ export type accountsVerifyEmailResponses = {
 };
 
 export type accountsVerifyEmailResponse = accountsVerifyEmailResponses[keyof accountsVerifyEmailResponses];
+
+export type accountsPasswordResetEmailData = {
+    body: PasswordResetEmail;
+    path?: never;
+    query?: never;
+    url: '/api/v1/password-reset/request';
+};
+
+export type accountsPasswordResetEmailErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type accountsPasswordResetEmailError = accountsPasswordResetEmailErrors[keyof accountsPasswordResetEmailErrors];
+
+export type accountsPasswordResetEmailResponses = {
+    /**
+     * Response Accounts-Password Reset Email
+     *
+     * Successful Response
+     */
+    202: {
+        [key: string]: string;
+    };
+};
+
+export type accountsPasswordResetEmailResponse = accountsPasswordResetEmailResponses[keyof accountsPasswordResetEmailResponses];
+
+export type accountsResetPasswordData = {
+    body: PasswordResetRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/password-reset/confirm';
+};
+
+export type accountsResetPasswordErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type accountsResetPasswordError = accountsResetPasswordErrors[keyof accountsResetPasswordErrors];
+
+export type accountsResetPasswordResponses = {
+    /**
+     * Response Accounts-Reset Password
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: string;
+    };
+};
+
+export type accountsResetPasswordResponse = accountsResetPasswordResponses[keyof accountsResetPasswordResponses];
 
 export type capabilitiesReadCatalogData = {
     body?: never;
