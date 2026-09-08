@@ -2,13 +2,13 @@
 
 import asyncio
 import hashlib
-import re
 import ssl
 from html.parser import HTMLParser
 
 import httpcore
 
 from app.model_config.connection import MAX_BYTES, ProbeError, PublicBackend
+from app.model_config.output import contains_secret
 from app.training.schema import Source
 
 # Release-owned starting references, not a question bank or a claim of human approval.
@@ -29,14 +29,6 @@ REFERENCES = {
     "team": "https://git-scm.com/docs/git-diff",
 }
 
-
-def contains_secret(text: str) -> bool:
-    return bool(
-        re.search(
-            r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bAKIA[A-Z0-9]{16}\b|\bsk-[A-Za-z0-9_-]{24,}",
-            text,
-        )
-    )
 
 
 class PlainText(HTMLParser):

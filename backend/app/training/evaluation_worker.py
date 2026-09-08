@@ -6,6 +6,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+import procrastinate
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlmodel import Session, col, select
@@ -32,7 +33,7 @@ from app.training.events import next_event
 from app.training.gate import call_credential
 from app.training.generation import extract_content
 from app.training.models import TrainingRun
-from app.training.queue import queue
+from app.training.queue import DSN, queue
 from app.training.schema import Candidate, Source, validate_candidate
 from app.training.sources import contains_secret
 from app.training.submission_models import Submission
@@ -351,6 +352,7 @@ async def evaluate(run_id: str) -> None:
 
 def reconcile_failed_evaluations() -> None:
     """Queue owns the job failure; recover the visible state when storage returns."""
+    recover_stopping_evaluations()
     with engine.connect() as connection:
         identities = connection.execute(
             text("""SELECT s.run_id FROM training_evaluation s
@@ -364,3 +366,36 @@ def reconcile_failed_evaluations() -> None:
             "internal_failure",
             "上次评分未能完成；原答与奖励保留，可主动重试，预算不重置。",
         )
+
+
+def recover_stopping_evaluations() -> None:
+    with Session(engine) as session:
+        pending = session.exec(
+            select(Evaluation.run_id, Evaluation.queue_job_id)
+            .where(Evaluation.status == "stopping")
+            .limit(100)
+        ).all()
+    for identity, job_id in pending:
+        with procrastinate.App(
+            connector=procrastinate.SyncPsycopgConnector(conninfo=DSN)
+        ).open() as app:
+            if job_id is not None:
+                app.job_manager.cancel_job_by_id(job_id, abort=True)
+        with Session(engine) as session:
+            run = session.get(TrainingRun, identity)
+            assert run
+            lock_owner(session, run.user_id)
+            item = session.get(Evaluation, identity, populate_existing=True)
+            if (
+                item
+                and item.status == "stopping"
+                and item.stop_requested
+                and item.queue_job_id == job_id
+            ):
+                item.status, item.code, item.message = (
+                    "stopped",
+                    "stopped",
+                    "已恢复停止状态；原答与奖励保留，在途费用不保证撤回",
+                )
+                session.add(item)
+                session.commit()

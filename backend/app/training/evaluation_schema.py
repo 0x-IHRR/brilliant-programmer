@@ -5,6 +5,7 @@ from typing import Literal
 
 from pydantic import Field
 
+from app.model_config.output import check_output
 from app.training.schema import Candidate, Citation, Source, Strict, Text
 from app.training.submission_models import Submission
 from app.training.submission_schema import Answer, validate_answers
@@ -120,8 +121,7 @@ def validate_grading(
     The model still interprets natural language. This check does not certify that
     interpretation: #35–40's labelled quality gate remains separately required.
     """
-    if key and key in raw:
-        raise ValueError("secret echoed")
+    check_output(raw, key)
     result = GradingCandidate.model_validate_json(raw)
     judgments = {j.id: j for j in case.judgments}
     if len(result.items) != len(judgments) or {

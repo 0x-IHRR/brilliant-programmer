@@ -6,6 +6,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.capabilities.catalog import CATALOG, EvidenceKey
+from app.model_config.output import check_output
 
 Text = Annotated[str, Field(min_length=1, max_length=6000, pattern=r"\S")]
 
@@ -78,8 +79,7 @@ class Candidate(Strict):
 def validate_candidate(
     raw: str, target: EvidenceKey, sources: list[Source], key: str
 ) -> Candidate:
-    if key and key in raw:
-        raise ValueError("secret echoed")
+    check_output(raw, key)
     candidate = Candidate.model_validate_json(raw)
     if candidate.target != target or candidate.catalog_version != CATALOG.version:
         raise ValueError("target changed")

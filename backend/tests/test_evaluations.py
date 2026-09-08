@@ -461,3 +461,126 @@ def test_post_freeze_review_appends_without_model_or_award(ready, provider):
         )
         assert session.get(Submission, uuid.UUID(saved["id"])).queue_job_id is None
         assert session.get(Submission, uuid.UUID(original["id"])).answers == [answer]
+
+
+@pytest.mark.parametrize("response_format", ["json", "sse"])
+def test_encoded_model_key_never_reaches_result_or_public_api(
+    ready, provider, response_format
+):
+    auth, identity, config, *_ = ready
+
+    def leaked(context):
+        result = grading(context)
+        result["items"][0]["explanation"] = FAKE_KEY
+        return result
+
+    provider["grading"] = leaked
+    provider["escaped_output"] = True
+    provider["response_format"] = response_format
+    start(auth, identity, config)
+    result = wait(auth, identity)
+    assert result["code"] == "invalid_response" and result["result"] is None
+    assert FAKE_KEY not in json.dumps(result)
+    assert result["attempts"][0]["total_tokens"] == 20
+    with Session(engine) as session:
+        assert session.get(Evaluation, uuid.UUID(identity)).result is None
+
+
+@pytest.mark.parametrize("recovery", ["repeat_stop", "background"])
+def test_interrupted_stopping_can_finish_and_retry(
+    ready, provider, monkeypatch, tmp_path, recovery
+):
+    import procrastinate
+
+    from app.training.evaluation_worker import reconcile_failed_evaluations
+
+    auth, identity, config, _, process, _ = ready
+    stop_worker(process)
+    start(auth, identity, config)
+    original_open = procrastinate.App.open
+
+    def broken_open(*_args, **_kwargs):
+        raise RuntimeError("controlled queue connection failure")
+
+    monkeypatch.setattr(procrastinate.App, "open", broken_open)
+    with pytest.raises(RuntimeError, match="controlled queue connection failure"):
+        client.post(endpoint(identity) + "/stop", headers=auth)
+    assert client.get(endpoint(identity), headers=auth).json()["status"] == "stopping"
+    monkeypatch.setattr(procrastinate.App, "open", original_open)
+    if recovery == "repeat_stop":
+        assert (
+            client.post(endpoint(identity) + "/stop", headers=auth).json()["status"]
+            == "stopped"
+        )
+    else:
+        reconcile_failed_evaluations()
+        assert (
+            client.get(endpoint(identity), headers=auth).json()["status"] == "stopped"
+        )
+    assert len(provider["requests"]) == 2
+    assert client.post(endpoint(identity) + "/retry", headers=auth).status_code == 202
+    resumed, _ = start_worker(tmp_path, provider, identity)
+    try:
+        assert wait(auth, identity)["status"] == "completed"
+        assert len(provider["requests"]) == 3
+    finally:
+        stop_worker(resumed)
+
+
+def test_older_stop_cannot_cancel_or_overwrite_retried_job(
+    ready, provider, monkeypatch, tmp_path
+):
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    import procrastinate
+
+    from app.training.queue import DSN
+
+    auth, identity, config, _, process, _ = ready
+    stop_worker(process)
+    start(auth, identity, config)
+    with Session(engine) as session:
+        previous_job = session.get(Evaluation, uuid.UUID(identity)).queue_job_id
+    manager_type = type(
+        procrastinate.App(
+            connector=procrastinate.SyncPsycopgConnector(conninfo=DSN)
+        ).job_manager
+    )
+    original_cancel = manager_type.cancel_job_by_id
+    entered, release = threading.Event(), threading.Event()
+
+    def paused_cancel(manager, job_id, *args, **kwargs):
+        if not entered.is_set():
+            entered.set()
+            assert release.wait(10)
+        return original_cancel(manager, job_id, *args, **kwargs)
+
+    monkeypatch.setattr(manager_type, "cancel_job_by_id", paused_cancel)
+    with ThreadPoolExecutor() as executor:
+        late_stop = executor.submit(
+            client.post, endpoint(identity) + "/stop", headers=auth
+        )
+        assert entered.wait(5)
+        try:
+            assert (
+                client.post(endpoint(identity) + "/stop", headers=auth).json()["status"]
+                == "stopped"
+            )
+            assert (
+                client.post(endpoint(identity) + "/retry", headers=auth).status_code
+                == 202
+            )
+            with Session(engine) as session:
+                new_job = session.get(Evaluation, uuid.UUID(identity)).queue_job_id
+            assert new_job != previous_job
+        finally:
+            release.set()
+        assert late_stop.result(5).json()["status"] == "checking"
+    assert len(provider["requests"]) == 2
+    resumed, _ = start_worker(tmp_path, provider, identity)
+    try:
+        assert wait(auth, identity)["status"] == "completed"
+        assert len(provider["requests"]) == 3
+    finally:
+        stop_worker(resumed)

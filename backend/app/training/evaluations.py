@@ -262,18 +262,25 @@ def stop_evaluation(
     ).one_or_none()
     if not item:
         raise HTTPException(404, "评估不存在")
-    if item.status != "checking":
+    if item.status not in {"checking", "stopping"}:
         return view(session, item)
+    stopped_job_id = item.queue_job_id
     item.stop_requested, item.status = True, "stopping"
     session.add(item)
     session.commit()
     with procrastinate.App(
         connector=procrastinate.SyncPsycopgConnector(conninfo=DSN)
     ).open() as app:
-        if item.queue_job_id is not None:
-            app.job_manager.cancel_job_by_id(item.queue_job_id, abort=True)
+        if stopped_job_id is not None:
+            app.job_manager.cancel_job_by_id(stopped_job_id, abort=True)
     lock_owner(session, user.id)
     session.refresh(item)
+    if (
+        item.status != "stopping"
+        or not item.stop_requested
+        or item.queue_job_id != stopped_job_id
+    ):
+        return view(session, item)
     item.status, item.code, item.message = (
         "stopped",
         "stopped",

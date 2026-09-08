@@ -236,3 +236,5 @@ API 全套测试需先完成迁移和 `app.initial_data`，并设置对应 Mailp
 验证入口：`pytest tests/test_evaluation_schema.py tests/test_evaluations.py -q`；实际评分浏览器用 `python tests/evaluation_browser.py`，与 training_browser/project_browser 以及后端 worker 测试串行运行。供应商使用伪 Key 与本机受控 TLS，仅在测试进程适配网络；没有真实付费调用、对外邮件或部署。
 
 本票本地证据：完整后端 **249 passed**（162.98秒，最后两条边界修补之前）；修补后评分与既有提交定向 **36 passed**（74.66秒），包含无配置结束澄清及冻结后复盘零外呼/零新增奖励。原独立评分schema **26 passed**。真实评分浏览器1项（默认交卷接续、许可补答、刷新、冻结、复盘保存、320px/200%键盘）、原训练浏览器2项、项目浏览器1项均通过；普通前端9 passed/4专用skip，专用链路已单独串行验证。ruff、mypy（59文件）、TypeScript/build及diff检查通过。全新隔离schema从0001升至0008、加入合成旧提交再升0009，旧序号及接续计数实测保留。截图为 `frontend/test-results/evaluation-clarification-320.png`、`evaluation-result-320.png`、`evaluation-result-200.png`；已观察反馈区域，无横向溢出/控件裁切。受控浏览器完整链路2.5秒不代表生产模型延迟或真实语义质量。
+
+审查修复：模型结果沿现有 JSON/SSE 文本提取及三个候选校验入口，共用解码后结构的当前 Key/疑似秘密门禁；检查字段、键与数组，不接受 Unicode 转义掩盖的秘密。检测器仍有固有限制，不宣称零漏报；畸形候选保留原错误/纠错预算路径，已收到 usage 不丢失。停止意图保存后若队列连接失败，重复停止与后台恢复都可继续；锁内固定待取消 job，最终写入须匹配原停止状态与 job，旧停止不能取消或覆盖新重试。修复专项82项通过；直接受影响的训练生成/有界错误与纠错、正式交卷、项目地图/版本复用及公共门禁13项通过（含重叠门禁单测），ruff/mypy60文件/diff检查通过。没有重跑无关全套；最新CI应继续完整验证。

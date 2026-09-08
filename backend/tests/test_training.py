@@ -15,7 +15,7 @@ from sqlmodel import Session
 from app.core.db import engine
 from app.training.models import TrainingRun
 from tests.test_accounts import client
-from tests.test_model_config import account, save
+from tests.test_model_config import FAKE_KEY, account, save
 from tests.test_model_connection import certificate
 
 
@@ -171,12 +171,17 @@ def provider(tmp_path):
                 value["evidence"][0]["citations"][0]["quote"] = (
                     "Invented source quote that has never existed."
                 )
+            encoded_value = json.dumps(value)
+            if state.get("escaped_output"):
+                encoded_value = encoded_value.replace(
+                    FAKE_KEY, "".join(f"\\u{ord(char):04x}" for char in FAKE_KEY)
+                )
             content = json.dumps(
                 {
                     "choices": [
                         {
                             "message": {
-                                "content": "" if mode == "empty" else json.dumps(value)
+                                "content": "" if mode == "empty" else encoded_value
                             }
                         }
                     ],
@@ -187,9 +192,23 @@ def provider(tmp_path):
                     },
                 }
             ).encode()
+            content_type = "application/json"
+            if state.get("response_format") == "sse":
+                content_type = "text/event-stream"
+                event = {
+                    "choices": [{"index": 0, "delta": {"content": encoded_value}}],
+                    "usage": {
+                        "prompt_tokens": 11,
+                        "completion_tokens": 9,
+                        "total_tokens": 20,
+                    },
+                }
+                content = (
+                    "data: " + json.dumps(event) + "\n\ndata: [DONE]\n\n"
+                ).encode()
             try:
                 self.send_response(status)
-                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Type", content_type)
                 self.send_header("Content-Length", str(len(content)))
                 self.end_headers()
                 self.wfile.write(content)
