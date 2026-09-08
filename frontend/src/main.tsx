@@ -9,6 +9,7 @@ import { client } from "./client/client.gen"
 import { Button } from "./components/ui/button"
 import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
+import { ModelConfig } from "./features/ModelConfig"
 import "./index.css"
 
 client.setConfig({ auth: () => sessionStorage.getItem("token") ?? undefined })
@@ -207,6 +208,7 @@ function App() {
           >
             退出登录
           </Button>
+          {user.email_verified && <ModelConfig key={user.id} action={action} busy={busy} />}
           {user.is_superuser && (
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">邀请管理</h2>

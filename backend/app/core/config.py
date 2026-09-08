@@ -1,9 +1,11 @@
-from pydantic import EmailStr, Field, PostgresDsn, field_validator
+from pydantic import EmailStr, Field, PostgresDsn, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file="../.env", extra="ignore")
+    model_config = SettingsConfigDict(env_file="../.env", extra="ignore", hide_input_in_errors=True)
+    MODEL_ENCRYPTION_KEYS: dict[str, SecretStr] = Field(default_factory=dict)
+    MODEL_ACTIVE_KEY_VERSION: str = "v1"
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "我是天才程序员"
     SECRET_KEY: str = Field(min_length=32)
