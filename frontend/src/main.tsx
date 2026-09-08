@@ -11,6 +11,7 @@ import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
 import { ModelConfig } from "./features/ModelConfig"
 import "./index.css"
+import { CapabilityMap } from "./features/CapabilityMap"
 
 client.setConfig({ auth: () => sessionStorage.getItem("token") ?? undefined })
 
@@ -102,7 +103,7 @@ function App() {
     })
   }
   return (
-    <main className="mx-auto max-w-xl p-6 space-y-6">
+    <main className="mx-auto max-w-xl p-6 space-y-6 break-words">
       <h1 className="text-2xl font-bold">我是天才程序员</h1>
       <p role="status" className="break-words">
         {message}
@@ -208,6 +209,7 @@ function App() {
           >
             退出登录
           </Button>
+          {user.email_verified && <CapabilityMap key={user.id} />}
           {user.email_verified && <ModelConfig key={user.id} action={action} busy={busy} />}
           {user.is_superuser && (
             <section className="space-y-4">

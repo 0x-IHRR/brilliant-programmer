@@ -1,0 +1,1657 @@
+{
+  "version": "fullstack-v1.0.0",
+  "quality": "三档对照样例尚未人工核验；不是可发放题库。完整目录不代表所有语言、框架或模型已实测可用。",
+  "difficulty_criteria": {
+    "基础": "读懂已给材料，作局部判断并指出直接证据。",
+    "进阶": "对照多条线索区分可能原因，说明反例或下一项验证。",
+    "综合": "跨模块同时考虑效果、风险和代价，给出失败恢复与验证；只对明确考察且单独评分的能力取证。"
+  },
+  "backgrounds": [
+    {
+      "id": "requirements-evidence-v1",
+      "name": "业务规则与事件表",
+      "boundary": "仅针对题目明确给出的参与者、触发条件和约束；不推断真实公司的需求。"
+    },
+    {
+      "id": "systems-evidence-v1",
+      "name": "伪代码、资源与构建日志",
+      "boundary": "判断只使用给定伪代码语义和进程/线程模型；不自动认证某语言、编译器或操作系统。"
+    },
+    {
+      "id": "frontend-evidence-v1",
+      "name": "浏览器表单与异步事件",
+      "boundary": "适用给定 DOM、焦点和事件时序；React/Vue 等框架的具体行为需单独背景证据。"
+    },
+    {
+      "id": "network-evidence-v1",
+      "name": "DNS、TLS、HTTP 与代理记录",
+      "boundary": "适用题目给出的协议记录和浏览器限制；不凭服务器端成功推断浏览器跨域可用。"
+    },
+    {
+      "id": "api-evidence-v1",
+      "name": "HTTP 服务契约与事务时序",
+      "boundary": "仅验证接口/业务边界判断；FastAPI、Flask、Spring 的中间件与事务语义须分别取证。"
+    },
+    {
+      "id": "data-evidence-v1",
+      "name": "关系约束、SQL 与事务日志",
+      "boundary": "适用给定关系数据库隔离级别与执行计划；不同数据库版本/锁语义不能互认。"
+    },
+    {
+      "id": "async-evidence-v1",
+      "name": "缓存读写及消息交付时序",
+      "boundary": "只使用题面声明的 TTL、投递保证和顺序规则；不将某中间件名称当恰好一次保证。"
+    },
+    {
+      "id": "testing-evidence-v1",
+      "name": "需求、测试记录与故障注入",
+      "boundary": "判断测试证据是否支持给定要求；合成测试不代替真实供应商质量或生产容量。"
+    },
+    {
+      "id": "performance-evidence-v1",
+      "name": "耗时分段、负载和资源指标",
+      "boundary": "只对给定硬件、负载、采样窗口与并发模型成立；平均值不能代表尾延迟。"
+    },
+    {
+      "id": "security-evidence-v1",
+      "name": "多租户请求、输入与秘密流向",
+      "boundary": "适用给定身份/信任边界；示例不能证明所有攻击已覆盖，不能外发真实秘密。"
+    },
+    {
+      "id": "operations-evidence-v1",
+      "name": "容器、流水线、探针与备份记录",
+      "boundary": "Docker/CI/CD/Kubernetes 只在给定配置与日志范围内判断；未经演练不宣称生产或灾备可用。"
+    },
+    {
+      "id": "architecture-evidence-v1",
+      "name": "模块关系、接口版本和故障域",
+      "boundary": "仅对题目给出的规模、团队约束与迁移成本比较；不默认微服务优于单体。"
+    },
+    {
+      "id": "ai-evidence-v1",
+      "name": "检索片段、模型回答与工具请求",
+      "boundary": "只核对给定检索证据和调用权限；连通成功不证明模型评分、检索召回或所有框架兼容。"
+    },
+    {
+      "id": "team-evidence-v1",
+      "name": "需求、Git 差异、审查和交接记录",
+      "boundary": "只评价可检查的协作产物，不把 AI 总结或站内称号当个人生产经验。"
+    }
+  ],
+  "domains": [
+    {
+      "id": "requirements",
+      "name": "需求与业务建模",
+      "capabilities": [
+        {
+          "id": "requirements.acceptance",
+          "title": "把目标转换为可验收的触发与结果",
+          "criterion": "指出参与者、触发条件、正常结果和至少一个异常规则，用可观察结果排除含糊要求。",
+          "background_id": "requirements-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "requirements.acceptance",
+                  "difficulty": "基础",
+                  "background_id": "requirements-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "requirements.acceptance",
+                  "difficulty": "进阶",
+                  "background_id": "requirements-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "requirements.tradeoff",
+          "title": "用冲突约束比较业务方案",
+          "criterion": "引用目标和成本证据，说明受益者、冲突规则与取舍，不把未经证实的收益当事实。",
+          "background_id": "requirements-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "requirements.tradeoff",
+                  "difficulty": "基础",
+                  "background_id": "requirements-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "requirements.tradeoff",
+                  "difficulty": "进阶",
+                  "background_id": "requirements-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "requirements.acceptance"
+          ],
+          "task": "订单支付后应发货；支付失败不应发货，哪个事件允许进入发货？",
+          "acceptable": "引用支付成功事件及失败分支，选择成功后才发货。",
+          "insufficient": "仅说用户点了支付就发货。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "requirements.acceptance",
+            "requirements.tradeoff"
+          ],
+          "task": "营销要求立即发券，风控要求审核后发券；日志有待审核、拒绝与通过三态。",
+          "acceptable": "区分三态并要求确认营销时效与风控约束的优先级；列出验收结果。",
+          "insufficient": "只实现营销文案而忽略拒绝状态。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "requirements.acceptance",
+            "requirements.tradeoff"
+          ],
+          "task": "即时退款可减少投诉，但外部结算隔日确认；比较先承诺与待确认两方案。",
+          "acceptable": "区分可撤销申请与不可逆资金动作，给出时效、对账失败和补偿验证。",
+          "insufficient": "用平均满意度覆盖重复退款风险。"
+        }
+      ]
+    },
+    {
+      "id": "systems",
+      "name": "编程与系统基础",
+      "capabilities": [
+        {
+          "id": "systems.cost",
+          "title": "从数据规模推断结构和资源代价",
+          "criterion": "比较查找/遍历复杂度和内存占用，结合输入规模解释资源耗尽而非只背大 O。",
+          "background_id": "systems-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "systems.cost",
+                  "difficulty": "基础",
+                  "background_id": "systems-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "systems.cost",
+                  "difficulty": "进阶",
+                  "background_id": "systems-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "systems.execution",
+          "title": "区分构建、运行与进程线程故障",
+          "criterion": "按构建产物、运行入口、进程/线程共享范围定位失败阶段，说明并发模型的影响。",
+          "background_id": "systems-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "systems.execution",
+                  "difficulty": "基础",
+                  "background_id": "systems-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "systems.execution",
+                  "difficulty": "进阶",
+                  "background_id": "systems-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "systems.cost"
+          ],
+          "task": "列表逐项扫描一万个用户；哈希表查找同一 ID，哪个工作量随用户数增加？",
+          "acceptable": "引用逐项扫描路径，指出比较次数随规模增长，并说明哈希表额外占空间。",
+          "insufficient": "只因表名叫 cache 就断言耗时为零。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "systems.cost",
+            "systems.execution"
+          ],
+          "task": "构建成功但启动报缺环境变量，同时线程共享列表持续增长。",
+          "acceptable": "分开定位运行配置失败与共享内存增长，分别用启动日志和资源曲线核对。",
+          "insufficient": "把构建成功当运行正确，或建议加线程解决内存增长。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "systems.cost",
+            "systems.execution"
+          ],
+          "task": "多进程隔离内存却复制大索引，多线程共享索引却争锁；比较两种部署。",
+          "acceptable": "用峰值内存、锁等待和故障隔离证据比较，提出容量边界及压测验证。",
+          "insufficient": "仅以 CPU 核数选择进程，不考虑总内存。"
+        }
+      ]
+    },
+    {
+      "id": "frontend",
+      "name": "前端与交互",
+      "capabilities": [
+        {
+          "id": "frontend.state",
+          "title": "按事件时序定位界面状态与竞态",
+          "criterion": "指出状态归属、请求返回顺序及覆盖路径，选择保留正确输入和最新结果的办法。",
+          "background_id": "frontend-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "frontend.state",
+                  "difficulty": "基础",
+                  "background_id": "frontend-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "frontend.state",
+                  "difficulty": "进阶",
+                  "background_id": "frontend-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "frontend.accessibility",
+          "title": "检验表单与键盘操作可达性",
+          "criterion": "根据标签、焦点、校验反馈和窄屏材料指出阻断操作，提出可复现的键盘/缩放检查。",
+          "background_id": "frontend-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "frontend.accessibility",
+                  "difficulty": "基础",
+                  "background_id": "frontend-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "frontend.accessibility",
+                  "difficulty": "进阶",
+                  "background_id": "frontend-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "frontend.state"
+          ],
+          "task": "输入姓名后请求失败，页面是否应该清空已填内容？",
+          "acceptable": "保留用户输入，显示失败与重试；用当前状态和失败事件说明原因。",
+          "insufficient": "因请求结束就把表单重置。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "frontend.state",
+            "frontend.accessibility"
+          ],
+          "task": "搜索 A 先发后到，搜索 B 后发先到；错误提示只靠红色边框。",
+          "acceptable": "分别用请求身份保护 B 结果，用关联文本与焦点反馈表达错误。",
+          "insufficient": "把所有返回都写入当前结果，并只加更深红色。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "frontend.state",
+            "frontend.accessibility"
+          ],
+          "task": "分步申请跨组件保存，手机键盘遮住提交，重试又重复申请。",
+          "acceptable": "同时划分草稿与提交状态、确保窄屏焦点可达，并协调服务端防重验收。",
+          "insufficient": "只缩小字号或禁用按钮，忽略跨设备重试。"
+        }
+      ]
+    },
+    {
+      "id": "network",
+      "name": "网络与协议",
+      "capabilities": [
+        {
+          "id": "network.trace",
+          "title": "从链路证据区分请求失败阶段",
+          "criterion": "对照 DNS、连接、TLS、HTTP、代理与浏览器记录，指出请求到达哪一层及尚缺什么证据。",
+          "background_id": "network-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "network.trace",
+                  "difficulty": "基础",
+                  "background_id": "network-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "network.trace",
+                  "difficulty": "进阶",
+                  "background_id": "network-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "network.delivery",
+          "title": "判断断流与重试的交付边界",
+          "criterion": "从响应头、分片与断开时间区分未发送、部分交付和交付未知，说明重试风险。",
+          "background_id": "network-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "network.delivery",
+                  "difficulty": "基础",
+                  "background_id": "network-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "network.delivery",
+                  "difficulty": "进阶",
+                  "background_id": "network-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "network.trace"
+          ],
+          "task": "DNS 已返回地址，TCP 连接超时，没有 HTTP 状态码；下一步查哪里？",
+          "acceptable": "先查连接路径、目标端口与网络可达性，不把缺 HTTP 状态当应用 500。",
+          "insufficient": "要求服务端改 JSON 字段。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "network.trace",
+            "network.delivery"
+          ],
+          "task": "服务端请求成功，浏览器预检被代理拒绝；流式响应又在第三片断开。",
+          "acceptable": "区分预检策略与部分流交付，分别核查头部/代理和已收到分片。",
+          "insufficient": "因为 curl 成功就断言用户网络差。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "network.delivery"
+          ],
+          "task": "代理超时后客户端重发写请求，服务端可能已提交；如何恢复？",
+          "acceptable": "结合请求 ID 与提交查询判定状态，限制重试并说明未知结果，验证代理和服务超时组合。",
+          "insufficient": "把网络超时当事务回滚，立即重复写入。"
+        }
+      ]
+    },
+    {
+      "id": "api",
+      "name": "服务端与 API",
+      "capabilities": [
+        {
+          "id": "api.boundary",
+          "title": "定位参数、身份、权限与业务校验边界",
+          "criterion": "依据请求与服务端执行路径区分格式、身份、资源归属和业务约束，给出拒绝位置。",
+          "background_id": "api-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "api.boundary",
+                  "difficulty": "基础",
+                  "background_id": "api-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "api.boundary",
+                  "difficulty": "进阶",
+                  "background_id": "api-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "api.idempotency",
+          "title": "界定接口幂等和外部事务边界",
+          "criterion": "跟踪同一请求重放与外部调用结果，选择持久防重、事务或补偿边界并说明失败恢复。",
+          "background_id": "api-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "api.idempotency",
+                  "difficulty": "基础",
+                  "background_id": "api-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "api.idempotency",
+                  "difficulty": "进阶",
+                  "background_id": "api-evidence-v1"
+                },
+                {
+                  "capability_id": "api.boundary",
+                  "difficulty": "基础",
+                  "background_id": "api-evidence-v1"
+                }
+              ],
+              "alternatives": [
+                [
+                  {
+                    "capability_id": "data.integrity",
+                    "difficulty": "基础",
+                    "background_id": "data-evidence-v1"
+                  },
+                  {
+                    "capability_id": "async.jobs",
+                    "difficulty": "基础",
+                    "background_id": "async-evidence-v1"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "api.boundary"
+          ],
+          "task": "用户 B 请求用户 A 的订单，页面隐藏了按钮；服务端应检查什么？",
+          "acceptable": "按已认证身份核对订单归属，服务端拒绝越权而不是信任隐藏按钮。",
+          "insufficient": "相信客户端不会提交其他人的 ID。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "api.boundary",
+            "api.idempotency"
+          ],
+          "task": "创建订单已写库，外部支付超时，客户端重试；另一个请求数量为负。",
+          "acceptable": "分别拒绝非法数量，并通过稳定业务幂等键与状态查询处理未知支付结果。",
+          "insufficient": "重试重新生成订单 ID，再次扣款。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "api.idempotency"
+          ],
+          "task": "库存事务与支付服务无法原子提交，需比较预留、确认和超时释放。",
+          "acceptable": "列出各状态、重复回调、失败补偿及对账验证，说明可见性与延迟代价。",
+          "insufficient": "宣称把 HTTP 请求放进数据库事务就能一起回滚。"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "name": "数据与数据库",
+      "capabilities": [
+        {
+          "id": "data.integrity",
+          "title": "用约束和事务保护数据不变量",
+          "criterion": "根据重复、空值与并发写入材料选择表约束和事务边界，解释只在应用预查的漏洞。",
+          "background_id": "data-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "data.integrity",
+                  "difficulty": "基础",
+                  "background_id": "data-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "data.integrity",
+                  "difficulty": "进阶",
+                  "background_id": "data-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "data.query",
+          "title": "通过执行计划、锁与迁移记录判断数据变更",
+          "criterion": "引用扫描行数、索引、锁等待或迁移兼容性，区分查询慢与阻塞并给出验证/恢复。",
+          "background_id": "data-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "data.query",
+                  "difficulty": "基础",
+                  "background_id": "data-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "data.query",
+                  "difficulty": "进阶",
+                  "background_id": "data-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "data.integrity"
+          ],
+          "task": "同一订单号不能出现两次，两个请求都预查不存在；如何保证？",
+          "acceptable": "在数据库建立唯一约束并处理冲突，解释预查不能阻止并发。",
+          "insufficient": "只在按钮上加 loading。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "data.integrity",
+            "data.query"
+          ],
+          "task": "查询计划全表扫描，另一请求等待更新锁；新增索引是否同时解决？",
+          "acceptable": "区分扫描成本与锁等待，分别核对过滤条件/索引选择和事务持锁时间。",
+          "insufficient": "见到慢查询就一律加索引。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "data.integrity",
+            "data.query"
+          ],
+          "task": "大表新增必填字段且旧版本仍写入，需要灰度迁移并保留恢复能力。",
+          "acceptable": "分阶段兼容字段、回填和约束，测锁/容量并核对回退后旧代码能否读写。",
+          "insufficient": "一步加非空约束，认为代码回滚会恢复数据。"
+        }
+      ]
+    },
+    {
+      "id": "async",
+      "name": "缓存与异步任务",
+      "capabilities": [
+        {
+          "id": "async.cache",
+          "title": "选择缓存内容与失效边界",
+          "criterion": "区分权威数据与派生缓存，依据读写比、过期和失效时序判断一致性与代价。",
+          "background_id": "async-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "async.cache",
+                  "difficulty": "基础",
+                  "background_id": "async-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "async.cache",
+                  "difficulty": "进阶",
+                  "background_id": "async-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "async.jobs",
+          "title": "判断排队、重复消费与失败恢复",
+          "criterion": "按任务身份、确认时点和顺序解释重试/重复结果，给出可恢复的持久状态边界。",
+          "background_id": "async-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "async.jobs",
+                  "difficulty": "基础",
+                  "background_id": "async-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "async.jobs",
+                  "difficulty": "进阶",
+                  "background_id": "async-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "async.cache"
+          ],
+          "task": "价格已更新但缓存尚未过期，页面旧价格来自哪里？",
+          "acceptable": "指出缓存是派生副本，核对失效策略而不直接改权威价格。",
+          "insufficient": "把缓存旧值重新写回主表。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "async.jobs"
+          ],
+          "task": "消费者写库后崩溃未确认，消息重新到达；同时更新事件乱序。",
+          "acceptable": "用业务身份防重复效果，并依据版本/序号处理旧事件，区分确认和提交。",
+          "insufficient": "认为队列只会投递一次。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "async.cache",
+            "async.jobs"
+          ],
+          "task": "热点缓存击穿使下游饱和，积压任务必须恢复且账目不能丢失。",
+          "acceptable": "比较限流、合并刷新与排队背压，保持权威事务和可重试任务，验证恢复顺序。",
+          "insufficient": "通过丢弃所有积压消息来显示队列健康。"
+        }
+      ]
+    },
+    {
+      "id": "testing",
+      "name": "测试与验证",
+      "capabilities": [
+        {
+          "id": "testing.coverage",
+          "title": "将验收要求映射为可观察测试",
+          "criterion": "指出输入、动作、输出和持久结果；覆盖关键边界与失败，不用内部调用次数代替行为。",
+          "background_id": "testing-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "testing.coverage",
+                  "difficulty": "基础",
+                  "background_id": "testing-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "testing.coverage",
+                  "difficulty": "进阶",
+                  "background_id": "testing-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "testing.bias",
+          "title": "识别回归、集成与评测盲点",
+          "criterion": "对照真实依赖、故障注入和样本分布说明未覆盖风险、偏差与应补的证据。",
+          "background_id": "testing-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "testing.bias",
+                  "difficulty": "基础",
+                  "background_id": "testing-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "testing.bias",
+                  "difficulty": "进阶",
+                  "background_id": "testing-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "testing.coverage"
+          ],
+          "task": "要求退出后旧令牌失效，测试只检查按钮变成登录；证据够吗？",
+          "acceptable": "需要用旧令牌再次访问受保护 API 并被拒绝，页面变化不足。",
+          "insufficient": "截图出现登录就宣称会话撤销成功。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "testing.coverage",
+            "testing.bias"
+          ],
+          "task": "单元测试模拟支付必定成功，生产曾超时；如何加回归？",
+          "acceptable": "在公共 API 注入超时/未知结果并检查下一次查询与防重，保留成功路径。",
+          "insufficient": "删除超时测试让 CI 通过。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "testing.bias"
+          ],
+          "task": "模型总体正确率高，但全部样本来自一个框架，安全拒绝样本缺席。",
+          "acceptable": "分层抽样并按领域与安全项独立验收，区分自动回归和人工真值。",
+          "insufficient": "把总体分数直接推广到所有框架和安全场景。"
+        }
+      ]
+    },
+    {
+      "id": "performance",
+      "name": "性能与并发",
+      "capabilities": [
+        {
+          "id": "performance.bottleneck",
+          "title": "用指标区分性能瓶颈假设",
+          "criterion": "对照吞吐、尾延迟、CPU、内存、I/O 与等待时间定位限制，提出能区分假设的测量。",
+          "background_id": "performance-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "performance.bottleneck",
+                  "difficulty": "基础",
+                  "background_id": "performance-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "performance.bottleneck",
+                  "difficulty": "进阶",
+                  "background_id": "performance-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "performance.capacity",
+          "title": "为热点和资源竞争设计背压",
+          "criterion": "根据队列增长、连接池与锁竞争说明容量边界，比较限流、扩容和降级的影响。",
+          "background_id": "performance-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "performance.capacity",
+                  "difficulty": "基础",
+                  "background_id": "performance-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "performance.capacity",
+                  "difficulty": "进阶",
+                  "background_id": "performance-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "performance.bottleneck"
+          ],
+          "task": "请求共 900ms，数据库耗时 20ms，连接池等待 800ms；先看哪里？",
+          "acceptable": "先看池等待与占用，不把总延迟归因于 SQL 执行。",
+          "insufficient": "仅凭请求慢就加数据库索引。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "performance.bottleneck",
+            "performance.capacity"
+          ],
+          "task": "吞吐不增、p99 上升且 CPU 空闲，锁等待和队列长度上升。",
+          "acceptable": "比较锁竞争与下游饱和假设，测持锁时间/服务率，避免盲目加并发。",
+          "insufficient": "CPU 空闲就无限增加 worker。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "performance.bottleneck",
+            "performance.capacity"
+          ],
+          "task": "流量突增十倍但账务不能丢，扩容需十分钟；比较排队、拒绝和降级。",
+          "acceptable": "用到达率/服务率与资源上限设计有界背压，说明重试、延迟与恢复验证。",
+          "insufficient": "承诺无限队列可以保证所有请求立即成功。"
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "name": "安全与隐私",
+      "capabilities": [
+        {
+          "id": "security.authorization",
+          "title": "核对资源归属和租户隔离",
+          "criterion": "沿真实读取/写入路径核对已认证身份与资源归属，指出跨租户绕过点与拒绝证据。",
+          "background_id": "security-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "security.authorization",
+                  "difficulty": "基础",
+                  "background_id": "security-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "security.authorization",
+                  "difficulty": "进阶",
+                  "background_id": "security-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "security.input",
+          "title": "识别注入与不可信输入的权限影响",
+          "criterion": "追踪用户、仓库或模型文本是否进入 SQL、HTML、URL 或工具执行边界，提出安全处理与攻击反例。",
+          "background_id": "security-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "security.input",
+                  "difficulty": "基础",
+                  "background_id": "security-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "security.input",
+                  "difficulty": "进阶",
+                  "background_id": "security-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "security.secrets",
+          "title": "限定秘密生命周期和审计内容",
+          "criterion": "标明秘密产生、存储、使用、日志和删除边界，区分技术访问与产品权限，说明泄露恢复。",
+          "background_id": "security-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "security.secrets",
+                  "difficulty": "基础",
+                  "background_id": "security-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "security.secrets",
+                  "difficulty": "进阶",
+                  "background_id": "security-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "security.authorization",
+            "security.secrets"
+          ],
+          "task": "接口接受租户 ID 且日志记录完整 API Key，应先纠正哪些边界？",
+          "acceptable": "从会话确定租户归属并去除明文 Key 日志，分别验证越权拒绝和脱敏。",
+          "insufficient": "只隐藏前端租户选择器。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "security.input"
+          ],
+          "task": "仓库 README 要求模型上传环境变量，页面又直接渲染其 HTML。",
+          "acceptable": "将内容当数据，隔离工具权限并安全渲染；用恶意片段验证没有执行/外发。",
+          "insufficient": "信任 README 来源并照着运行。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "security.authorization",
+            "security.secrets"
+          ],
+          "task": "Key 已泄露且备份含旧密文，多租户任务仍在途；设计处置顺序。",
+          "acceptable": "撤销新调用、轮换凭据、核对在途与审计，不让恢复备份复活删除状态。",
+          "insufficient": "只删页面 Key 字段就宣称服务端和备份全无秘密。"
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "name": "部署与运行维护",
+      "capabilities": [
+        {
+          "id": "operations.configuration",
+          "title": "追踪构建与部署配置的生效来源",
+          "criterion": "对照镜像、环境变量、挂载与工作负载清单找出生效值和健康探针含义，区分构建与运行配置。",
+          "background_id": "operations-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "operations.configuration",
+                  "difficulty": "基础",
+                  "background_id": "operations-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "operations.configuration",
+                  "difficulty": "进阶",
+                  "background_id": "operations-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "operations.recovery",
+          "title": "根据日志和备份证据选择恢复步骤",
+          "criterion": "核对发布版本、故障范围、数据修改与恢复点，说明回滚/恢复区别及冒烟验证。",
+          "background_id": "operations-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "operations.recovery",
+                  "difficulty": "基础",
+                  "background_id": "operations-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "operations.recovery",
+                  "difficulty": "进阶",
+                  "background_id": "operations-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "operations.configuration"
+          ],
+          "task": "改了宿主环境变量但容器内仍是旧值，镜像构建成功能证明配置已生效吗？",
+          "acceptable": "查运行容器的配置注入与重建结果，不能仅凭构建成功判断。",
+          "insufficient": "重复构建镜像而不查运行实例。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "operations.configuration",
+            "operations.recovery"
+          ],
+          "task": "CI 通过，Kubernetes 就绪探针失败但进程存活；新版本同时改了表字段。",
+          "acceptable": "按探针、应用日志及数据库兼容性定位，区分存活与可服务，不直接强制就绪。",
+          "insufficient": "禁用失败探针完成发布。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "operations.configuration",
+            "operations.recovery"
+          ],
+          "task": "发布损坏部分数据，有昨夜备份和操作日志；如何决定回退与恢复？",
+          "acceptable": "先界定损坏及恢复点/数据损失窗口，在隔离环境演练恢复与删除标记重放，再核对冒烟。",
+          "insufficient": "只回滚容器就声称受损数据恢复。"
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "name": "架构与演进",
+      "capabilities": [
+        {
+          "id": "architecture.responsibility",
+          "title": "根据职责与变化原因划分模块",
+          "criterion": "依据调用、状态所有权和共同变更证据识别边界，说明保持集中或拆分的理由。",
+          "background_id": "architecture-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "architecture.responsibility",
+                  "difficulty": "基础",
+                  "background_id": "architecture-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "architecture.responsibility",
+                  "difficulty": "进阶",
+                  "background_id": "architecture-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "architecture.evolution",
+          "title": "比较兼容迁移与故障范围代价",
+          "criterion": "列明替代方案、读写兼容、迁移成本与失败传播，给出渐进验证和恢复条件。",
+          "background_id": "architecture-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "architecture.evolution",
+                  "difficulty": "基础",
+                  "background_id": "architecture-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "architecture.evolution",
+                  "difficulty": "进阶",
+                  "background_id": "architecture-evidence-v1"
+                },
+                {
+                  "capability_id": "architecture.responsibility",
+                  "difficulty": "基础",
+                  "background_id": "architecture-evidence-v1"
+                }
+              ],
+              "alternatives": [
+                [
+                  {
+                    "capability_id": "api.idempotency",
+                    "difficulty": "基础",
+                    "background_id": "api-evidence-v1"
+                  },
+                  {
+                    "capability_id": "data.integrity",
+                    "difficulty": "基础",
+                    "background_id": "data-evidence-v1"
+                  }
+                ],
+                [
+                  {
+                    "capability_id": "operations.recovery",
+                    "difficulty": "基础",
+                    "background_id": "operations-evidence-v1"
+                  },
+                  {
+                    "capability_id": "testing.bias",
+                    "difficulty": "基础",
+                    "background_id": "testing-evidence-v1"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "architecture.responsibility"
+          ],
+          "task": "两个模块都修改订单状态，规则经常不同步；哪项职责需澄清？",
+          "acceptable": "确定状态规则与写入所有权，先消除重复业务判断，不因文件多就拆服务。",
+          "insufficient": "每个类都改成独立服务。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "architecture.evolution"
+          ],
+          "task": "新 API 字段替换旧字段，但移动端旧版本不能同时升级。",
+          "acceptable": "比较兼容读写与版本演进，保留旧客户端路径并验证迁移窗口。",
+          "insufficient": "一次删旧字段并假定全部用户升级。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "architecture.responsibility",
+            "architecture.evolution"
+          ],
+          "task": "拆支付服务能隔离故障，却增加网络失败、对账和团队值班成本。",
+          "acceptable": "按故障域与事务边界比较单体/拆分方案，制定分阶段流量验证与恢复条件。",
+          "insufficient": "把微服务数量当架构质量指标。"
+        }
+      ]
+    },
+    {
+      "id": "ai",
+      "name": "AI 应用工程",
+      "capabilities": [
+        {
+          "id": "ai.grounding",
+          "title": "从检索证据区分有据回答与幻觉",
+          "criterion": "核对 RAG 片段、引用定位和回答中的主张，指出不足/冲突，要求补证而非编造事实。",
+          "background_id": "ai-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "ai.grounding",
+                  "difficulty": "基础",
+                  "background_id": "ai-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "ai.grounding",
+                  "difficulty": "进阶",
+                  "background_id": "ai-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "ai.tools",
+          "title": "限定模型工具权限与调用失败处理",
+          "criterion": "区分模型建议与服务端可执行动作，核对授权、超时、用量未知及质量评测边界。",
+          "background_id": "ai-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "ai.tools",
+                  "difficulty": "基础",
+                  "background_id": "ai-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "ai.tools",
+                  "difficulty": "进阶",
+                  "background_id": "ai-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "ai.grounding"
+          ],
+          "task": "检索只返回旧版 API 文档，回答却声称新版参数已支持；结论可靠吗？",
+          "acceptable": "指出版本证据不匹配，要求新版来源而不是凭流畅回答确认。",
+          "insufficient": "因为模型很自信就采信。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "ai.grounding",
+            "ai.tools"
+          ],
+          "task": "工具调用超时但供应商可能已执行，模型建议重复提交，检索又漏掉反例。",
+          "acceptable": "分别查调用身份/状态和检索覆盖；不自动重复不可逆动作。",
+          "insufficient": "无限重试直到模型说成功。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "ai.grounding",
+            "ai.tools"
+          ],
+          "task": "上线 RAG 助手要调用有写权限工具，评测高分但安全拒绝样本未测。",
+          "acceptable": "隔离检索数据与指令/工具授权，验证引用与攻击样本，保留超时和未知用量边界。",
+          "insufficient": "把连通性测试成功当作安全及教学质量通过。"
+        }
+      ]
+    },
+    {
+      "id": "team",
+      "name": "团队工程与 AI 协作",
+      "capabilities": [
+        {
+          "id": "team.review",
+          "title": "依据需求和实际差异审查 AI 代码",
+          "criterion": "追踪真实调用路径与验收条件，核对提交范围、测试证据和边界风险，不只读实现总结。",
+          "background_id": "team-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "team.review",
+                  "difficulty": "基础",
+                  "background_id": "team-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "team.review",
+                  "difficulty": "进阶",
+                  "background_id": "team-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        },
+        {
+          "id": "team.handoff",
+          "title": "记录可恢复的版本、决定与事故事实",
+          "criterion": "区分事实/假设，记录版本、影响、验证与下一步；保护已有 Git 改动并支持交接和复盘。",
+          "background_id": "team-evidence-v1",
+          "levels": [
+            {
+              "difficulty": "基础",
+              "required": [],
+              "alternatives": []
+            },
+            {
+              "difficulty": "进阶",
+              "required": [
+                {
+                  "capability_id": "team.handoff",
+                  "difficulty": "基础",
+                  "background_id": "team-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            },
+            {
+              "difficulty": "综合",
+              "required": [
+                {
+                  "capability_id": "team.handoff",
+                  "difficulty": "进阶",
+                  "background_id": "team-evidence-v1"
+                }
+              ],
+              "alternatives": []
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "difficulty": "基础",
+          "capability_ids": [
+            "team.review"
+          ],
+          "task": "AI 称已修复退出，但 diff 只改了按钮文案；应看什么？",
+          "acceptable": "追踪服务端会话撤销和旧令牌回归，指出总结没有覆盖实现。",
+          "insufficient": "把 AI 的完成说明复制成验收结论。"
+        },
+        {
+          "difficulty": "进阶",
+          "capability_ids": [
+            "team.handoff"
+          ],
+          "task": "交接写着测试通过，却无提交 SHA，工作区还有未提交修复。",
+          "acceptable": "核对 Git 状态与实际测试版本，保存修复并记录已验证范围和未完成项。",
+          "insufficient": "重置工作区到 main 清理现场。"
+        },
+        {
+          "difficulty": "综合",
+          "capability_ids": [
+            "team.handoff"
+          ],
+          "task": "事故涉及配置发布与并发数据损坏，两个团队各认为对方负责。",
+          "acceptable": "按版本/事件时间线核对事实、恢复证据和责任边界，形成可复现行动而非归咎个人。",
+          "insufficient": "只贴一张恢复截图，删除失败日志并宣称根治。"
+        }
+      ]
+    }
+  ]
+}

@@ -31,6 +31,24 @@ export type Attempt = {
 };
 
 /**
+ * Background
+ */
+export type Background = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Boundary
+     */
+    boundary: string;
+};
+
+/**
  * Body_accounts-login
  */
 export type Body_accounts_login = {
@@ -58,6 +76,141 @@ export type Body_accounts_login = {
      * Client Secret
      */
     client_secret?: string | null;
+};
+
+/**
+ * Capability
+ */
+export type Capability = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Criterion
+     */
+    criterion: string;
+    /**
+     * Background Id
+     */
+    background_id: string;
+    /**
+     * Levels
+     */
+    levels: Array<Level>;
+};
+
+/**
+ * Catalog
+ */
+export type Catalog = {
+    /**
+     * Version
+     */
+    version: string;
+    /**
+     * Quality
+     */
+    quality: string;
+    /**
+     * Difficulty Criteria
+     */
+    difficulty_criteria: {
+        [key: string]: string;
+    };
+    /**
+     * Backgrounds
+     */
+    backgrounds: Array<Background>;
+    /**
+     * Domains
+     */
+    domains: [
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain,
+        Domain
+    ];
+};
+
+/**
+ * Domain
+ */
+export type Domain = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Capabilities
+     */
+    capabilities: Array<Capability>;
+    /**
+     * Examples
+     */
+    examples: Array<Example>;
+};
+
+/**
+ * EvidenceKey
+ */
+export type EvidenceKey = {
+    /**
+     * Capability Id
+     */
+    capability_id: string;
+    /**
+     * Difficulty
+     */
+    difficulty: '基础' | '进阶' | '综合';
+    /**
+     * Background Id
+     */
+    background_id: string;
+};
+
+/**
+ * Example
+ */
+export type Example = {
+    /**
+     * Difficulty
+     */
+    difficulty: '基础' | '进阶' | '综合';
+    /**
+     * Capability Ids
+     */
+    capability_ids: Array<string>;
+    /**
+     * Task
+     */
+    task: string;
+    /**
+     * Acceptable
+     */
+    acceptable: string;
+    /**
+     * Insufficient
+     */
+    insufficient: string;
 };
 
 /**
@@ -90,6 +243,24 @@ export type InvitationPublic = {
      * Created At
      */
     created_at: string;
+};
+
+/**
+ * Level
+ */
+export type Level = {
+    /**
+     * Difficulty
+     */
+    difficulty: '基础' | '进阶' | '综合';
+    /**
+     * Required
+     */
+    required?: Array<EvidenceKey>;
+    /**
+     * Alternatives
+     */
+    alternatives?: Array<Array<EvidenceKey>>;
 };
 
 /**
@@ -594,6 +765,22 @@ export type accountsVerifyEmailResponses = {
 };
 
 export type accountsVerifyEmailResponse = accountsVerifyEmailResponses[keyof accountsVerifyEmailResponses];
+
+export type capabilitiesReadCatalogData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/capabilities/catalog';
+};
+
+export type capabilitiesReadCatalogResponses = {
+    /**
+     * Successful Response
+     */
+    200: Catalog;
+};
+
+export type capabilitiesReadCatalogResponse = capabilitiesReadCatalogResponses[keyof capabilitiesReadCatalogResponses];
 
 export type modelconfigDeleteConfigData = {
     body?: never;
