@@ -66,6 +66,7 @@ def test_registration_boundary_and_no_privilege_bypass():
     assert not user["email_verified"] and not user["is_superuser"]
     assert user["level"] == "小白程序员" and "hashed_password" not in user
     headers = login(user["email"])
+    assert user.pop("verification_sent") in (True, False)
     assert client.get("/api/v1/users/me", headers=headers).json() == user
     assert client.get("/api/v1/training/access", headers=headers).status_code == 403
     for auth in [{}, headers]:

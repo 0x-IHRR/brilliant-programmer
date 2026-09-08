@@ -67,6 +67,40 @@ export type InvitationPublic = {
 };
 
 /**
+ * RegistrationPublic
+ */
+export type RegistrationPublic = {
+    /**
+     * Email
+     */
+    email: string;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Is Superuser
+     */
+    is_superuser?: boolean;
+    /**
+     * Email Verified
+     */
+    email_verified?: boolean;
+    /**
+     * Level
+     */
+    level?: string;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Verification Sent
+     */
+    verification_sent: boolean;
+};
+
+/**
  * Token
  */
 export type Token = {
@@ -156,6 +190,16 @@ export type ValidationError = {
     };
 };
 
+/**
+ * VerificationRequest
+ */
+export type VerificationRequest = {
+    /**
+     * Token
+     */
+    token: string;
+};
+
 export type accountsLoginData = {
     body: Body_accounts_login;
     path?: never;
@@ -237,7 +281,7 @@ export type accountsRegisterResponses = {
     /**
      * Successful Response
      */
-    201: UserPublic;
+    201: RegistrationPublic;
 };
 
 export type accountsRegisterResponse = accountsRegisterResponses[keyof accountsRegisterResponses];
@@ -319,6 +363,71 @@ export type accountsRevokeResponses = {
 };
 
 export type accountsRevokeResponse = accountsRevokeResponses[keyof accountsRevokeResponses];
+
+export type accountsLogoutData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/login/logout';
+};
+
+export type accountsLogoutResponses = {
+    /**
+     * Response Accounts-Logout
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: string;
+    };
+};
+
+export type accountsLogoutResponse = accountsLogoutResponses[keyof accountsLogoutResponses];
+
+export type accountsResendVerificationData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/users/me/verification-email';
+};
+
+export type accountsResendVerificationResponses = {
+    /**
+     * Response Accounts-Resend Verification
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: string;
+    };
+};
+
+export type accountsResendVerificationResponse = accountsResendVerificationResponses[keyof accountsResendVerificationResponses];
+
+export type accountsVerifyEmailData = {
+    body: VerificationRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/users/me/verify-email';
+};
+
+export type accountsVerifyEmailErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type accountsVerifyEmailError = accountsVerifyEmailErrors[keyof accountsVerifyEmailErrors];
+
+export type accountsVerifyEmailResponses = {
+    /**
+     * Successful Response
+     */
+    200: UserPublic;
+};
+
+export type accountsVerifyEmailResponse = accountsVerifyEmailResponses[keyof accountsVerifyEmailResponses];
 
 export type healthHealthData = {
     body?: never;

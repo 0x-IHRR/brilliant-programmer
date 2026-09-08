@@ -1,8 +1,9 @@
 import secrets
 import uuid
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
+import jwt
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
@@ -11,19 +12,31 @@ from sqlmodel import col, select
 from app.api.deps import (
     CurrentUser,
     SessionDep,
+    TokenDep,
     get_current_active_superuser,
     get_training_user,
 )
 from app.api.rate_limit import protect_auth
 from app.core.config import settings
-from app.core.security import create_access_token, get_password_hash, verify_password
+from app.core.security import (
+    ALGORITHM,
+    create_access_token,
+    get_password_hash,
+    verify_password,
+)
+from app.core.verification import send_verification, token_hash
 from app.models import (
+    EmailVerification,
     Invitation,
     InvitationPublic,
+    LoginSession,
+    RegistrationPublic,
     Token,
+    TokenPayload,
     User,
     UserPublic,
     UserRegister,
+    VerificationRequest,
 )
 
 router = APIRouter(tags=["accounts"])
@@ -42,11 +55,13 @@ def login(
     )
     if not user or not valid or not user.is_active:
         raise HTTPException(401, "邮箱或密码错误")
-    return Token(
-        access_token=create_access_token(
-            user.id, timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        )
+    expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    login_session = LoginSession(
+        user_id=user.id, expires_at=datetime.now(UTC) + expires
     )
+    session.add(login_session)
+    session.commit()
+    return Token(access_token=create_access_token(user.id, expires, login_session.id))
 
 
 @router.get("/users/me", response_model=UserPublic)
@@ -61,11 +76,11 @@ def training_access() -> dict[str, bool]:
 
 @router.post(
     "/users/signup",
-    response_model=UserPublic,
+    response_model=RegistrationPublic,
     status_code=201,
     dependencies=[Depends(protect_auth)],
 )
-def register(session: SessionDep, body: UserRegister) -> User:
+def register(session: SessionDep, body: UserRegister) -> RegistrationPublic:
     # Hash before locking; account insert and one-use transition share one transaction.
     hashed = get_password_hash(body.password)
     invitation = session.exec(
@@ -87,7 +102,10 @@ def register(session: SessionDep, body: UserRegister) -> User:
             409, "注册未完成：请使用其他邮箱或登录已有账号；邀请码未因本次失败消耗"
         )
     session.refresh(user)
-    return user
+    sent = send_verification(session, user.id)
+    return RegistrationPublic(
+        **UserPublic.model_validate(user).model_dump(), verification_sent=sent
+    )
 
 
 @router.post(
@@ -131,3 +149,57 @@ def revoke(invitation_id: uuid.UUID, session: SessionDep) -> Invitation:
     session.commit()
     session.refresh(invitation)
     return invitation
+
+
+@router.post("/login/logout")
+def logout(user: CurrentUser, token: TokenDep, session: SessionDep) -> dict[str, str]:
+    payload = TokenPayload(
+        **jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+    )
+    row = session.get(LoginSession, payload.jti)
+    if row and row.user_id == user.id:
+        session.delete(row)
+        session.commit()
+    return {"message": "已退出当前设备"}
+
+
+@router.post("/users/me/verification-email", dependencies=[Depends(protect_auth)])
+def resend_verification(user: CurrentUser, session: SessionDep) -> dict[str, str]:
+    if not send_verification(session, user.id):
+        raise HTTPException(503, "验证邮件发送失败，账号已保留，请稍后重发")
+    return {
+        "message": "邮箱已验证"
+        if user.email_verified
+        else "验证邮件已交给本地收件服务，请查看邮箱"
+    }
+
+
+@router.post(
+    "/users/me/verify-email",
+    response_model=UserPublic,
+    dependencies=[Depends(protect_auth)],
+)
+def verify_email(
+    body: VerificationRequest, user: CurrentUser, session: SessionDep
+) -> User:
+    # Lock in the same order as resend. A bearer link cannot verify another session's account.
+    user = session.exec(
+        select(User)
+        .where(User.id == user.id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    ).one()
+    row = session.get(EmailVerification, user.id)
+    if (
+        not row
+        or row.email != user.email
+        or row.expires_at <= datetime.now(UTC)
+        or not secrets.compare_digest(row.token_hash, token_hash(body.token))
+    ):
+        raise HTTPException(400, "验证链接无效、过期或已使用，请登录对应邮箱账号并重发")
+    user.email_verified = True
+    session.add(user)
+    session.delete(row)
+    session.commit()
+    session.refresh(user)
+    return user

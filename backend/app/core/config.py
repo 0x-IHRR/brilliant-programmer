@@ -12,6 +12,14 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str = Field(min_length=12, max_length=128)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    # Defaults target local capture; external SMTP requires separate authorization.
+    SMTP_HOST: str = "127.0.0.1"
+    SMTP_STARTTLS: bool = False
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    SMTP_FROM: EmailStr = "verification@example.com"
+    SMTP_PORT: int = Field(default=11025, ge=1, le=65535)
+    VERIFICATION_EXPIRE_MINUTES: int = Field(default=30, ge=1, le=1440)
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
