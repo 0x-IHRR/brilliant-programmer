@@ -82,7 +82,7 @@ export function Training() {
         <h3 className="text-lg font-semibold">{run.case.title}</h3>
         <p className="whitespace-pre-wrap">{run.case.task}</p>
         <p>{run.case.quality}</p>
-        <div className="flex flex-wrap gap-2 md:hidden"><Button variant="outline" onClick={() => setPanel("materials")}>材料</Button><Button variant="outline" onClick={() => setPanel("judgments")}>判断</Button></div>
+        <div className="flex flex-wrap gap-2 md:hidden"><Button variant="outline" onClick={() => setPanel("materials")}>材料</Button><Button variant="outline" onClick={() => setPanel("judgments")}>判断</Button><Button variant="outline" onClick={() => setPanel("coach")}>概念</Button></div>
         <div className="grid gap-4 md:grid-cols-2">
           <section aria-label="案例材料" className={`${panel === "materials" ? "block" : "hidden"} min-w-0 space-y-3 md:block`}>
             <h4 className="font-semibold">材料与假设</h4>
@@ -90,9 +90,9 @@ export function Training() {
             {run.case.evidence.map(item => <div key={item.id} className="space-y-2"><p>{item.label}</p><pre className="whitespace-pre-wrap break-all font-sans">{item.text}</pre>{item.citations.map((citation, index) => <blockquote key={index} className="border-l-2 pl-2">{citation.quote}（{citation.source_id}）</blockquote>)}</div>)}
             {run.case.sources.map(source => <details key={source.id}><summary>核对来源：{source.id}</summary><a className="underline break-all" href={source.url} target="_blank" rel="noreferrer">{source.url}</a><p className="break-all">{source.version}</p><p>{source.locator}</p><pre className="whitespace-pre-wrap break-all font-sans">{source.text}</pre></details>)}
           </section>
-          <section aria-label="必答判断" className={`${panel === "judgments" ? "block" : "hidden"} min-w-0 space-y-3 md:block`}>
+          <section aria-label="必答判断" className={`${panel === "judgments" || panel === "coach" ? "block" : "hidden"} min-w-0 space-y-3 md:block`}>
             <h4 className="font-semibold">作判断</h4>
-            <SubmissionForm runId={run.id} caseData={run.case} config={config} />
+            <SubmissionForm runId={run.id} caseData={run.case} config={config} panel={panel} />
           </section>
         </div>
       </div>}
