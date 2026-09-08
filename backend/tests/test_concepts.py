@@ -494,13 +494,23 @@ def test_crash_recovers_same_job_without_losing_unknown_charge(
         stop_worker(recovered)
 
 
-def test_cancel_partial_transport_usage_does_not_invent_partial_delivery(ready, provider):
-    auth, identity, config, *_ = ready
+def test_cancel_partial_transport_usage_does_not_invent_partial_delivery(
+    ready, provider
+):
+    from pathlib import Path
+
+    auth, identity, config, _, control = ready
+    options = json.loads(control.read_text())
+    options["observe_usage"] = True
+    control.write_text(json.dumps(options))
     provider["mode"] = "partial_usage"
     provider["received"].clear()
     item, _ = request(auth, identity, config)
     assert provider["received"].wait(5)
-    time.sleep(0.2)  # Controlled supplier flushed a usage-only SSE frame.
+    deadline = time.monotonic() + 5
+    while not Path(str(control) + ".usage_received").exists():
+        assert time.monotonic() < deadline, "worker did not consume usage frame"
+        time.sleep(0.02)
     response = client.post(endpoint(identity) + f"/{item['id']}/stop", headers=auth)
     provider["release"].set()
     assert response.status_code == 200 and response.json()["status"] == "stopped"
@@ -515,3 +525,85 @@ def test_cancel_partial_transport_usage_does_not_invent_partial_delivery(ready, 
     assert result["attempts"][0]["completion_tokens"] is None
     assert result["attempts"][0]["total_tokens"] == 20
     assert result["deliveries"] == [] and result["generated_sequence"] is None
+
+
+@pytest.mark.parametrize("accept_first", [False, True])
+def test_stop_inspection_accept_serializes_delivery(ready, monkeypatch, accept_first):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    from sqlalchemy import text
+
+    from app.training import concept_worker
+
+    auth, run_id, config, process, _ = ready
+    stop_worker(process)
+    item, _ = request(auth, run_id, config)
+    identity = uuid.UUID(item["id"])
+    generated = coach({"purpose": "concept_generate", "request": {"depth": "basic"}})
+    assert concept_worker.accept(identity, json.dumps(generated), FAKE_KEY, "generate")
+    inspection = json.dumps(coach({"purpose": "concept_inspect", "content": generated}))
+    entered, release = Event(), Event()
+    original_owner, original_event = (
+        concept_worker.lock_owner,
+        concept_worker.next_event,
+    )
+
+    def held_owner(session, user_id):
+        result = original_owner(session, user_id)
+        if not accept_first:
+            entered.set()
+            assert release.wait(10)
+        return result
+
+    def held_event(session, run_id):
+        if accept_first:
+            entered.set()
+            assert release.wait(10)
+        return original_event(session, run_id)
+
+    monkeypatch.setattr(concept_worker, "lock_owner", held_owner)
+    monkeypatch.setattr(concept_worker, "next_event", held_event)
+    with ThreadPoolExecutor(2) as pool:
+        accepted = pool.submit(
+            concept_worker.accept, identity, inspection, FAKE_KEY, "inspect"
+        )
+        try:
+            assert entered.wait(5)
+            stopped = pool.submit(
+                client.post, endpoint(run_id) + f"/{identity}/stop", headers=auth
+            )
+            deadline = time.monotonic() + 5
+            while True:
+                with Session(engine) as session:
+                    intent = session.get(ConceptHelp, identity).stop_requested
+                    waiting = session.execute(
+                        text(
+                            "SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE 'SELECT concept_help.%FOR UPDATE%'"
+                        )
+                    ).scalar()
+                if accept_first:
+                    assert not intent, "stop committed inside inspection acceptance"
+                    if waiting:
+                        break
+                elif intent:
+                    break
+                assert time.monotonic() < deadline, (
+                    "expected database ordering barrier not reached"
+                )
+                time.sleep(0.02)
+        finally:
+            release.set()
+        assert accepted.result(5) is accept_first
+        response = stopped.result(5)
+    assert response.status_code == 200
+    result = response.json()
+    assert result["status"] == ("ready" if accept_first else "stopped")
+    assert bool(result["checked_sequence"]) is accept_first
+    assert result["deliveries"] == []
+    publication = client.post(endpoint(run_id) + f"/{identity}/deliver", headers=auth)
+    assert publication.status_code == (200 if accept_first else 409)
+    with Session(engine) as session:
+        stored = session.get(ConceptHelp, identity)
+        assert stored.stop_requested is not accept_first
+        assert bool(stored.inspection) is accept_first

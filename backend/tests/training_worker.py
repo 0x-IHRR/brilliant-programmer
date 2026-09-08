@@ -46,6 +46,26 @@ async def connect(self, *args, **kwargs):
 connection.PublicBackend.connect_tcp = connect
 
 
+original_stream = connection.httpcore.Response.aiter_stream
+
+
+async def observed_stream(response):
+    observed = bytearray()
+    async for chunk in original_stream(response):
+        yield chunk
+        # Resumption means the real request_raw loop has already consumed this chunk.
+        observed.extend(chunk)
+        if (
+            json.loads(control.read_text()).get("observe_usage")
+            and connection.received_usage(
+                bytes(observed), "text/event-stream", False
+            ).get("prompt_tokens")
+            == 11
+        ):
+            Path(str(control) + ".usage_received").touch()
+
+
+connection.httpcore.Response.aiter_stream = observed_stream
 original_accept = worker.accept_candidate
 
 

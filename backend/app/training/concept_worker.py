@@ -127,7 +127,14 @@ def accept(identity: uuid.UUID, raw: str, key: str, stage: str) -> bool:
         run = session.get(TrainingRun, item.run_id)
         assert run
         lock_owner(session, run.user_id)
-        session.refresh(item)
+        # Stop writes its intent under this same row lock. Keep it through the
+        # terminal update, in the established owner -> help -> run lock order.
+        item = session.exec(
+            select(ConceptHelp)
+            .where(ConceptHelp.id == identity)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        ).one()
         if item.status != "checking" or item.stop_requested or item.stage != stage:
             return False
         config = session.get(ModelConfig, run.user_id, populate_existing=True)
