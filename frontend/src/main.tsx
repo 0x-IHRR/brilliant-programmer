@@ -11,11 +11,7 @@ import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
 import "./index.css"
 
-function auth(token: string | null) {
-  client.setConfig({
-    headers: { Authorization: token ? `Bearer ${token}` : undefined },
-  })
-}
+client.setConfig({ auth: () => sessionStorage.getItem("token") ?? undefined })
 
 function App() {
   const [user, setUser] = useState<UserPublic | null>(null)
@@ -34,7 +30,6 @@ function App() {
   const restore = useCallback(async () => {
     const token = sessionStorage.getItem("token")
     if (!token) return
-    auth(token)
     const { data } = await AccountsService.me()
     setUser(data)
     if (data.is_superuser) await loadInvites(0)
@@ -50,7 +45,6 @@ function App() {
       }
       if (e.response?.status === 401) {
         sessionStorage.removeItem("token")
-        auth(null)
         setUser(null)
         setInvitations([])
       }
@@ -179,7 +173,6 @@ function App() {
             variant="outline"
             onClick={() => {
               sessionStorage.removeItem("token")
-              auth(null)
               setUser(null)
               setInvitations([])
               setMessage("已退出当前设备")

@@ -61,6 +61,18 @@ test("administrator copies invitation; guest registers and cannot train; revoke 
     path: "test-results/invitation-account.png",
     fullPage: true,
   })
+  await signup.getByRole("button", { name: "退出登录" }).click()
+  expect(
+    await signup.evaluate(() => sessionStorage.getItem("token")),
+  ).toBeNull()
+  await signup.getByLabel("邮箱", { exact: true }).fill(email)
+  await signup.getByLabel("密码（12–128 字符）").fill("incorrect-test-password")
+  const requestAfterLogout = signup.waitForRequest((request) =>
+    request.url().endsWith("/api/v1/login/access-token"),
+  )
+  await signup.getByRole("button", { name: "登录", exact: true }).click()
+  expect((await requestAfterLogout).headers().authorization).toBeUndefined()
+  await expect(signup.getByRole("status")).toHaveText("邮箱或密码错误")
   await admin.close()
   await guest.close()
 })
