@@ -5,6 +5,24 @@ export type ClientOptions = {
 };
 
 /**
+ * Answer
+ */
+export type Answer = {
+    /**
+     * Judgment Id
+     */
+    judgment_id: string;
+    /**
+     * Value
+     */
+    value: number | Array<number> | string;
+    /**
+     * Reason
+     */
+    reason: string;
+};
+
+/**
  * Attempt
  */
 export type Attempt = {
@@ -515,6 +533,20 @@ export type RegistrationPublic = {
 };
 
 /**
+ * RelevanceItem
+ */
+export type RelevanceItem = {
+    /**
+     * Judgment Id
+     */
+    judgment_id: string;
+    /**
+     * Status
+     */
+    status: 'related' | 'unrelated' | 'unclear';
+};
+
+/**
  * Source
  */
 export type Source = {
@@ -556,6 +588,132 @@ export type Start = {
      * Previous Run Id
      */
     previous_run_id?: string | null;
+};
+
+/**
+ * SubmissionPublic
+ */
+export type SubmissionPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Sequence
+     */
+    sequence: number;
+    /**
+     * Original Id
+     */
+    original_id: string | null;
+    /**
+     * Kind
+     */
+    kind: string;
+    /**
+     * Answers
+     */
+    answers: Array<Answer>;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Config Version
+     */
+    config_version: string;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Relevance
+     */
+    relevance: Array<RelevanceItem>;
+    /**
+     * Neutral Clarification
+     */
+    neutral_clarification: boolean;
+    /**
+     * Attempts
+     */
+    attempts: Array<Attempt>;
+    /**
+     * Can Retry
+     */
+    can_retry: boolean;
+};
+
+/**
+ * SubmissionState
+ */
+export type SubmissionState = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Submissions
+     */
+    submissions: Array<SubmissionPublic>;
+    /**
+     * Completed At
+     */
+    completed_at: string | null;
+    /**
+     * Awarded Points
+     */
+    awarded_points: number;
+    /**
+     * Total Points
+     */
+    total_points: number;
+    /**
+     * Rule Version
+     */
+    rule_version: string | null;
+};
+
+/**
+ * Submit
+ */
+export type Submit = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+    /**
+     * Answers
+     */
+    answers: Array<Answer>;
+    /**
+     * Previous Submission Id
+     */
+    previous_submission_id?: string | null;
 };
 
 /**
@@ -1258,6 +1416,134 @@ export type trainingStopResponses = {
 };
 
 export type trainingStopResponse = trainingStopResponses[keyof trainingStopResponses];
+
+export type submissionsReadSubmissionsData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/submissions';
+};
+
+export type submissionsReadSubmissionsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type submissionsReadSubmissionsError = submissionsReadSubmissionsErrors[keyof submissionsReadSubmissionsErrors];
+
+export type submissionsReadSubmissionsResponses = {
+    /**
+     * Successful Response
+     */
+    200: SubmissionState;
+};
+
+export type submissionsReadSubmissionsResponse = submissionsReadSubmissionsResponses[keyof submissionsReadSubmissionsResponses];
+
+export type submissionsSubmitData = {
+    body: Submit;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/submissions';
+};
+
+export type submissionsSubmitErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type submissionsSubmitError = submissionsSubmitErrors[keyof submissionsSubmitErrors];
+
+export type submissionsSubmitResponses = {
+    /**
+     * Successful Response
+     */
+    202: SubmissionState;
+};
+
+export type submissionsSubmitResponse = submissionsSubmitResponses[keyof submissionsSubmitResponses];
+
+export type submissionsRetrySubmissionData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Submission Id
+         */
+        submission_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/submissions/{submission_id}/retry';
+};
+
+export type submissionsRetrySubmissionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type submissionsRetrySubmissionError = submissionsRetrySubmissionErrors[keyof submissionsRetrySubmissionErrors];
+
+export type submissionsRetrySubmissionResponses = {
+    /**
+     * Successful Response
+     */
+    202: SubmissionState;
+};
+
+export type submissionsRetrySubmissionResponse = submissionsRetrySubmissionResponses[keyof submissionsRetrySubmissionResponses];
+
+export type submissionsStopSubmissionData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Submission Id
+         */
+        submission_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/submissions/{submission_id}/stop';
+};
+
+export type submissionsStopSubmissionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type submissionsStopSubmissionError = submissionsStopSubmissionErrors[keyof submissionsStopSubmissionErrors];
+
+export type submissionsStopSubmissionResponses = {
+    /**
+     * Successful Response
+     */
+    200: SubmissionState;
+};
+
+export type submissionsStopSubmissionResponse = submissionsStopSubmissionResponses[keyof submissionsStopSubmissionResponses];
 
 export type healthHealthData = {
     body?: never;

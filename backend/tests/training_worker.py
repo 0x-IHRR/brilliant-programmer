@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 
 from app.model_config import connection
-from app.training import sources, worker
+from app.training import sources, submission_worker, worker
 from app.training.queue import queue
 
 control = Path(sys.argv[1])
@@ -57,14 +57,59 @@ def accept(*args):
 
 
 worker.accept_candidate = accept
+original_settle = submission_worker.settle
+original_fail = submission_worker.fail
+
+
+def fail_settle(*args):
+    options = json.loads(control.read_text())
+    if options.get("revoke_at_settlement") or options.get("stop_at_settlement"):
+        import uuid
+
+        from sqlmodel import Session
+
+        from app.core.db import engine
+        from app.model_config.models import ModelConfig
+        from app.model_config.service import decrypt, encrypt
+        from app.training.models import TrainingRun
+        from app.training.submission_models import Submission
+
+        with Session(engine) as session:
+            submission = session.get(Submission, args[0])
+            if options.get("stop_at_settlement"):
+                submission.stop_requested = True
+                submission.status, submission.code = "stopped", "stopped"
+                session.add(submission)
+            else:
+                run = session.get(TrainingRun, submission.run_id)
+                config = session.get(ModelConfig, run.user_id)
+                secret = decrypt(config)
+                config.version = uuid.uuid4()
+                config.encrypted_key = encrypt(config, secret)
+                session.add(config)
+            session.commit()
+    if options.get("fail_settlement"):
+        raise RuntimeError("PRIVATE_SUBMISSION_SENTINEL")
+    return original_settle(*args)
+
+
+def fail_marker(*args):
+    if json.loads(control.read_text()).get("fail_marker"):
+        raise RuntimeError("PRIVATE_SUBMISSION_SENTINEL")
+    return original_fail(*args)
+
+
+submission_worker.settle = fail_settle
+submission_worker.fail = fail_marker
 
 
 async def run():
     async with queue.open_async():
-        for job in await queue.job_manager.get_stalled_jobs(
-            task_name="training.generate", seconds_since_heartbeat=0.5
-        ):
-            await queue.job_manager.retry_job(job)
+        for task_name in ("training.generate", "training.check_submission"):
+            for job in await queue.job_manager.get_stalled_jobs(
+                task_name=task_name, seconds_since_heartbeat=0.5
+            ):
+                await queue.job_manager.retry_job(job)
         await queue.run_worker_async(
             update_heartbeat_interval=0.1,
             stalled_worker_timeout=0.5,

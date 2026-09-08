@@ -117,7 +117,54 @@ def provider(tmp_path):
                     pass
                 return
             status = {"auth": 401, "limited": 429, "temporary": 503}.get(mode, 200)
-            value = candidate(payload)
+            context_data = json.loads(payload["messages"][1]["content"])
+            if context_data.get("purpose") == "reason_relevance":
+                value = {
+                    "items": [
+                        {
+                            "judgment_id": a["judgment_id"],
+                            "status": state.get("relevance_labels", {}).get(
+                                a["reason"], state.get("relevance", "related")
+                            ),
+                        }
+                        for a in context_data["answers"]
+                    ]
+                }
+                if mode == "bad_relevance":
+                    value["items"][0]["judgment_id"] = "unknown-judgment"
+            else:
+                value = candidate(payload)
+                if state.get("all_kinds"):
+                    value["judgments"] += [
+                        {
+                            "id": "j2",
+                            "kind": "order",
+                            "prompt": "安排验证步骤",
+                            "options": ["查看请求记录", "判断执行状态", "验证结果"],
+                            "evidence_ids": ["e1"],
+                        },
+                        {
+                            "id": "j3",
+                            "kind": "prediction",
+                            "prompt": "如果确认迟到，你预测什么？",
+                            "options": ["执行过", "未执行"],
+                            "evidence_ids": ["e1"],
+                        },
+                    ]
+                    value["rubric"] += [
+                        {
+                            **value["rubric"][0],
+                            "judgment_id": "j2",
+                            "acceptable_options": [],
+                            "acceptable_orders": [[0, 1, 2]],
+                        },
+                        {
+                            **value["rubric"][0],
+                            "judgment_id": "j3",
+                            "acceptable_options": [],
+                            "acceptable_predictions": ["确认晚到可能已经执行"],
+                        },
+                    ]
             if mode == "forged":
                 value["evidence"][0]["citations"][0]["quote"] = (
                     "Invented source quote that has never existed."
