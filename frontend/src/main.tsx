@@ -12,6 +12,7 @@ import { Label } from "./components/ui/label"
 import { PasswordReset } from "./features/PasswordReset"
 import { ModelConfig } from "./features/ModelConfig"
 import "./index.css"
+import { FreeTopic } from "./features/FreeTopic"
 import { Training } from "./features/Training"
 import { Project } from "./features/Project"
 import { Boss } from "./features/Boss"
@@ -231,6 +232,7 @@ function App() {
             退出登录
           </Button>
           {user.email_verified && <Boss key={`boss:${user.id}`} />}
+          {user.email_verified && <FreeTopic key={`topic:${user.id}`} />}
           {user.email_verified && <Training key={`training:${user.id}`} onLevel={reflectLevel} />}
           {user.email_verified && <Project key={`project:${user.id}`} />}
           {user.email_verified && <CapabilityMap key={`capabilitymap:${user.id}`} />}

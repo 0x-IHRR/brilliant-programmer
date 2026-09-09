@@ -25,6 +25,7 @@ from app.training.preference_models import RandomPreference
 from app.training.queue import DSN
 from app.training.recommendations import RULE, Preference, choose
 from app.training.schema import Candidate, PublicCase, Source, public_case
+from app.training.topic_rules import StartSnapshot
 from app.training.worker import generate_training
 
 router = APIRouter(prefix="/training", tags=["training"])
@@ -41,6 +42,7 @@ class Start(BaseModel):
 
 
 class TaskPublic(BaseModel):
+    topic_snapshot: StartSnapshot | None = None
     boss_stage: FirstStage | None = None
     id: uuid.UUID
     status: str
@@ -85,6 +87,16 @@ def view(session: Session, run: TrainingRun) -> TaskPublic:
         .order_by(col(TrainingAttempt.number))
     ).all()
     return TaskPublic(
+        topic_snapshot=StartSnapshot(
+            version_id=uuid.UUID(run.selection["topic_version_id"]),
+            node_id=uuid.UUID(run.selection["topic_node_id"]),
+            catalog_version=run.selection["catalog_version"],
+            text=run.selection["goal"],
+            focus=run.selection["focus"],
+            target=EvidenceKey.model_validate(run.target),
+        )
+        if run.selection.get("entry") == "free_topic"
+        else None,
         boss_stage=stage_for(session, run.id),
         recommendation_reason=run.selection.get("reason"),
         random_mode=run.selection.get("random_mode"),

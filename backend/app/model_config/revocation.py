@@ -12,6 +12,7 @@ from app.training.concept_models import ConceptHelp
 from app.training.evaluation_models import Evaluation
 from app.training.models import TrainingRun
 from app.training.submission_models import Submission
+from app.training.topic_models import TopicJob
 
 
 def request_revocation(user_id: uuid.UUID, expected_version: uuid.UUID) -> None:
@@ -40,6 +41,7 @@ def stop_old_tasks(session: Session, user_id: uuid.UUID, version: uuid.UUID) -> 
     run_ids = select(TrainingRun.id).where(TrainingRun.user_id == user_id)
     for model, owner in (
         (TrainingRun, TrainingRun.user_id == user_id),
+        (TopicJob, TopicJob.user_id == user_id),
         (ProjectRun, ProjectRun.user_id == user_id),
         (Submission, col(Submission.run_id).in_(run_ids)),
         (Evaluation, col(Evaluation.run_id).in_(run_ids)),

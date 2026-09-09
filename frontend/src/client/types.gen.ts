@@ -5,6 +5,40 @@ export type ClientOptions = {
 };
 
 /**
+ * AnalyzeRequest
+ */
+export type AnalyzeRequest = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Topic Id
+     */
+    topic_id: string;
+    /**
+     * Expected Version
+     */
+    expected_version?: string | null;
+    /**
+     * Input Text
+     */
+    input_text: string;
+    /**
+     * Expand
+     */
+    expand?: boolean;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+};
+
+/**
  * Answer
  */
 export type Answer = {
@@ -521,6 +555,29 @@ export type DraftSnapshot = {
 };
 
 /**
+ * EditRequest
+ */
+export type EditRequest = {
+    /**
+     * Expected Version
+     */
+    expected_version: string;
+    /**
+     * Operation
+     */
+    operation: 'edit' | 'reorder';
+    /**
+     * Node Id
+     */
+    node_id?: string | null;
+    goal?: Goal | null;
+    /**
+     * Order
+     */
+    order?: Array<string> | null;
+};
+
+/**
  * EvaluationInputs
  */
 export type EvaluationInputs = {
@@ -841,6 +898,21 @@ export type Fragment = {
      * Text
      */
     text: string;
+};
+
+/**
+ * Goal
+ */
+export type Goal = {
+    target: EvidenceKey;
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Focus
+     */
+    focus: string;
 };
 
 /**
@@ -1189,6 +1261,48 @@ export type InvitationPublic = {
 };
 
 /**
+ * JobPublic
+ */
+export type JobPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Topic Id
+     */
+    topic_id: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Input Text
+     */
+    input_text: string;
+    /**
+     * Result Id
+     */
+    result_id: string | null;
+    /**
+     * Attempts
+     */
+    attempts: number;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+};
+
+/**
  * Judgment
  */
 export type Judgment = {
@@ -1319,6 +1433,25 @@ export type ModelConfigSave = {
      * Disclosure Accepted
      */
     disclosure_accepted: boolean;
+};
+
+/**
+ * Node
+ */
+export type Node = {
+    target: EvidenceKey;
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Focus
+     */
+    focus: string;
+    /**
+     * Id
+     */
+    id: string;
 };
 
 /**
@@ -1871,6 +2004,59 @@ export type Start = {
 };
 
 /**
+ * StartRequest
+ */
+export type StartRequest = {
+    /**
+     * Expected Version
+     */
+    expected_version: string;
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Node Id
+     */
+    node_id: string;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+};
+
+/**
+ * StartSnapshot
+ */
+export type StartSnapshot = {
+    target: EvidenceKey;
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Focus
+     */
+    focus: string;
+    /**
+     * Version Id
+     */
+    version_id: string;
+    /**
+     * Node Id
+     */
+    node_id: string;
+    /**
+     * Catalog Version
+     */
+    catalog_version: string;
+};
+
+/**
  * SubmissionPublic
  */
 export type SubmissionPublic = {
@@ -2032,6 +2218,7 @@ export type TargetStart = {
  * TaskPublic
  */
 export type TaskPublic = {
+    topic_snapshot?: StartSnapshot | null;
     boss_stage?: FirstStage | null;
     /**
      * Id
@@ -2124,6 +2311,37 @@ export type TokenTotal = {
      * Unknown Calls
      */
     unknown_calls: number;
+};
+
+/**
+ * TopicPublic
+ */
+export type TopicPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    current: Version | null;
+    /**
+     * Active Id
+     */
+    active_id: string | null;
+    /**
+     * Versions
+     */
+    versions: Array<Version>;
+    /**
+     * Jobs
+     */
+    jobs: Array<JobPublic>;
+    /**
+     * Runs
+     */
+    runs: Array<TaskPublic>;
+    /**
+     * Completed Node Ids
+     */
+    completed_node_ids: Array<string>;
 };
 
 /**
@@ -2336,6 +2554,50 @@ export type VerificationRequest = {
 };
 
 /**
+ * Version
+ *
+ * Trusted stored snapshot, never a request/model response schema.
+ */
+export type Version = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Parent Id
+     */
+    parent_id: string | null;
+    /**
+     * Catalog Version
+     */
+    catalog_version: string;
+    /**
+     * Input Text
+     */
+    input_text: string;
+    /**
+     * Kind
+     */
+    kind: 'non_engineering' | 'clear' | 'broad' | 'clarify';
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Nodes
+     */
+    nodes: Array<Node>;
+    /**
+     * Recommended Id
+     */
+    recommended_id: string | null;
+    /**
+     * Confirmed
+     */
+    confirmed?: boolean;
+};
+
+/**
  * VersionChoice
  */
 export type VersionChoice = {
@@ -2378,6 +2640,16 @@ export type VersionReceipt = {
      * Generation
      */
     generation: string;
+};
+
+/**
+ * VersionRequest
+ */
+export type VersionRequest = {
+    /**
+     * Expected Version
+     */
+    expected_version: string;
 };
 
 /**
@@ -4399,6 +4671,207 @@ export type bossReadBossResponses = {
 };
 
 export type bossReadBossResponse = bossReadBossResponses[keyof bossReadBossResponses];
+
+export type topicsListTopicsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/topics';
+};
+
+export type topicsListTopicsResponses = {
+    /**
+     * Response Topics-List Topics
+     *
+     * Successful Response
+     */
+    200: Array<TopicPublic>;
+};
+
+export type topicsListTopicsResponse = topicsListTopicsResponses[keyof topicsListTopicsResponses];
+
+export type topicsReadTopicData = {
+    body?: never;
+    path: {
+        /**
+         * Topic Id
+         */
+        topic_id: string;
+    };
+    query?: never;
+    url: '/api/v1/topics/{topic_id}';
+};
+
+export type topicsReadTopicErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type topicsReadTopicError = topicsReadTopicErrors[keyof topicsReadTopicErrors];
+
+export type topicsReadTopicResponses = {
+    /**
+     * Successful Response
+     */
+    200: TopicPublic;
+};
+
+export type topicsReadTopicResponse = topicsReadTopicResponses[keyof topicsReadTopicResponses];
+
+export type topicsRequestAnalysisData = {
+    body: AnalyzeRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/topics/analyze';
+};
+
+export type topicsRequestAnalysisErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type topicsRequestAnalysisError = topicsRequestAnalysisErrors[keyof topicsRequestAnalysisErrors];
+
+export type topicsRequestAnalysisResponses = {
+    /**
+     * Successful Response
+     */
+    202: TopicPublic;
+};
+
+export type topicsRequestAnalysisResponse = topicsRequestAnalysisResponses[keyof topicsRequestAnalysisResponses];
+
+export type topicsEditTopicData = {
+    body: EditRequest;
+    path: {
+        /**
+         * Topic Id
+         */
+        topic_id: string;
+    };
+    query?: never;
+    url: '/api/v1/topics/{topic_id}/edit';
+};
+
+export type topicsEditTopicErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type topicsEditTopicError = topicsEditTopicErrors[keyof topicsEditTopicErrors];
+
+export type topicsEditTopicResponses = {
+    /**
+     * Successful Response
+     */
+    200: TopicPublic;
+};
+
+export type topicsEditTopicResponse = topicsEditTopicResponses[keyof topicsEditTopicResponses];
+
+export type topicsConfirmTopicData = {
+    body: VersionRequest;
+    path: {
+        /**
+         * Topic Id
+         */
+        topic_id: string;
+    };
+    query?: never;
+    url: '/api/v1/topics/{topic_id}/confirm';
+};
+
+export type topicsConfirmTopicErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type topicsConfirmTopicError = topicsConfirmTopicErrors[keyof topicsConfirmTopicErrors];
+
+export type topicsConfirmTopicResponses = {
+    /**
+     * Successful Response
+     */
+    200: TopicPublic;
+};
+
+export type topicsConfirmTopicResponse = topicsConfirmTopicResponses[keyof topicsConfirmTopicResponses];
+
+export type topicsStartTopicData = {
+    body: StartRequest;
+    path: {
+        /**
+         * Topic Id
+         */
+        topic_id: string;
+    };
+    query?: never;
+    url: '/api/v1/topics/{topic_id}/start';
+};
+
+export type topicsStartTopicErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type topicsStartTopicError = topicsStartTopicErrors[keyof topicsStartTopicErrors];
+
+export type topicsStartTopicResponses = {
+    /**
+     * Successful Response
+     */
+    202: TaskPublic;
+};
+
+export type topicsStartTopicResponse = topicsStartTopicResponses[keyof topicsStartTopicResponses];
+
+export type topicsJobActionData = {
+    body?: never;
+    path: {
+        /**
+         * Topic Id
+         */
+        topic_id: string;
+        /**
+         * Job Id
+         */
+        job_id: string;
+        /**
+         * Action
+         */
+        action: 'stop' | 'retry';
+    };
+    query?: never;
+    url: '/api/v1/topics/{topic_id}/jobs/{job_id}/{action}';
+};
+
+export type topicsJobActionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type topicsJobActionError = topicsJobActionErrors[keyof topicsJobActionErrors];
+
+export type topicsJobActionResponses = {
+    /**
+     * Successful Response
+     */
+    200: TopicPublic;
+};
+
+export type topicsJobActionResponse = topicsJobActionResponses[keyof topicsJobActionResponses];
 
 export type healthHealthData = {
     body?: never;
