@@ -1,21 +1,27 @@
-import random
 import secrets
 import uuid
-from typing import Annotated
+from datetime import UTC, datetime
+from typing import Annotated, cast
 
 import procrastinate
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict
+from sqlalchemy import func
 from sqlmodel import Session, col, select
 
 from app.api.deps import SessionDep, get_training_user
 from app.capabilities.catalog import CATALOG, EvidenceKey
+from app.capabilities.evidence_models import OriginalOrder
+from app.capabilities.evidence_service import read_evidence
+from app.capabilities.unlocks import read_access
 from app.model_config.connection import Attempt
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.models import User
 from app.training.models import TrainingAttempt, TrainingRun
+from app.training.preference_models import RandomPreference
 from app.training.queue import DSN
+from app.training.recommendations import RULE, Preference, choose
 from app.training.schema import Candidate, PublicCase, Source, public_case
 from app.training.worker import generate_training
 
@@ -28,6 +34,8 @@ class Start(BaseModel):
     disclosure_accepted: bool
     expected_config_version: uuid.UUID
     previous_run_id: uuid.UUID | None = None
+    request_id: uuid.UUID | None = None
+    expected_preference_version: uuid.UUID | None = None
 
 
 class TaskPublic(BaseModel):
@@ -47,6 +55,8 @@ class TaskPublic(BaseModel):
     origin_id: uuid.UUID | None
     independent_outcome: str | None
     return_target: EvidenceKey | None = None
+    recommendation_reason: str | None = None
+    random_mode: str | None = None
 
 
 def owned(session: Session, run_id: uuid.UUID, user_id: uuid.UUID) -> TrainingRun:
@@ -72,6 +82,8 @@ def view(session: Session, run: TrainingRun) -> TaskPublic:
         .order_by(col(TrainingAttempt.number))
     ).all()
     return TaskPublic(
+        recommendation_reason=run.selection.get("reason"),
+        random_mode=run.selection.get("random_mode"),
         return_target=EvidenceKey.model_validate(run.selection["return_target"])
         if run.selection.get("return_target")
         else None,
@@ -109,6 +121,63 @@ def view(session: Session, run: TrainingRun) -> TaskPublic:
     )
 
 
+class PreferencePublic(BaseModel):
+    version: uuid.UUID | None
+    mode: Preference
+    has_record: bool
+
+
+class PreferenceUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    expected_version: uuid.UUID | None
+    mode: Preference
+
+
+def has_formal_record(session: Session, user_id: uuid.UUID) -> bool:
+    return (
+        session.exec(
+            # Written with the committed original answer, before relevance or
+            # reward settlement. Its source excludes guided-practice answers.
+            select(OriginalOrder.original_id).where(OriginalOrder.user_id == user_id)
+        ).first()
+        is not None
+    )
+
+
+@router.get("/random-preference")
+def read_preference(
+    session: SessionDep, user: VerifiedUser, response: Response
+) -> PreferencePublic:
+    response.headers["Cache-Control"] = "no-store"
+    lock_owner(session, user.id)
+    preference = session.get(RandomPreference, user.id)
+    return PreferencePublic(
+        version=preference.version if preference else None,
+        mode=cast(Preference, preference.mode) if preference else "recommended",
+        has_record=has_formal_record(session, user.id),
+    )
+
+
+@router.put("/random-preference")
+def save_preference(
+    body: PreferenceUpdate, session: SessionDep, user: VerifiedUser, response: Response
+) -> PreferencePublic:
+    response.headers["Cache-Control"] = "no-store"
+    lock_owner(session, user.id)
+    preference = session.get(RandomPreference, user.id)
+    if (preference.version if preference else None) != body.expected_version:
+        raise HTTPException(
+            409, "另一设备已改变难度偏好，请重读后重新选择；未覆盖当前题目"
+        )
+    if not has_formal_record(session, user.id):
+        raise HTTPException(409, "尚无正式作答，首次随机练习保持基础无前置起点")
+    preference = preference or RandomPreference(user_id=user.id)
+    preference.mode, preference.version = body.mode, uuid.uuid4()
+    session.add(preference)
+    session.commit()
+    return PreferencePublic(version=preference.version, mode=body.mode, has_record=True)
+
+
 @router.post("/random", status_code=202)
 def start(
     body: Start, session: SessionDep, user: VerifiedUser, response: Response
@@ -117,6 +186,24 @@ def start(
     if not body.disclosure_accepted:
         raise HTTPException(422, "请确认本次资料发给已保存模型目的地及重试可能计费")
     lock_owner(session, user.id)
+    if body.request_id:
+        existing = session.get(TrainingRun, body.request_id)
+        if existing:
+            if (
+                existing.user_id != user.id
+                or existing.selection.get("entry") != "random"
+                or existing.config_version != body.expected_config_version
+                or existing.selection.get("preference_version")
+                != (
+                    str(body.expected_preference_version)
+                    if body.expected_preference_version
+                    else None
+                )
+                or existing.selection.get("previous_run_id")
+                != (str(body.previous_run_id) if body.previous_run_id else None)
+            ):
+                raise HTTPException(409, "请求身份已用于另一随机任务，请读取原记录")
+            return view(session, existing)
     active = session.exec(
         select(TrainingRun).where(
             TrainingRun.user_id == user.id,
@@ -124,64 +211,105 @@ def start(
         )
     ).first()
     if active:
+        if body.request_id:
+            raise HTTPException(409, "已有生成任务，请等待或停止后主动开始")
         return view(session, active)
     config = session.get(ModelConfig, user.id)
     if not config or config.revoked:
         raise HTTPException(409, "请先保存模型配置")
     if config.version != body.expected_config_version:
         raise HTTPException(409, "模型目的地已变更，请刷新并确认本次接收方")
-    if session.exec(
-        select(TrainingRun.id).where(
-            TrainingRun.user_id == user.id,
-            col(TrainingRun.formal_submitted_at).is_not(None),
-        )
-    ).first():
-        raise HTTPException(
-            409, "已有正式作答；后续随机推荐由 T09 接续，本入口仅生成首关"
-        )
+    has_record = has_formal_record(session, user.id)
+    preference = session.get(RandomPreference, user.id)
+    if (preference.version if preference else None) != body.expected_preference_version:
+        raise HTTPException(409, "难度偏好已变化，请重新读取并明确选择；当前题目不变")
+    mode: Preference = (
+        cast(Preference, preference.mode) if preference else "recommended"
+    )
     previous = (
         owned(session, body.previous_run_id, user.id) if body.previous_run_id else None
     )
-    candidates = [
-        EvidenceKey(
-            capability_id=c.id,
-            difficulty=level.difficulty,
-            background_id=c.background_id,
+    delivered = session.exec(
+        select(func.count())
+        .select_from(TrainingRun)
+        .where(
+            TrainingRun.user_id == user.id,
+            col(TrainingRun.recommendation_delivered_at).is_not(None),
         )
-        for d in CATALOG.domains
-        for c in d.capabilities
-        for level in c.levels
-        if level.difficulty == "基础"
-        and level.satisfied_by(set())
-        and (not previous or c.id != previous.target["capability_id"])
-    ]
-    if not candidates:
-        raise HTTPException(409, "没有可用的基础无前置方向")
+    ).one()
+    now = datetime.now(UTC)
     seed = secrets.token_hex(32)
-    target = random.Random(seed).choice(candidates)
+    # ponytail: full historical projections plus per-owner aggregate; measure
+    # large-account latency before adding indexed projections/caches, never cap history.
+    units = read_access(session, user.id)
+    selection = choose(
+        units=units,
+        evidence=read_evidence(session, user.id),
+        preference=mode,
+        has_record=has_record,
+        delivered=delivered,
+        now=now,
+        seed=seed,
+        previous_capability=previous.target["capability_id"] if previous else None,
+    )
+    target = selection.target
+    if target is None:
+        raise HTTPException(
+            409,
+            {
+                "message": "当前方向和难度没有可用目标；请改方向、明确调整难度，或选择缺项补练/检验。未自动降档。",
+                "reason": selection.reason,
+                "excluded": selection.excluded,
+                "access": [
+                    unit.model_dump(mode="json")
+                    for unit in units
+                    if (not has_record and unit.target.difficulty == "基础")
+                    or (
+                        has_record
+                        and (mode == "recommended" or unit.target.difficulty == mode)
+                    )
+                ],
+            },
+        )
     capability = next(
         c
         for d in CATALOG.domains
         for c in d.capabilities
         if c.id == target.capability_id
     )
-    # The explicit random entry selected this prerequisite-free published unit.
+    # The explicit random entry selected this eligible published unit.
     # Persist in this SAME owner transaction (not the worker's separate HTTP
     # permission transaction, whose User lock would block the opening FK).
     from app.capabilities.unlocks import open_unit
 
     open_unit(session, user.id, target)
     run = TrainingRun(
+        id=body.request_id or uuid.uuid4(),
         user_id=user.id,
         config_version=config.version,
         destination=config.service_url,
         model_id=config.model_id,
         target=target.model_dump(),
         selection={
+            "entry": "random",
+            "rule_version": RULE,
+            "random_mode": "first" if not has_record else mode,
+            "preference_version": str(body.expected_preference_version)
+            if body.expected_preference_version
+            else None,
+            "previous_run_id": str(body.previous_run_id)
+            if body.previous_run_id
+            else None,
+            "delivered_before": delivered,
+            "selected_at": now.isoformat(),
+            "reason": selection.reason,
+            "excluded": selection.excluded,
             "seed": seed,
             "catalog_version": CATALOG.version,
             "goal": capability.title,
-            "candidates": [candidate.model_dump() for candidate in candidates],
+            "candidates": [
+                candidate.model_dump() for candidate in selection.candidates
+            ],
         },
     )
     session.add(run)

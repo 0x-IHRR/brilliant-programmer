@@ -472,7 +472,7 @@ def test_switch_blocks_undispatched_and_late_generation(provider, tmp_path, stag
     from app.training import worker
     from tests.test_training import start_run, start_worker, stop_worker
 
-    _, auth, run_id = start_run(provider)
+    owner, auth, run_id = start_run(provider)
     config = client.get(URL, headers=auth).json()
     process, control = start_worker(
         tmp_path, provider, run_id, **{stage: True, "observe_accept": True}
@@ -483,17 +483,41 @@ def test_switch_blocks_undispatched_and_late_generation(provider, tmp_path, stag
         while not Path(str(control) + marker).exists():
             assert time.monotonic() < deadline
             time.sleep(0.02)
-        assert (
-            save(
-                auth,
-                expected_version=config["version"],
-                service_url=config["service_url"],
-            ).status_code
-            == 200
-        )
-        options = json.loads(control.read_text())
-        options[stage] = False
-        control.write_text(json.dumps(options))
+        if stage == "before_accept":
+            with ThreadPoolExecutor(1) as pool:
+                saving = pool.submit(
+                    save,
+                    auth,
+                    expected_version=config["version"],
+                    service_url=config["service_url"],
+                )
+                try:
+                    deadline = time.monotonic() + 5
+                    while True:
+                        with Session(engine) as session:
+                            row = session.get(ModelConfig, owner)
+                            if row.revoked:
+                                break
+                        assert time.monotonic() < deadline
+                        time.sleep(0.02)
+                    assert not saving.done()
+                finally:
+                    options = json.loads(control.read_text())
+                    options[stage] = False
+                    control.write_text(json.dumps(options))
+                assert saving.result(5).status_code == 200
+        else:
+            assert (
+                save(
+                    auth,
+                    expected_version=config["version"],
+                    service_url=config["service_url"],
+                ).status_code
+                == 200
+            )
+            options = json.loads(control.read_text())
+            options[stage] = False
+            control.write_text(json.dumps(options))
         if stage == "before_accept":
             deadline = time.monotonic() + 5
             while not Path(str(control) + ".accept_finished").exists():
@@ -569,7 +593,7 @@ def test_revoke_after_candidate_commit_preserves_complete_result(provider, tmp_p
 
     from tests.test_training import start_run, start_worker, stop_worker
 
-    _, auth, run_id = start_run(provider)
+    owner, auth, run_id = start_run(provider)
     config = client.get(URL, headers=auth).json()
     process, control = start_worker(
         tmp_path, provider, run_id, after_accept=True, observe_finish=True
@@ -592,7 +616,23 @@ def test_revoke_after_candidate_commit_preserves_complete_result(provider, tmp_p
                 "total_tokens": 20,
             }
         ]
-        assert save(auth, expected_version=config["version"]).status_code == 200
+        with ThreadPoolExecutor(1) as pool:
+            saving = pool.submit(save, auth, expected_version=config["version"])
+            try:
+                deadline = time.monotonic() + 5
+                while True:
+                    with Session(engine) as session:
+                        revoked = session.get(ModelConfig, owner).revoked
+                    if revoked and Path(str(control) + ".accept_cancelled").exists():
+                        break
+                    assert time.monotonic() < deadline, "revocation must reach actual acceptance waiter"
+                    time.sleep(.02)
+                assert not saving.done()
+            finally:
+                options = json.loads(control.read_text())
+                options["after_accept"] = False
+                control.write_text(json.dumps(options))
+            assert saving.result(5).status_code == 200
         deadline = time.monotonic() + 5
         while not Path(str(control) + ".finished").exists():
             assert time.monotonic() < deadline, "cancel finish did not settle"

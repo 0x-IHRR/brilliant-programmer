@@ -39,6 +39,10 @@ class TrainingRun(SQLModel, table=True):
         default_factory=lambda: datetime.now(UTC),
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
+    # First successful recommended-case publication; never derived from status.
+    recommendation_delivered_at: datetime | None = Field(
+        default=None, sa_column=Column(DateTime(timezone=True))
+    )
     # T08/#9 writes this only in the successful immutable formal-submission transaction.
     # Generation, drafts, failures and help never write it.
     formal_submitted_at: datetime | None = Field(
