@@ -3,8 +3,7 @@ from alembic import op
 import sqlalchemy as sa
 
 revision = "0025_quality_admission"
-# #21 owns 0024; integrate its merged revision before this branch is released.
-down_revision = "0023_boss_revalidation"
+down_revision = "0024_jd_route"
 branch_labels = None
 depends_on = None
 

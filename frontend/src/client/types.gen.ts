@@ -5,6 +5,36 @@ export type ClientOptions = {
 };
 
 /**
+ * Analysis
+ */
+export type Analysis = {
+    /**
+     * Kind
+     */
+    kind: 'roles' | 'no_requirements' | 'clarify';
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Roles
+     */
+    roles?: Array<Role>;
+};
+
+/**
+ * AnalysisPublic
+ */
+export type AnalysisPublic = {
+    document: Document;
+    analysis: Analysis | null;
+    /**
+     * Evidence
+     */
+    evidence: Array<Array<EvidenceView>>;
+};
+
+/**
  * AnalyzeRequest
  */
 export type AnalyzeRequest = {
@@ -545,6 +575,20 @@ export type ConfirmedShortfall = {
 };
 
 /**
+ * Document
+ */
+export type Document = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Text
+     */
+    text: string;
+};
+
+/**
  * Domain
  */
 export type Domain = {
@@ -839,6 +883,29 @@ export type EvidenceMap = {
      * States
      */
     states: Array<CapabilityState>;
+};
+
+/**
+ * EvidenceView
+ */
+export type EvidenceView = {
+    target: EvidenceKey | null;
+    /**
+     * Status
+     */
+    status: 'unknown' | 'unverified' | 'verified' | 'needs_consolidation';
+    /**
+     * Streak
+     */
+    streak: number | null;
+    /**
+     * Latest Verified At
+     */
+    latest_verified_at?: string | null;
+    /**
+     * Original Ids
+     */
+    original_ids?: Array<string>;
 };
 
 /**
@@ -1348,6 +1415,32 @@ export type InvitationPublic = {
 };
 
 /**
+ * JDPublic
+ */
+export type JDPublic = {
+    topic: TopicPublic;
+    /**
+     * Documents
+     */
+    documents: Array<AnalysisPublic>;
+    current: Route | null;
+    /**
+     * Evidence
+     */
+    evidence: Array<EvidenceView>;
+    /**
+     * Node Evidence
+     */
+    node_evidence: {
+        [key: string]: EvidenceView;
+    };
+    /**
+     * Semantic Reliability
+     */
+    semantic_reliability?: string;
+};
+
+/**
  * JobPublic
  */
 export type JobPublic = {
@@ -1468,6 +1561,17 @@ export type MandatoryJudgment = {
      */
     scope: '请求／状态链路' | '局部因果' | '查证与验证';
     target: EvidenceKey;
+};
+
+/**
+ * Mapping
+ */
+export type Mapping = {
+    /**
+     * Node Id
+     */
+    node_id: string;
+    requirement: Requirement;
 };
 
 /**
@@ -1962,6 +2066,24 @@ export type QualityPublic = {
 };
 
 /**
+ * Quote
+ */
+export type Quote = {
+    /**
+     * Start
+     */
+    start: number;
+    /**
+     * End
+     */
+    end: number;
+    /**
+     * Text
+     */
+    text: string;
+};
+
+/**
  * ReasonClaim
  */
 export type ReasonClaim = {
@@ -2073,6 +2195,22 @@ export type Repository = {
      * End Line
      */
     end_line?: number | null;
+};
+
+/**
+ * Requirement
+ */
+export type Requirement = {
+    quote: Quote;
+    /**
+     * Basis
+     */
+    basis: 'explicit' | 'inferred';
+    /**
+     * Explanation
+     */
+    explanation: string;
+    goal: Goal | null;
 };
 
 /**
@@ -2258,6 +2396,60 @@ export type ReviewStart = {
      * Expected Config Version
      */
     expected_config_version: string;
+};
+
+/**
+ * Role
+ */
+export type Role = {
+    /**
+     * Name
+     */
+    name: string;
+    quote: Quote;
+    /**
+     * Requirements
+     */
+    requirements: Array<Requirement>;
+};
+
+/**
+ * Route
+ */
+export type Route = {
+    document: Document;
+    /**
+     * Role Name
+     */
+    role_name: string;
+    role_quote: Quote;
+    /**
+     * Requirements
+     */
+    requirements: Array<Requirement>;
+    /**
+     * Mappings
+     */
+    mappings: Array<Mapping>;
+    route: Version;
+};
+
+/**
+ * SelectRequest
+ */
+export type SelectRequest = {
+    /**
+     * Expected Version
+     */
+    expected_version?: string | null;
+    /**
+     * Document Id
+     */
+    document_id: string;
+    /**
+     * Role Index
+     */
+    role_index: number;
 };
 
 /**
@@ -2616,6 +2808,12 @@ export type TargetStart = {
  */
 export type TaskPublic = {
     topic_snapshot?: StartSnapshot | null;
+    /**
+     * Jd Simulation
+     */
+    jd_simulation?: {
+        [key: string]: string;
+    } | null;
     /**
      * Boss Stage
      */
@@ -5394,6 +5592,109 @@ export type reviewsStopReviewResponses = {
 };
 
 export type reviewsStopReviewResponse = reviewsStopReviewResponses[keyof reviewsStopReviewResponses];
+
+export type jdsListJdsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/jds';
+};
+
+export type jdsListJdsResponses = {
+    /**
+     * Response Jds-List Jds
+     *
+     * Successful Response
+     */
+    200: Array<JDPublic>;
+};
+
+export type jdsListJdsResponse = jdsListJdsResponses[keyof jdsListJdsResponses];
+
+export type jdsReadJdData = {
+    body?: never;
+    path: {
+        /**
+         * Topic Id
+         */
+        topic_id: string;
+    };
+    query?: never;
+    url: '/api/v1/jds/{topic_id}';
+};
+
+export type jdsReadJdErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type jdsReadJdError = jdsReadJdErrors[keyof jdsReadJdErrors];
+
+export type jdsReadJdResponses = {
+    /**
+     * Successful Response
+     */
+    200: JDPublic;
+};
+
+export type jdsReadJdResponse = jdsReadJdResponses[keyof jdsReadJdResponses];
+
+export type jdsAnalyzeJdData = {
+    body: AnalyzeRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/jds/analyze';
+};
+
+export type jdsAnalyzeJdErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type jdsAnalyzeJdError = jdsAnalyzeJdErrors[keyof jdsAnalyzeJdErrors];
+
+export type jdsAnalyzeJdResponses = {
+    /**
+     * Successful Response
+     */
+    202: JDPublic;
+};
+
+export type jdsAnalyzeJdResponse = jdsAnalyzeJdResponses[keyof jdsAnalyzeJdResponses];
+
+export type jdsSelectRoleData = {
+    body: SelectRequest;
+    path: {
+        /**
+         * Topic Id
+         */
+        topic_id: string;
+    };
+    query?: never;
+    url: '/api/v1/jds/{topic_id}/select';
+};
+
+export type jdsSelectRoleErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type jdsSelectRoleError = jdsSelectRoleErrors[keyof jdsSelectRoleErrors];
+
+export type jdsSelectRoleResponses = {
+    /**
+     * Successful Response
+     */
+    200: JDPublic;
+};
+
+export type jdsSelectRoleResponse = jdsSelectRoleResponses[keyof jdsSelectRoleResponses];
 
 export type healthHealthData = {
     body?: never;

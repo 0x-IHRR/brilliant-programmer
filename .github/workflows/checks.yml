@@ -63,4 +63,5 @@ jobs:
           (cd backend && ../.venv/bin/python tests/boss_stages_browser.py)
           (cd backend && ../.venv/bin/python tests/boss_revalidation_browser.py)
           (cd backend && ../.venv/bin/python tests/topic_browser.py)
+          (cd backend && ../.venv/bin/python tests/jd_browser.py)
           bun run --cwd frontend test

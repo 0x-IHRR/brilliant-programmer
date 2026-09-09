@@ -19,8 +19,9 @@ provider = test_training.provider
 
 
 @pytest.mark.parametrize("inspection", [True, False, None])
+@pytest.mark.parametrize("entry", ["free_topic", "jd"])
 def test_full_reference_comparison_keeps_confirmed_topic_inspection(
-    tmp_path, provider, inspection
+    tmp_path, provider, inspection, entry
 ):
     owner, auth = account()
     config = save(auth, service_url=provider["url"]).json()
@@ -30,6 +31,15 @@ def test_full_reference_comparison_keeps_confirmed_topic_inspection(
         c.model_copy(update={"seen_run_id": ids[c.seen_run_id]}) for c in comparisons
     ]
     goal, focus = "请求确认丢失后的重试", "核对持久执行证据，而非仅看收到确认"
+    provenance = (
+        {
+            "requirement_quote": "处理请求重试",
+            "basis": "inferred",
+            "simulation_label": "教学模拟",
+        }
+        if entry == "jd"
+        else {}
+    )
     with Session(engine) as session:
         for old, case in history.items():
             session.add(
@@ -41,12 +51,21 @@ def test_full_reference_comparison_keeps_confirmed_topic_inspection(
                     model_id=config["model_id"],
                     target=case.target.model_dump(),
                     selection={
-                        "entry": "free_topic",
+                        "entry": entry,
                         "goal": goal,
                         "focus": focus,
                         "catalog_version": "fullstack-v1.0.0",
                         "topic_version_id": str(uuid.uuid4()),
                         "topic_node_id": str(uuid.uuid4()),
+                        **provenance,
+                        **(
+                            {
+                                "jd_document_id": str(uuid.uuid4()),
+                                "jd_role_name": "后端工程师",
+                            }
+                            if entry == "jd"
+                            else {}
+                        ),
                     },
                     candidate=case.model_dump(mode="json"),
                     sources=[s.model_dump(mode="json") for s in sources],
@@ -59,11 +78,20 @@ def test_full_reference_comparison_keeps_confirmed_topic_inspection(
     def controlled(payload):
         body = json.loads(payload["messages"][1]["content"])
         if "input" not in body:
-            assert body["confirmed_topic"] == {"goal": goal, "focus": focus}
+            assert body["confirmed_topic"] == {
+                "goal": goal,
+                "focus": focus,
+                **provenance,
+            }
             return new.model_dump(mode="json")
         batch = ComparisonInput.model_validate_json(json.dumps(body["input"]))
         assert batch.topic.text == goal and batch.topic.focus == focus
         assert batch.topic.target == new.target and len(batch.runs) == 70
+        if entry == "jd":
+            assert all(
+                batch.topic.model_dump()[key] == value
+                for key, value in provenance.items()
+            )
         result = json.loads(response_for(batch, comparisons))
         if inspection is not None:
             result["topic_coverage"] = {
