@@ -11,6 +11,7 @@ from app.api.deps import SessionDep
 from app.model_config.connection import Attempt
 from app.model_config.models import ModelConfig
 from app.model_config.service import decrypt, lock_owner
+from app.training.draft_collection import submit_guard
 from app.training.evaluation_models import Evaluation
 from app.training.events import next_event
 from app.training.queue import DSN
@@ -124,6 +125,7 @@ def submit(
     run = owned(session, run_id, user.id)
     lock_owner(session, user.id)
     session.refresh(run)
+    submit_guard(session, run_id)
     if not run.candidate:
         raise HTTPException(409, "尚无已交付的完整案例")
     try:

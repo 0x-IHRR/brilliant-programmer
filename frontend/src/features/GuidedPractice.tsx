@@ -1,3 +1,4 @@
+import { DraftVersions } from "./DraftVersions"
 import { useEffect, useRef, useState } from "react"
 import { PracticeService, type ModelConfigPublic, type PracticeState, type Submit } from "../client"
 import { Button } from "../components/ui/button"
@@ -68,6 +69,7 @@ function PracticeEditor({ runId, helpId, initial, config }: { runId: string; hel
       <Button className={cls} variant="outline" onClick={() => draft.choose(false)}>使用服务端跟练草稿</Button>
       {draft.comparison.submissions.submissions.length > 0 && <Button className={cls} variant="outline" onClick={() => draft.choose(false, true)}>从最新跟练提交继续</Button>}
     </div>}
+    <DraftVersions collection={draft.collection} expanded={Boolean(draft.comparison)} caseData={initial.exercise.case} busy={draft.choosing || busy} choose={draft.chooseVersion} remove={draft.remove} read={draft.read} />
     {latest && <p role="status">{latest.message}</p>}
     {draft.state && <p>本轮修为：{draft.state.awarded_points} 点。{completed ? "跟练已完成，完成不表示独立掌握。" : "跟练尚未完成。"}</p>}
     <Button className={cls} variant="outline" disabled={busy} onClick={() => void act(() => PracticeService.readPractice({ path }))}>重读跟练结果</Button>
@@ -83,7 +85,7 @@ function PracticeEditor({ runId, helpId, initial, config }: { runId: string; hel
     }}>
       {initial.exercise.case.judgments.map(j => {
         const answer = draft.answers.find(a => a.judgment_id === j.id)!
-        return <fieldset key={j.id} disabled={!draft.ready || busy || Boolean(checking)} className="space-y-2 min-w-0"><legend>{j.prompt}</legend>
+        return <fieldset key={j.id} disabled={!draft.ready || draft.choosing || busy || Boolean(checking)} className="space-y-2 min-w-0"><legend>{j.prompt}</legend>
           {j.kind === "choice" && j.options.map((text, i) => <label key={i} className="flex gap-2 items-start"><input required type="radio" name={`practice-${helpId}-${j.id}`} checked={answer.value === i} onChange={() => draft.edit(j.id, { value: i })} />{text}</label>)}
           {j.kind === "order" && j.options.map((_, i) => <label key={i} className="block">跟练第{i + 1}步<select className="block max-w-full border p-2" required value={(answer.value as number[])[i] < 0 ? "" : (answer.value as number[])[i]} onChange={e => draft.edit(j.id, { value: (answer.value as number[]).map((v, n) => n === i ? Number(e.target.value) : v) })}><option value="">请选择</option>{j.options.map((text, n) => <option key={n} value={n}>{text}</option>)}</select></label>)}
           {j.kind === "prediction" && <label>跟练预测<textarea required className="block w-full border p-2" maxLength={6000} value={String(answer.value)} onChange={e => draft.edit(j.id, { value: e.target.value })} /></label>}
@@ -92,7 +94,7 @@ function PracticeEditor({ runId, helpId, initial, config }: { runId: string; hel
       })}
       {!completed && config && <><p className="break-all">跟练检查接收方：{config.service_url} · {config.model_id}</p><label className="flex gap-2 items-start"><input type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} />允许发送当前小练习题面和本次判断、理由，检查相关性；重试可能计费，不评分独立掌握。</label></>}
       {!completed && !config && <p>请保存并重新读取模型配置；已有草稿和记录保留。</p>}
-      <Button type="submit" className={cls} disabled={!draft.ready || busy || Boolean(checking) || draft.status === "conflict" || (!completed && (!accepted || !config))}>{completed ? "保存跟练复盘（不重评）" : "提交我的小练习"}</Button>
+      <Button type="submit" className={cls} disabled={!draft.ready || draft.choosing || busy || Boolean(checking) || draft.status === "conflict" || (!completed && (!accepted || !config))}>{completed ? "保存跟练复盘（不重评）" : "提交我的小练习"}</Button>
     </form>
     <details><summary>跟练原答与用量</summary>{draft.state?.submissions.map(s => <div key={s.id} className="border-t py-2">{preview(s.answers)}<p>提交序号 {s.sequence}</p>{s.attempts.map(a => <p key={a.number}>第{a.number}次 · {a.code} · 输入{a.prompt_tokens ?? "未知"} / 输出{a.completion_tokens ?? "未知"} / 总token{a.total_tokens ?? "未知"}</p>)}</div>)}</details>
   </div>

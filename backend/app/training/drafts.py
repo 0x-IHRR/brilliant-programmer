@@ -1,20 +1,19 @@
 """Owned optimistic draft saves; no queue, model, submission or reward mutation."""
 
 import uuid
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, Response
-from sqlmodel import col, select
+from sqlmodel import select
 
 from app.api.deps import SessionDep
 from app.model_config.service import lock_owner
+from app.training import draft_collection as collections
+from app.training.draft_conflicts import choose_version, delete_current
 from app.training.draft_models import TrainingDraft
-from app.training.draft_save import prepare_save
-from app.training.draft_schema import DraftSnapshot, SaveDraft
+from app.training.draft_schema import DraftSnapshot
 from app.training.models import TrainingRun
 from app.training.routes import VerifiedUser, owned
 from app.training.schema import Candidate
-from app.training.submission_models import Submission
 
 router = APIRouter(prefix="/training", tags=["drafts"])
 
@@ -36,11 +35,11 @@ def read_draft(
 @router.put("/tasks/{run_id}/draft")
 def save_draft(
     run_id: uuid.UUID,
-    body: SaveDraft,
+    body: collections.VersionWrite,
     session: SessionDep,
     user: VerifiedUser,
     response: Response,
-) -> DraftSnapshot:
+) -> collections.VersionReceipt:
     response.headers["Cache-Control"] = "no-store"
     owned(session, run_id, user.id)
     lock_owner(session, user.id)
@@ -52,37 +51,53 @@ def save_draft(
     ).one()
     if run.status != "completed" or not run.candidate:
         raise HTTPException(409, "请先取得当前完整案例；当前输入保留")
-    current = session.get(TrainingDraft, run_id, populate_existing=True)
-    latest = session.exec(
-        select(Submission.id)
-        .where(Submission.run_id == run_id, col(Submission.practice_help_id).is_(None))
-        .order_by(col(Submission.sequence).desc())
-    ).first()
-    try:
-        result = prepare_save(
-            run_id=run_id,
-            candidate=Candidate.model_validate(run.candidate),
-            current=snapshot(current) if current else None,
-            request=body,
-            latest_submission_id=latest,
-            saved_at=datetime.now(UTC),
-        )
-    except ValueError:
-        raise HTTPException(
-            422, "草稿与当前题目不匹配；当前输入保留，请核对判断和选项"
-        ) from None
-    if current is None:
-        current = TrainingDraft(
-            **result.model_dump(exclude={"progress"}),
-            progress=result.progress.model_dump(mode="json"),
-        )
-    elif result.version != current.version:
-        current.version, current.request_id, current.saved_at = (
-            result.version,
-            result.request_id,
-            result.saved_at,
-        )
-        current.progress = result.progress.model_dump(mode="json")
-    session.add(current)
+    return collections.save(session, run, Candidate.model_validate(run.candidate), body)
+
+
+@router.get("/tasks/{run_id}/draft/versions")
+def read_versions(
+    run_id: uuid.UUID, session: SessionDep, user: VerifiedUser, response: Response
+) -> collections.CollectionView:
+    owned(session, run_id, user.id)
+    lock_owner(session, user.id)
+    collections.lock_run(session, run_id)
+    result = collections.load(session, run_id)
     session.commit()
-    return result
+    response.headers["Cache-Control"] = "no-store"
+    return collections.view(result)
+
+
+@router.post("/tasks/{run_id}/draft/choose")
+def choose_draft(
+    run_id: uuid.UUID,
+    body: collections.VersionChoice,
+    session: SessionDep,
+    user: VerifiedUser,
+    response: Response,
+) -> collections.CollectionView:
+    owned(session, run_id, user.id)
+    lock_owner(session, user.id)
+    collections.lock_run(session, run_id)
+    result = choose_version(collections.load(session, run_id), **body.model_dump())
+    collections.store(session, result)
+    session.commit()
+    response.headers["Cache-Control"] = "no-store"
+    return collections.view(result)
+
+
+@router.delete("/tasks/{run_id}/draft")
+def delete_draft(
+    run_id: uuid.UUID,
+    body: collections.VersionChoice,
+    session: SessionDep,
+    user: VerifiedUser,
+    response: Response,
+) -> collections.CollectionView:
+    owned(session, run_id, user.id)
+    lock_owner(session, user.id)
+    collections.lock_run(session, run_id)
+    result = delete_current(collections.load(session, run_id), **body.model_dump())
+    collections.store(session, result)
+    session.commit()
+    response.headers["Cache-Control"] = "no-store"
+    return collections.view(result)
