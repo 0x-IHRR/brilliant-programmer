@@ -54,4 +54,5 @@ jobs:
           (cd backend && ../.venv/bin/python tests/guided_browser.py)
           (cd backend && ../.venv/bin/python tests/config_switch_browser.py)
           (cd backend && ../.venv/bin/python tests/independent_browser.py)
+          (cd backend && ../.venv/bin/python tests/capability_evidence_browser.py)
           bun run --cwd frontend test

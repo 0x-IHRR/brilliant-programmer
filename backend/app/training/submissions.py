@@ -8,6 +8,7 @@ from sqlalchemy import func
 from sqlmodel import Session, col, select
 
 from app.api.deps import SessionDep
+from app.capabilities.evidence_models import OriginalOrder
 from app.model_config.connection import Attempt
 from app.model_config.models import ModelConfig
 from app.model_config.service import decrypt, lock_owner
@@ -216,6 +217,23 @@ def submit(
     )
     session.add(submission)
     session.flush()
+    if submission.kind == "original":
+        position = (
+            session.exec(
+                select(func.coalesce(func.max(OriginalOrder.position), 0)).where(
+                    OriginalOrder.user_id == user.id
+                )
+            ).one()
+            + 1
+        )
+        session.add(
+            OriginalOrder(
+                original_id=submission.id,
+                user_id=user.id,
+                position=position,
+                submitted_at=submission.created_at,
+            )
+        )
     if review:
         submission.status, submission.code, submission.message = (
             "completed",
