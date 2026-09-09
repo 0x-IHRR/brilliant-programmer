@@ -71,6 +71,15 @@ def generation_goal(selection: dict[str, object]) -> dict[str, str]:
     if selection.get("entry") == "jd":
         for field in ("requirement_quote", "basis", "simulation_label"):
             goal[field] = str(selection[field])
+    if selection.get("entry") == "project":
+        from app.project.training_generation import goal as project_goal
+
+        value = project_goal(selection)
+        goal.update(
+            module_path=value.module_path,
+            repository_commit=value.repository_commit,
+            simulation_label=value.simulation_label,
+        )
     return goal
 
 

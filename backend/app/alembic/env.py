@@ -36,6 +36,7 @@ from app.training import jd_models  # noqa: F401
 from app.training import topic_models  # noqa: F401
 from app.training import boss_models  # noqa: F401
 from app.training import independent_models  # noqa: F401
+from app.project import training_models  # noqa: F401
 from app.project.models import ProjectRun, ProjectAttempt  # noqa
 from app.models import SQLModel  # noqa
 from app.core.config import settings # noqa

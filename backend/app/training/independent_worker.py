@@ -173,11 +173,17 @@ def accept(
         assert work
         stage = stage_for(session, identity)
         if run.generation == 0:
-            case = validate_candidate(
-                raw,
-                EvidenceKey.model_validate(run.target),
-                [Source.model_validate(s) for s in run.sources],
-                key,
+            from app.project.training_generation import accept_materials
+
+            case = (
+                accept_materials(session, identity, run.selection, raw, key)
+                if run.selection.get("entry") == "project"
+                else validate_candidate(
+                    raw,
+                    EvidenceKey.model_validate(run.target),
+                    [Source.model_validate(s) for s in run.sources],
+                    key,
+                )
             )
             if isinstance(stage, BossStage):
                 validate_stage_mapping(stage, case)
@@ -246,7 +252,7 @@ def accept(
                 BossComparisons.model_validate_json(raw)
                 if stage
                 else TopicComparisons.model_validate_json(raw)
-                if run.selection.get("entry") in {"free_topic", "jd"}
+                if run.selection.get("entry") in {"free_topic", "jd", "project"}
                 else Comparisons.model_validate_json(raw)
             )
             if history(session, run) != work.history:
@@ -325,7 +331,7 @@ def prepare_comparison_plan(identity: uuid.UUID, job_id: int | None, key: str) -
                 text=run.selection["goal"],
                 focus=run.selection["focus"],
             )
-            if run.selection.get("entry") in {"free_topic", "jd"}
+            if run.selection.get("entry") in {"free_topic", "jd", "project"}
             else None
         )
         if run.selection.get("entry") == "jd":
@@ -337,6 +343,10 @@ def prepare_comparison_plan(identity: uuid.UUID, job_id: int | None, key: str) -
                 basis=run.selection["basis"],
                 simulation_label="教学模拟",
             )
+        if run.selection.get("entry") == "project":
+            from app.project.training_generation import inspection_goal
+
+            goal = inspection_goal(session, identity, run.selection)
         plan = plan_comparison(
             load_persisted_history(work.history_snapshot),
             case,
@@ -432,6 +442,24 @@ async def process(identity: uuid.UUID) -> None:
                         return
                     run, work = prepared
                 key = secret.get_secret_value()
+                if run.selection.get("entry") == "project":
+                    try:
+                        check_output(
+                            json.dumps(
+                                {
+                                    "goal": generation_goal(run.selection),
+                                    "sources": run.sources,
+                                },
+                                ensure_ascii=False,
+                            ),
+                            key,
+                        )
+                    except ValueError:
+                        raise ProbeError(
+                            "unsafe_input",
+                            "项目目标或冻结来源疑似包含当前秘密，未发起调用",
+                            False,
+                        ) from None
                 if run.generation == 1 and work.history_snapshot is not None:
                     await asyncio.to_thread(
                         prepare_comparison_plan, identity, job_id, key
@@ -446,8 +474,10 @@ async def process(identity: uuid.UUID) -> None:
                 key = secret.get_secret_value()
                 if run.generation == 0:
                     extra: dict[str, Any] = {"boss_stage": stage} if stage else {}
-                    if run.selection.get("entry") in {"free_topic", "jd"}:
+                    if run.selection.get("entry") in {"free_topic", "jd", "project"}:
                         extra["topic_goal"] = generation_goal(run.selection)
+                        if run.selection.get("entry") == "project":
+                            extra["project"] = True
                         check_output(json.dumps(extra, ensure_ascii=False), key)
                     raw, counts = await generate(
                         config.service_url,
@@ -471,6 +501,18 @@ async def process(identity: uuid.UUID) -> None:
                     )
                     raw, counts = extract_content(response, kind, counts, key)
                 else:
+                    compared_goal = (
+                        generation_goal(run.selection)
+                        if run.selection.get("entry") in {"free_topic", "jd", "project"}
+                        else {}
+                    )
+                    if run.selection.get("entry") == "project":
+                        from app.project.training_generation import inspection_goal
+
+                        with Session(engine) as session:
+                            compared_goal["material_origins"] = inspection_goal(
+                                session, identity, run.selection
+                            ).material_origins
                     payload = json.dumps(
                         {
                             "model": config.model_id,
@@ -503,13 +545,11 @@ async def process(identity: uuid.UUID) -> None:
                                             ],
                                             **(
                                                 {
-                                                    "confirmed_topic": generation_goal(
-                                                        run.selection
-                                                    ),
+                                                    "confirmed_topic": compared_goal,
                                                     "sources": run.sources,
                                                 }
                                                 if run.selection.get("entry")
-                                                in {"free_topic", "jd"}
+                                                in {"free_topic", "jd", "project"}
                                                 else {}
                                             ),
                                             "schema": (
@@ -517,7 +557,7 @@ async def process(identity: uuid.UUID) -> None:
                                                 if stage
                                                 else TopicComparisons
                                                 if run.selection.get("entry")
-                                                in {"free_topic", "jd"}
+                                                in {"free_topic", "jd", "project"}
                                                 else Comparisons
                                             ).model_json_schema(),
                                             **(

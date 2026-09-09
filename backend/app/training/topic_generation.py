@@ -42,11 +42,17 @@ def checkpoint(identity: uuid.UUID, raw: str, key: str, job_id: int | None) -> b
         ):
             return False
         current_for_result(session, run.user_id, run.config_version)
-        candidate = validate_candidate(
-            raw,
-            EvidenceKey.model_validate(run.target),
-            [Source.model_validate(s) for s in run.sources],
-            key,
+        from app.project.training_generation import accept_materials
+
+        candidate = (
+            accept_materials(session, identity, run.selection, raw, key)
+            if run.selection.get("entry") == "project"
+            else validate_candidate(
+                raw,
+                EvidenceKey.model_validate(run.target),
+                [Source.model_validate(s) for s in run.sources],
+                key,
+            )
         )
         if not session.get(TopicCase, identity):
             session.add(
@@ -134,6 +140,7 @@ async def process(identity: uuid.UUID) -> None:
                         [Source.model_validate(s) for s in run.sources],
                         run.generation_attempts > 0,
                         topic_goal=goal,
+                        project=run.selection.get("entry") == "project",
                     )
                     await asyncio.to_thread(
                         record_attempt, attempt.id, "unknown", counts
@@ -150,6 +157,14 @@ async def process(identity: uuid.UUID) -> None:
                         )
                         return
                     raw = json.dumps(saved.candidate, ensure_ascii=False)
+                    if run.selection.get("entry") == "project":
+                        from app.project.training_generation import inspection_goal
+
+                        with Session(engine) as session:
+                            inspected_goal = inspection_goal(
+                                session, identity, run.selection
+                            )
+                            goal["material_origins"] = inspected_goal.material_origins
                     inspected, counts = await inspect_case(
                         config.service_url, config.model_id, key, goal, raw, run.sources
                     )

@@ -1,0 +1,38 @@
+{
+  "repository": {
+    "owner": "pallets",
+    "name": "itsdangerous",
+    "commit": "672971d66a2ef9f85151e53283113f33d642dabd",
+    "tree": "ef4287f82d8234404b58c7b29d38197e1f38e207",
+    "ref": "main",
+    "focus": "src/itsdangerous/timed.py",
+    "start_line": 1,
+    "end_line": null
+  },
+  "entries": [
+    {
+      "path": "src/itsdangerous/timed.py",
+      "sha": "52deeeab44f09c1c7f54438c9f48f54d61366085",
+      "kind": "blob",
+      "mode": "100644",
+      "size": 8087
+    }
+  ],
+  "fragments": [
+    {
+      "path": "src/itsdangerous/timed.py",
+      "blob": "52deeeab44f09c1c7f54438c9f48f54d61366085",
+      "start": 132,
+      "end": 158,
+      "total_lines": 228,
+      "text": "        # Signature was okay but the timestamp is actually not there or\n        # malformed. Should not happen, but we handle it anyway.\n        if ts_int is None:\n            raise BadTimeSignature(\"Malformed timestamp\", payload=value)\n\n        # Check timestamp is not older than max_age\n        if max_age is not None:\n            age = self.get_timestamp() - ts_int\n\n            if age > max_age:\n                raise SignatureExpired(\n                    f\"Signature age {age} > {max_age} seconds\",\n                    payload=value,\n                    date_signed=self.timestamp_to_datetime(ts_int),\n                )\n\n            if age < 0:\n                raise SignatureExpired(\n                    f\"Signature age {age} < 0 seconds\",\n                    payload=value,\n                    date_signed=self.timestamp_to_datetime(ts_int),\n                )\n\n        if return_timestamp:\n            return value, self.timestamp_to_datetime(ts_int)\n\n        return value\n"
+    }
+  ],
+  "excluded": {},
+  "directories": [],
+  "files": [],
+  "offsets": {},
+  "requests": 34,
+  "bytes": 71608,
+  "listing_complete": false
+}

@@ -248,7 +248,10 @@ async def process(run_id: uuid.UUID) -> None:
     run = await asyncio.to_thread(read_run, run_id)
     if run.status in TERMINAL or run.stop_requested:
         return
-    if run.selection.get("entry") in {"free_topic", "jd"} and run.launch_mode != "independent":
+    if (
+        run.selection.get("entry") in {"free_topic", "jd", "project"}
+        and run.launch_mode != "independent"
+    ):
         from app.training.topic_generation import process as process_topic
 
         await process_topic(run_id)

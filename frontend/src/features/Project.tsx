@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { ModelconfigService, ProjectsService, type Finding, type ModelConfigPublic, type ProjectPublic } from "../client"
 import { Button } from "../components/ui/button"
+import { ProjectTraining } from "./ProjectTraining"
 import { Input } from "../components/ui/input"
 
 const activeStatuses = ["queued", "running", "stopping"]
@@ -9,7 +10,7 @@ const labels = { module: "模块", entry: "入口", call: "调用", state: "状�
 export function Project() {
   const [config, setConfig] = useState<ModelConfigPublic | null>(null)
   const [runs, setRuns] = useState<ProjectPublic[]>([])
-  const [selected, setSelected] = useState("")
+  const [selected, setSelected] = useState(() => new URLSearchParams(location.search).get("project_run") ?? "")
   const [url, setUrl] = useState("")
   const [accepted, setAccepted] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -31,6 +32,8 @@ export function Project() {
       setRuns(tasks.data)
       setAccepted(false)
       setError("")
+      const requested = new URLSearchParams(location.search).get("project_run")
+      if (requested && !tasks.data.some(t => t.id === requested)) void ProjectsService.readProject({ path: { run_id: requested } }).then(({ data }) => { if (active) { setRuns(old => [data, ...old.filter(r => r.id !== data.id)]); setSelected(data.id) } }).catch(() => { if (active) { setSelected(""); setError("原项目记录暂不可读取；已保留可用项目列表，请核对返回链接后重读。") } })
     }).catch(() => { if (active) setError("项目读取失败，已展示成果保留；请重新读取实际状态。") })
     return () => { active = false }
   }, [refresh])
@@ -111,5 +114,6 @@ export function Project() {
         <section aria-label="未核实候选与缺失材料" className="min-w-0 space-y-2"><h3 className="font-semibold">未核实候选与缺失材料</h3><p>模型关系即使引用合法，也不等于结论已被证实。</p>{findingList(run.project_map.unverified ?? [])}{(run.project_map.missing ?? []).map((missing, index) => <p key={index}>{missing}</p>)}</section>
       </div>}
     </article>}
+    {run?.project_map && <ProjectTraining projectRunId={run.id} config={config} />}
   </section>
 }

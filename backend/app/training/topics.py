@@ -11,6 +11,7 @@ from app.capabilities.catalog import CATALOG
 from app.capabilities.unlocks import open_unit
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
+from app.project.training_models import ProjectTopic
 from app.training.independent_routes import enqueue as enqueue_training
 from app.training.jd_models import JDTopic
 from app.training.models import TrainingRun
@@ -146,6 +147,7 @@ def list_topics(
                 .where(
                     Topic.user_id == user.id,
                     col(Topic.id).not_in(select(JDTopic.topic_id)),
+                    col(Topic.id).not_in(select(ProjectTopic.topic_id)),
                 )
                 .order_by(col(Topic.created_at).desc())
             ).all()
@@ -189,8 +191,11 @@ def request_analysis(
     item = session.get(Topic, body.topic_id)
     if item:
         item = owned(session, item.id, user.id, lock=True)
+        from app.project.training_service import is_project
         from app.training.jd_service import is_jd
 
+        if is_project(session, item.id):
+            raise HTTPException(409, "请从项目入口读取并冻结模块来源")
         if is_jd(session, item.id):
             raise HTTPException(409, "请从 JD 入口更新招聘原文")
     else:
@@ -277,9 +282,13 @@ def edit_topic(
             "confirmed": False,
         }
     )
+    from app.project.training_service import is_project
+    from app.project.training_service import save_edit as save_project_edit
     from app.training.jd_service import is_jd, save_edit
 
-    if is_jd(session, item.id):
+    if is_project(session, item.id):
+        save_project_edit(session, item, old.id, candidate)
+    elif is_jd(session, item.id):
         save_edit(session, item, candidate)
     else:
         save_version(session, item, candidate)
@@ -359,10 +368,35 @@ def start_topic(
             "topic_node_id": str(node.id),
         },
     )
+    from app.project.training_rules import start as project_start
+    from app.project.training_service import is_project
+    from app.project.training_service import route as project_route
     from app.training.jd_service import is_jd
     from app.training.jd_service import route as jd_route
 
-    if is_jd(session, item.id):
+    if is_project(session, item.id):
+        frozen_project = project_route(session, item, current.id)
+        assert frozen_project
+        try:
+            selection = project_start(
+                frozen_project.model_copy(
+                    update={"route": current.model_copy(update={"confirmed": True})}
+                ),
+                current.id,
+                node.id,
+                verified=set(),
+                opened={node.target},
+                opened_catalog_version=CATALOG.version,
+            )
+        except ValueError as error:
+            raise HTTPException(409, str(error)) from None
+        run.selection = {
+            **run.selection,
+            "entry": "project",
+            "project": selection.model_dump(mode="json"),
+        }
+        run.sources = [r.source.model_dump(mode="json") for r in selection.references]
+    elif is_jd(session, item.id):
         frozen = jd_route(session, item, current.id)
         assert frozen is not None
         mapping = next(m for m in frozen.mappings if m.node_id == node.id)
