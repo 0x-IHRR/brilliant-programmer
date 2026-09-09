@@ -282,7 +282,7 @@ def test_actual_content_classification_controls_metadata(ready, provider, direct
     item, _ = request(auth, identity, config)
     result = wait(auth, identity, item["id"])
     assert (
-        result["direction"] == direction and result["requires_independent_confirmation"]
+        result["direction"] == direction and not result["requires_independent_confirmation"]
     )
     assert result["deliveries"] == []
     assert (

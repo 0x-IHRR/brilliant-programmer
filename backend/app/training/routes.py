@@ -42,6 +42,10 @@ class TaskPublic(BaseModel):
     goal: str
     attempts: list[Attempt]
     case: PublicCase | None
+    launch_mode: str
+    current_mode: str
+    origin_id: uuid.UUID | None
+    independent_outcome: str | None
 
 
 def owned(session: Session, run_id: uuid.UUID, user_id: uuid.UUID) -> TrainingRun:
@@ -52,12 +56,27 @@ def owned(session: Session, run_id: uuid.UUID, user_id: uuid.UUID) -> TrainingRu
 
 
 def view(session: Session, run: TrainingRun) -> TaskPublic:
+    from app.training.independent_models import IndependentObservation
+
+    observation = session.exec(
+        select(IndependentObservation)
+        .where(
+            IndependentObservation.run_id == run.id,
+        )
+        .order_by(col(IndependentObservation.sequence).desc())
+    ).first()
     attempts = session.exec(
         select(TrainingAttempt)
         .where(TrainingAttempt.run_id == run.id)
         .order_by(col(TrainingAttempt.number))
     ).all()
     return TaskPublic(
+        launch_mode=run.launch_mode,
+        current_mode="practice"
+        if run.converted_sequence is not None
+        else run.launch_mode,
+        origin_id=run.origin_id,
+        independent_outcome=observation.outcome if observation else None,
         id=run.id,
         status=run.status,
         code=run.code,
@@ -210,24 +229,18 @@ def stop(
     if run.status in {"completed", "failed", "stopped"}:
         return view(session, run)
     run.stop_requested, run.status = True, "stopping"
+    job_id = run.queue_job_id
     session.add(run)
     session.commit()
     with procrastinate.App(
         connector=procrastinate.SyncPsycopgConnector(conninfo=DSN)
     ).open() as app:
-        if run.queue_job_id is not None:
-            app.job_manager.cancel_job_by_id(run.queue_job_id, abort=True)
+        if job_id is not None:
+            app.job_manager.cancel_job_by_id(job_id, abort=True)
     # Success is serialized after the real HTTP invocation releases its lock;
     # recording intent is not advertised as an already-effective stop.
-    lock_owner(session, user.id)
-    run = owned(session, run_id, user.id)
-    session.refresh(run)
-    run.status, run.code, run.message = (
-        "stopped",
-        "stopped",
-        "已停止后续调用；已核对成果保留，在途请求不保证撤销或退费",
-    )
-    session.add(run)
-    session.commit()
+    from app.training.worker import finish_stop
+
+    finish_stop(run_id, job_id)
     session.refresh(run)
     return view(session, run)

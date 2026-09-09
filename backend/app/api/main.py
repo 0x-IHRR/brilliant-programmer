@@ -7,6 +7,7 @@ from app.project.routes import router as project_router
 from app.training.concepts import router as concepts_router
 from app.training.drafts import router as drafts_router
 from app.training.evaluations import router as evaluations_router
+from app.training.independent_routes import router as independent_router
 from app.training.practices import router as practices_router
 from app.training.routes import router as training_router
 from app.training.submissions import router as submissions_router
@@ -33,3 +34,4 @@ api_router.include_router(drafts_router)
 
 
 api_router.include_router(practices_router)
+api_router.include_router(independent_router)

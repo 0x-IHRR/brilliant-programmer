@@ -26,6 +26,7 @@ export function ConceptCoach({
   const [error, setError] = useState("")
   const [publication, setPublication] = useState<HelpPublication | null>(null)
   const [receiptFailed, setReceiptFailed] = useState(false)
+  const [confirmed, setConfirmed] = useState<Record<string, boolean>>({})
   const [practiceId, setPracticeId] = useState<string | null>(null)
   const alive = useRef(true)
   const ownerSession = useRef(sessionStorage.getItem("token"))
@@ -276,6 +277,10 @@ export function ConceptCoach({
               （模型推断）
             </p>
           )}
+          {item.status === "ready" && item.requires_independent_confirmation && <label className="flex items-start gap-2">
+            <input type="checkbox" checked={Boolean(confirmed[`${item.id}:${item.content_hash}`])} onChange={e => setConfirmed(old => ({ ...old, [`${item.id}:${item.content_hash}`]: e.target.checked }))} />
+            <span>{item.confirmation_prompt}。仅确认不算交付；交付不确定时需核实，冻结后的说明不追溯撤销原答资格。</span>
+          </label>}
           <div className="flex flex-wrap gap-2">
             {["checking", "stopping"].includes(item.status) && (
               <Button
@@ -313,11 +318,19 @@ export function ConceptCoach({
             {item.status === "ready" && (
               <Button
                 className={cls}
-                disabled={busy}
+                disabled={busy || (item.requires_independent_confirmation && !confirmed[`${item.id}:${item.content_hash}`])}
                 onClick={() =>
                   act(async () => {
+                    let confirmationId: string | undefined
+                    if (item.requires_independent_confirmation) {
+                      if (!item.content_hash) return
+                      const receipt = await ConceptsService.confirmHelp({ path: { run_id: runId, help_id: item.id }, body: { content_hash: item.content_hash, accepted: true } })
+                      if (!current()) return
+                      confirmationId = receipt.data.id
+                    }
                     const { data } = await ConceptsService.publishHelp({
                       path: { run_id: runId, help_id: item.id },
+                      body: { confirmation_id: confirmationId },
                     })
                     if (
                       current() &&

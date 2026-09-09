@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from "react"
-import { ModelconfigService, TrainingService, type ModelConfigPublic, type TaskPublic } from "../client"
+import { IndependentService, ModelconfigService, TrainingService, type ModelConfigPublic, type TaskPublic } from "../client"
 import { type DraftProgress } from "./draftAutosave"
 import { SubmissionForm } from "./SubmissionForm"
 import { Button } from "../components/ui/button"
 
 export function Training() {
+  const alive = useRef(true)
+  const ownerSession = useRef(sessionStorage.getItem("token"))
+  const current = () => alive.current && sessionStorage.getItem("token") === ownerSession.current
+  useEffect(() => { alive.current = true; return () => { alive.current = false } }, [])
+  const pendingCheck = useRef<{ origin: string; version: string; request: string } | null>(null)
+  const [checkAccepted, setCheckAccepted] = useState(false)
   const [config, setConfig] = useState<ModelConfigPublic | null>(null)
   const [runs, setRuns] = useState<TaskPublic[]>([])
   const [selected, setSelected] = useState(() => new URLSearchParams(location.search).get("training_run") ?? "")
@@ -24,6 +30,7 @@ export function Training() {
   const [panel, setPanel] = useState<DraftProgress["step"]>("materials")
   const run = runs.find(item => item.id === selected) ?? runs[0]
   const running = run && ["queued", "running", "stopping"].includes(run.status)
+  useEffect(() => { setCheckAccepted(false) }, [config?.version, run?.id])
   useEffect(() => {
     let active = true
     void Promise.all([ModelconfigService.readConfig(), TrainingService.latest()]).then(async ([model, tasks]) => {
@@ -97,6 +104,30 @@ export function Training() {
     {run && <article className="space-y-4 rounded border p-3">
       <p role="status">{run.message}</p>
       <p>{run.target.difficulty} · 目标：{run.goal}</p>
+      <p>{run.launch_mode === "independent" ? "本轮由你主动发起独立检验；最终资格依据实际帮助与冻结作答，语义质量尚未验收。" : "本轮默认练习；普通练习通过不会自动成为独立证明。"}</p>
+      {run.current_mode === "practice" && run.launch_mode === "independent" && <p>本题已转为练习，不能原题切回独立；已有修为及此前冻结的合格原答保留。</p>}
+      {run.case && config && <div className="space-y-2 border p-3">
+        <p>检验自己会创建另一轮新案例，不搬走本轮作答或草稿。找不到可核验的陌生情境时明确退出。</p>
+        <p className="break-all">比较接收方：{config.service_url} · {config.model_id}</p>
+        <label className="flex items-start gap-2"><input type="checkbox" checked={checkAccepted} onChange={e => setCheckAccepted(e.target.checked)} /><span>允许发送必要的新旧情境与判据用于生成和陌生比较，不发送旧正式作答或帮助全文；最多六次调用，重试可能计费。</span></label>
+        <Button className={buttonClass} disabled={busy || !checkAccepted || Boolean(running)} onClick={() => act(async () => {
+          if (pendingCheck.current?.origin !== run.id || pendingCheck.current.version !== config.version) pendingCheck.current = { origin: run.id, version: config.version!, request: crypto.randomUUID() }
+          const { data } = await IndependentService.startCheck({ path: { origin_id: run.id }, body: { request_id: pendingCheck.current.request, expected_config_version: config.version!, disclosure_accepted: true } })
+          if (!current()) return
+          setRuns(items => [data, ...items.filter(item => item.id !== data.id)])
+          selectRun(data.id)
+          setPanel("materials")
+          pendingCheck.current = null
+        })}>检验自己：主动新建陌生案例</Button>
+        {run.current_mode === "independent" && <Button variant="outline" className={buttonClass} disabled={busy} onClick={() => act(async () => {
+          const { data } = await IndependentService.convertPractice({ path: { run_id: run.id } })
+          if (current()) setRuns(items => items.map(item => item.id === data.id ? data : item))
+        })}>本轮改为练习（不能原题切回）</Button>}
+      </div>}
+      {run.launch_mode === "independent" && !run.case && ["failed", "stopped"].includes(run.status) && <Button className={buttonClass} disabled={busy} onClick={() => act(async () => {
+        const { data } = await IndependentService.retryCheck({ path: { run_id: run.id } })
+        if (current()) setRuns(items => items.map(item => item.id === data.id ? data : item))
+      })}>重试本轮剩余步骤（预算不重置）</Button>}
       <p className="break-all">本任务目的地：{run.destination} · 模型：{run.model_id}</p>
       {running && <>
         <p>关页后本次任务继续；返回可读取进度。不会自动开始后续训练。</p>

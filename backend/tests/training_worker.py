@@ -6,10 +6,11 @@ import socket
 import ssl
 import sys
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from app.model_config import connection
-from app.training import sources, submission_worker, worker
+from app.training import independent_worker, sources, submission_worker, worker
 from app.training.queue import queue
 
 control = Path(sys.argv[1])
@@ -85,6 +86,49 @@ def accept(*args):
 
 
 worker.accept_candidate = accept
+original_independent_credential = independent_worker.call_credential
+
+
+@asynccontextmanager
+async def independent_credential(*args):
+    while json.loads(control.read_text()).get("before_independent_credential"):
+        Path(str(control) + ".credential_waiting").touch()
+        await asyncio.sleep(0.02)
+    async with original_independent_credential(*args) as credential:
+        yield credential
+
+
+independent_worker.call_credential = independent_credential
+original_independent_accept = independent_worker.accept
+
+
+def independent_accept(*args):
+    phase = worker.read_run(args[0]).generation
+    while (
+        json.loads(control.read_text()).get("before_independent_accept")
+        and worker.read_run(args[0]).generation == 1
+    ):
+        Path(str(control) + ".independent_accepting").touch()
+        time.sleep(0.02)
+    result = original_independent_accept(*args)
+    if phase == 1:
+        Path(str(control) + ".independent_finished").touch()
+    return result
+
+
+independent_worker.accept = independent_accept
+original_training_record = worker.record_attempt
+
+
+def training_record(*args):
+    result = original_training_record(*args)
+    while json.loads(control.read_text()).get("after_training_record") == args[1]:
+        Path(str(control) + ".training_recorded").touch()
+        time.sleep(0.02)
+    return result
+
+
+worker.record_attempt = training_record
 original_finish = worker.finish
 
 
@@ -100,7 +144,9 @@ original_record_submission = submission_worker.record_attempt
 
 
 def record_submission(*args):
-    while args[1] == "ok" and json.loads(control.read_text()).get("before_submission_ok"):
+    while args[1] == "ok" and json.loads(control.read_text()).get(
+        "before_submission_ok"
+    ):
         Path(str(control) + ".submission_ok_pending").touch()
         time.sleep(0.02)
     return original_record_submission(*args)
@@ -154,8 +200,19 @@ submission_worker.fail = fail_marker
 
 
 async def run():
+    if data.get("independent_once"):
+        # A stale execution whose queue abort has not reached it yet. Exercise
+        # the actual process/gate/HTTP path without relying on watcher timing.
+        await worker.process(__import__("uuid").UUID(data["run_id"]))
+        Path(str(control) + ".execution_finished").touch()
+        return
     async with queue.open_async():
-        for task_name in ("training.generate", "training.check_submission", "training.evaluate", "training.concept"):
+        for task_name in (
+            "training.generate",
+            "training.check_submission",
+            "training.evaluate",
+            "training.concept",
+        ):
             for job in await queue.job_manager.get_stalled_jobs(
                 task_name=task_name, seconds_since_heartbeat=0.5
             ):

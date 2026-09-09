@@ -23,6 +23,8 @@ from app.training.evaluation_schema import (
 from app.training.evaluation_service import create_evaluation, enqueue
 from app.training.evaluation_worker import RETRYABLE, freeze
 from app.training.events import next_event
+from app.training.independent_models import IndependentObservation
+from app.training.independent_service import record_frozen
 from app.training.queue import DSN
 from app.training.routes import VerifiedUser, owned
 from app.training.schema import Candidate
@@ -57,11 +59,20 @@ class EvaluationPublic(BaseModel):
     result: GradingCandidate | None
     attempts: list[Attempt]
     can_retry: bool
+    independent_outcome: str | None
 
 
 def view(session: Session, item: Evaluation) -> EvaluationPublic:
+    observation = session.exec(
+        select(IndependentObservation)
+        .where(
+            IndependentObservation.run_id == item.run_id,
+        )
+        .order_by(col(IndependentObservation.sequence).desc())
+    ).first()
     session.refresh(item)
     return EvaluationPublic(
+        independent_outcome=observation.outcome if observation else None,
         **item.model_dump(
             include={
                 "run_id",
@@ -220,6 +231,7 @@ def clarify_evaluation(
     else:
         item.result = None
         enqueue(session, item)
+    record_frozen(session, owned(session, run_id, user.id), item)
     session.commit()
     return view(session, item)
 

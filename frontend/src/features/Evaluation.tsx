@@ -55,6 +55,7 @@ export function Evaluation({ runId, caseData, config, submitted, onFrozen }: { r
     {error && <p role="alert">{error}</p>}
     {state && <>
       <p role="status">{state.message}</p>
+      {state.independent_outcome && <p role="status">独立检验记录：{({ independent_pass_candidate: "符合独立通过条件的证据候选（模型语义质量未验证，不直接更新等级）", pending_delivery: "帮助交付尚未核实，独立结算等待回执；可核实说明或主动另开新题", practice: "按练习记录，已有修为保留", unclear: "尚未证明掌握", evidenced_fail: "本次独立作答有据未通过", invalid_case: "案例无效，不记能力失败", system_failure: "系统未能完成，不记能力失败", no_qualified_case: "当前案例未通过陌生性核验" } as Record<string, string>)[state.independent_outcome] ?? state.independent_outcome}</p>}
       <p className="break-all">本评估接收方：{state.destination} · {state.model_id}</p>
       {state.frozen_sequence !== null && <p>评估输入已冻结 · 服务端事件 {state.frozen_sequence}。此后查看反馈不会改写原答。</p>}
       {checking && <Button className={buttonClass} variant="outline" disabled={busy} onClick={() => act(() => EvaluationsService.stopEvaluation({ path: { run_id: runId } }))}>停止本次评分</Button>}

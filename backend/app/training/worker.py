@@ -2,12 +2,17 @@ import asyncio
 import uuid
 
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlmodel import Session, col, select
 
 from app.capabilities.catalog import CATALOG, EvidenceKey
 from app.core.db import engine
 from app.model_config.connection import BACKOFF_SECONDS, CancelledCall, ProbeError
-from app.model_config.service import cancelled_by_revocation, current_for_result
+from app.model_config.service import (
+    cancelled_by_revocation,
+    current_for_result,
+    lock_owner,
+)
 from app.project.worker import reconcile_failed_projects
 from app.training.concept_worker import reconcile_concepts
 from app.training.evaluation_worker import reconcile_failed_evaluations
@@ -23,6 +28,62 @@ from app.training.submission_worker import (  # noqa: F401
 )
 
 TERMINAL = {"completed", "failed", "stopped"}
+
+
+def finish_stop(run_id: uuid.UUID, job_id: int | None) -> None:
+    with Session(engine) as session:
+        initial = session.get(TrainingRun, run_id)
+        if not initial:
+            return
+        lock_owner(session, initial.user_id)
+        run = session.exec(
+            select(TrainingRun)
+            .where(TrainingRun.id == run_id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        ).one()
+        if (
+            run.queue_job_id != job_id
+            or run.status != "stopping"
+            or not run.stop_requested
+        ):
+            return
+        run.status, run.code, run.message = (
+            "stopped",
+            "stopped",
+            "已停止后续调用；已有成果和实际用量保留",
+        )
+        session.add(run)
+        session.commit()
+
+
+def reconcile_stops() -> None:
+    with Session(engine) as session:
+        pending = [
+            (r.id, r.queue_job_id)
+            for r in session.exec(
+                select(TrainingRun).where(
+                    TrainingRun.status == "stopping",
+                    col(TrainingRun.stop_requested).is_(True),
+                )
+            ).all()
+        ]
+    for identity, job_id in pending:
+        finish_stop(identity, job_id)
+    with engine.connect() as connection:
+        failed = connection.execute(
+            text("""SELECT r.id, r.queue_job_id FROM training_run r
+            JOIN procrastinate_jobs j ON j.id=r.queue_job_id
+            WHERE r.launch_mode='independent' AND r.status IN ('queued','running')
+            AND j.status IN ('failed','aborted','cancelled') LIMIT 100""")
+        ).all()
+    for identity, job_id in failed:
+        finish(
+            identity,
+            "internal_failure",
+            "后台未完成；原记录及预算保留，可主动重试",
+            job_id,
+        )
 
 
 def read_run(run_id: uuid.UUID) -> TrainingRun:
@@ -42,14 +103,18 @@ def last_attempt(run_id: uuid.UUID) -> TrainingAttempt | None:
         ).first()
 
 
-def finish(run_id: uuid.UUID, code: str, message: str) -> None:
+def finish(
+    run_id: uuid.UUID, code: str, message: str, job_id: int | None = None
+) -> None:
     with Session(engine) as session:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
         ).one()
         # Acceptance/stop/failure may commit before a late cancellation unwinds.
         # The task lock makes that terminal fact authoritative for every caller.
-        if run.status in TERMINAL:
+        if run.status in TERMINAL or (
+            job_id is not None and run.queue_job_id != job_id
+        ):
             return
         if cancelled_by_revocation(session, run.user_id, run.config_version, code):
             run.stop_requested = True
@@ -63,13 +128,16 @@ def finish(run_id: uuid.UUID, code: str, message: str) -> None:
         session.commit()
 
 
-def begin_attempt(run_id: uuid.UUID) -> TrainingAttempt | None:
+def begin_attempt(
+    run_id: uuid.UUID, job_id: int | None = None
+) -> TrainingAttempt | None:
     with Session(engine) as session:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
         ).one()
         if (
-            run.stop_requested
+            (job_id is not None and run.queue_job_id != job_id)
+            or run.stop_requested
             or run.status in TERMINAL
             or run.attempts >= 6
             or run.generation_attempts >= 3
@@ -170,6 +238,11 @@ async def watch_stop(run_id: uuid.UUID) -> None:
 async def process(run_id: uuid.UUID) -> None:
     run = await asyncio.to_thread(read_run, run_id)
     if run.status in TERMINAL or run.stop_requested:
+        return
+    if run.launch_mode == "independent":
+        from app.training.independent_worker import process as process_independent
+
+        await process_independent(run_id)
         return
     if run.selection.get("catalog_version", CATALOG.version) != CATALOG.version:
         await asyncio.to_thread(
@@ -333,6 +406,7 @@ async def generate_training(run_id: str) -> None:
 @queue.task(name="training.recover", queueing_lock="training-recovery")
 async def recover(timestamp: int = 0) -> None:
     del timestamp
+    await asyncio.to_thread(reconcile_stops)
     await asyncio.to_thread(reconcile_failed_submissions)
     await asyncio.to_thread(reconcile_failed_projects)
     await asyncio.to_thread(reconcile_failed_evaluations)
