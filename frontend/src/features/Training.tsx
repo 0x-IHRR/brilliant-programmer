@@ -132,6 +132,7 @@ export function Training({ onLevel }: { onLevel?: (level: string) => void }) {
       {run.boss_stage && <><BossStandard stage={run.boss_stage} /><BossProgress key={run.id} runId={run.id} onLevel={onLevel} /></>}
       {run.return_target && <a className="underline" href={`/?capability=${encodeURIComponent(run.return_target.capability_id)}&difficulty=${encodeURIComponent(run.return_target.difficulty)}`}>返回原目标并核对解锁条件</a>}
       <p>{run.target.difficulty} · 目标：{run.goal}</p>
+      {run.topic_snapshot?.version_id && <div><p>本题确认重点：{run.topic_snapshot.focus}</p><p className="break-all">原路线版本：{run.topic_snapshot.version_id} · 节点：{run.topic_snapshot.node_id}</p><p>之后路线编辑不改写本题目标、重点或作答。</p></div>}
       {run.recommendation_reason && <p>本轮选择依据：{reasonLabel(run.recommendation_reason)}。开始时已固定目标与难度，之后偏好变更不改本题。</p>}
       <p>{run.launch_mode === "independent" ? "本轮由你主动发起独立检验；最终资格依据实际帮助与冻结作答，语义质量尚未验收。" : "本轮默认练习；普通练习通过不会自动成为独立证明。"}</p>
       {run.current_mode === "practice" && run.launch_mode === "independent" && <p>本题已转为练习，不能原题切回独立；已有修为及此前冻结的合格原答保留。</p>}

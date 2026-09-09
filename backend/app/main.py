@@ -42,6 +42,8 @@ async def safe_validation_error(
             status_code=422,
             content={"detail": "配置格式不正确，请检查地址、模型 ID 和 Key"},
         )
+    if request.url.path.startswith("/api/v1/topics"):
+        return JSONResponse(status_code=422, content={"detail": "主题或版本格式不正确；输入保留，请检查本次操作"})
     if request.url.path.startswith("/api/v1/projects"):
         return JSONResponse(status_code=422, content={"detail": "请检查公开 GitHub HTTPS 链接、模型目的地确认与请求格式"})
     if request.url.path.startswith("/api/v1/training/") and request.url.path.rstrip("/").endswith("/draft"):

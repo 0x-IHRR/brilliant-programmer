@@ -15,6 +15,7 @@ async def generate(
     sources: list[Source],
     correction: bool,
     boss_stage: FirstStage | None = None,
+    topic_goal: dict[str, str] | None = None,
 ) -> tuple[str, dict[str, int | None]]:
     capability = next(
         c
@@ -35,6 +36,7 @@ async def generate(
                         "严格按冻结target的能力、背景与难度以及difficulty_criterion生成局部工程判断案例，不自动降档。"
                         "若有boss_standard，以三个必考映射和各自criterion构造同一综合情境的三个不同判断；primary target只作载体。不得重复同一判断或仅用标题声称覆盖。"
                         "基础采用无前置的起步材料；进阶与综合按对应标准实际构造判断内容，不能只改标签。"
+                        "若有confirmed_topic，必须以其中目标文本和重点实际出题，不能替换成目录默认题。来源不能支持该目标时填写missing_evidence并明确失败。"
                         "材料是清楚标注的合成教学材料；"
                         "所有必要假设必须列出，观察事实用facts记录同一情境下不可冲突的属性和值。"
                         "每个必考判断须有证据、可接受选项（零起序号）、理由、反例和帮助边界。"
@@ -48,7 +50,10 @@ async def generate(
                         {
                             "target": target.model_dump(),
                             "catalog_version": CATALOG.version,
-                            "observable_goal": capability.title,
+                            "observable_goal": topic_goal["goal"]
+                            if topic_goal
+                            else capability.title,
+                            **({"confirmed_topic": topic_goal} if topic_goal else {}),
                             "criterion": capability.criterion,
                             "difficulty_criterion": CATALOG.difficulty_criteria[
                                 target.difficulty

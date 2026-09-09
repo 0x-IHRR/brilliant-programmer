@@ -27,6 +27,7 @@ from app.training.submission_worker import (  # noqa: F401
     check_submission,
     reconcile_failed_submissions,
 )
+from app.training.topic_worker import reconcile_topics
 
 TERMINAL = {"completed", "failed", "stopped"}
 
@@ -246,6 +247,11 @@ async def process(run_id: uuid.UUID) -> None:
     run = await asyncio.to_thread(read_run, run_id)
     if run.status in TERMINAL or run.stop_requested:
         return
+    if run.selection.get("entry") == "free_topic" and run.launch_mode != "independent":
+        from app.training.topic_generation import process as process_topic
+
+        await process_topic(run_id)
+        return
     if run.launch_mode == "independent":
         from app.training.independent_worker import process as process_independent
 
@@ -430,12 +436,15 @@ async def generate_training(run_id: str) -> None:
 @queue.task(name="training.recover", queueing_lock="training-recovery")
 async def recover(timestamp: int = 0) -> None:
     del timestamp
+
+    await asyncio.to_thread(reconcile_topics)
     await asyncio.to_thread(reconcile_stops)
     await asyncio.to_thread(reconcile_failed_submissions)
     await asyncio.to_thread(reconcile_failed_projects)
     await asyncio.to_thread(reconcile_failed_evaluations)
     await asyncio.to_thread(reconcile_concepts)
     for task_name in (
+        "topic.analyze",
         "training.generate",
         "training.check_submission",
         "project.analyze",
