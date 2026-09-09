@@ -7,6 +7,7 @@ import {
   type HelpPublic,
   type ModelConfigPublic,
 } from "../client"
+import { GuidedPractice } from "./GuidedPractice"
 import { Button } from "../components/ui/button"
 
 export function ConceptCoach({
@@ -25,6 +26,7 @@ export function ConceptCoach({
   const [error, setError] = useState("")
   const [publication, setPublication] = useState<HelpPublication | null>(null)
   const [receiptFailed, setReceiptFailed] = useState(false)
+  const [practiceId, setPracticeId] = useState<string | null>(null)
   const alive = useRef(true)
   const ownerSession = useRef(sessionStorage.getItem("token"))
   const current = () =>
@@ -139,15 +141,16 @@ export function ConceptCoach({
       if (current()) setBusy(false)
     }
   }
-  async function request(parent?: HelpPublic) {
+  async function request(parent?: HelpPublic, kind: "concept" | "hint" | "demonstration" = "concept") {
     if (!config || !accepted) return
     const body: HelpCreate = {
       request_id: "",
+      kind,
       expected_config_version: config.version,
       disclosure_accepted: true,
       parent_id: parent?.id ?? null,
       input: {
-        question: parent?.input.question ?? question,
+        question: kind === "hint" ? "请给出本题证据提示" : kind === "demonstration" ? "请查看本题完整示范" : parent?.input.question ?? question,
         depth: parent ? "deep" : "basic",
         answers,
       },
@@ -209,6 +212,8 @@ export function ConceptCoach({
         >
           白话解释
         </Button>
+        <Button className={cls} disabled={busy || working || !accepted || !config} onClick={() => act(() => request(undefined, "hint"))}>证据提示</Button>
+        <Button className={cls} variant="outline" disabled={busy || working || !accepted || !config} onClick={() => act(() => request(undefined, "demonstration"))}>准备完整示范</Button>
         <Button
           className={cls}
           variant="outline"
@@ -225,6 +230,7 @@ export function ConceptCoach({
           className="space-y-2 border p-3"
           aria-label="当前概念说明"
         >
+          {"plain" in publication.content ? <>
           <p className="whitespace-pre-wrap">
             白话：{publication.content.plain}
           </p>
@@ -239,6 +245,7 @@ export function ConceptCoach({
               进一步原理：{publication.content.principle}
             </p>
           )}
+          </> : Object.entries(publication.sections).map(([name, text]) => <p key={name} className="whitespace-pre-wrap"><strong>{name.includes("counterexample") ? "反例：" : name.includes("reason") ? "依据：" : name.includes("answer") ? "可接受结论：" : name.includes("quote") ? "来源原文：" : name.includes("source") ? "来源：" : name.includes("evidence") ? "证据：" : name.includes("option") ? "选项：" : "判断："}</strong>{text}</p>)}
           <p>模型内容检查不等于人工核验，也不证明你已理解。</p>
         </div>
       )}
@@ -248,10 +255,10 @@ export function ConceptCoach({
         </p>
       )}
       {items.map((item) => (
-        <article key={item.id} className="space-y-2 border p-2">
+        <article key={item.id} className="space-y-2 border p-[8px]">
           <p>
             {item.input.question} ·{" "}
-            {item.input.depth === "deep" ? "深入原理" : "基础说明"}
+            {item.kind === "hint" ? "证据提示" : item.kind === "demonstration" ? "完整示范" : item.input.depth === "deep" ? "深入原理" : "基础说明"}
           </p>
           <p role="status">{item.message}</p>
           {item.direction && (
@@ -324,10 +331,10 @@ export function ConceptCoach({
                   })
                 }
               >
-                查看说明
+                {item.kind === "hint" ? "查看证据提示" : item.kind === "demonstration" ? "查看完整示范" : "查看说明"}
               </Button>
             )}
-            {item.input.depth === "basic" &&
+            {item.kind === "concept" && item.input.depth === "basic" &&
               item.deliveries.some((d) => d.status === "delivered") && (
                 <Button
                   className={cls}
@@ -339,6 +346,8 @@ export function ConceptCoach({
                 </Button>
               )}
           </div>
+          {item.kind === "demonstration" && item.deliveries.some(d => d.status === "delivered") && <Button className={cls} variant="outline" onClick={() => setPracticeId(item.id)}>自己做一个小练习</Button>}
+          {practiceId === item.id && <GuidedPractice key={`${runId}:${item.id}`} runId={runId} helpId={item.id} config={config} />}
           <details>
             <summary>交付事实与历史说明</summary>
             {item.deliveries.length === 0 && <p>尚未交付。</p>}

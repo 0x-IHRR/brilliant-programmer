@@ -55,7 +55,7 @@ def save_draft(
     current = session.get(TrainingDraft, run_id, populate_existing=True)
     latest = session.exec(
         select(Submission.id)
-        .where(Submission.run_id == run_id)
+        .where(Submission.run_id == run_id, col(Submission.practice_help_id).is_(None))
         .order_by(col(Submission.sequence).desc())
     ).first()
     try:

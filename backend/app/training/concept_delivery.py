@@ -12,9 +12,9 @@ from typing import Literal
 from pydantic import Field, model_validator
 
 from app.training.concept_schema import (
-    ConceptContent,
     ContentReview,
     Direction,
+    InspectedContent,
     classify_content,
 )
 from app.training.schema import Strict
@@ -50,7 +50,7 @@ def observe_delivery(
     help_id: uuid.UUID,
     sequence: int,
     occurred_at: datetime,
-    content: ConceptContent | None = None,
+    content: InspectedContent | None = None,
     review: ContentReview | None = None,
     status: DeliveryStatus,
     observed_text: str,

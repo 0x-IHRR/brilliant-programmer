@@ -45,6 +45,33 @@ class GuidanceDraft(Strict):
     # directional by construction, not a neutrality claim based on the button.
     direction: Literal["directional"] = "directional"
 
+    def sections(self) -> dict[str, str]:
+        """Exact text units for inspection, rendering and content-bound receipts."""
+        result: dict[str, str] = {}
+        for index, step in enumerate(self.steps):
+            prefix = f"judgment-{index + 1}"
+            result[prefix] = step.judgment.prompt
+            for number, option in enumerate(step.judgment.options):
+                result[f"{prefix}-option-{number + 1}"] = option
+            for number, evidence in enumerate(step.evidence):
+                name = f"{prefix}-evidence-{number + 1}"
+                result[name] = evidence.text
+                for citation_index, citation in enumerate(evidence.citations):
+                    result[f"{name}-source-{citation_index + 1}"] = citation.source_id
+                    result[f"{name}-quote-{citation_index + 1}"] = citation.quote
+            if step.solution:
+                for number, value in enumerate(step.solution.acceptable_values):
+                    if isinstance(value, int):
+                        text = step.judgment.options[value]
+                    elif isinstance(value, list):
+                        text = " → ".join(step.judgment.options[item] for item in value)
+                    else:
+                        text = value
+                    result[f"{prefix}-answer-{number + 1}"] = text
+                result[f"{prefix}-reason"] = step.solution.reasoning
+                result[f"{prefix}-counterexample"] = step.solution.counterexample
+        return result
+
 
 def checked_case(candidate: Candidate, sources: list[Source], key: str) -> Candidate:
     return validate_candidate(
@@ -119,6 +146,11 @@ def exercise_candidate(candidate: Candidate, judgment_id: str) -> Candidate:
     return candidate.model_copy(
         update={
             "judgments": judgments,
+            "evidence": [
+                item
+                for item in candidate.evidence
+                if item.id in judgments[0].evidence_ids
+            ],
             "rubric": [
                 item for item in candidate.rubric if item.judgment_id == judgment_id
             ],

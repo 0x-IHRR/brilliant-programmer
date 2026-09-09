@@ -35,7 +35,7 @@ class Submission(SQLModel, table=True):
             "one_neutral_clarification_per_run",
             "run_id",
             unique=True,
-            postgresql_where=text("neutral_clarification"),
+            postgresql_where=text("neutral_clarification AND practice_help_id IS NULL"),
         ),
         Index(
             "one_clarification_answer_per_run",
@@ -53,6 +53,10 @@ class Submission(SQLModel, table=True):
     original_id: uuid.UUID | None = Field(
         default=None, foreign_key="training_submission.id"
     )
+    practice_help_id: uuid.UUID | None = Field(
+        default=None, foreign_key="concept_help.id"
+    )
+    practice_judgment_id: str | None = None
     kind: str = "original"
     answers: list[dict[str, Any]] = Field(sa_column=Column(JSON, nullable=False))
     input_hash: str

@@ -23,6 +23,7 @@ from app.model_config.models import ModelConfig  # noqa
 from app.training.models import TrainingRun, TrainingAttempt  # noqa
 from app.training.submission_models import Submission, SubmissionAttempt, PracticeAward  # noqa
 from app.training import concept_models  # noqa: F401
+from app.training import practice_models  # noqa: F401
 from app.training import draft_models  # noqa: F401
 from app.training import evaluation_models  # noqa: F401
 from app.project.models import ProjectRun, ProjectAttempt  # noqa

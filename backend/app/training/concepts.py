@@ -5,6 +5,7 @@ import json
 import secrets
 import uuid
 from datetime import UTC, datetime
+from typing import Literal
 
 import procrastinate
 from fastapi import APIRouter, HTTPException, Response
@@ -16,7 +17,7 @@ from app.model_config.connection import Attempt
 from app.model_config.models import ModelConfig
 from app.model_config.output import check_output
 from app.model_config.service import decrypt, lock_owner
-from app.training.concept import context_for
+from app.training.concept import context_for, help_content, safe_guidance
 from app.training.concept_delivery import observe_delivery
 from app.training.concept_models import ConceptAttempt, ConceptHelp, HelpDelivery
 from app.training.concept_schema import (
@@ -27,6 +28,7 @@ from app.training.concept_schema import (
 )
 from app.training.concept_worker import finish_stop, generate_help
 from app.training.events import next_event
+from app.training.guided import GuidanceDraft, guidance_draft
 from app.training.queue import DSN
 from app.training.routes import VerifiedUser, owned
 from app.training.schema import Candidate, Source
@@ -38,6 +40,7 @@ router = APIRouter(prefix="/training", tags=["concepts"])
 class HelpCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     request_id: uuid.UUID
+    kind: Literal["concept", "hint", "demonstration"] = "concept"
     expected_config_version: uuid.UUID
     disclosure_accepted: bool
     input: HelpInput
@@ -57,6 +60,7 @@ class PublicDelivery(BaseModel):
 
 
 class HelpPublic(BaseModel):
+    kind: str
     id: uuid.UUID
     run_id: uuid.UUID
     parent_id: uuid.UUID | None
@@ -80,8 +84,9 @@ class HelpPublication(BaseModel):
     help_id: uuid.UUID
     delivery_id: uuid.UUID
     receipt_token: str
-    content: ConceptContent
+    content: ConceptContent | GuidanceDraft
     content_hash: str
+    sections: dict[str, str]
     exposure_sequence: int
 
 
@@ -116,6 +121,7 @@ def view(session: Session, item: ConceptHelp) -> HelpPublic:
         **item.model_dump(
             include={
                 "id",
+                "kind",
                 "run_id",
                 "parent_id",
                 "status",
@@ -197,6 +203,7 @@ def request_help(
     if existing:
         if (
             existing.run_id != run_id
+            or existing.kind != body.kind
             or existing.request != body.input.model_dump()
             or existing.parent_id != body.parent_id
             or existing.config_version != body.expected_config_version
@@ -220,6 +227,8 @@ def request_help(
     config = session.get(ModelConfig, user.id, populate_existing=True)
     if not config or config.version != body.expected_config_version:
         raise HTTPException(409, "配置已变化，请重新读取并确认模型目的地")
+    if body.kind != "concept" and (body.parent_id or body.input.depth != "basic"):
+        raise HTTPException(422, "提示和示范不附带概念深入历史")
     history = []
     if body.input.depth == "deep":
         parent = (
@@ -233,7 +242,7 @@ def request_help(
                 HelpDelivery.status == "delivered",
             )
         ).first()
-        if not parent or not parent.content or not seen:
+        if not parent or parent.kind != "concept" or not parent.content or not seen:
             raise HTTPException(409, "请先查看并确认当前概念说明，再主动展开原理")
         history.append(ConceptContent.model_validate(parent.content))
     elif body.parent_id:
@@ -252,7 +261,22 @@ def request_help(
         raise HTTPException(
             422, "请检查当前判断与求助内容；疑似秘密不发送，请脱敏"
         ) from None
+    draft = None
+    if body.kind != "concept":
+        try:
+            draft = guidance_draft(
+                Candidate.model_validate(run.candidate),
+                [Source.model_validate(s) for s in run.sources],
+                body.kind,
+                decrypt(config).get_secret_value(),
+            )
+            safe_guidance(draft, decrypt(config).get_secret_value())
+        except ValueError:
+            raise HTTPException(
+                422, "冻结材料暂不适合安全示范；未交付，请保留原题记录"
+            ) from None
     item = ConceptHelp(
+        kind=body.kind,
         id=body.request_id,
         created_sequence=next_event(session, run_id),
         run_id=run_id,
@@ -262,6 +286,10 @@ def request_help(
         destination=config.service_url,
         model_id=config.model_id,
     )
+    if draft:
+        item.content = draft.model_dump(mode="json")
+        item.generated_sequence = next_event(session, run_id)
+        item.stage = "inspect"
     session.add(item)
     session.flush()
     enqueue(session, item)
@@ -340,7 +368,7 @@ def publish_help(
     session.refresh(item)
     if item.status != "ready" or not item.content or not item.inspection:
         raise HTTPException(409, "说明尚不可交付；请读取帮助状态")
-    content = ConceptContent.model_validate(item.content)
+    content = help_content(item.kind, item.content)
     classify_content(content, ContentReview.model_validate(item.inspection))
     # All current rounds are ordinary practice. Future independent-mode delivery
     # must enforce confirmation HERE before any content bytes are released.
@@ -364,6 +392,7 @@ def publish_help(
         delivery_id=event.id,
         receipt_token=token,
         content=content,
+        sections=content.sections(),
         content_hash=event.content_hash,
         exposure_sequence=sequence,
     )
@@ -398,7 +427,7 @@ def confirm_rendering(
     ).first()
     if existing:
         return view(session, item)
-    content = ConceptContent.model_validate(item.content)
+    content = help_content(item.kind, item.content)
     review = ContentReview.model_validate(item.inspection)
     text = "\n\n".join(content.sections().values())
     if hashlib.sha256(text.encode()).hexdigest() != attempt.content_hash:
