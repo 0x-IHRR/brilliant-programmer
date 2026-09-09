@@ -279,3 +279,68 @@ def test_project_analysis_rejects_unusable_results_without_public_route(
             assert len(provider["requests"]) == 1
     finally:
         stop_worker(process)
+
+
+def test_project_ordinary_allowed_but_failed_quality_blocks_independent(
+    route_ready, provider
+):
+    from app.training.models import TrainingRun
+    from app.training.schema import Source
+    from app.training.topic_models import Topic
+    from tests.test_quality_api import publish, report_for
+    from tests.test_training import wait_run
+
+    auth, config, body, topic = route_ready
+    frozen = client.get(
+        f"/api/v1/project-training/{body['topic_id']}", headers=auth
+    ).json()["current"]
+    sources = [
+        Source.model_validate(reference["source"])
+        for reference in frozen["bindings"][0]["references"]
+    ]
+    with Session(engine) as session:
+        owner = session.get(Topic, uuid.UUID(body["topic_id"])).user_id
+    report, _ = report_for(owner, config, failed=True, sources=sources)
+    publish(report)
+    version = topic["current"]
+    path = f"/api/v1/topics/{body['topic_id']}"
+    assert (
+        client.post(
+            path + "/confirm", headers=auth, json={"expected_version": version["id"]}
+        ).status_code
+        == 200
+    )
+    started = client.post(
+        path + "/start",
+        headers=auth,
+        json={
+            "request_id": str(uuid.uuid4()),
+            "expected_version": version["id"],
+            "node_id": version["nodes"][0]["id"],
+            "expected_config_version": config["version"],
+            "disclosure_accepted": True,
+        },
+    )
+    assert started.status_code == 202, started.text
+    run_id = started.json()["id"]
+    original = wait_run(auth, run_id).json()
+    assert original["status"] == "completed" and original["current_mode"] == "practice"
+    before = len(provider["requests"])
+    attempt = uuid.uuid4()
+    result = client.post(
+        f"/api/v1/training/tasks/{run_id}/independent",
+        headers=auth,
+        json={
+            "request_id": str(attempt),
+            "expected_config_version": config["version"],
+            "disclosure_accepted": True,
+        },
+    )
+    assert result.status_code == 409 and "未达标" in result.json()["detail"]
+    with Session(engine) as session:
+        assert session.get(TrainingRun, attempt) is None
+    assert len(provider["requests"]) == before == 4
+    assert (
+        client.get(f"/api/v1/training/tasks/{run_id}", headers=auth).json()["case"]
+        == original["case"]
+    )
