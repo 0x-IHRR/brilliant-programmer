@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { EvaluationsService, type Answer, type EvaluationPublic, type ModelConfigPublic, type PublicCase } from "../client"
 import { Button } from "../components/ui/button"
 
-export function Evaluation({ runId, caseData, config, submitted, onFrozen }: { runId: string; caseData: PublicCase; config: ModelConfigPublic | null; submitted: boolean; onFrozen: (frozen: boolean) => void }) {
+export function Evaluation({ runId, caseData, config, submitted, onFrozen, boss = false }: { boss?: boolean; runId: string; caseData: PublicCase; config: ModelConfigPublic | null; submitted: boolean; onFrozen: (frozen: boolean) => void }) {
   const [state, setState] = useState<EvaluationPublic | null>(null)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [accepted, setAccepted] = useState(false)
@@ -45,7 +45,7 @@ export function Evaluation({ runId, caseData, config, submitted, onFrozen }: { r
   if (!submitted) return null
   return <section aria-label="本次反馈" className="space-y-3 min-w-0 border-t pt-3">
     <h4 className="font-semibold">本次反馈</h4>
-    <p>结论与普通完成分开；已获得的 10 点不因答错或评分失败追回，不直接更新等级或独立证明。</p>
+    <p>{boss ? "完整作答与晋升分开；已获得的10点不因答错或评分失败追回，晋升另核对本轮全部必考项与独立资格。" : "结论与普通完成分开；已获得的 10 点不因答错或评分失败追回，不直接更新等级或独立证明。"}</p>
     <Button className={buttonClass} variant="outline" disabled={busy} onClick={() => act(() => EvaluationsService.readEvaluation({ path: { run_id: runId } }))}>重新读取评分</Button>
     {!state && config && <>
       <p className="break-all">评分接收方：{config.service_url} · {config.model_id}</p>
@@ -55,7 +55,7 @@ export function Evaluation({ runId, caseData, config, submitted, onFrozen }: { r
     {error && <p role="alert">{error}</p>}
     {state && <>
       <p role="status">{state.message}</p>
-      {state.independent_outcome && <p role="status">独立检验记录：{({ independent_pass_candidate: "符合独立通过条件的证据候选（模型语义质量未验证，不直接更新等级）", pending_delivery: "帮助交付尚未核实，独立结算等待回执；可核实说明或主动另开新题", practice: "按练习记录，已有修为保留", unclear: "尚未证明掌握", evidenced_fail: "本次独立作答有据未通过", invalid_case: "案例无效，不记能力失败", system_failure: "系统未能完成，不记能力失败", no_qualified_case: "当前案例未通过陌生性核验" } as Record<string, string>)[state.independent_outcome] ?? state.independent_outcome}</p>}
+      {state.independent_outcome && <p role="status">独立检验记录：{({ independent_pass_candidate: boss ? "符合独立通过条件的证据候选（模型语义质量未验证；等级请核对本轮Boss结算）" : "符合独立通过条件的证据候选（模型语义质量未验证，不直接更新等级）", pending_delivery: "帮助交付尚未核实，独立结算等待回执；可核实说明或主动另开新题", practice: "按练习记录，已有修为保留", unclear: "尚未证明掌握", evidenced_fail: "本次独立作答有据未通过", invalid_case: "案例无效，不记能力失败", system_failure: "系统未能完成，不记能力失败", no_qualified_case: "当前案例未通过陌生性核验" } as Record<string, string>)[state.independent_outcome] ?? state.independent_outcome}</p>}
       <p className="break-all">本评估接收方：{state.destination} · {state.model_id}</p>
       {state.frozen_sequence !== null && <p>评估输入已冻结 · 服务端事件 {state.frozen_sequence}。此后查看反馈不会改写原答。</p>}
       {checking && <Button className={buttonClass} variant="outline" disabled={busy} onClick={() => act(() => EvaluationsService.stopEvaluation({ path: { run_id: runId } }))}>停止本次评分</Button>}

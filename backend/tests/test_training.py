@@ -91,10 +91,10 @@ def provider(tmp_path):
                 self.send_header("Content-Length", "0")
                 self.end_headers()
                 return
-            content = (
+            content = state.get("source_text", (
                 "Controlled test reference: missing acknowledgement does not establish that an operation was not executed. "
                 * 3
-            ).encode()
+            )).encode()
             self.send_response(200)
             self.send_header("Content-Length", str(len(content)))
             self.end_headers()

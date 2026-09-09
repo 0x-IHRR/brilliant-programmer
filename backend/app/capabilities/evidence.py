@@ -19,6 +19,7 @@ Status = Literal["unverified", "verified", "needs_consolidation"]
 
 class Evidence(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
+    kind: Literal["ordinary", "boss"] = "ordinary"
     original_id: uuid.UUID
     run_id: uuid.UUID
     order: int
@@ -61,10 +62,41 @@ class EvidenceMap(BaseModel):
 def project(records: list[Evidence]) -> EvidenceMap:
     # Caller selects the latest interpretation per original. Reject duplicates
     # instead of letting caller order turn the same exam into two successes.
-    if len({r.original_id for r in records}) != len(records):
-        raise ValueError("duplicate original")
-    if len({r.order for r in records}) != len(records):
-        raise ValueError("ambiguous original order")
+    grouped: dict[uuid.UUID, list[Evidence]] = {}
+    order_owners: dict[int, uuid.UUID] = {}
+    for record in records:
+        if (
+            record.order in order_owners
+            and order_owners[record.order] != record.original_id
+        ):
+            raise ValueError("ambiguous original order")
+        order_owners[record.order] = record.original_id
+        grouped.setdefault(record.original_id, []).append(record)
+    for bundle in grouped.values():
+        if len(bundle) == 1:
+            continue
+        if (
+            any(r.kind != "boss" for r in bundle)
+            or len({r.target for r in bundle}) != len(bundle)
+            or len(
+                {
+                    (
+                        r.run_id,
+                        r.order,
+                        r.submitted_at,
+                        r.observation_id,
+                        r.observation_sequence,
+                        r.frozen_sequence,
+                        r.case_digest,
+                    )
+                    for r in bundle
+                }
+            )
+            != 1
+            or len({j for r in bundle for j in r.judgment_ids})
+            != sum(len(r.judgment_ids) for r in bundle)
+        ):
+            raise ValueError("duplicate original or invalid Boss judgment bundle")
     states: dict[EvidenceKey, CapabilityState] = {}
     seen: dict[EvidenceKey, set[str]] = {}
     for record in sorted(records, key=lambda r: r.order):
@@ -74,7 +106,9 @@ def project(records: list[Evidence]) -> EvidenceMap:
         valid = record.qualified_novelty and bool(record.judgment_ids)
         if valid and record.outcome == "evidenced_fail":
             state.streak = 0
-            if state.status == "verified":
+            if state.status == "verified" or (
+                record.kind == "boss" and state.status == "unverified"
+            ):
                 state.status = "needs_consolidation"
                 state.recovery_started_at_order = record.order
             counted = True

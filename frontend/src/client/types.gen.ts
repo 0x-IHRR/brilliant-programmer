@@ -115,6 +115,94 @@ export type Body_accounts_login = {
 };
 
 /**
+ * BossAccess
+ */
+export type BossAccess = {
+    stage: FirstStage;
+    /**
+     * Points
+     */
+    points: number;
+    /**
+     * Level
+     */
+    level: string;
+    /**
+     * Can Start
+     */
+    can_start: boolean;
+    /**
+     * Run Ids
+     */
+    run_ids: Array<string>;
+};
+
+/**
+ * BossDecision
+ */
+export type BossDecision = {
+    /**
+     * Outcome
+     */
+    outcome: 'practice' | 'pending_delivery' | 'no_qualified_case' | 'invalid_case' | 'system_failure' | 'unclear' | 'evidenced_fail' | 'independent_pass_candidate' | 'not_admitted' | 'disputed' | 'pending_revalidation';
+    /**
+     * Promote To
+     */
+    promote_to?: '初级程序员' | null;
+    /**
+     * Shortfalls
+     */
+    shortfalls?: Array<ConfirmedShortfall>;
+    /**
+     * Semantic Reliability
+     */
+    semantic_reliability?: 'unverified';
+};
+
+/**
+ * BossPublic
+ */
+export type BossPublic = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    stage: FirstStage;
+    decision: BossDecision | null;
+    /**
+     * Promotion Id
+     */
+    promotion_id: string | null;
+    /**
+     * Current Level
+     */
+    current_level: string;
+    /**
+     * Points
+     */
+    points: number;
+};
+
+/**
+ * BossStart
+ */
+export type BossStart = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    expected_stage: FirstStage;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+};
+
+/**
  * Capability
  */
 export type Capability = {
@@ -337,6 +425,21 @@ export type ConfirmationReceipt = {
 };
 
 /**
+ * ConfirmedShortfall
+ */
+export type ConfirmedShortfall = {
+    /**
+     * Judgment Id
+     */
+    judgment_id: string;
+    target: EvidenceKey;
+    /**
+     * Gap
+     */
+    gap: string;
+};
+
+/**
  * Domain
  */
 export type Domain = {
@@ -499,6 +602,10 @@ export type EvaluationStart = {
  * Evidence
  */
 export type Evidence = {
+    /**
+     * Kind
+     */
+    kind?: 'ordinary' | 'boss';
     /**
      * Original Id
      */
@@ -666,6 +773,44 @@ export type Finding = {
      * Evidence
      */
     evidence: Array<Location>;
+};
+
+/**
+ * FirstStage
+ */
+export type FirstStage = {
+    /**
+     * Version
+     */
+    version?: 'first-boss-v1';
+    /**
+     * Catalog Version
+     */
+    catalog_version: string;
+    /**
+     * From Level
+     */
+    from_level?: '小白程序员';
+    /**
+     * To Level
+     */
+    to_level?: '初级程序员';
+    /**
+     * Launch Points
+     */
+    launch_points?: 100;
+    /**
+     * Mandatory
+     */
+    mandatory: [
+        MandatoryJudgment,
+        MandatoryJudgment,
+        MandatoryJudgment
+    ];
+    /**
+     * Passing Rule
+     */
+    passing_rule: string;
 };
 
 /**
@@ -1107,6 +1252,21 @@ export type Location = {
      * Quote
      */
     quote: string;
+};
+
+/**
+ * MandatoryJudgment
+ */
+export type MandatoryJudgment = {
+    /**
+     * Judgment Id
+     */
+    judgment_id: string;
+    /**
+     * Scope
+     */
+    scope: '请求／状态链路' | '局部因果' | '查证与验证';
+    target: EvidenceKey;
 };
 
 /**
@@ -1872,6 +2032,7 @@ export type TargetStart = {
  * TaskPublic
  */
 export type TaskPublic = {
+    boss_stage?: FirstStage | null;
     /**
      * Id
      */
@@ -4167,6 +4328,77 @@ export type independentRetryCheckResponses = {
 };
 
 export type independentRetryCheckResponse = independentRetryCheckResponses[keyof independentRetryCheckResponses];
+
+export type bossBossAccessData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/boss/access';
+};
+
+export type bossBossAccessResponses = {
+    /**
+     * Successful Response
+     */
+    200: BossAccess;
+};
+
+export type bossBossAccessResponse = bossBossAccessResponses[keyof bossBossAccessResponses];
+
+export type bossStartBossData = {
+    body: BossStart;
+    path?: never;
+    query?: never;
+    url: '/api/v1/boss/start';
+};
+
+export type bossStartBossErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type bossStartBossError = bossStartBossErrors[keyof bossStartBossErrors];
+
+export type bossStartBossResponses = {
+    /**
+     * Successful Response
+     */
+    202: TaskPublic;
+};
+
+export type bossStartBossResponse = bossStartBossResponses[keyof bossStartBossResponses];
+
+export type bossReadBossData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/boss/tasks/{run_id}';
+};
+
+export type bossReadBossErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type bossReadBossError = bossReadBossErrors[keyof bossReadBossErrors];
+
+export type bossReadBossResponses = {
+    /**
+     * Successful Response
+     */
+    200: BossPublic;
+};
+
+export type bossReadBossResponse = bossReadBossResponses[keyof bossReadBossResponses];
 
 export type healthHealthData = {
     body?: never;
