@@ -16,6 +16,16 @@ class IndependentWork(SQLModel, table=True):
     )
     novelty: dict[str, Any] | None = Field(default=None, sa_column=Column(JSON))
 
+    # Versioned complete snapshot and exact request plan. Legacy history/novelty
+    # remain untouched; adapters select format by the presence of this snapshot.
+    history_snapshot: dict[str, Any] | None = Field(
+        default=None, sa_column=Column(JSON)
+    )
+    comparison_plan: dict[str, Any] | None = Field(default=None, sa_column=Column(JSON))
+    comparison_results: list[dict[str, Any]] = Field(
+        default_factory=list, sa_column=Column(JSON, nullable=False)
+    )
+
 
 class IndependentObservation(SQLModel, table=True):
     __tablename__ = "independent_observation"

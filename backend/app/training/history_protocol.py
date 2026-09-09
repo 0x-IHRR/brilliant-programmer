@@ -1,4 +1,4 @@
-"""Isolated, bounded full-history reference protocol; not wired to a worker yet.
+"""Bounded full-history reference protocol and persistent checkpoint validation.
 
 References identify exact frozen values, never semantic equivalence. Every pair
 still needs a causal interpretation. These engineering limits are not guarantees
@@ -10,7 +10,7 @@ all batches and retries share the existing three comparison / six total calls.
 import hashlib
 import json
 import uuid
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
@@ -46,6 +46,8 @@ from app.training.schema import (
     Text,
     Variation,
 )
+from app.training.topic_analysis import Inspection
+from app.training.topic_rules import Goal
 
 SNAPSHOT_BYTES = 8 * 1024 * 1024
 REQUEST_BYTES = 1024 * 1024
@@ -109,6 +111,11 @@ def load_history(raw: str) -> HistorySnapshot:
     snapshot = HistorySnapshot.model_validate_json(raw)
     restore_history(snapshot)
     return snapshot
+
+
+def load_persisted_history(value: dict[str, Any]) -> HistorySnapshot:
+    """Use the writer's compact UTF-8 representation for JSON-column recovery."""
+    return load_history(json.dumps(value, ensure_ascii=False, separators=(",", ":")))
 
 
 class RuleContext(Strict):
@@ -200,6 +207,7 @@ class ReferenceResponse(Strict):
     changes: list[ChangeReference]
     comparisons: list[ComparisonRow]
     coverage: list[BossCoverage | ObservationCoverage]
+    topic_coverage: Inspection | None = None
 
 
 class ComparisonInput(Strict):
@@ -209,6 +217,7 @@ class ComparisonInput(Strict):
     new: CaseContext
     sources: list[Source]
     stage: Stage | None
+    topic: Goal | None = None
     criteria: dict[str, str]
     seen: list[CaseContext]
     runs: list[SeenRun]
@@ -226,7 +235,7 @@ SYSTEM = (
     "x引用explanations中的实际因果解释；changes仅在全部冻结引用与解释完全相同时共享。"
     "comparisons每行是[pair索引,same|different|unclear,changes索引数组]，每pair恰好一次。"
     "before/after reasoning取对应rubric，不能改变。若有stage，逐项提供coverage实际观察/来源引用；"
-    "不能用题面提及组件或模型自称覆盖替代真实必考内容。无stage时coverage为空。只返回符合schema的JSON。"
+    "不能用题面提及组件或模型自称覆盖替代真实必考内容。无stage时coverage为空。若有topic，必须独立核对确认的text/focus、实际判断、target和来源是否相符，不能以标签自报代替；不符或无法判断时topic_coverage.accepted=false并说明依据。只返回符合schema的JSON。"
 )
 
 
@@ -282,6 +291,7 @@ class ComparisonPlan(Strict):
     candidate_digest: Text
     model_id: Text
     stage: Stage | None
+    topic: Goal | None = None
     batches: list[ComparisonInput]
 
 
@@ -291,6 +301,7 @@ def _identity(
     sources: list[Source],
     model_id: str,
     stage: Stage | None,
+    topic: Goal | None = None,
 ) -> str:
     return hashlib.sha256(
         json.dumps(
@@ -300,6 +311,7 @@ def _identity(
                 "sources": [s.model_dump(mode="json") for s in sources],
                 "model_id": model_id,
                 "stage": stage.model_dump(mode="json") if stage else None,
+                "topic": topic.model_dump(mode="json") if topic else None,
             },
             sort_keys=True,
             ensure_ascii=False,
@@ -331,6 +343,7 @@ def plan_comparison(
     key: str,
     *,
     stage: Stage | None = None,
+    topic: Goal | None = None,
     remaining_calls: int = 3,
     request_limit: int = REQUEST_BYTES,
 ) -> ComparisonPlan:
@@ -351,7 +364,9 @@ def plan_comparison(
     rows = list(history.items())
     units = [(i, j) for i, (_, c) in enumerate(rows) for j in range(len(c.judgments))]
     # Identity binding only, never novelty evidence or semantic history pruning.
-    identity = _identity(snapshot, new, sources, model_id, stage)
+    identity = _identity(snapshot, new, sources, model_id, stage, topic)
+    if topic and (stage or topic.target != new.target):
+        raise ValueError("different confirmed topic target")
     if isinstance(stage, FirstStage):
         validate_boss_mapping(stage, new)
     elif isinstance(stage, BossStage):
@@ -383,6 +398,7 @@ def plan_comparison(
             new=new_context,
             sources=sources,
             stage=stage,
+            topic=topic,
             criteria=criteria,
             seen=cases,
             runs=runs,
@@ -415,6 +431,7 @@ def plan_comparison(
         candidate_digest=case_digest(new),
         model_id=model_id,
         stage=stage,
+        topic=topic,
         batches=batches,
     )
 
@@ -524,9 +541,14 @@ def assess_plan(
     """No partial acceptance; legacy semantic validator rechecks ALL expanded pairs."""
     if plan.candidate_digest != case_digest(new) or len(responses) != len(plan.batches):
         raise ValueError("different candidate or incomplete comparison batches")
-    identity = _identity(plan.snapshot, new, sources, plan.model_id, plan.stage)
+    identity = _identity(
+        plan.snapshot, new, sources, plan.model_id, plan.stage, plan.topic
+    )
     if not 1 <= len(plan.batches) <= 3 or any(
-        b.plan_id != identity or b.batch != i or b.stage != plan.stage
+        b.plan_id != identity
+        or b.batch != i
+        or b.stage != plan.stage
+        or b.topic != plan.topic
         for i, b in enumerate(plan.batches)
     ):
         raise ValueError("changed comparison plan identity")
@@ -565,4 +587,16 @@ def assess_plan(
             )
         elif parsed.coverage:
             raise ValueError("unexpected Boss coverage")
+        if plan.topic and (
+            not parsed.topic_coverage
+            or not parsed.topic_coverage.accepted
+            or not parsed.topic_coverage.explanation.strip()
+        ):
+            return NoveltyAssessment(
+                status="no_qualified_case",
+                reason="topic_coverage_unconfirmed",
+                case_digest=case_digest(new),
+            )
+        if not plan.topic and parsed.topic_coverage is not None:
+            raise ValueError("unexpected topic coverage")
     return assess_novelty(new, sources, history, comparisons, key)

@@ -138,6 +138,21 @@ def independent_accept(*args):
     result = original_independent_accept(*args)
     if phase == 1:
         Path(str(control) + ".independent_finished").touch()
+        from sqlmodel import Session
+
+        from app.core.db import engine
+        from app.training.independent_models import IndependentWork
+
+        with Session(engine) as session:
+            work = session.get(IndependentWork, args[0])
+            committed = len(work.comparison_results) if work else 0
+        while (
+            committed
+            and json.loads(control.read_text()).get("after_comparison_batch")
+            == committed
+        ):
+            Path(str(control) + ".comparison_committed").touch()
+            time.sleep(0.02)
     return result
 
 

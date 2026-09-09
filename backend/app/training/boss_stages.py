@@ -5,12 +5,22 @@ launch-time points/level, and settles once under the owner lock. Coverage claims
 remain inspected model interpretations, not semantic or career certification.
 """
 
+import json
 import uuid
-from typing import Literal
+from typing import Any, Literal
 
 from app.capabilities.catalog import CATALOG, EvidenceKey
-from app.training.boss import ConfirmedShortfall, assess_mapped_boss
-from app.training.evaluation_schema import EvaluationInputs, validate_grading
+from app.training.boss import (
+    FIRST_STAGE,
+    ConfirmedShortfall,
+    FirstStage,
+    assess_mapped_boss,
+)
+from app.training.evaluation_schema import (
+    EvaluationInputs,
+    GradingItem,
+    validate_grading,
+)
 from app.training.independent import Mode, OrderedDelivery, Outcome
 from app.training.independent_novelty import NoveltyAssessment
 from app.training.schema import Candidate, Source, Strict, Text
@@ -510,20 +520,7 @@ def assess_stage(
         assert grading_raw is not None
         grading = validate_grading(grading_raw, case, sources, inputs, key)
         for item in grading.items:
-            claimed = {
-                (
-                    item.grounding[c.grounding].evidence_id,
-                    item.grounding[c.grounding].fact,
-                    item.grounding[c.grounding].value,
-                    item.grounding[c.grounding].citation.source_id,
-                )
-                for c in item.reason_claims
-            }
-            if any(
-                (c.evidence_id, c.fact, c.value, c.source_id) not in claimed
-                for c in coverage
-                if c.judgment_id == item.judgment_id
-            ):
+            if not qualified_item(item, coverage):
                 # One composite prompt still needs reasons grounded in all its
                 # frozen facets; a single source cannot stand in for all domains.
                 return StageDecision(outcome="unclear")
@@ -536,3 +533,49 @@ def assess_stage(
             return StageDecision(outcome="pending_revalidation")
         return StageDecision(outcome=result.outcome, promote_to=stage.to_level)
     return StageDecision(outcome=result.outcome, shortfalls=result.shortfalls)
+
+
+ReleasedStage = FirstStage | BossStage
+
+
+def stage_at_level(level: str) -> ReleasedStage | None:
+    """Display the current standard even before its point threshold is met."""
+    if level == FIRST_STAGE.from_level:
+        return FIRST_STAGE
+    return next((stage for stage in STAGES if stage.from_level == level), None)
+
+
+def parse_stage(value: dict[str, Any]) -> ReleasedStage:
+    raw = json.dumps(value)
+    if value.get("version") == FIRST_STAGE.version:
+        first = FirstStage.model_validate_json(raw)
+        if first != FIRST_STAGE:
+            raise ValueError("changed frozen first-stage standard")
+        return first
+    stage = BossStage.model_validate_json(raw)
+    if stage not in STAGES:
+        raise ValueError("unknown frozen Boss standard")
+    return stage
+
+
+def qualified_item(item: GradingItem, coverage: list[ObservationCoverage]) -> bool:
+    """Call only after validate_grading/validate_stage_coverage on frozen facts.
+
+    The evidence adapter must call this even when another item failed: incomplete
+    composite reasoning cannot earn a passed domain merely from a model label.
+    """
+    if item.conclusion != "pass":
+        return False
+    required = [c for c in coverage if c.judgment_id == item.judgment_id]
+    claimed = {
+        (
+            item.grounding[c.grounding].evidence_id,
+            item.grounding[c.grounding].fact,
+            item.grounding[c.grounding].value,
+            item.grounding[c.grounding].citation.source_id,
+        )
+        for c in item.reason_claims
+    }
+    return bool(required) and all(
+        (c.evidence_id, c.fact, c.value, c.source_id) in claimed for c in required
+    )

@@ -421,3 +421,19 @@ def test_composite_pass_needs_reason_grounding_for_each_observed_domain():
         and result.promote_to is None
         and not result.shortfalls
     )
+
+
+def test_incomplete_composite_pass_is_ineligible_even_when_another_item_failed():
+    from app.training.boss_stages import qualified_item
+    from app.training.evaluation_schema import validate_grading
+
+    args = failed(facts(PROMOTION_STAGES[-1]), 1)
+    raw = json.loads(args["grading_raw"])
+    raw["items"][0]["reason_claims"].pop()
+    args["grading_raw"] = json.dumps(raw)
+    grading = validate_grading(
+        args["grading_raw"], args["case"], args["sources"], args["inputs"], args["key"]
+    )
+    assert assess_stage(**args).outcome == "evidenced_fail"
+    assert not qualified_item(grading.items[0], args["coverage"])
+    assert qualified_item(grading.items[2], args["coverage"])

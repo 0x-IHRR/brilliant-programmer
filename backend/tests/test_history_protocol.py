@@ -482,3 +482,44 @@ def test_chinese_order_consequences_are_exactly_the_existing_semantic_values():
         assess_plan(plan, new, sources, [response], "fake-key").status
         == "novelty_candidate"
     )
+
+
+def test_confirmed_topic_requires_actual_inspection_and_keeps_frozen_focus():
+    from app.training.topic_rules import Goal
+
+    history, new, sources, full = fixture(2, 1)
+    goal = Goal(
+        target=new.target,
+        text="收件确认和提交确认",
+        focus="判断何时仍需核对持久提交记录",
+    )
+    plan = plan_comparison(
+        freeze_history(history),
+        new,
+        sources,
+        "controlled-model",
+        "fake-key",
+        topic=goal,
+    )
+    assert plan.batches[0].topic == goal
+    data = json.loads(response_for(plan.batches[0], full))
+    assert (
+        assess_plan(plan, new, sources, [json.dumps(data)], "fake-key").reason
+        == "topic_coverage_unconfirmed"
+    )
+    data["topic_coverage"] = {
+        "accepted": False,
+        "explanation": "实际问题与确认重点不符",
+    }
+    assert (
+        assess_plan(plan, new, sources, [json.dumps(data)], "fake-key").status
+        == "no_qualified_case"
+    )
+    data["topic_coverage"] = {
+        "accepted": True,
+        "explanation": "已逐项核对题面确认类型、持久材料与目标重点",
+    }
+    assert (
+        assess_plan(plan, new, sources, [json.dumps(data)], "fake-key").status
+        == "novelty_candidate"
+    )
