@@ -110,11 +110,11 @@ async def process(identity: uuid.UUID) -> None:
                 config,
                 secret,
             ):
+                goal = generation_goal(run.selection)
                 check_output(
                     json.dumps(
                         {
-                            "goal": run.selection["goal"],
-                            "focus": run.selection["focus"],
+                            "goal": goal,
                             "sources": run.sources,
                         },
                         ensure_ascii=False,
@@ -124,7 +124,6 @@ async def process(identity: uuid.UUID) -> None:
                 attempt = await asyncio.to_thread(begin_attempt, identity, job_id)
                 if attempt is None:
                     return
-                goal = generation_goal(run.selection)
                 key = secret.get_secret_value()
                 if run.generation == 0:
                     raw, counts = await generate(

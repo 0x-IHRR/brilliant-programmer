@@ -34,6 +34,8 @@ with tempfile.TemporaryDirectory(prefix="jd-browser-") as directory:
                     "roles": [],
                 }
             return sample()[1].model_dump(mode="json")
+        if "confirmed_topic" in context:
+            assert context["confirmed_topic"]["focus"] == "先查处理日志与持久结果，再判断重试是否安全"
         return controlled(payload)
 
     supplier["candidate"] = respond
