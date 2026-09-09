@@ -71,7 +71,7 @@ export function CapabilityMap() {
           const stateName = !evidence ? "证据尚未读取" : proof?.status === "verified" ? "已验证" : proof?.status === "needs_consolidation" ? "待巩固" : "未验证"
           return <details key={capability.id} className="space-y-2">
             <summary className="cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2">{capability.title} · {difficulty} · {stateName}</summary>
-            <p>当前连续独立通过：{proof?.streak ?? 0}；最近验证原答时间：{proof?.latest_verified_at ? new Date(proof.latest_verified_at).toLocaleString("zh-CN") : "尚无"}</p>
+            <p>当前连续独立通过：{evidence ? proof?.streak ?? 0 : "待读取"}；最近验证原答时间：{!evidence ? "待读取" : proof?.latest_verified_at ? new Date(proof.latest_verified_at).toLocaleString("zh-CN") : "尚无"}</p>
             {proof?.recovery_started_at_order != null && <p>从原答序号 {proof.recovery_started_at_order} 进入待巩固，只计算此后的两次连续新通过。</p>}
             {proof && <details><summary>查看状态依据（{(proof.history ?? []).length} 条原答）</summary>
               {(proof.history ?? []).map(item => <article key={item.evidence.original_id} className="border p-2 space-y-1 break-all">
