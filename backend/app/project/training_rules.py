@@ -21,6 +21,7 @@ from app.project.schema import (
     Repository,
     Sha,
     Snapshot,
+    same_scope,
     validate_map,
 )
 from app.training.schema import Candidate, Source, Strict, Text, validate_candidate
@@ -144,8 +145,8 @@ def propose(
         raise ValueError("project route version conflict; retain local input")
     same = bool(
         previous
-        and previous.project_run_id == project_run_id
-        and previous.repository == snapshot.repository
+        and same_scope(previous.repository, snapshot.repository)
+        and previous.repository.commit == snapshot.repository.commit
         and previous.route.catalog_version == catalog.version
     )
     modules = {f.subject for f in project_map.confirmed if f.kind == "module"}

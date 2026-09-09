@@ -10,10 +10,16 @@ from app.api.deps import SessionDep
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.project.models import ProjectRun
-from app.project.schema import ProjectMap, Snapshot
+from app.project.schema import ProjectMap, Repository, Snapshot
 from app.project.training_models import ProjectInput, ProjectTopic
 from app.project.training_rules import ProjectRoute
-from app.project.training_service import route
+from app.project.training_service import (
+    active_route,
+    family,
+    family_topics,
+    link_update,
+    route,
+)
 from app.training.projection import read_snapshot
 from app.training.routes import VerifiedUser
 from app.training.topic_models import Topic, TopicJob
@@ -27,6 +33,10 @@ class ProjectTrainingPublic(BaseModel):
     topic: TopicPublic
     project_run_id: uuid.UUID
     current: ProjectRoute | None
+    active: ProjectRoute | None
+    active_topic_id: uuid.UUID | None
+    family_id: uuid.UUID
+    source_repository: Repository
     semantic_reliability: str = "unverified"
 
 
@@ -36,6 +46,8 @@ class AnalyzeProject(BaseModel):
     topic_id: uuid.UUID
     project_run_id: uuid.UUID
     expected_version: uuid.UUID | None = None
+    previous_version_id: uuid.UUID | None = None
+    expected_active_version: uuid.UUID | None = None
     expected_config_version: uuid.UUID
     disclosure_accepted: bool
 
@@ -44,10 +56,29 @@ def view(session: Session, topic: Topic) -> ProjectTrainingPublic:
     link = session.get(ProjectTopic, topic.id)
     if not link:
         raise HTTPException(404, "项目学习路线不存在")
+    source_run = session.get(ProjectRun, link.project_run_id)
+    assert source_run and source_run.snapshot
+    group = family(session, topic)
+    active = active_route(session, topic)
+    value = _public(session, topic)
+    for identity in family_topics(session, topic):
+        if identity == topic.id:
+            continue
+        previous_topic = session.get(Topic, identity)
+        assert previous_topic and previous_topic.user_id == topic.user_id
+        history = _public(session, previous_topic)
+        value.completed_node_ids = list(
+            set(value.completed_node_ids + history.completed_node_ids)
+        )
+        value.runs.extend(history.runs)
     return ProjectTrainingPublic(
-        topic=_public(session, topic),
+        topic=value,
         project_run_id=link.project_run_id,
         current=route(session, topic, topic.current_id),
+        active=active[1] if active else None,
+        active_topic_id=active[0] if active else None,
+        family_id=group.root_topic_id if group else topic.id,
+        source_repository=Snapshot.model_validate(source_run.snapshot).repository,
     )
 
 
@@ -94,6 +125,7 @@ def analyze_route(
             or previous.config_version != body.expected_config_version
             or not source
             or source.project_run_id != body.project_run_id
+            or source.previous_version_id != body.previous_version_id
         ):
             raise HTTPException(409, "请求身份已用于其他路线；请保留本机输入")
         return public(body.topic_id, user.id)
@@ -120,6 +152,8 @@ def analyze_route(
     if not config or config.revoked or config.version != body.expected_config_version:
         raise HTTPException(409, "配置已变化，请重新确认模型目的地")
     topic = session.get(Topic, body.topic_id)
+    if topic and body.previous_version_id:
+        raise HTTPException(409, "项目更新须创建新路线记录，不覆盖旧来源绑定")
     if topic:
         topic = owned(session, topic.id, user.id)
         link = session.get(ProjectTopic, topic.id)
@@ -130,6 +164,14 @@ def analyze_route(
         session.add(topic)
         session.flush()
         session.add(ProjectTopic(topic_id=topic.id, project_run_id=source_run.id))
+        if body.previous_version_id:
+            link_update(
+                session,
+                topic,
+                body.previous_version_id,
+                snapshot.repository,
+                body.expected_active_version,
+            )
     compare(topic, body.expected_version)
     if session.exec(
         select(TopicJob.id).where(
@@ -156,6 +198,7 @@ def analyze_route(
             id=job.id,
             topic_id=topic.id,
             project_run_id=source_run.id,
+            previous_version_id=body.previous_version_id,
             snapshot=snapshot.model_dump(mode="json"),
             project_map=mapped.model_dump(mode="json"),
         )

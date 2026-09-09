@@ -109,11 +109,12 @@ export function Project() {
         <details><summary>目录与未读范围</summary><p>{snapshot.listing_complete ? "本次目录枚举已结束；文件和语义仍可能未核实。" : "仍有目录未读取，不代表完整目录。"}</p>{entries.map(entry => <p key={entry.path} className="break-all">{entry.path} · {excluded[entry.path] ?? (fragments.some(fragment => fragment.path === entry.path) ? "已读部分片段，其他范围未核实" : "未读／未核实")}</p>)}</details>
         <details><summary>固定版本来源片段</summary>{fragments.map(fragment => <details key={`${fragment.path}:${fragment.start}`}><summary>{fragment.path} · 行 {fragment.start}–{fragment.end} / 共 {fragment.total_lines} 行</summary><a className="underline" href={sourceLink(fragment.path, fragment.start, fragment.end)} target="_blank" rel="noreferrer">核对 GitHub 固定行范围</a><pre className="whitespace-pre-wrap break-all font-sans">{fragment.text}</pre></details>)}</details>
       </>}
+      {!run.snapshot && ["failed", "stopped"].includes(run.status) && <p>本次来源未能继续读取。已有固定题目、原答与来源不会被删除；可从已有项目任务返回保留快照复盘。上游不可读不等于用户永久删除。</p>}
       {run.project_map && <div className="grid gap-4 md:grid-cols-2">
         <section aria-label="已确认源码事实" className="min-w-0 space-y-2"><h3 className="font-semibold">已确认源码事实</h3><p>仅确认已读语法和清单声明，实际运行时关系仍需验证。</p>{findingList(run.project_map.confirmed ?? [])}</section>
         <section aria-label="未核实候选与缺失材料" className="min-w-0 space-y-2"><h3 className="font-semibold">未核实候选与缺失材料</h3><p>模型关系即使引用合法，也不等于结论已被证实。</p>{findingList(run.project_map.unverified ?? [])}{(run.project_map.missing ?? []).map((missing, index) => <p key={index}>{missing}</p>)}</section>
       </div>}
     </article>}
-    {run?.project_map && <ProjectTraining projectRunId={run.id} config={config} />}
+    {run?.project_map && <ProjectTraining projectRunId={run.id} repository={repository ?? undefined} config={config} />}
   </section>
 }

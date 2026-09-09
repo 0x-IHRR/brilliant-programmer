@@ -52,6 +52,10 @@ class VersionRequest(BaseModel):
     expected_version: uuid.UUID
 
 
+class ConfirmRequest(VersionRequest):
+    expected_active_version: uuid.UUID | None = None
+
+
 class StartRequest(VersionRequest):
     request_id: uuid.UUID
     node_id: uuid.UUID
@@ -298,7 +302,7 @@ def edit_topic(
 
 @router.post("/{topic_id}/confirm")
 def confirm_topic(
-    topic_id: uuid.UUID, body: VersionRequest, user: VerifiedUser, session: SessionDep
+    topic_id: uuid.UUID, body: ConfirmRequest, user: VerifiedUser, session: SessionDep
 ) -> TopicPublic:
     item = owned(session, topic_id, user.id, lock=True)
     compare(item, body.expected_version)
@@ -308,6 +312,17 @@ def confirm_topic(
         confirm(current, body.expected_version)
     except ValueError as error:
         raise HTTPException(409, str(error)) from None
+    if session.get(ProjectTopic, item.id):
+        from app.project.training_service import activate, active_route, family_topics
+
+        expected = body.expected_active_version
+        if (
+            "expected_active_version" not in body.model_fields_set
+            and len(family_topics(session, item)) == 1
+        ):
+            previous_active = active_route(session, item)
+            expected = previous_active[1].route.id if previous_active else None
+        activate(session, item, current.id, expected)
     item.active_id = current.id
     session.add(item)
     session.commit()
@@ -330,7 +345,8 @@ def start_topic(
         ):
             raise HTTPException(409, "请求身份已用于其他题目")
         return training_view(session, existing)
-    compare(item, body.expected_version)
+    if not session.get(ProjectTopic, item.id):
+        compare(item, body.expected_version)
     if item.active_id != body.expected_version:
         raise HTTPException(409, "请先显式确认当前版本")
     current = version(session, item, item.active_id)
@@ -472,6 +488,12 @@ def job_action(
         item = owned(session, topic_id, user.id, lock=True)
         job = session.get(TopicJob, job_id, populate_existing=True)
         assert job
+        if session.get(ProjectTopic, item.id) and (
+            job.status == "stopped" or job.stop_requested
+        ):
+            raise HTTPException(
+                409, "已停止的项目分析不恢复；请明确重新分析，新任务可能重复调用"
+            )
         compare(item, job.expected_version)
         config = session.get(ModelConfig, user.id, populate_existing=True)
         if not config or config.revoked or config.version != job.config_version:
