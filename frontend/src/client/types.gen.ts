@@ -256,6 +256,65 @@ export type Domain = {
 };
 
 /**
+ * DraftAnswer
+ */
+export type DraftAnswer = {
+    /**
+     * Judgment Id
+     */
+    judgment_id: string;
+    /**
+     * Value
+     */
+    value?: number | Array<number> | string | null;
+    /**
+     * Reason
+     */
+    reason?: string;
+};
+
+/**
+ * DraftProgress
+ */
+export type DraftProgress = {
+    /**
+     * Answers
+     */
+    answers?: Array<DraftAnswer>;
+    /**
+     * Step
+     */
+    step?: 'materials' | 'judgments' | 'coach';
+    /**
+     * Based On Submission Id
+     */
+    based_on_submission_id?: string | null;
+};
+
+/**
+ * DraftSnapshot
+ */
+export type DraftSnapshot = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Version
+     */
+    version: string;
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Saved At
+     */
+    saved_at: string;
+    progress: DraftProgress;
+};
+
+/**
  * EvaluationInputs
  */
 export type EvaluationInputs = {
@@ -1226,6 +1285,21 @@ export type Repository = {
      * End Line
      */
     end_line?: number | null;
+};
+
+/**
+ * SaveDraft
+ */
+export type SaveDraft = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Expected Version
+     */
+    expected_version: string | null;
+    progress: DraftProgress;
 };
 
 /**
@@ -2764,6 +2838,68 @@ export type conceptsConfirmRenderingResponses = {
 };
 
 export type conceptsConfirmRenderingResponse = conceptsConfirmRenderingResponses[keyof conceptsConfirmRenderingResponses];
+
+export type draftsReadDraftData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/draft';
+};
+
+export type draftsReadDraftErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type draftsReadDraftError = draftsReadDraftErrors[keyof draftsReadDraftErrors];
+
+export type draftsReadDraftResponses = {
+    /**
+     * Response Drafts-Read Draft
+     *
+     * Successful Response
+     */
+    200: DraftSnapshot | null;
+};
+
+export type draftsReadDraftResponse = draftsReadDraftResponses[keyof draftsReadDraftResponses];
+
+export type draftsSaveDraftData = {
+    body: SaveDraft;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/draft';
+};
+
+export type draftsSaveDraftErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type draftsSaveDraftError = draftsSaveDraftErrors[keyof draftsSaveDraftErrors];
+
+export type draftsSaveDraftResponses = {
+    /**
+     * Successful Response
+     */
+    200: DraftSnapshot;
+};
+
+export type draftsSaveDraftResponse = draftsSaveDraftResponses[keyof draftsSaveDraftResponses];
 
 export type healthHealthData = {
     body?: never;

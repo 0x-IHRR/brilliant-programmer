@@ -1,27 +1,59 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ModelconfigService, TrainingService, type ModelConfigPublic, type TaskPublic } from "../client"
+import { type DraftProgress } from "./draftAutosave"
 import { SubmissionForm } from "./SubmissionForm"
 import { Button } from "../components/ui/button"
 
 export function Training() {
   const [config, setConfig] = useState<ModelConfigPublic | null>(null)
   const [runs, setRuns] = useState<TaskPublic[]>([])
-  const [selected, setSelected] = useState("")
+  const [selected, setSelected] = useState(() => new URLSearchParams(location.search).get("training_run") ?? "")
+  const selectedRef = useRef(selected)
+  function selectRun(id: string) {
+    selectedRef.current = id
+    setSelected(id)
+    const url = new URL(location.href)
+    if (id) url.searchParams.set("training_run", id)
+    else url.searchParams.delete("training_run")
+    history.replaceState(null, "", url)
+  }
   const [accepted, setAccepted] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState("")
   const [refresh, setRefresh] = useState(0)
-  const [panel, setPanel] = useState("materials")
+  const [panel, setPanel] = useState<DraftProgress["step"]>("materials")
   const run = runs.find(item => item.id === selected) ?? runs[0]
   const running = run && ["queued", "running", "stopping"].includes(run.status)
   useEffect(() => {
     let active = true
-    void Promise.all([ModelconfigService.readConfig(), TrainingService.latest()]).then(([model, tasks]) => {
+    void Promise.all([ModelconfigService.readConfig(), TrainingService.latest()]).then(async ([model, tasks]) => {
       if (!active) return
       setConfig(model.data?.version ? model.data : null)
-      setRuns(tasks.data)
       setAccepted(false)
       setError("")
+      const missing = selected && !tasks.data.some(item => item.id === selected)
+      // Current-account results do not depend on an optional historical link.
+      // Keep an already loaded old round while retrying a temporary read failure.
+      setRuns(items => {
+        const cached = missing && items.find(item => item.id === selected)
+        return cached ? [...tasks.data, cached] : tasks.data
+      })
+      if (!missing) return
+      try {
+        const saved = await TrainingService.read({ path: { run_id: selected } })
+        if (!active || selectedRef.current !== selected) return
+        setRuns(items => [...items.filter(item => item.id !== saved.data.id), saved.data])
+      } catch (error) {
+        if (!active || selectedRef.current !== selected) return
+        const status = (error as { response?: { status?: number } }).response?.status
+        if (status === 403 || status === 404 || status === 422) {
+          setRuns(items => items.filter(item => item.id !== selected))
+          selectRun("")
+          setError("原轮链接不可用或不属于当前账号，已返回当前可用任务。")
+        } else {
+          setError("原轮暂时读取失败，当前任务与原轮链接保留；可重新读取任务与模型目的地再试。")
+        }
+      }
     }).catch(() => { if (active) setError("任务读取失败，已有内容保留。请重新读取实际状态。") })
     return () => { active = false }
   }, [refresh])
@@ -56,12 +88,12 @@ export function Training() {
       <Button className={buttonClass} disabled={busy || !accepted || Boolean(running)} onClick={() => act(async () => {
         const { data } = await TrainingService.start({ body: { disclosure_accepted: true, expected_config_version: config.version, previous_run_id: run?.id } })
         setRuns(items => [data, ...items.filter(item => item.id !== data.id)])
-        setSelected(data.id)
+        selectRun(data.id)
         setPanel("materials")
       })}>{run ? "换个方向，主动开始新一关" : "帮我选一关"}</Button>
     </> : <p>请在账号与模型区域保存配置，再重新读取目的地。</p>}
     {error && <p role="alert">{error}</p>}
-    {runs.length > 1 && <label className="block">查看已有任务<select className="block w-full min-w-0 rounded border p-2" value={run?.id ?? ""} onChange={e => setSelected(e.target.value)}>{runs.map(item => <option key={item.id} value={item.id}>{item.goal} · {item.message}</option>)}</select></label>}
+    {runs.length > 1 && <label className="block">查看已有任务<select className="block w-full min-w-0 rounded border p-2" value={run?.id ?? ""} onChange={e => selectRun(e.target.value)}>{runs.map(item => <option key={item.id} value={item.id}>{item.goal} · {item.message}</option>)}</select></label>}
     {run && <article className="space-y-4 rounded border p-3">
       <p role="status">{run.message}</p>
       <p>{run.target.difficulty} · 目标：{run.goal}</p>
@@ -90,9 +122,9 @@ export function Training() {
             {run.case.evidence.map(item => <div key={item.id} className="space-y-2"><p>{item.label}</p><pre className="whitespace-pre-wrap break-all font-sans">{item.text}</pre>{item.citations.map((citation, index) => <blockquote key={index} className="border-l-2 pl-2">{citation.quote}（{citation.source_id}）</blockquote>)}</div>)}
             {run.case.sources.map(source => <details key={source.id}><summary>核对来源：{source.id}</summary><a className="underline break-all" href={source.url} target="_blank" rel="noreferrer">{source.url}</a><p className="break-all">{source.version}</p><p>{source.locator}</p><pre className="whitespace-pre-wrap break-all font-sans">{source.text}</pre></details>)}
           </section>
-          <section aria-label="必答判断" className={`${panel === "judgments" || panel === "coach" ? "block" : "hidden"} min-w-0 space-y-3 md:block`}>
+          <section aria-label="必答判断" className="min-w-0 space-y-3">
             <h4 className="font-semibold">作判断</h4>
-            <SubmissionForm runId={run.id} caseData={run.case} config={config} panel={panel} />
+            <SubmissionForm runId={run.id} caseData={run.case} config={config} panel={panel} onPanel={setPanel} />
           </section>
         </div>
       </div>}

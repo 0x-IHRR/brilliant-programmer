@@ -9,6 +9,7 @@ import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 import pytest
 from sqlmodel import Session, select
@@ -542,13 +543,24 @@ def test_repeated_queue_dispatch_cannot_reanalyze_completed_task(tmp_path, provi
     from app.project.routes import enqueue
 
     auth, identity = start_project(provider)
-    process, _ = start_worker(tmp_path, provider, identity)
+    process, control = start_worker(tmp_path, provider, identity, after_record="ok")
     try:
+        # The public ready fact commits before the final attempt outcome.
+        # Capture the comparison only after the existing real-worker barrier
+        # confirms that final outcome has reached PostgreSQL.
+        deadline = time.monotonic() + 5
+        while not Path(str(control) + ".recorded").exists():
+            assert time.monotonic() < deadline, "final attempt was not persisted"
+            time.sleep(0.02)
         original = wait_run(auth, identity)
+        assert original["attempts"][-1]["code"] == "ok"
         with Session(engine) as session:
             run = session.get(ProjectRun, uuid.UUID(identity))
             enqueue(session, run)
             session.commit()
+        options = json.loads(control.read_text())
+        options.pop("after_record")
+        control.write_text(json.dumps(options))
         time.sleep(0.4)
         assert wait_run(auth, identity) == original and len(provider["requests"]) == 1
     finally:

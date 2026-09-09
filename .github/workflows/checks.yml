@@ -36,6 +36,7 @@ jobs:
       - run: uv run --directory backend mypy app
       - run: uv run --directory backend pytest tests -q
       - run: bun install --frozen-lockfile
+      - run: bun test frontend/unit/draftAutosave.test.ts
       - run: bun run --cwd frontend build
       - run: cd frontend && bunx playwright install --with-deps chromium
       - run: |
@@ -47,4 +48,5 @@ jobs:
           (cd backend && ../.venv/bin/python tests/project_browser.py)
           (cd backend && ../.venv/bin/python tests/evaluation_browser.py)
           (cd backend && ../.venv/bin/python tests/concept_browser.py)
+          (cd backend && ../.venv/bin/python tests/draft_browser.py)
           bun run --cwd frontend test
