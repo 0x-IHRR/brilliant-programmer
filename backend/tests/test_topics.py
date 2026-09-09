@@ -639,3 +639,79 @@ def test_secret_input_is_not_dispatched_and_goal_edit_does_not_open_prerequisite
     )
     assert attempt.status_code == 409
     assert client.get(f"/api/v1/topics/{identity}", headers=auth).json()["runs"] == []
+
+
+def test_reconcile_old_stop_snapshot_cannot_stop_new_retry(monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    from app.training import topic_worker
+    from app.training.topic_models import TopicJob
+
+    _, auth = account()
+    config = save(auth).json()
+    body, topic = begin(auth, config)
+    identity = uuid.UUID(body["request_id"])
+    with Session(engine) as session:
+        job = session.get(TopicJob, identity)
+        job.stop_requested = True
+        job.status = "stopping"
+        session.add(job)
+        session.commit()
+    entered, release = Event(), Event()
+    original = topic_worker.finish
+
+    def pause(*args, **kwargs):
+        if args[0] == identity:
+            entered.set()
+            assert release.wait(5)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(topic_worker, "finish", pause)
+    url = f"/api/v1/topics/{topic['id']}/jobs/{identity}"
+    with ThreadPoolExecutor(1) as pool:
+        scan = pool.submit(topic_worker.reconcile_topics)
+        assert entered.wait(3)
+        try:
+            assert client.post(url + "/stop", headers=auth).status_code == 200
+            assert client.post(url + "/retry", headers=auth).status_code == 200
+        finally:
+            release.set()
+        scan.result()
+    value = client.get(f"/api/v1/topics/{topic['id']}", headers=auth).json()
+    try:
+        assert value["jobs"][0]["status"] == "queued"
+    finally:
+        client.post(url + "/stop", headers=auth)
+
+
+def test_recorded_auth_crash_does_not_dispatch_again(provider, tmp_path):
+    provider["candidate"] = controlled
+    provider["mode"] = "auth"
+    _, auth = account()
+    config = save(auth, service_url=provider["url"]).json()
+    body, topic = begin(auth, config)
+    process, control = start_worker(
+        tmp_path, provider, body["request_id"], topic_before_finish=True
+    )
+    try:
+        marker = type(control)(str(control) + ".topic_finishing")
+        deadline = time.monotonic() + 5
+        while not marker.exists() and time.monotonic() < deadline:
+            time.sleep(0.02)
+        assert marker.exists()
+        before = client.get("/api/v1/model-config/usage", headers=auth).json()["calls"]
+        assert len(before) == 1 and before[0]["code"] == "authentication"
+        process.kill()
+        process.wait(timeout=3)
+        time.sleep(0.6)  # satisfy the real queue's stalled heartbeat threshold
+        process, _ = start_worker(tmp_path, provider, body["request_id"])
+        value = wait_topic(auth, topic["id"])
+        assert value["jobs"][0]["status"] == "failed"
+        assert len(provider["requests"]) == 1
+        assert (
+            client.get("/api/v1/model-config/usage", headers=auth).json()["calls"]
+            == before
+        )
+    finally:
+        stop_worker(process)

@@ -28,17 +28,37 @@ def read(identity: uuid.UUID) -> TopicJob:
         return item
 
 
-def stage_exhausted(session: Session, item: TopicJob) -> bool:
+def stage_exit(session: Session, item: TopicJob) -> str | None:
     attempts = session.exec(
-        select(TopicAttempt).where(
-            TopicAttempt.run_id == item.id, TopicAttempt.stage == item.stage
-        )
+        select(TopicAttempt)
+        .where(TopicAttempt.run_id == item.id, TopicAttempt.stage == item.stage)
+        .order_by(col(TopicAttempt.number))
     ).all()
-    return (
-        len(attempts) >= 3
-        or sum(a.code in {"invalid_analysis", "invalid_response"} for a in attempts)
-        >= 2
-    )
+    malformed = {"invalid_analysis", "invalid_response"}
+    if sum(a.code in malformed for a in attempts) >= 2:
+        return "invalid_analysis"
+    retryable = {
+        "ok",
+        "unknown",
+        "cancelled",
+        "connection",
+        "timeout",
+        "rate_limited",
+        "temporary_service",
+        "dns",
+    } | malformed
+    if attempts and attempts[-1].code not in retryable:
+        return attempts[-1].code
+    return "budget_exhausted" if len(attempts) >= 3 else None
+
+
+def stage_exhausted(session: Session, item: TopicJob) -> bool:
+    return stage_exit(session, item) is not None
+
+
+def recorded_exit(item: TopicJob) -> str | None:
+    with Session(engine) as session:
+        return stage_exit(session, item)
 
 
 def claim(identity: uuid.UUID, job_id: int | None) -> uuid.UUID | None:
@@ -74,14 +94,21 @@ def record(identity: uuid.UUID, code: str, counts: dict[str, int | None]) -> Non
 
 
 def finish(
-    identity: uuid.UUID, code: str, message: str, job_id: int | None = None
+    identity: uuid.UUID,
+    code: str,
+    message: str,
+    job_id: int | None = None,
+    *,
+    require_stop: bool = False,
 ) -> None:
     with Session(engine) as session:
         item = session.exec(
             select(TopicJob).where(TopicJob.id == identity).with_for_update()
         ).one()
-        if item.status in TERMINAL or (
-            job_id is not None and item.queue_job_id != job_id
+        if (
+            (require_stop and not item.stop_requested)
+            or item.status in TERMINAL
+            or (job_id is not None and item.queue_job_id != job_id)
         ):
             return
         item.status = (
@@ -200,6 +227,15 @@ async def process(identity: uuid.UUID) -> None:
                     "本次预算已用完；可主动重试剩余总预算，不自动生成题目",
                 )
                 return
+            known = await asyncio.to_thread(recorded_exit, item)
+            if known:
+                await asyncio.to_thread(
+                    finish_current,
+                    identity,
+                    known,
+                    "沿用已记录的失败结论；原输入与用量保留，未再次调用模型",
+                )
+                return
             previous = await asyncio.to_thread(context, item)
             async with call_credential(item.user_id, item.config_version) as (
                 config,
@@ -303,4 +339,10 @@ def reconcile_topics() -> None:
         ).all()
         for item in items:
             if item.stop_requested:
-                finish(item.id, "stopped", "已停止，旧路线保留")
+                finish(
+                    item.id,
+                    "stopped",
+                    "已停止，旧路线保留",
+                    item.queue_job_id,
+                    require_stop=True,
+                )

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { ModelconfigService, TopicsService, type ModelConfigPublic, type TopicPublic, type Node, type Goal } from "../client"
+import { ModelconfigService, TopicsService, type ModelConfigPublic, type TopicPublic, type Node, type Goal, type UnitAccess, type EvidenceKey } from "../client"
 import { Button } from "../components/ui/button"
 const cls = "h-auto min-h-9 max-w-full whitespace-normal"
 
@@ -9,6 +9,10 @@ export function FreeTopic() {
 }
 
 function TopicEditor() {
+  // Node IDs belong to immutable server snapshots; changing one card must not reset others.
+  const [drafts, setDrafts] = useState<Record<string, { topic: string; goal: Goal }>>({})
+  const [access, setAccess] = useState<UnitAccess | null>(null)
+  function discard(id: string) { setDrafts(old => { const next = { ...old }; delete next[id]; return next }) }
   const [items, setItems] = useState<TopicPublic[]>([])
   const [selected, setSelected] = useState(() => new URLSearchParams(location.search).get("topic") ?? "")
   const [text, setText] = useState("")
@@ -42,10 +46,14 @@ function TopicEditor() {
   }, [topic?.id, running])
   async function act(operation: () => Promise<void>) {
     if (busy) return
-    generation.current++; setBusy(true); setError("")
+    generation.current++; setBusy(true); setError(""); setAccess(null)
     try { await operation() } catch (failure) {
       const detail = (failure as { response?: { data?: { detail?: unknown } } }).response?.data?.detail
-      if (current()) setError(typeof detail === "string" ? detail : "操作未确认成功；输入保留，请重读原记录，不必重复开题。")
+      if (current()) {
+        const blocked = detail as { message?: string; access?: UnitAccess } | null
+        if (blocked?.access?.target?.capability_id) setAccess(blocked.access)
+        setError(typeof detail === "string" ? detail : blocked?.message ?? "操作未确认成功；输入保留，请重读原记录，不必重复开题。")
+      }
     } finally { if (current()) setBusy(false) }
   }
   async function analyze(expand: boolean) {
@@ -62,6 +70,10 @@ function TopicEditor() {
     const { data } = await TopicsService.startTopic({ path: { topic_id: topic.id }, body: { request_id: pendingStart.current.id, expected_version: version.id, node_id: node.id, expected_config_version: config.version, disclosure_accepted: true } })
     if (current() && data?.id) location.assign(`/?training_run=${data.id}&topic=${topic.id}`)
   }
+  function missing(key: EvidenceKey) {
+    const query = new URLSearchParams({ capability: key.capability_id, difficulty: key.difficulty, topic: selected })
+    return <li key={JSON.stringify(key)}><a className="underline" href={`/?${query}`}>{key.capability_id} · {key.difficulty} · {key.background_id}：查看这项补练与检验入口</a></li>
+  }
   return <div className="space-y-3">
     <Button className={cls} disabled={busy} variant="outline" onClick={() => void read()}>重新读取路线与模型目的地</Button>
     <label className="block">已有路线<select aria-label="已有路线" className="block w-full border p-2" value={selected} disabled={busy} onChange={e => { setSelected(e.target.value); const url = new URL(location.href); if (e.target.value) url.searchParams.set("topic", e.target.value); else url.searchParams.delete("topic"); history.replaceState(null, "", url) }}><option value="">新主题</option>{items.map(item => <option key={item.id} value={item.id}>{item.current?.input_text ?? item.jobs[0]?.input_text ?? "分析中"}</option>)}</select></label>
@@ -71,16 +83,21 @@ function TopicEditor() {
     <Button className={cls} disabled={busy || running || !accepted || !text.trim()} onClick={() => void act(() => analyze(false))}>分析主题，先看目标卡</Button>
     {version?.kind === "broad" && <Button className={cls} variant="outline" disabled={busy || running || !accepted || !text.trim()} onClick={() => void act(() => analyze(true))}>按当前输入展开下一段（不生成题目）</Button>}
     {error && <p role="alert">{error}</p>}
+    {access && <section aria-label="主题目标缺失前置" className="space-y-2 border p-3"><p>已确认的主题目标保持不变。以下是服务器返回的实际缺项，选择补练不会授予证明。</p>{access.missing_required.length > 0 && <div><p>以下全部必需：</p><ul>{access.missing_required.map(missing)}</ul></div>}{access.missing_alternatives.map((group, index) => <div key={index}><p>替代组 {index + 1}：本组任选一项，各组分别满足。</p><ul>{group.map(missing)}</ul></div>)}</section>}
+    {version && Object.entries(drafts).filter(([id, draft]) => draft.topic === selected && !version.nodes.some(node => node.id === id)).map(([id, draft]) => <section key={id} aria-label="保留的本机目标修改" className="space-y-2 border p-3"><p>服务器已替换原节点；这份本机修改尚未保存，不会自动混入新路线。</p><p>目标：{draft.goal.text}</p><p>重点：{draft.goal.focus}</p><p>难度：{draft.goal.target.difficulty}</p><p>可复制这些内容继续编辑，或明确放弃这份本机修改。</p><Button className={cls} variant="outline" onClick={() => discard(id)}>保留服务器版本，放弃这份本机修改</Button></section>)}
     {topic?.jobs.map(job => <div key={job.id}><p role="status">{job.message} · 已记录 {job.attempts} 次调用</p>{["queued", "running", "stopping"].includes(job.status) && <Button className={cls} disabled={busy} onClick={() => void act(async () => { const { data } = await TopicsService.jobAction({ path: { topic_id: topic.id, job_id: job.id, action: "stop" } }); if (current()) install(data) })}>停止本次主题分析</Button>}{["failed", "stopped"].includes(job.status) && <Button className={cls} disabled={busy} onClick={() => void act(async () => { const { data } = await TopicsService.jobAction({ path: { topic_id: topic.id, job_id: job.id, action: "retry" } }); if (current()) install(data) })}>主动重试剩余分析预算</Button>}</div>)}
-    {version && <><p>{version.message}</p><p>当前候选版本：{version.id}；{topic?.active_id === version.id ? "已确认，可主动开始所选目标" : "尚未确认；旧确认版本和题目仍保留"}</p>{version.nodes.map((node, index) => <GoalCard key={`${version.id}:${node.id}`} node={node} recommended={version.recommended_id === node.id} completed={Boolean(topic?.completed_node_ids.includes(node.id))} disabled={busy || Boolean(running)} onSave={goal => act(async () => { const { data } = await TopicsService.editTopic({ path: { topic_id: topic!.id }, body: { expected_version: version.id, operation: "edit", node_id: node.id, goal } }); if (current()) install(data) })} onUp={index ? () => act(async () => { const order = version.nodes.map(n => n.id); [order[index-1], order[index]] = [order[index], order[index-1]]; const { data } = await TopicsService.editTopic({ path: { topic_id: topic!.id }, body: { expected_version: version.id, operation: "reorder", order } }); if (current()) install(data) }) : undefined} onStart={() => act(() => start(node))} canStart={topic?.active_id === version.id && accepted && !busy && !running} />)}
+    {version && <><p>{version.message}</p><p>当前候选版本：{version.id}；{topic?.active_id === version.id ? "已确认，可主动开始所选目标" : "尚未确认；旧确认版本和题目仍保留"}</p>{version.nodes.map((node, index) => <GoalCard key={node.id} node={node} goal={drafts[node.id]?.goal ?? node} onEdit={goal => setDrafts(old => ({ ...old, [node.id]: { topic: selected, goal } }))} recommended={version.recommended_id === node.id} completed={Boolean(topic?.completed_node_ids.includes(node.id))} disabled={busy || Boolean(running)} onSave={goal => act(async () => { const { data } = await TopicsService.editTopic({ path: { topic_id: topic!.id }, body: { expected_version: version.id, operation: "edit", node_id: node.id, goal } }); if (current()) { install(data); discard(node.id) } })} onUp={index ? () => act(async () => { const order = version.nodes.map(n => n.id); [order[index-1], order[index]] = [order[index], order[index-1]]; const { data } = await TopicsService.editTopic({ path: { topic_id: topic!.id }, body: { expected_version: version.id, operation: "reorder", order } }); if (current()) install(data) }) : undefined} onStart={() => act(() => start(node))} canStart={topic?.active_id === version.id && accepted && !busy && !running} />)}
       {version.nodes.length > 0 && <Button className={cls} disabled={busy || running || topic?.active_id === version.id} onClick={() => void act(async () => { const { data } = await TopicsService.confirmTopic({ path: { topic_id: topic!.id }, body: { expected_version: version.id } }); if (current()) install(data) })}>确认当前路线版本（不生成题目）</Button>}
     </>}
     {topic && <details><summary>历史路线与已开始的题目</summary>{topic.versions.map(old => <div key={old.id}><p>{old.id}：{old.nodes.map(node => node.text + (topic.completed_node_ids.includes(node.id) ? "（已完成）" : "")).join(" → ")}</p></div>)}{topic.runs.map(run => <a key={run.id} className="block underline" href={`/?training_run=${run.id}&topic=${topic.id}`}>{run.goal} · {run.message} · 查看原轮作答、反馈与保存进度</a>)}<p>路线编辑不改变旧题、正式作答、帮助记录或能力证明；未保存成功的本机输入不保证刷新恢复。</p></details>}
   </div>
 }
 
-function GoalCard({ node, recommended, completed, disabled, onSave, onUp, onStart, canStart }: { node: Node; recommended: boolean; completed: boolean; disabled: boolean; onSave: (goal: Goal) => Promise<void>; onUp?: () => Promise<void>; onStart: () => Promise<void>; canStart: boolean }) {
-  const [text, setText] = useState(node.text), [focus, setFocus] = useState(node.focus), [difficulty, setDifficulty] = useState(node.target.difficulty)
+function GoalCard({ node, goal, onEdit, recommended, completed, disabled, onSave, onUp, onStart, canStart }: { node: Node; goal: Goal; onEdit: (goal: Goal) => void; recommended: boolean; completed: boolean; disabled: boolean; onSave: (goal: Goal) => Promise<void>; onUp?: () => Promise<void>; onStart: () => Promise<void>; canStart: boolean }) {
+  const { text, focus, target: { difficulty } } = goal
+  const setText = (text: string) => onEdit({ ...goal, text })
+  const setFocus = (focus: string) => onEdit({ ...goal, focus })
+  const setDifficulty = (difficulty: Goal["target"]["difficulty"]) => onEdit({ ...goal, target: { ...goal.target, difficulty } })
   const edited = text !== node.text || focus !== node.focus || difficulty !== node.target.difficulty
   return <article className="space-y-2 border p-3"><p>{completed ? "此节点已有完整正式作答，原轮记录保留" : "此节点尚无完整正式作答记录"}</p><h3>{recommended ? "推荐首目标" : "路线目标"} · {node.target.capability_id}</h3><label className="block">目标<textarea aria-label="目标" disabled={disabled} className="block w-full border p-2" value={text} onChange={e => setText(e.target.value)} /></label><label className="block">重点<textarea aria-label="重点" disabled={disabled} className="block w-full border p-2" value={focus} onChange={e => setFocus(e.target.value)} /></label><label className="block">难度<select aria-label="目标难度" disabled={disabled} className="block w-full border p-2" value={difficulty} onChange={e => setDifficulty(e.target.value as typeof difficulty)}>{["基础", "进阶", "综合"].map(value => <option key={value}>{value}</option>)}</select></label><p>技术背景：{node.target.background_id}。文字修改不授证、不绕过真实前置；改变技术方向可重新分析。</p><Button className={cls} disabled={disabled || !edited || !text.trim() || !focus.trim()} onClick={() => void onSave({ text, focus, target: { ...node.target, difficulty } })}>保存为新候选版本</Button>{onUp && <Button className={cls} variant="outline" disabled={disabled || edited} onClick={() => void onUp()}>上移此节点</Button>}<Button className={cls} disabled={!canStart || edited} onClick={() => void onStart()}>开始这个目标（生成一题）</Button>{edited && <p>本机修改尚未保存，不能用旧卡片开题。</p>}</article>
 }

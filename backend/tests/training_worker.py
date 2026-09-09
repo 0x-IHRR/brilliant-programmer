@@ -11,7 +11,13 @@ from contextvars import ContextVar
 from pathlib import Path
 
 from app.model_config import connection
-from app.training import independent_worker, sources, submission_worker, worker
+from app.training import (
+    independent_worker,
+    sources,
+    submission_worker,
+    topic_worker,
+    worker,
+)
 from app.training.queue import queue
 
 control = Path(sys.argv[1])
@@ -218,6 +224,24 @@ submission_worker.settle = fail_settle
 submission_worker.fail = fail_marker
 
 
+# Crash witness after a real topic error/usage commit and before terminal status.
+
+original_topic_finish = topic_worker.finish
+
+
+def topic_finish(*args, **kwargs):
+    while (
+        json.loads(control.read_text()).get("topic_before_finish")
+        and str(args[0]) == json.loads(control.read_text())["run_id"]
+    ):
+        Path(str(control) + ".topic_finishing").touch()
+        time.sleep(0.02)
+    return original_topic_finish(*args, **kwargs)
+
+
+topic_worker.finish = topic_finish
+
+
 async def run():
     if data.get("independent_once"):
         # A stale execution whose queue abort has not reached it yet. Exercise
@@ -227,6 +251,7 @@ async def run():
         return
     async with queue.open_async():
         for task_name in (
+            "topic.analyze",
             "training.generate",
             "training.check_submission",
             "training.evaluate",
