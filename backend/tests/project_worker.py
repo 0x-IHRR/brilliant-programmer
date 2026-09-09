@@ -96,6 +96,7 @@ async def main():
             task_name="project.analyze", seconds_since_heartbeat=0.5
         ):
             await queue.job_manager.retry_job(job)
+        Path(str(control) + ".ready").touch()
         await queue.run_worker_async(
             update_heartbeat_interval=0.1,
             stalled_worker_timeout=0.5,

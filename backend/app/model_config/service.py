@@ -72,6 +72,42 @@ def decrypt(config: ModelConfig) -> SecretStr:
         raise HTTPException(503, "模型凭据无法解密，请联系运营者或重新填写 Key")
 
 
+def current_for_result(
+    session: Session, user_id: uuid.UUID, version: uuid.UUID
+) -> ModelConfig:
+    """Serialize committing a checked result with the revocation intent.
+
+    Caller already owns its task row (and the established User lock where used).
+    Revocation locks ONLY this config row and commits before ever waiting for User.
+    """
+    config = session.exec(
+        select(ModelConfig)
+        .where(ModelConfig.user_id == user_id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    ).one_or_none()
+    if not config or config.version != version or config.revoked:
+        raise HTTPException(409, "configuration revoked")
+    return config
+
+
+def cancelled_by_revocation(
+    session: Session, user_id: uuid.UUID, version: uuid.UUID, code: str
+) -> bool:
+    """Resolve only cancellation/config failures under task -> config lock.
+
+    A real provider failure keeps its own outcome, even if revocation follows it.
+    Callers check that the task is still active before changing its terminal fact.
+    """
+    if code not in {"cancelled", "configuration_revoked"}:
+        return False
+    try:
+        current_for_result(session, user_id, version)
+    except HTTPException:
+        return True
+    return False
+
+
 @contextmanager
 def credential_for_call(
     session: Session,
@@ -85,9 +121,10 @@ def credential_for_call(
     Caller must perform each actual request inside this context and validate its
     destination. Jobs persist only owner/version, never the returned credential.
     """
-    # ponytail: per-user lock spans one request (caller timeout <=120s); #15 adds cancellable dispatch.
+    # The async gate cancels in-flight work on persisted revocation. This lock
+    # still spans actual HTTP: replacement cannot report success before release.
     lock_owner(session, user_id)
     config = session.get(ModelConfig, user_id, populate_existing=True)
-    if not config or config.version != version:
+    if not config or config.version != version or config.revoked:
         raise HTTPException(409, "模型配置已删除或变更，请使用当前配置主动重试")
     yield config, decrypt(config)

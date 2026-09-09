@@ -62,6 +62,7 @@ class ModelConfig(SQLModel, table=True):
     model_id: str
     encrypted_key: bytes = DBField(repr=False)
     key_version: str
+    revoked: bool = False
 
 
 class ModelConfigFields(BaseModel):
@@ -104,3 +105,4 @@ class ModelConfigPublic(BaseModel):
     service_url: str
     model_id: str
     has_key: bool = True
+    revoked: bool = False

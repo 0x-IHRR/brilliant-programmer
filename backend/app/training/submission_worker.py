@@ -18,8 +18,11 @@ from app.model_config.connection import (
     ProbeError,
     request_raw,
 )
-from app.model_config.models import ModelConfig
-from app.model_config.service import lock_owner
+from app.model_config.service import (
+    cancelled_by_revocation,
+    current_for_result,
+    lock_owner,
+)
 from app.training.gate import call_credential
 from app.training.generation import extract_content
 from app.training.guided import exercise_candidate, practice_completion
@@ -112,7 +115,19 @@ def fail(identity: uuid.UUID, code: str, message: str) -> None:
         ).one()
         if submission.status != "checking" or submission.stop_requested:
             return
-        submission.status, submission.code, submission.message = "failed", code, message
+        run = session.get(TrainingRun, submission.run_id)
+        assert run
+        revoked = cancelled_by_revocation(
+            session, run.user_id, submission.config_version, code
+        )
+        if revoked:
+            submission.stop_requested = True
+            code = "configuration_revoked"
+        submission.status, submission.code, submission.message = (
+            "stopped" if revoked else "failed",
+            code,
+            message,
+        )
         session.add(submission)
         session.commit()
 
@@ -134,9 +149,7 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
         session.refresh(run)
         if submission.status != "checking" or submission.stop_requested:
             return False
-        config = session.get(ModelConfig, run.user_id, populate_existing=True)
-        if not config or config.version != submission.config_version:
-            raise HTTPException(409, "configuration revoked")
+        config = current_for_result(session, run.user_id, submission.config_version)
         if run.completion_rule_version != REWARD_RULE:
             raise HTTPException(409, "unknown completion rule")
         submission.relevance = [item.model_dump() for item in result.items]
@@ -173,7 +186,9 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
                 "本轮已完成，自动获得 10 点修为。完成不等于答对或掌握；可在反馈区域主动核对本次原答。",
             )
             if submission.practice_help_id:
-                submission.message = "小练习已完成；同轮合计仅一次10点，未改变原题完整性或独立掌握证明。"
+                submission.message = (
+                    "小练习已完成；同轮合计仅一次10点，未改变原题完整性或独立掌握证明。"
+                )
         else:
             submission.status, submission.code = "needs_supplement", "needs_supplement"
             prior = session.exec(

@@ -451,7 +451,7 @@ def test_revoked_config_blocks_late_generate_and_inspection(ready, provider):
         provider["release"].set()
         assert deletion.result(5).status_code == 204
     result = wait(auth, identity, item["id"])
-    assert result["status"] == "failed" and result["code"] == "configuration_revoked", (
+    assert result["status"] == "stopped" and result["code"] == "configuration_revoked", (
         result
     )
     assert result["deliveries"] == [] and len(provider["requests"]) == 2

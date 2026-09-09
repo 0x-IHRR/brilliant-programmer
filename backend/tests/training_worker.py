@@ -73,7 +73,11 @@ def accept(*args):
     while json.loads(control.read_text()).get("before_accept"):
         Path(str(control) + ".accepting").touch()
         time.sleep(0.02)
-    return original_accept(*args)
+    try:
+        return original_accept(*args)
+    finally:
+        if json.loads(control.read_text()).get("observe_accept"):
+            Path(str(control) + ".accept_finished").touch()
 
 
 worker.accept_candidate = accept
