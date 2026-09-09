@@ -13,6 +13,9 @@ class TrainingRun(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", index=True)
     event_sequence: int = Field(default=0, sa_column=Column(BigInteger, nullable=False))
+    launch_mode: str = "practice"
+    origin_id: uuid.UUID | None = Field(default=None, foreign_key="training_run.id")
+    converted_sequence: int | None = Field(default=None, sa_column=Column(BigInteger))
     completion_rule_version: str = REWARD_RULE
     config_version: uuid.UUID
     destination: str

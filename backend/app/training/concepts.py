@@ -5,7 +5,7 @@ import json
 import secrets
 import uuid
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Literal, cast
 
 import procrastinate
 from fastapi import APIRouter, HTTPException, Response
@@ -23,12 +23,18 @@ from app.training.concept_models import ConceptAttempt, ConceptHelp, HelpDeliver
 from app.training.concept_schema import (
     ConceptContent,
     ContentReview,
+    Direction,
     HelpInput,
     classify_content,
 )
 from app.training.concept_worker import finish_stop, generate_help
+from app.training.evaluation_models import Evaluation
 from app.training.events import next_event
 from app.training.guided import GuidanceDraft, guidance_draft
+from app.training.independent import Confirmation, Digest, publication_permission
+from app.training.independent_models import HelpConfirmation
+from app.training.independent_service import record_frozen
+from app.training.models import TrainingRun
 from app.training.queue import DSN
 from app.training.routes import VerifiedUser, owned
 from app.training.schema import Candidate, Source
@@ -75,6 +81,8 @@ class HelpPublic(BaseModel):
     model_id: str
     direction: str | None
     requires_independent_confirmation: bool
+    confirmation_prompt: str | None
+    content_hash: str | None
     attempts: list[Attempt]
     deliveries: list[PublicDelivery]
     can_retry: bool
@@ -117,6 +125,27 @@ def help_owned(
 
 def view(session: Session, item: ConceptHelp) -> HelpPublic:
     session.refresh(item)
+    run = session.get(TrainingRun, item.run_id, populate_existing=True)
+    assert run
+    permission = publication_permission(
+        run_id=run.id,
+        help_id=item.id,
+        content_hash="",
+        sequence=run.event_sequence + 1,
+        mode="independent"
+        if run.launch_mode == "independent" and run.converted_sequence is None
+        else "practice",
+        direction=cast(Direction, item.direction)
+        if item.direction in {"neutral", "directional", "uncertain"}
+        else "uncertain",
+    )
+    digest = None
+    if item.status == "ready" and item.content:
+        digest = hashlib.sha256(
+            "\n\n".join(
+                help_content(item.kind, item.content).sections().values()
+            ).encode()
+        ).hexdigest()
     return HelpPublic(
         **item.model_dump(
             include={
@@ -136,8 +165,9 @@ def view(session: Session, item: ConceptHelp) -> HelpPublic:
             }
         ),
         input=HelpInput.model_validate(item.request),
-        requires_independent_confirmation=item.direction
-        in {"directional", "uncertain"},
+        requires_independent_confirmation=not permission.allowed,
+        confirmation_prompt=permission.prompt,
+        content_hash=digest,
         attempts=[
             Attempt(
                 **a.model_dump(
@@ -354,6 +384,60 @@ def stop_help(
     return view(session, item)
 
 
+class ConfirmHelp(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    content_hash: Digest
+    accepted: bool
+
+
+class PublicationChoice(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    confirmation_id: uuid.UUID | None = None
+
+
+class ConfirmationReceipt(BaseModel):
+    id: uuid.UUID
+
+
+@router.post("/tasks/{run_id}/help/{help_id}/confirm")
+def confirm_help(
+    run_id: uuid.UUID,
+    help_id: uuid.UUID,
+    body: ConfirmHelp,
+    session: SessionDep,
+    user: VerifiedUser,
+    response: Response,
+) -> ConfirmationReceipt:
+    response.headers["Cache-Control"] = "no-store"
+    item = help_owned(session, run_id, help_id, user.id)
+    lock_owner(session, user.id)
+    session.refresh(item)
+    if (
+        item.status != "ready"
+        or not item.content
+        or not item.inspection
+        or not body.accepted
+    ):
+        raise HTTPException(409, "尚未确认本次可交付说明")
+    content = help_content(item.kind, item.content)
+    direction = classify_content(content, ContentReview.model_validate(item.inspection))
+    digest = hashlib.sha256(
+        "\n\n".join(content.sections().values()).encode()
+    ).hexdigest()
+    if digest != body.content_hash:
+        raise HTTPException(409, "内容版本变化，请重新确认")
+    event = HelpConfirmation(
+        run_id=run_id,
+        help_id=help_id,
+        content_hash=digest,
+        direction=direction,
+        sequence=next_event(session, run_id),
+    )
+    session.add(event)
+    session.commit()
+    return ConfirmationReceipt(id=event.id)
+
+
 @router.post("/tasks/{run_id}/help/{help_id}/deliver")
 def publish_help(
     run_id: uuid.UUID,
@@ -361,6 +445,7 @@ def publish_help(
     session: SessionDep,
     user: VerifiedUser,
     response: Response,
+    body: PublicationChoice | None = None,
 ) -> HelpPublication:
     response.headers["Cache-Control"] = "no-store"
     item = help_owned(session, run_id, help_id, user.id)
@@ -369,10 +454,31 @@ def publish_help(
     if item.status != "ready" or not item.content or not item.inspection:
         raise HTTPException(409, "说明尚不可交付；请读取帮助状态")
     content = help_content(item.kind, item.content)
-    classify_content(content, ContentReview.model_validate(item.inspection))
-    # All current rounds are ordinary practice. Future independent-mode delivery
-    # must enforce confirmation HERE before any content bytes are released.
+    direction = classify_content(content, ContentReview.model_validate(item.inspection))
     text = "\n\n".join(content.sections().values())
+    digest = hashlib.sha256(text.encode()).hexdigest()
+    run = session.get(TrainingRun, run_id, populate_existing=True)
+    assert run
+    consent = (
+        session.get(HelpConfirmation, body.confirmation_id)
+        if body and body.confirmation_id
+        else None
+    )
+    permission = publication_permission(
+        run_id=run_id,
+        help_id=help_id,
+        content_hash=digest,
+        sequence=run.event_sequence + 1,
+        mode="independent"
+        if run.launch_mode == "independent" and run.converted_sequence is None
+        else "practice",
+        direction=direction,
+        confirmation=Confirmation.model_validate(consent.model_dump(exclude={"id"}))
+        if consent
+        else None,
+    )
+    if not permission.allowed:
+        raise HTTPException(409, permission.prompt)
     token = secrets.token_urlsafe(32)
     sequence = next_event(session, run_id)
     event = HelpDelivery(
@@ -381,7 +487,7 @@ def publish_help(
         sequence=sequence,
         exposure_sequence=sequence,
         status="delivery_unknown",
-        content_hash=hashlib.sha256(text.encode()).hexdigest(),
+        content_hash=digest,
         receipt_hash=hashlib.sha256(token.encode()).hexdigest(),
     )
     session.add(event)
@@ -450,5 +556,16 @@ def confirm_rendering(
         evidence="content_bound_browser_render_receipt",
     )
     session.add(event)
+    if fact.direction in {"directional", "uncertain"}:
+        run = session.get(TrainingRun, run_id, populate_existing=True)
+        assert run
+        if run.launch_mode == "independent" and run.converted_sequence is None:
+            run.converted_sequence = attempt.exposure_sequence
+            session.add(run)
+    session.flush()
+    evaluation = session.get(Evaluation, run_id)
+    run = session.get(TrainingRun, run_id)
+    if evaluation and run:
+        record_frozen(session, run, evaluation)
     session.commit()
     return view(session, item)

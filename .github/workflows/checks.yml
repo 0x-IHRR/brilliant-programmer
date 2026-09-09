@@ -53,4 +53,5 @@ jobs:
           (cd backend && DRAFT_TEST_FILE=draft-submit-guard.spec.ts ../.venv/bin/python tests/draft_browser.py)
           (cd backend && ../.venv/bin/python tests/guided_browser.py)
           (cd backend && ../.venv/bin/python tests/config_switch_browser.py)
+          (cd backend && ../.venv/bin/python tests/independent_browser.py)
           bun run --cwd frontend test

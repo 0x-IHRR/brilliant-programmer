@@ -35,6 +35,7 @@ from app.training.evaluation_schema import (
 from app.training.events import next_event
 from app.training.gate import call_credential
 from app.training.generation import extract_content
+from app.training.independent_service import record_frozen
 from app.training.models import TrainingRun
 from app.training.queue import DSN, queue
 from app.training.schema import Candidate, Source, validate_candidate
@@ -177,6 +178,7 @@ def settle(identity: uuid.UUID, result: GradingCandidate) -> bool:
                 "已逐项核对。结论不直接更新等级或独立掌握证明；完成奖励保留。",
             )
         session.add(evaluation)
+        record_frozen(session, run, evaluation)
         session.commit()
         return True
 

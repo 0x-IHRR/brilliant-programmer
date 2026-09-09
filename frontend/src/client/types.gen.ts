@@ -184,6 +184,24 @@ export type Catalog = {
 };
 
 /**
+ * CheckStart
+ */
+export type CheckStart = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+};
+
+/**
  * Citation
  */
 export type Citation = {
@@ -265,6 +283,30 @@ export type ConceptContent = {
      * Principle
      */
     principle?: string | null;
+};
+
+/**
+ * ConfirmHelp
+ */
+export type ConfirmHelp = {
+    /**
+     * Content Hash
+     */
+    content_hash: string;
+    /**
+     * Accepted
+     */
+    accepted: boolean;
+};
+
+/**
+ * ConfirmationReceipt
+ */
+export type ConfirmationReceipt = {
+    /**
+     * Id
+     */
+    id: string;
 };
 
 /**
@@ -406,6 +448,10 @@ export type EvaluationPublic = {
      * Can Retry
      */
     can_retry: boolean;
+    /**
+     * Independent Outcome
+     */
+    independent_outcome: string | null;
 };
 
 /**
@@ -795,6 +841,14 @@ export type HelpPublic = {
      * Requires Independent Confirmation
      */
     requires_independent_confirmation: boolean;
+    /**
+     * Confirmation Prompt
+     */
+    confirmation_prompt: string | null;
+    /**
+     * Content Hash
+     */
+    content_hash: string | null;
     /**
      * Attempts
      */
@@ -1298,6 +1352,16 @@ export type PublicEvidence = {
 };
 
 /**
+ * PublicationChoice
+ */
+export type PublicationChoice = {
+    /**
+     * Confirmation Id
+     */
+    confirmation_id?: string | null;
+};
+
+/**
  * ReasonClaim
  */
 export type ReasonClaim = {
@@ -1674,6 +1738,22 @@ export type TaskPublic = {
      */
     attempts: Array<Attempt>;
     case: PublicCase | null;
+    /**
+     * Launch Mode
+     */
+    launch_mode: string;
+    /**
+     * Current Mode
+     */
+    current_mode: string;
+    /**
+     * Origin Id
+     */
+    origin_id: string | null;
+    /**
+     * Independent Outcome
+     */
+    independent_outcome: string | null;
 };
 
 /**
@@ -3058,8 +3138,45 @@ export type conceptsStopHelpResponses = {
 
 export type conceptsStopHelpResponse = conceptsStopHelpResponses[keyof conceptsStopHelpResponses];
 
+export type conceptsConfirmHelpData = {
+    body: ConfirmHelp;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/confirm';
+};
+
+export type conceptsConfirmHelpErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type conceptsConfirmHelpError = conceptsConfirmHelpErrors[keyof conceptsConfirmHelpErrors];
+
+export type conceptsConfirmHelpResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConfirmationReceipt;
+};
+
+export type conceptsConfirmHelpResponse = conceptsConfirmHelpResponses[keyof conceptsConfirmHelpResponses];
+
 export type conceptsPublishHelpData = {
-    body?: never;
+    /**
+     * Body
+     */
+    body?: PublicationChoice | null;
     path: {
         /**
          * Run Id
@@ -3597,6 +3714,96 @@ export type practiceChoosePracticeDraftResponses = {
 };
 
 export type practiceChoosePracticeDraftResponse = practiceChoosePracticeDraftResponses[keyof practiceChoosePracticeDraftResponses];
+
+export type independentStartCheckData = {
+    body: CheckStart;
+    path: {
+        /**
+         * Origin Id
+         */
+        origin_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{origin_id}/independent';
+};
+
+export type independentStartCheckErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type independentStartCheckError = independentStartCheckErrors[keyof independentStartCheckErrors];
+
+export type independentStartCheckResponses = {
+    /**
+     * Successful Response
+     */
+    202: TaskPublic;
+};
+
+export type independentStartCheckResponse = independentStartCheckResponses[keyof independentStartCheckResponses];
+
+export type independentConvertPracticeData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/practice';
+};
+
+export type independentConvertPracticeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type independentConvertPracticeError = independentConvertPracticeErrors[keyof independentConvertPracticeErrors];
+
+export type independentConvertPracticeResponses = {
+    /**
+     * Successful Response
+     */
+    200: TaskPublic;
+};
+
+export type independentConvertPracticeResponse = independentConvertPracticeResponses[keyof independentConvertPracticeResponses];
+
+export type independentRetryCheckData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/independent/retry';
+};
+
+export type independentRetryCheckErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type independentRetryCheckError = independentRetryCheckErrors[keyof independentRetryCheckErrors];
+
+export type independentRetryCheckResponses = {
+    /**
+     * Successful Response
+     */
+    202: TaskPublic;
+};
+
+export type independentRetryCheckResponse = independentRetryCheckResponses[keyof independentRetryCheckResponses];
 
 export type healthHealthData = {
     body?: never;
