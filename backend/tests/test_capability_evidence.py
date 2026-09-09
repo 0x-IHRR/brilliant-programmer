@@ -109,3 +109,49 @@ def test_elapsed_time_does_not_expire_verified():
     state = project([evidence(1), evidence(2), evidence(90000, "practice")]).states[0]
     assert state.status == "verified"
     assert state.latest_verified_at == state.history[1].evidence.submitted_at
+
+
+def test_boss_bundle_keeps_one_original_and_distinct_judgments_only():
+    first = evidence(1, kind="boss")
+    second = first.model_copy(
+        update={
+            "target": KEY.model_copy(update={"background_id": "two"}),
+            "judgment_ids": ["j2"],
+            "outcome": "evidenced_fail",
+        }
+    )
+    states = project([first, second]).states
+    assert [s.status for s in states] == ["unverified", "needs_consolidation"]
+    assert (
+        states[0].history[0].evidence.original_id
+        == states[1].history[0].evidence.original_id
+    )
+    for changed in [
+        {"kind": "ordinary"},
+        {"judgment_ids": ["j1"]},
+        {"observation_id": uuid.uuid4()},
+        {"run_id": uuid.uuid4()},
+        {"order": 2},
+    ]:
+        with pytest.raises(ValueError, match="duplicate original"):
+            project([first, second.model_copy(update=changed)])
+    with pytest.raises(ValueError, match="duplicate original"):
+        project(
+            [
+                first.model_copy(update={"kind": "ordinary"}),
+                second.model_copy(update={"kind": "ordinary"}),
+            ]
+        )
+
+
+@pytest.mark.parametrize(
+    "outcome",
+    ["practice", "pending_delivery", "invalid_case", "unclear", "system_failure"],
+)
+def test_boss_without_valid_failure_cannot_create_shortfall(outcome):
+    state = project([evidence(1, outcome, kind="boss")]).states[0]
+    assert state.status == "unverified" and not state.history[0].counted
+    state = project(
+        [evidence(1, "evidenced_fail", kind="boss", qualified_novelty=False)]
+    ).states[0]
+    assert state.status == "unverified" and not state.history[0].counted

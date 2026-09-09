@@ -1,4 +1,4 @@
-"""Evidence feedback uses frozen task inputs, never writes rewards or ability."""
+"""Frozen evidence feedback followed by owner-locked qualified settlement."""
 
 import asyncio
 import json
@@ -24,6 +24,7 @@ from app.model_config.service import (
     current_for_result,
     lock_owner,
 )
+from app.training.boss_models import BossAttempt
 from app.training.evaluation_models import Evaluation, EvaluationAttempt
 from app.training.evaluation_schema import (
     EVALUATION_RULE,
@@ -175,7 +176,9 @@ def settle(identity: uuid.UUID, result: GradingCandidate) -> bool:
             evaluation.status, evaluation.code, evaluation.message = (
                 "completed",
                 "evaluated",
-                "已逐项核对。结论不直接更新等级或独立掌握证明；完成奖励保留。",
+                "已逐项核对。Boss晋升以全部冻结必考项的独立结算为准；完成奖励保留。"
+                if session.get(BossAttempt, identity)
+                else "已逐项核对。结论不直接更新等级或独立掌握证明；完成奖励保留。",
             )
         session.add(evaluation)
         record_frozen(session, run, evaluation)

@@ -111,6 +111,9 @@ def record_frozen(session: Session, run: TrainingRun, evaluation: Evaluation) ->
         key="",
         converted_sequence=run.converted_sequence,
     )
+    from app.training.boss_service import settle_boss
+
+    settle_boss(session, run, evaluation)
     latest = session.exec(
         select(IndependentObservation)
         .where(

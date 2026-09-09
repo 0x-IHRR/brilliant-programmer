@@ -7,7 +7,7 @@ import { ConceptCoach } from "./ConceptCoach"
 import { Evaluation } from "./Evaluation"
 import { Button } from "../components/ui/button"
 
-export function SubmissionForm({ runId, caseData, config, panel, onPanel }: { runId: string; caseData: PublicCase; config: ModelConfigPublic | null; panel: DraftProgress["step"]; onPanel: (step: DraftProgress["step"]) => void }) {
+export function SubmissionForm({ runId, caseData, config, panel, onPanel, boss = false }: { boss?: boolean; runId: string; caseData: PublicCase; config: ModelConfigPublic | null; panel: DraftProgress["step"]; onPanel: (step: DraftProgress["step"]) => void }) {
   const draft = useDraftEditor(runId, caseData, panel, onPanel)
   const { answers, state, setState } = draft
   const [accepted, setAccepted] = useState(false)
@@ -118,7 +118,7 @@ export function SubmissionForm({ runId, caseData, config, panel, onPanel }: { ru
         <Button className={buttonClass} type="submit" disabled={!state || !draft.ready || draft.choosing || draft.status === "conflict" || !accepted || busy || Boolean(checking)}>{completed ? "保存复盘补充（不重评）" : latest ? "提交同轮补充（保留原答）" : "正式交卷"}</Button>
       </> : <p>请保存模型配置并重新读取目的地后交卷；已有记录仍保留。</p>}
     </form>}
-    <Evaluation runId={runId} caseData={caseData} config={config} submitted={completed} onFrozen={setReviewAllowed} />
+    <Evaluation boss={boss} runId={runId} caseData={caseData} config={config} submitted={completed} onFrozen={setReviewAllowed} />
     </div>
     <div className={`${panel === "coach" ? "block" : "hidden"} md:block`}><ConceptCoach key={runId} runId={runId} answers={answers} config={config} /></div>
   </div>

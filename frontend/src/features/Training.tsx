@@ -3,9 +3,10 @@ import { IndependentService, ModelconfigService, TrainingService, type ModelConf
 import { type DraftProgress } from "./draftAutosave"
 import { SubmissionForm } from "./SubmissionForm"
 import { useRandomPreference } from "./useRandomPreference"
+import { BossStandard, BossProgress } from "./Boss"
 import { Button } from "../components/ui/button"
 
-export function Training() {
+export function Training({ onLevel }: { onLevel?: (level: string) => void }) {
   const alive = useRef(true)
   const ownerSession = useRef(sessionStorage.getItem("token"))
   const current = () => alive.current && sessionStorage.getItem("token") === ownerSession.current
@@ -128,12 +129,13 @@ export function Training() {
     {runs.length > 1 && <label className="block">查看已有任务<select className="block w-full min-w-0 rounded border p-2" value={run?.id ?? ""} onChange={e => selectRun(e.target.value)}>{runs.map(item => <option key={item.id} value={item.id}>{item.goal} · {item.message}</option>)}</select></label>}
     {run && <article className="space-y-4 rounded border p-3">
       <p role="status">{run.message}</p>
+      {run.boss_stage && <><BossStandard stage={run.boss_stage} /><BossProgress key={run.id} runId={run.id} onLevel={onLevel} /></>}
       {run.return_target && <a className="underline" href={`/?capability=${encodeURIComponent(run.return_target.capability_id)}&difficulty=${encodeURIComponent(run.return_target.difficulty)}`}>返回原目标并核对解锁条件</a>}
       <p>{run.target.difficulty} · 目标：{run.goal}</p>
       {run.recommendation_reason && <p>本轮选择依据：{reasonLabel(run.recommendation_reason)}。开始时已固定目标与难度，之后偏好变更不改本题。</p>}
       <p>{run.launch_mode === "independent" ? "本轮由你主动发起独立检验；最终资格依据实际帮助与冻结作答，语义质量尚未验收。" : "本轮默认练习；普通练习通过不会自动成为独立证明。"}</p>
       {run.current_mode === "practice" && run.launch_mode === "independent" && <p>本题已转为练习，不能原题切回独立；已有修为及此前冻结的合格原答保留。</p>}
-      {run.case && config && <div className="space-y-2 border p-3">
+      {run.case && config && !run.boss_stage && <div className="space-y-2 border p-3">
         <p>检验自己会创建另一轮新案例，不搬走本轮作答或草稿。找不到可核验的陌生情境时明确退出。</p>
         <p className="break-all">比较接收方：{config.service_url} · {config.model_id}</p>
         <label className="flex items-start gap-2"><input type="checkbox" checked={checkAccepted} onChange={e => setCheckAccepted(e.target.checked)} /><span>允许发送必要的新旧情境与判据用于生成和陌生比较，不发送旧正式作答或帮助全文；最多六次调用，重试可能计费。</span></label>
@@ -182,7 +184,7 @@ export function Training() {
           </section>
           <section aria-label="必答判断" className="min-w-0 space-y-3">
             <h4 className="font-semibold">作判断</h4>
-            <SubmissionForm runId={run.id} caseData={run.case} config={config} panel={panel} onPanel={setPanel} />
+            <SubmissionForm boss={Boolean(run.boss_stage)} runId={run.id} caseData={run.case} config={config} panel={panel} onPanel={setPanel} />
           </section>
         </div>
       </div>}

@@ -14,6 +14,7 @@ import { ModelConfig } from "./features/ModelConfig"
 import "./index.css"
 import { Training } from "./features/Training"
 import { Project } from "./features/Project"
+import { Boss } from "./features/Boss"
 import { CapabilityMap } from "./features/CapabilityMap"
 
 client.setConfig({ auth: () => sessionStorage.getItem("token") ?? undefined })
@@ -32,6 +33,7 @@ function App() {
     return () => window.removeEventListener("hashchange", capture)
   }, [])
   const [user, setUser] = useState<UserPublic | null>(null)
+  const reflectLevel = useCallback((level: string) => setUser(current => current && current.level !== level ? { ...current, level } : current), [])
   const [signup, setSignup] = useState(false)
   const resetSession = useCallback((notice: string) => {
     sessionStorage.removeItem("token")
@@ -228,7 +230,8 @@ function App() {
           >
             退出登录
           </Button>
-          {user.email_verified && <Training key={`training:${user.id}`} />}
+          {user.email_verified && <Boss key={`boss:${user.id}`} />}
+          {user.email_verified && <Training key={`training:${user.id}`} onLevel={reflectLevel} />}
           {user.email_verified && <Project key={`project:${user.id}`} />}
           {user.email_verified && <CapabilityMap key={`capabilitymap:${user.id}`} />}
           {user.email_verified && <ModelConfig key={`modelconfig:${user.id}`} action={action} busy={busy} />}
