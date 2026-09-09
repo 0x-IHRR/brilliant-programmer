@@ -616,7 +616,23 @@ def test_revoke_after_candidate_commit_preserves_complete_result(provider, tmp_p
                 "total_tokens": 20,
             }
         ]
-        assert save(auth, expected_version=config["version"]).status_code == 200
+        with ThreadPoolExecutor(1) as pool:
+            saving = pool.submit(save, auth, expected_version=config["version"])
+            try:
+                deadline = time.monotonic() + 5
+                while True:
+                    with Session(engine) as session:
+                        revoked = session.get(ModelConfig, owner).revoked
+                    if revoked and Path(str(control) + ".accept_cancelled").exists():
+                        break
+                    assert time.monotonic() < deadline, "revocation must reach actual acceptance waiter"
+                    time.sleep(.02)
+                assert not saving.done()
+            finally:
+                options = json.loads(control.read_text())
+                options["after_accept"] = False
+                control.write_text(json.dumps(options))
+            assert saving.result(5).status_code == 200
         deadline = time.monotonic() + 5
         while not Path(str(control) + ".finished").exists():
             assert time.monotonic() < deadline, "cancel finish did not settle"

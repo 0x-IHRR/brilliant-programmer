@@ -7,6 +7,7 @@ import ssl
 import sys
 import time
 from contextlib import asynccontextmanager
+from contextvars import ContextVar
 from pathlib import Path
 
 from app.model_config import connection
@@ -67,6 +68,21 @@ async def observed_stream(response):
 
 
 connection.httpcore.Response.aiter_stream = observed_stream
+# asyncio.to_thread copies context: observe the actual process cancellation,
+# not a timed guess that the revocation watcher has already run.
+accept_caller = ContextVar("accept_caller", default=None)
+original_process = worker.process
+
+
+async def observed_process(*args):
+    token = accept_caller.set(asyncio.current_task())
+    try:
+        return await original_process(*args)
+    finally:
+        accept_caller.reset(token)
+
+
+worker.process = observed_process
 original_accept = worker.accept_candidate
 
 
@@ -78,6 +94,9 @@ def accept(*args):
         result = original_accept(*args)
         while json.loads(control.read_text()).get("after_accept"):
             Path(str(control) + ".accepted").touch()
+            caller = accept_caller.get()
+            if caller and caller.cancelling():
+                Path(str(control) + ".accept_cancelled").touch()
             time.sleep(0.02)
         return result
     finally:
