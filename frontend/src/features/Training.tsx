@@ -93,7 +93,7 @@ export function Training() {
     <p>没有正式作答时，从基础、无前置能力要求的方向选一关。不需要主题卡或入门测验。已有记录后优先待巩固、未验证能力；复习仍是普通练习，不自动产生独立证明。</p>
     <div className="space-y-2" aria-label="随机练习难度偏好">
       <label className="block">随机练习难度<select aria-label="随机练习难度" className="block w-full min-w-0 rounded border p-2" disabled={!preference.saved?.has_record} value={preference.mode} onChange={e => preference.edit(e.target.value as typeof preference.mode)}><option value="recommended">系统推荐</option><option value="基础">基础</option><option value="进阶">进阶</option><option value="综合">综合</option></select></label>
-      <p>{!preference.saved ? "偏好待读取" : !preference.saved.has_record ? "首次保持基础；完成正式作答后可重读并选择固定难度。" : preference.ready ? "账号偏好已确认，之后新任务沿用；当前题目与草稿不变。" : "偏好尚未确认；请先保存或重读，当前题目与草稿不变。"}</p>
+      <p>{!preference.saved ? "偏好待读取" : !preference.saved.has_record ? "首次保持基础；保存原题正式原答后可重读并选择固定难度。" : preference.ready ? "账号偏好已确认，之后新任务沿用；当前题目与草稿不变。" : "偏好尚未确认；请先保存或重读，当前题目与草稿不变。"}</p>
       <Button className={buttonClass} variant="outline" disabled={preference.busy} onClick={() => void preference.read()}>重新读取难度偏好</Button>
       <Button className={buttonClass} disabled={!preference.saved?.has_record || preference.busy || preference.conflict || preference.saved.mode === preference.mode} onClick={() => void preference.save()}>保存难度偏好</Button>
       {preference.error && <p role="alert">{preference.error}</p>}

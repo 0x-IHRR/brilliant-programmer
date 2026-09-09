@@ -333,9 +333,26 @@ async def process(run_id: uuid.UUID) -> None:
                 )
                 await asyncio.to_thread(record_attempt, attempt.id, "ok", counts)
                 try:
-                    await asyncio.to_thread(
-                        accept_candidate, run_id, raw, secret.get_secret_value()
+                    acceptance = asyncio.create_task(
+                        asyncio.to_thread(
+                            accept_candidate, run_id, raw, secret.get_secret_value()
+                        )
                     )
+                    cancelled = False
+                    # Cancelling an await cannot stop its synchronous DB thread.
+                    # Keep the User permission lock until that thread finishes so
+                    # the next selection sees every legally retained publication.
+                    while not acceptance.done():
+                        try:
+                            await asyncio.shield(acceptance)
+                        except asyncio.CancelledError:
+                            cancelled = True
+                        except Exception:
+                            break
+                    if cancelled:
+                        acceptance.exception()  # consume errors; preserve cancellation
+                        raise asyncio.CancelledError
+                    acceptance.result()
                     return
                 except ValueError:
                     await asyncio.to_thread(

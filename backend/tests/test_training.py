@@ -571,11 +571,25 @@ def test_stop_preserves_late_verified_candidate_and_usage(tmp_path, provider):
         ):
             time.sleep(0.03)
         assert Path(str(control) + ".accepting").exists()
-        result = client.post(f"/api/v1/training/tasks/{run_id}/stop", headers=auth)
-        assert result.status_code == 200 and result.json()["status"] == "stopped"
-        data = json.loads(control.read_text())
-        data["before_accept"] = False
-        control.write_text(json.dumps(data))
+        with ThreadPoolExecutor(1) as pool:
+            stopping = pool.submit(
+                client.post, f"/api/v1/training/tasks/{run_id}/stop", headers=auth
+            )
+            try:
+                deadline = time.monotonic() + 5
+                while True:
+                    with Session(engine) as session:
+                        if session.get(TrainingRun, uuid.UUID(run_id)).stop_requested:
+                            break
+                    assert time.monotonic() < deadline
+                    time.sleep(0.02)
+                assert not stopping.done()
+            finally:
+                data = json.loads(control.read_text())
+                data["before_accept"] = False
+                control.write_text(json.dumps(data))
+            result = stopping.result(5)
+            assert result.status_code == 200 and result.json()["status"] == "stopped"
         deadline = time.monotonic() + 5
         while time.monotonic() < deadline:
             result = wait_run(auth, run_id).json()
@@ -594,7 +608,6 @@ def test_stop_preserves_late_verified_candidate_and_usage(tmp_path, provider):
 
 def test_seed_replay_concurrent_start_and_formal_submission_boundary(provider):
     import random
-    from datetime import UTC, datetime
 
     _, auth = account()
     config = save(auth, service_url=provider["url"]).json()
@@ -639,15 +652,15 @@ def test_seed_replay_concurrent_start_and_formal_submission_boundary(provider):
         ).status_code
         == 200
     )
-    with Session(engine) as session:
-        run = session.get(TrainingRun, uuid.UUID(run_id))
-        run.formal_submitted_at = datetime.now(UTC)
-        session.add(run)
-        session.commit()
-    recommended = client.post("/api/v1/training/random", headers=auth, json=payload)
-    assert recommended.status_code == 202
-    assert recommended.json()["random_mode"] == "recommended"
-    assert client.post(f"/api/v1/training/tasks/{recommended.json()['id']}/stop", headers=auth).status_code == 200
+    # Generation and stopping alone do not persist an original answer.
+    another = client.post("/api/v1/training/random", headers=auth, json=payload)
+    assert another.status_code == 202 and another.json()["random_mode"] == "first"
+    assert (
+        client.post(
+            f"/api/v1/training/tasks/{another.json()['id']}/stop", headers=auth
+        ).status_code
+        == 200
+    )
     assert provider["requests"] == []
 
 

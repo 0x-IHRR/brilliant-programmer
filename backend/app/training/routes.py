@@ -11,6 +11,7 @@ from sqlmodel import Session, col, select
 
 from app.api.deps import SessionDep, get_training_user
 from app.capabilities.catalog import CATALOG, EvidenceKey
+from app.capabilities.evidence_models import OriginalOrder
 from app.capabilities.evidence_service import read_evidence
 from app.capabilities.unlocks import read_access
 from app.model_config.connection import Attempt
@@ -135,10 +136,9 @@ class PreferenceUpdate(BaseModel):
 def has_formal_record(session: Session, user_id: uuid.UUID) -> bool:
     return (
         session.exec(
-            select(TrainingRun.id).where(
-                TrainingRun.user_id == user_id,
-                col(TrainingRun.formal_submitted_at).is_not(None),
-            )
+            # Written with the committed original answer, before relevance or
+            # reward settlement. Its source excludes guided-practice answers.
+            select(OriginalOrder.original_id).where(OriginalOrder.user_id == user_id)
         ).first()
         is not None
     )
