@@ -4,6 +4,7 @@ import time
 import uuid
 
 import pytest
+from sqlalchemy import text
 from sqlmodel import Session
 
 from app.core.db import engine
@@ -99,10 +100,30 @@ def test_reference_stream_cancel_preserves_partial_usage_and_private_plan(
 ):
     auth, config, identity = admit(provider, 2)
     provider["modes"] = ["ok", "partial_usage"]
+    with Session(engine) as session:
+        captured_job = session.get(TrainingRun, uuid.UUID(identity)).queue_job_id
+        assert captured_job is not None
     process, control = test_training.start_worker(
         tmp_path, provider, identity, observe_usage=True
     )
     try:
+        # Queue startup is not SSE consumption. A real full run spent 12.95s
+        # before this job started; preserve a separate bounded startup wait and
+        # the original 15s consumer deadline, using this exact dispatched job.
+        startup_deadline = time.monotonic() + 15
+        while True:
+            with Session(engine) as session:
+                started = session.execute(
+                    text(
+                        "SELECT EXISTS (SELECT 1 FROM procrastinate_events "
+                        "WHERE job_id = :job_id AND type = 'started')"
+                    ),
+                    {"job_id": captured_job},
+                ).scalar_one()
+            if started:
+                break
+            assert time.monotonic() < startup_deadline, "captured job did not start"
+            time.sleep(0.02)
         marker = type(control)(str(control) + ".usage_received")
         deadline = time.monotonic() + 15
         while not marker.exists():
