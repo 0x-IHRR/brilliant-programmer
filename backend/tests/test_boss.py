@@ -237,3 +237,25 @@ def test_pending_revalidation_blocks_promotion_not_points_admission():
     assert can_launch_first_boss(100, "小白程序员")
     result = assess_first_boss(**(args | {"pending_revalidation": True}))
     assert result.outcome == "pending_revalidation" and result.promote_to is None
+
+
+def test_late_failed_boss_keeps_its_shortfall_after_another_boss_promoted():
+    args, grade = facts()
+    args = failed(args, grade)
+    before = args["inputs"].model_dump_json()
+    original_result = assess_first_boss(**args)
+    late_result = assess_first_boss(**(args | {"current_level": "初级程序员"}))
+    assert original_result.outcome == "evidenced_fail"
+    assert len(original_result.shortfalls) == 1
+    assert late_result == original_result
+    assert args["inputs"].model_dump_json() == before
+
+
+def test_late_passed_boss_keeps_pass_but_cannot_promote_again():
+    args, _ = facts()
+    before = args["inputs"].model_dump_json()
+    original_result = assess_first_boss(**args)
+    late_result = assess_first_boss(**(args | {"current_level": "初级程序员"}))
+    assert original_result.promote_to == "初级程序员"
+    assert late_result == original_result.model_copy(update={"promote_to": None})
+    assert args["inputs"].model_dump_json() == before

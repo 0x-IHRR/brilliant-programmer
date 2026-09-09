@@ -142,7 +142,9 @@ def assess_first_boss(
     again. R074 shortfalls also apply to unverified targets; emit only failed mapped
     items, not whole-case outcomes for every target or invented original IDs/orders.
     """
-    if not can_launch_first_boss(launch_points, current_level):
+    # This accepted round freezes its launch stage/points. Current level may have
+    # advanced while its original evaluation or delivery receipt was pending.
+    if not can_launch_first_boss(launch_points, stage.from_level):
         return BossDecision(outcome="not_admitted")
     validate_boss_mapping(stage, case)
     if disputed:
@@ -161,6 +163,8 @@ def assess_first_boss(
         converted_sequence=converted_sequence,
     )
     if outcome == "independent_pass_candidate":
+        if current_level != stage.from_level:
+            return BossDecision(outcome=outcome)
         if pending_revalidation:
             return BossDecision(outcome="pending_revalidation")
         return BossDecision(outcome=outcome, promote_to=stage.to_level)
