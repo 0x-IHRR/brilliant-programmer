@@ -178,6 +178,9 @@ def settle(identity: uuid.UUID, job_id: int | None, raw: str) -> bool:
         )
         session.add(item)
         settle_difference(session, run, item)
+        from app.training.boss_service import mark_reviewed_promotion
+
+        mark_reviewed_promotion(session, run, item)
         # No original evaluation/observation overwrite and no Boss promotion. The
         # shared projection reads this interpretation before each facet's grounding.
         session.commit()
