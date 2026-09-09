@@ -37,6 +37,8 @@ class Evidence(BaseModel):
     review_id: uuid.UUID | None = None
     review_decision: str | None = None
     semantic_reliability: Literal["unverified"] = "unverified"
+    grading_quality: Literal["unverified", "passed", "failed", "version_mismatch"] = "unverified"
+    quality_report_id: uuid.UUID | None = None
 
 
 class Transition(BaseModel):

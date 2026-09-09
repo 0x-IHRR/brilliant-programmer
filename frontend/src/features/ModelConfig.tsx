@@ -109,6 +109,17 @@ export function ModelConfig({ action, busy }: Props) {
   return <section className="space-y-4" aria-labelledby="model-config-title">
     <h2 id="model-config-title" className="text-xl font-semibold">个人模型配置</h2>
     <p>{loaded ? saved ? saved.revoked ? "旧配置已撤销，不会继续调用。" : "已保存一套配置，Key 已加密保存且不可回读。" : "尚未配置，不会分配默认 Key。" : "正在读取配置…"}</p>
+    {saved && <section aria-label="评分质量" className="space-y-2 break-words">
+      <h3 className="font-semibold">评分质量</h3>
+      <p>{saved.quality?.status === "failed" ? "已知评分未达标：仅可普通练习与复盘，服务端阻止新增独立证明和 Boss 晋升。" : saved.quality?.status === "passed" ? "已有达标评测依据：仅适用于报告中的配置、评分规则与来源版本；实际题目仍逐次核对适用范围。" : saved.quality?.status === "version_mismatch" ? "旧评测版本不匹配，当前评分可靠性未验证。" : "评分可靠性未验证。连接成功和输出结构正确均不代表教学或判分合格。"}</p>
+      <p>不会自动调用付费评测。修复后需新的受信任复测依据，并主动开启新轮；历史记录保留，旧轮不会因恢复而补发证明或晋升。</p>
+      {saved.quality?.report_id && <details><summary>查看评测版本与依据</summary>
+        <p>报告 {saved.quality.report_id}；评分规则 {saved.quality.evaluation_rule}；素材 {saved.quality.corpus_version}；标注 {saved.quality.annotation_version}</p>
+        <p>样本 {saved.quality.sample_count}，一致 {saved.quality.correct_count}，关键安全错误放行 {saved.quality.safety_false_accepts}。这些是报告样本结果，不代表总体错误率或学习效果。</p>
+        <p className="break-all">报告 SHA-256：{saved.quality.artifact_sha256}</p>
+        {saved.quality.source_versions?.map(source => <p className="break-all" key={source}>{source}</p>)}
+      </details>}
+    </section>}
     {saved?.revoked && <p role="alert">旧配置已撤销，不可再调用。上次切换可能未完成；请主动重新保存或删除，系统不会恢复旧调用。</p>}
     {saved && <p>保存新地址、Key 或模型 ID，或删除配置，将结束旧配置关联任务的后续调用并尝试取消在途请求；在途可能收费，不保证撤回或退款。已核对成果与用量保留，新配置须主动启动任务。</p>}
     <p>运营者能够在服务端解密 Key；Key 仅用于向你指定的模型服务认证。训练时，当前案例材料、作答和必要学习上下文会发送至该服务，不发送其他用户记录。请勿粘贴未授权公司或个人资料。</p>

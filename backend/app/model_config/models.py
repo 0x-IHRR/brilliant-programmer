@@ -7,6 +7,8 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 from sqlmodel import Field as DBField
 from sqlmodel import SQLModel
 
+from app.quality.public import QualityPublic
+
 
 def validate_service_url(value: str) -> str:
     """Local syntax checks only; each outbound connection must also validate DNS."""
@@ -101,6 +103,7 @@ class ModelConfigSave(ModelConfigFields):
 
 
 class ModelConfigPublic(BaseModel):
+    quality: QualityPublic | None = None
     version: uuid.UUID
     service_url: str
     model_id: str
