@@ -132,6 +132,7 @@ export function Training({ onLevel }: { onLevel?: (level: string) => void }) {
       {run.boss_stage && <><BossStandard stage={run.boss_stage} /><BossProgress key={run.id} runId={run.id} onLevel={onLevel} /></>}
       {run.return_target && <a className="underline" href={`/?capability=${encodeURIComponent(run.return_target.capability_id)}&difficulty=${encodeURIComponent(run.return_target.difficulty)}`}>返回原目标并核对解锁条件</a>}
       <p>{run.target.difficulty} · 目标：{run.goal}</p>
+      {run.jd_simulation?.jd_document_id && <aside aria-label="JD 教学模拟来源"><strong>教学模拟</strong><p>本题不是该公司的真实架构、故障或面试题。</p><p>所选岗位：{run.jd_simulation.jd_role_name}</p><blockquote>{run.jd_simulation.requirement_quote}</blockquote><p>{run.jd_simulation.basis === "inferred" ? "推断" : "JD 明示要求"}</p><a className="underline" href={`/?jd=${run.jd_simulation.topic_id}`}>返回 JD 路线入口</a></aside>}
       {run.topic_snapshot?.version_id && <div><p>本题确认重点：{run.topic_snapshot.focus}</p><p className="break-all">原路线版本：{run.topic_snapshot.version_id} · 节点：{run.topic_snapshot.node_id}</p><p>之后路线编辑不改写本题目标、重点或作答。</p></div>}
       {run.recommendation_reason && <p>本轮选择依据：{reasonLabel(run.recommendation_reason)}。开始时已固定目标与难度，之后偏好变更不改本题。</p>}
       <p>{run.launch_mode === "independent" ? "本轮由你主动发起独立检验；最终资格依据实际帮助与冻结作答，语义质量尚未验收。" : "本轮默认练习；普通练习通过不会自动成为独立证明。"}</p>

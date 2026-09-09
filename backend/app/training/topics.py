@@ -12,6 +12,7 @@ from app.capabilities.unlocks import open_unit
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.training.independent_routes import enqueue as enqueue_training
+from app.training.jd_models import JDTopic
 from app.training.models import TrainingRun
 from app.training.projection import read_snapshot
 from app.training.queue import DSN
@@ -142,7 +143,10 @@ def list_topics(
             _public(snapshot, item)
             for item in snapshot.exec(
                 select(Topic)
-                .where(Topic.user_id == user.id)
+                .where(
+                    Topic.user_id == user.id,
+                    col(Topic.id).not_in(select(JDTopic.topic_id)),
+                )
                 .order_by(col(Topic.created_at).desc())
             ).all()
         ]
@@ -185,6 +189,10 @@ def request_analysis(
     item = session.get(Topic, body.topic_id)
     if item:
         item = owned(session, item.id, user.id, lock=True)
+        from app.training.jd_service import is_jd
+
+        if is_jd(session, item.id):
+            raise HTTPException(409, "请从 JD 入口更新招聘原文")
     else:
         item = Topic(id=body.topic_id, user_id=user.id)
         session.add(item)
@@ -269,7 +277,12 @@ def edit_topic(
             "confirmed": False,
         }
     )
-    save_version(session, item, candidate)
+    from app.training.jd_service import is_jd, save_edit
+
+    if is_jd(session, item.id):
+        save_edit(session, item, candidate)
+    else:
+        save_version(session, item, candidate)
     session.commit()
     return public(session, item)
 
@@ -346,6 +359,22 @@ def start_topic(
             "topic_node_id": str(node.id),
         },
     )
+    from app.training.jd_service import is_jd
+    from app.training.jd_service import route as jd_route
+
+    if is_jd(session, item.id):
+        frozen = jd_route(session, item, current.id)
+        assert frozen is not None
+        mapping = next(m for m in frozen.mappings if m.node_id == node.id)
+        run.selection = {
+            **run.selection,
+            "entry": "jd",
+            "jd_document_id": str(frozen.document.id),
+            "jd_role_name": frozen.role_name,
+            "requirement_quote": mapping.requirement.quote.text,
+            "basis": mapping.requirement.basis,
+            "simulation_label": "教学模拟",
+        }
     session.add(run)
     session.flush()
     enqueue_training(session, run)

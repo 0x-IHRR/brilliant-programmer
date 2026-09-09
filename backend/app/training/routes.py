@@ -43,6 +43,7 @@ class Start(BaseModel):
 
 class TaskPublic(BaseModel):
     topic_snapshot: StartSnapshot | None = None
+    jd_simulation: dict[str, str] | None = None
     boss_stage: ReleasedStage | None = None
     id: uuid.UUID
     status: str
@@ -95,7 +96,22 @@ def view(session: Session, run: TrainingRun) -> TaskPublic:
             focus=run.selection["focus"],
             target=EvidenceKey.model_validate(run.target),
         )
-        if run.selection.get("entry") == "free_topic"
+        if run.selection.get("entry") in {"free_topic", "jd"}
+        else None,
+        jd_simulation={
+            "topic_id": run.selection.get("topic_id", ""),
+            **{
+                field: run.selection[field]
+                for field in (
+                    "jd_document_id",
+                    "jd_role_name",
+                    "requirement_quote",
+                    "basis",
+                    "simulation_label",
+                )
+            },
+        }
+        if run.selection.get("entry") == "jd"
         else None,
         boss_stage=stage_for(session, run.id),
         recommendation_reason=run.selection.get("reason"),
