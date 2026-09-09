@@ -16,6 +16,7 @@ from app.training.draft_collection import submit_guard
 from app.training.evaluation_models import Evaluation
 from app.training.events import next_event
 from app.training.queue import DSN
+from app.training.review_service import points
 from app.training.routes import VerifiedUser, owned
 from app.training.schema import Candidate
 from app.training.sources import contains_secret
@@ -60,16 +61,17 @@ def state(
         .order_by(col(Submission.sequence))
     ).all()
     award = session.get(PracticeAward, run_id)
+    earned = points(session, user_id, run_id)
     return SubmissionState(
         run_id=run_id,
         completed_at=run.formal_submitted_at if practice_help_id is None else None,
-        awarded_points=award.points if award else 0,
-        total_points=session.exec(
-            select(func.coalesce(func.sum(PracticeAward.points), 0)).where(
-                PracticeAward.user_id == user_id
-            )
-        ).one(),
-        rule_version=award.rule_version if award else None,
+        awarded_points=earned,
+        total_points=points(session, user_id),
+        rule_version=award.rule_version
+        if award
+        else run.completion_rule_version
+        if earned
+        else None,
         submissions=[
             SubmissionPublic(
                 **s.model_dump(
