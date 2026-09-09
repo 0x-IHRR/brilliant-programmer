@@ -2,10 +2,12 @@
 
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
-from tests.test_accounts import client
+from tests.test_accounts import client, login
+from tests.test_model_config import account, save
 from tests.test_training import provider, start_run, start_worker, stop_worker, wait_run
 
 with tempfile.TemporaryDirectory(prefix="draft-browser-") as directory:
@@ -31,12 +33,17 @@ with tempfile.TemporaryDirectory(prefix="draft-browser-") as directory:
         assert second.status_code == 202
         second_id = second.json()["id"]
         assert wait_run(auth, second_id).json()["status"] == "completed"
+        switch_auth = login(client.get("/api/v1/users/me", headers=auth).json()["email"])
+        _, other_auth = account()
+        assert save(other_auth, service_url=supplier["url"]).status_code == 200
         subprocess.run(
-            ["bun", "run", "--cwd", "../frontend", "test", "draft.spec.ts"],
+            ["bun", "run", "--cwd", "../frontend", "test", "draft.spec.ts", *sys.argv[1:]],
             env={
                 **os.environ,
                 "DRAFT_BROWSER_TOKEN": auth["Authorization"].removeprefix("Bearer "),
                 "DRAFT_FIRST_RUN": identity,
+                "DRAFT_SWITCH_TOKEN": switch_auth["Authorization"].removeprefix("Bearer "),
+                "DRAFT_OTHER_TOKEN": other_auth["Authorization"].removeprefix("Bearer "),
                 "DRAFT_SECOND_RUN": second_id,
             },
             check=True,

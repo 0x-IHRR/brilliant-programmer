@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ModelconfigService, TrainingService, type ModelConfigPublic, type TaskPublic } from "../client"
 import { type DraftProgress } from "./draftAutosave"
 import { SubmissionForm } from "./SubmissionForm"
@@ -8,10 +8,13 @@ export function Training() {
   const [config, setConfig] = useState<ModelConfigPublic | null>(null)
   const [runs, setRuns] = useState<TaskPublic[]>([])
   const [selected, setSelected] = useState(() => new URLSearchParams(location.search).get("training_run") ?? "")
+  const selectedRef = useRef(selected)
   function selectRun(id: string) {
+    selectedRef.current = id
     setSelected(id)
     const url = new URL(location.href)
-    url.searchParams.set("training_run", id)
+    if (id) url.searchParams.set("training_run", id)
+    else url.searchParams.delete("training_run")
     history.replaceState(null, "", url)
   }
   const [accepted, setAccepted] = useState(false)
@@ -24,15 +27,33 @@ export function Training() {
   useEffect(() => {
     let active = true
     void Promise.all([ModelconfigService.readConfig(), TrainingService.latest()]).then(async ([model, tasks]) => {
-      if (selected && !tasks.data.some(item => item.id === selected)) {
-        const saved = await TrainingService.read({ path: { run_id: selected } })
-        tasks.data.push(saved.data)
-      }
       if (!active) return
       setConfig(model.data?.version ? model.data : null)
-      setRuns(tasks.data)
       setAccepted(false)
       setError("")
+      const missing = selected && !tasks.data.some(item => item.id === selected)
+      // Current-account results do not depend on an optional historical link.
+      // Keep an already loaded old round while retrying a temporary read failure.
+      setRuns(items => {
+        const cached = missing && items.find(item => item.id === selected)
+        return cached ? [...tasks.data, cached] : tasks.data
+      })
+      if (!missing) return
+      try {
+        const saved = await TrainingService.read({ path: { run_id: selected } })
+        if (!active || selectedRef.current !== selected) return
+        setRuns(items => [...items.filter(item => item.id !== saved.data.id), saved.data])
+      } catch (error) {
+        if (!active || selectedRef.current !== selected) return
+        const status = (error as { response?: { status?: number } }).response?.status
+        if (status === 403 || status === 404 || status === 422) {
+          setRuns(items => items.filter(item => item.id !== selected))
+          selectRun("")
+          setError("原轮链接不可用或不属于当前账号，已返回当前可用任务。")
+        } else {
+          setError("原轮暂时读取失败，当前任务与原轮链接保留；可重新读取任务与模型目的地再试。")
+        }
+      }
     }).catch(() => { if (active) setError("任务读取失败，已有内容保留。请重新读取实际状态。") })
     return () => { active = false }
   }, [refresh])

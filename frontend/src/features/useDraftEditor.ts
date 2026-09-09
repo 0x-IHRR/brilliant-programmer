@@ -22,6 +22,7 @@ export function useDraftEditor(runId: string, caseData: PublicCase, panel: Draft
   const [comparison, setComparison] = useState<{ draft: DraftSnapshot | null; submissions: SubmissionState } | null>(null)
   const saver = useRef<DraftAutosave | null>(null)
   const active = useRef(true)
+  const readGeneration = useRef(0)
   const sessionToken = useRef(sessionStorage.getItem("token"))
   const current = () => active.current && sessionToken.current === sessionStorage.getItem("token")
 
@@ -38,31 +39,34 @@ export function useDraftEditor(runId: string, caseData: PublicCase, panel: Draft
     onPanel(progress.step)
     setStatus(editor.status)
     setReady(true)
+    return editor
   }
   async function read(compare = false) {
+    const generation = ++readGeneration.current
+    const latestRead = () => current() && generation === readGeneration.current
     try {
       const [draftResponse, submissionResponse] = await Promise.all([
         DraftsService.readDraft({ path: { run_id: runId } }),
         SubmissionsService.readSubmissions({ path: { run_id: runId } }),
       ])
-      if (!current()) return
+      if (!latestRead()) return
       const draft = draftResponse.data?.run_id === runId ? draftResponse.data : null
       const submissions = submissionResponse.data
       if (submissions.run_id !== runId) throw new Error("different round")
-      if (compare) { setComparison({ draft, submissions }); return }
+      setError("")
+      if (compare || saver.current) { setComparison({ draft, submissions }); return }
       setState(submissions)
       const latest = submissions.submissions[submissions.submissions.length - 1]
       const base = latest?.id ?? null
       const progress: DraftProgress = draft ? {
         step: draft.progress.step ?? "materials", answers: normalized(draft.progress.answers), based_on_submission_id: draft.progress.based_on_submission_id ?? null,
       } : { answers: latest?.answers ?? empty(), step: panel, based_on_submission_id: base }
-      install(progress, draft?.version ?? null)
+      const editor = install(progress, draft?.version ?? null)
       if (progress.based_on_submission_id !== base) {
-        saver.current?.markConflict()
+        editor.markConflict()
         setComparison({ draft, submissions })
       }
-      setError("")
-    } catch { if (current()) setError("草稿或提交记录读取失败，当前输入保留；请重试读取后再编辑。") }
+    } catch { if (latestRead()) setError("草稿或提交记录读取失败，当前输入保留；请重试读取后再编辑。") }
   }
   useEffect(() => {
     active.current = true
@@ -79,6 +83,7 @@ export function useDraftEditor(runId: string, caseData: PublicCase, panel: Draft
     document.addEventListener("visibilitychange", visibility)
     return () => {
       leave(); active.current = false
+      readGeneration.current++
       window.removeEventListener("pagehide", leave)
       window.removeEventListener("online", online)
       document.removeEventListener("visibilitychange", visibility)

@@ -109,3 +109,74 @@ test("旧轮链接恢复按稳定判断ID对齐的未完成草稿", async ({ pag
   await expect(page.getByLabel("查看已有任务")).toHaveValue(runId)
   await expect(reasons.nth(0)).toHaveValue("选择未完，键盘继续")
 })
+
+test("旧链接跨账号、无效ID和临时恢复失败保留当前可用任务", async ({ page }) => {
+  test.skip(!process.env.DRAFT_BROWSER_TOKEN, "由 draft_browser.py 提供真实任务")
+  const oldRun = process.env.DRAFT_FIRST_RUN!
+  await page.goto(`/?training_run=${oldRun}`)
+  await page.evaluate(token => sessionStorage.setItem("token", token!), process.env.DRAFT_SWITCH_TOKEN)
+  await page.reload()
+  await expect(page.getByText("比较请求证据", { exact: true })).toBeVisible()
+  await page.getByRole("button", { name: "退出登录", exact: true }).click()
+  await expect(page.getByText("已退出当前设备", { exact: true })).toBeVisible()
+  await page.evaluate(token => sessionStorage.setItem("token", token!), process.env.DRAFT_OTHER_TOKEN)
+  await page.reload()
+  const training = page.getByRole("region", { name: "随机第一关" })
+  await expect(training.getByRole("button", { name: "帮我选一关", exact: true })).toBeVisible()
+  await expect(training.getByRole("alert")).toContainText("原轮链接不可用")
+  expect(new URL(page.url()).searchParams.has("training_run")).toBe(false)
+  await page.evaluate(token => sessionStorage.setItem("token", token!), process.env.DRAFT_BROWSER_TOKEN)
+  for (const id of ["invalid-id", crypto.randomUUID()]) {
+    await page.goto(`/?training_run=${id}`)
+    await expect(training.getByText("比较请求证据", { exact: true })).toBeVisible()
+    await expect(training.getByRole("alert")).toContainText("原轮链接不可用")
+    expect(new URL(page.url()).searchParams.has("training_run")).toBe(false)
+  }
+  // Simulate an old run outside the recent-list window, using actual owned data.
+  await page.route("**/api/v1/training/tasks", async route => {
+    const response = await route.fetch()
+    const data = await response.json()
+    await route.fulfill({ response, json: data.filter((item: { id: string }) => item.id !== oldRun) })
+  })
+  await page.route(`**/api/v1/training/tasks/${oldRun}`, route => route.fulfill({ status: 503, json: { detail: "controlled temporary failure" } }))
+  await page.goto(`/?training_run=${oldRun}`)
+  await expect(training.getByText("比较请求证据", { exact: true })).toBeVisible()
+  await expect(training.getByRole("alert")).toContainText("原轮暂时读取失败")
+  expect(new URL(page.url()).searchParams.get("training_run")).toBe(oldRun)
+  await page.unroute(`**/api/v1/training/tasks/${oldRun}`)
+  await training.getByRole("button", { name: "重新读取任务与模型目的地" }).click()
+  await expect(page.getByLabel("查看已有任务")).toHaveValue(oldRun)
+  await expect(training.getByRole("alert")).toHaveCount(0)
+})
+
+for (const oldFails of [false, true]) {
+  test(`同轮重复初始读取迟到${oldFails ? "失败" : "成功"}不覆盖新输入`, async ({ page }) => {
+    test.skip(!process.env.DRAFT_BROWSER_TOKEN, "由 draft_browser.py 提供真实任务")
+    const id = process.env.DRAFT_FIRST_RUN!
+    let count = 0
+    let release!: () => void
+    const held = new Promise<void>(resolve => { release = resolve })
+    await page.addInitScript(token => sessionStorage.setItem("token", token!), process.env.DRAFT_BROWSER_TOKEN)
+    await page.route(`**/tasks/${id}/draft`, async route => {
+      if (route.request().method() !== "GET" || ++count !== 1) return route.continue()
+      const response = await route.fetch()
+      await held
+      if (oldFails) await route.fulfill({ status: 503, json: { detail: "controlled old failure" } })
+      else await route.fulfill({ response })
+    })
+    await page.goto(`/?training_run=${id}`)
+    await expect(page.getByRole("button", { name: "读取草稿并比较" })).toBeVisible()
+    await page.getByRole("button", { name: "读取草稿并比较" }).click()
+    const reason = page.getByLabel("这一判断的理由", { exact: true }).first()
+    await expect(reason).toBeEnabled()
+    // Desktop keeps the form visible without changing the saved panel.
+    const input = `最新读取后输入，不许被旧响应覆盖：${oldFails}`
+    await reason.fill(input)
+    const responseDone = page.waitForResponse(response => response.url().endsWith(`/tasks/${id}/draft`) && response.request().method() === "GET")
+    release()
+    await responseDone
+    await expect(page.getByText("草稿已保存", { exact: true })).toBeVisible()
+    await expect(reason).toHaveValue(input)
+    await expect(page.getByText(/草稿或提交记录读取失败/)).toHaveCount(0)
+  })
+}
