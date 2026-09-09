@@ -7,10 +7,11 @@ import tempfile
 import uuid
 from pathlib import Path
 
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.core.db import engine
 from app.project.models import ProjectRun
+from app.training.topic_models import TopicJob
 from tests.test_evaluations import grading
 from tests.test_model_config import account, save
 from tests.test_project_public_training import public_material, respond
@@ -38,6 +39,20 @@ with tempfile.TemporaryDirectory(prefix="bp23-browser-") as directory:
         session.add(project)
         session.commit()
         project_id = str(project.id)
+        other = ProjectRun(
+            user_id=owner,
+            url="https://github.com/pallets/itsdangerous?second-owned-project",
+            config_version=uuid.UUID(config["version"]),
+            destination=supplier["url"],
+            model_id=config["model_id"],
+            status="completed",
+            code="ok",
+            snapshot=snapshot.model_dump(mode="json"),
+            project_map=mapped.model_dump(mode="json"),
+        )
+        session.add(other)
+        session.commit()
+        other_id = str(other.id)
 
     def reply(payload):
         data = json.loads(payload["messages"][1]["content"])
@@ -66,8 +81,19 @@ with tempfile.TemporaryDirectory(prefix="bp23-browser-") as directory:
                 **os.environ,
                 "PROJECT_TRAINING_TOKEN": auth["Authorization"].removeprefix("Bearer "),
                 "PROJECT_TRAINING_RUN_ID": project_id,
+                "PROJECT_TRAINING_OTHER_ID": other_id,
             },
         )
+        assert len(supplier["requests"]) == 8
+        with Session(engine) as session:
+            assert (
+                len(
+                    session.exec(
+                        select(TopicJob).where(TopicJob.user_id == owner)
+                    ).all()
+                )
+                == 1
+            )
     finally:
         stop_worker(process)
         try:

@@ -10,13 +10,16 @@ export function ProjectTraining({ projectRunId, config }: { projectRunId: string
   const [accepted, setAccepted] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState("")
   const [access, setAccess] = useState<UnitAccess | null>(null)
   const alive = useRef(true), owner = useRef(sessionStorage.getItem("token")), serial = useRef(0)
+  const projectIdentity = useRef({ id: projectRunId })
+  if (projectIdentity.current.id !== projectRunId) projectIdentity.current = { id: projectRunId }
+  const projectGeneration = projectIdentity.current
   const pending = useRef<{ key: string; id: string; topic: string } | null>(null)
   const pendingStart = useRef<{ key: string; id: string } | null>(null)
   const relevant = routes.filter(r => r.project_run_id === projectRunId)
   const item = relevant.find(r => r.topic.id === selected) ?? relevant[0]
   const version = item?.current?.route
   const running = item?.topic.jobs.some(j => ["queued", "running", "stopping"].includes(j.status))
-  const current = () => alive.current && owner.current === sessionStorage.getItem("token")
+  const current = () => alive.current && projectIdentity.current === projectGeneration && owner.current === sessionStorage.getItem("token")
   const dirty = Object.entries(drafts).some(([id, value]) => {
     if (value.topic !== item?.topic.id) return false
     const node = version?.nodes.find(n => n.id === id)
@@ -29,7 +32,7 @@ export function ProjectTraining({ projectRunId, config }: { projectRunId: string
     try { const { data } = await ProjecttrainingService.listRoutes(); if (current() && turn === serial.current) { setRoutes(data); setError("") } }
     catch { if (current() && turn === serial.current) setError("路线暂未读取，已有成果和本机输入保留；请重读。") }
   }
-  useEffect(() => { alive.current = true; void read(); return () => { alive.current = false; serial.current++ } }, [])
+  useEffect(() => { alive.current = true; setBusy(false); setError(""); setAccess(null); void read(); return () => { alive.current = false; serial.current++ } }, [projectRunId])
   useEffect(() => { setAccepted(false) }, [config?.version, projectRunId])
   useEffect(() => {
     if (!running || !item) return
@@ -66,7 +69,7 @@ export function ProjectTraining({ projectRunId, config }: { projectRunId: string
     const { data } = await TopicsService.startTopic({ path: { topic_id: item.topic.id }, body: { request_id: pendingStart.current.id, expected_version: version.id, node_id: nodeId, expected_config_version: config.version, disclosure_accepted: true } })
     if (current()) location.assign(`/?training_run=${data.id}&project_route=${item.topic.id}&project_run=${projectRunId}`)
   }
-  function prerequisite(key: EvidenceKey) { return <li key={JSON.stringify(key)}><a className="underline" href={`/?capability=${encodeURIComponent(key.capability_id)}&difficulty=${encodeURIComponent(key.difficulty)}&return_project=${item?.topic.id ?? ""}`}>{key.capability_id} · {key.difficulty} · {key.background_id}：查看真实前置与补练</a></li> }
+  function prerequisite(key: EvidenceKey) { return <li key={JSON.stringify(key)}><a className="underline" href={`/?capability=${encodeURIComponent(key.capability_id)}&difficulty=${encodeURIComponent(key.difficulty)}&project_run=${encodeURIComponent(projectRunId)}&project_route=${encodeURIComponent(item?.topic.id ?? "")}`}>{key.capability_id} · {key.difficulty} · {key.background_id}：查看真实前置与补练</a></li> }
   return <section aria-label="项目模块学习路线" className="space-y-3 border p-3 break-words">
     <h3>从已读模块进入练习</h3><p>模块顺序是建议，真实能力前置决定新解锁。源码只能证明文本；运行行为仍需证据，推演与日志会标明教学模拟。</p>
     <Button className={cls} variant="outline" disabled={busy} onClick={() => void read()}>重新读取项目路线</Button>

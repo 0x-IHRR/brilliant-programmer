@@ -12,7 +12,7 @@
 
 公开项目 `pallets/itsdangerous`，固定 commit `672971d66a2ef9f85151e53283113f33d642dabd`，模块 `src/itsdangerous/timed.py`，blob `52deeeab44f09c1c7f54438c9f48f54d61366085`。保留的教学必要片段为 132–158 行，检查 `age > max_age` 边界；假设签名有效、教学时钟与输入，不声称实际执行。
 
-通过真实 `/projects` API、独立进程 worker、生产 GitHub DNS/IP/HTTPS 安全 transport 完成读取，再经路线分析、确认、题目发布、正式作答与评分恢复记录。27 次匿名 GitHub 请求，58,638 字节，读取阶段 24.58 秒；6 次受控本地 TLS 模型请求。模型目的地仅本地伪服务，GitHub 仍走真实生产安全 transport；未使用真实 Key 或付费模型。测量是本次具体仓库/提交的证据，不代表任意语言、任意规模或教学质量。
+通过真实 `/projects` API、独立进程 worker、生产 GitHub DNS/IP/HTTPS 安全 transport 完成读取，再经路线分析、确认、题目发布、正式作答与评分恢复记录。27 次匿名 GitHub 请求，58,638 字节，整条在线验证链路耗时 24.58 秒；6 次受控本地 TLS 模型请求。模型目的地仅本地伪服务，GitHub 仍走真实生产安全 transport；未使用真实 Key 或付费模型。测量是本次具体仓库/提交的证据，不代表任意语言、任意规模或教学质量。
 
 本机证据：`/tmp/bp-issue-23-artifacts/online-entry.json`，project `e5fac801-5190-4d7f-92c6-8867bf482cb2`，topic `d10ad872-4d9f-421e-b6e8-926b6b438a7a`，training `b2378935-a80e-44e1-8f38-0efc4baa4797`。`tests/project_training_public_probe.py` 为显式手工在线验证，不加入离线 CI。CI 使用同一固定 commit 的源码片段 fixture，通过实际 API/队列/数据库/受控 TLS，不把 fixture 当第二次线上验证。
 
@@ -23,3 +23,7 @@
 真实浏览器主链路 1 项已通过：320 宽度、200% 字号、键盘 Enter/Space、草稿真实保存、提交反馈与刷新恢复。截图位于 `/tmp/bp-issue-23-artifacts/` 的 `project-training-320.png`、`project-training-200.png`、`project-feedback-320.png`。最终新增检查和完整回归会补记，以上不能相加冒称一个无重叠全套总数。
 
 人工教学/真实模型准确性、跨语言全面覆盖、历史规模性能尚未验收。新迁移 0026 当前接 0024；与并行 0025 合并时必须按真实主线单 head 串接，不 stamp。没有部署。
+
+## 完整后端 checkpoint
+
+固定后端 c2100f5 本轮完整运行：795 通过、2 失败，1779.00 秒。两项均为既有 `test_phase_budgets_malformed_correction_and_transient_backoff`：六调用退避场景在原 15 秒等待结束时已持久记录五次且第六次请求已发出；畸形纠正场景在原 15 秒结束时仍 queued、零调用。保留原等待和全部断言，后续单项复验另记，不能把本次写成 797 全通过。完整日志 `/tmp/bp-issue-23-artifacts/full-backend.log`；本轮使用默认 pytest-571 临时目录，未主动清理，后续定向使用本票唯一 `--basetemp`。
