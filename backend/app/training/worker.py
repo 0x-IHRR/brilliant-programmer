@@ -47,9 +47,11 @@ def finish(run_id: uuid.UUID, code: str, message: str) -> None:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
         ).one()
-        if run.status not in TERMINAL and cancelled_by_revocation(
-            session, run.user_id, run.config_version, code
-        ):
+        # Acceptance/stop/failure may commit before a late cancellation unwinds.
+        # The task lock makes that terminal fact authoritative for every caller.
+        if run.status in TERMINAL:
+            return
+        if cancelled_by_revocation(session, run.user_id, run.config_version, code):
             run.stop_requested = True
             code = "configuration_revoked"
         if run.candidate:

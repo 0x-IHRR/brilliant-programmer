@@ -529,6 +529,8 @@ def test_switch_preserves_real_provider_failure(provider, failure_first):
     assert save(auth, expected_version=str(version)).status_code == 200
     result = client.get(f"/api/v1/training/tasks/{run_id}", headers=auth).json()
     assert result["status"] == "failed" and result["code"] == "invalid_response"
+    finish(uuid.UUID(run_id), "cancelled", "迟到取消不得覆盖真实失败")
+    assert client.get(f"/api/v1/training/tasks/{run_id}", headers=auth).json() == result
     assert result["case"] is None and result["attempts"] == []
     assert provider["requests"] == []
 
@@ -558,3 +560,47 @@ def test_probe_cancel_after_response_preserves_already_received_usage(monkeypatc
     assert usage["calls"][0]["prompt_tokens"] == 11
     assert usage["calls"][0]["completion_tokens"] == 9
     assert usage["calls"][0]["total_tokens"] == 20
+
+
+def test_revoke_after_candidate_commit_preserves_complete_result(provider, tmp_path):
+    import json
+    import time
+    from pathlib import Path
+
+    from tests.test_training import start_run, start_worker, stop_worker
+
+    _, auth, run_id = start_run(provider)
+    config = client.get(URL, headers=auth).json()
+    process, control = start_worker(
+        tmp_path, provider, run_id, after_accept=True, observe_finish=True
+    )
+    try:
+        deadline = time.monotonic() + 8
+        while not Path(str(control) + ".accepted").exists():
+            assert time.monotonic() < deadline, "candidate did not commit"
+            time.sleep(0.02)
+        endpoint = f"/api/v1/training/tasks/{run_id}"
+        before = client.get(endpoint, headers=auth).json()
+        assert before["status"] == "completed" and before["code"] == "ready"
+        assert before["case"] is not None
+        assert before["attempts"] == [
+            {
+                "number": 1,
+                "code": "ok",
+                "prompt_tokens": 11,
+                "completion_tokens": 9,
+                "total_tokens": 20,
+            }
+        ]
+        assert save(auth, expected_version=config["version"]).status_code == 200
+        deadline = time.monotonic() + 5
+        while not Path(str(control) + ".finished").exists():
+            assert time.monotonic() < deadline, "cancel finish did not settle"
+            time.sleep(0.02)
+        assert client.get(endpoint, headers=auth).json() == before
+        assert len(provider["requests"]) == 1
+    finally:
+        options = json.loads(control.read_text())
+        options["after_accept"] = False
+        control.write_text(json.dumps(options))
+        stop_worker(process)
