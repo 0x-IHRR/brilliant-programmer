@@ -937,6 +937,10 @@ export type ModelConfigPublic = {
      * Has Key
      */
     has_key?: boolean;
+    /**
+     * Revoked
+     */
+    revoked?: boolean;
 };
 
 /**
@@ -1668,6 +1672,86 @@ export type Token = {
 };
 
 /**
+ * TokenTotal
+ */
+export type TokenTotal = {
+    /**
+     * Known
+     */
+    known: number;
+    /**
+     * Unknown Calls
+     */
+    unknown_calls: number;
+};
+
+/**
+ * UsageCall
+ */
+export type UsageCall = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Kind
+     */
+    kind: string;
+    /**
+     * Task Id
+     */
+    task_id: string;
+    /**
+     * Config Version
+     */
+    config_version: string | null;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Number
+     */
+    number: number;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Prompt Tokens
+     */
+    prompt_tokens: number | null;
+    /**
+     * Completion Tokens
+     */
+    completion_tokens: number | null;
+    /**
+     * Total Tokens
+     */
+    total_tokens: number | null;
+};
+
+/**
+ * UsageReport
+ */
+export type UsageReport = {
+    /**
+     * Calls
+     */
+    calls: Array<UsageCall>;
+    /**
+     * Totals
+     */
+    totals: {
+        [key: string]: TokenTotal;
+    };
+};
+
+/**
  * UserPublic
  */
 export type UserPublic = {
@@ -2194,6 +2278,22 @@ export type modelconfigSaveConfigResponses = {
 };
 
 export type modelconfigSaveConfigResponse = modelconfigSaveConfigResponses[keyof modelconfigSaveConfigResponses];
+
+export type modelconfigReadUsageData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/model-config/usage';
+};
+
+export type modelconfigReadUsageResponses = {
+    /**
+     * Successful Response
+     */
+    200: UsageReport;
+};
+
+export type modelconfigReadUsageResponse = modelconfigReadUsageResponses[keyof modelconfigReadUsageResponses];
 
 export type modelconfigProbeData = {
     body: ProbeInputWritable;

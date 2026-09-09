@@ -8,16 +8,36 @@ test("真实任务恢复、隐藏答案隔离和320px键盘工作台", async ({ 
   await page.evaluate(token => sessionStorage.setItem("token", token!), process.env.TRAINING_BROWSER_TOKEN)
   await page.reload()
   const training = page.getByRole("region", { name: "随机第一关" })
+  async function openJudgments() {
+    await expect(training.getByLabel("草稿保存状态").getByRole("status")).not.toHaveText("正在读取已保存进度")
+    await training.getByRole("button", { name: "判断", exact: true }).click()
+  }
   await expect(training.getByText(/本次资料接收方/)).toBeVisible()
   await training.getByRole("checkbox").check()
   await training.getByRole("button", { name: "帮我选一关" }).focus()
   await page.keyboard.press("Enter")
   await expect(training.getByRole("button", { name: "停止本次生成" })).toBeVisible()
+  let releaseDraft!: () => void
+  const draftGate = new Promise<void>(resolve => { releaseDraft = resolve })
+  let draftRequested!: () => void
+  const pendingDraft = new Promise<void>(resolve => { draftRequested = resolve })
+  await page.route("**/training/tasks/*/draft", async route => {
+    if (route.request().method() !== "GET") { await route.continue(); return }
+    draftRequested()
+    await draftGate
+    await route.continue()
+  })
   await page.reload()
   await expect(training.getByText("比较请求证据", { exact: true })).toBeVisible({ timeout: 15000 })
   await expect(page.locator("script").filter({ hasText: "window.injection=true" })).toHaveCount(0)
   expect(await page.evaluate(() => (window as unknown as { injection?: boolean }).injection)).toBeUndefined()
+  await pendingDraft
+  await expect(training.getByText("正在读取已保存进度", { exact: true })).toBeVisible()
   await training.getByRole("button", { name: "判断", exact: true }).click()
+  await expect(training.getByRole("radio").first()).toBeDisabled()
+  releaseDraft()
+  await openJudgments()
+  await expect(training.getByRole("radio").first()).toBeEnabled()
   await training.getByRole("radio").first().focus()
   await page.keyboard.press("Space")
   await expect(training.getByRole("radio").first()).toBeChecked()
@@ -49,7 +69,7 @@ test("真实任务恢复、隐藏答案隔离和320px键盘工作台", async ({ 
   } })
   expect(acceptedApi.status()).toBe(202)
   await page.reload()
-  await training.getByRole("button", { name: "判断", exact: true }).click()
+  await openJudgments()
   await expect(training.getByText(/请补充：你的理由与当前任务有什么关系/)).toBeVisible()
   await expect(training.getByText("草稿版本冲突，当前输入保留，未覆盖其他版本", { exact: true })).toBeVisible()
   await training.getByRole("button", { name: "从最新提交记录开始补充" }).click()
@@ -93,7 +113,7 @@ test("真实任务恢复、隐藏答案隔离和320px键盘工作台", async ({ 
   await expect(training.getByText(/本轮已完成，自动获得 10 点修为/)).toBeVisible()
   await expect(training.getByText(/本轮修为：10 点 · 累计修为：10 点/)).toBeVisible()
   await page.reload()
-  await training.getByRole("button", { name: "判断", exact: true }).click()
+  await openJudgments()
   await expect(training.getByText(/本轮修为：10 点 · 累计修为：10 点/)).toBeVisible()
   await training.getByText("已保存原答与补充记录（4 份）", { exact: true }).click()
   await expect(training.getByText(/原始作答 · 序号/)).toBeVisible()

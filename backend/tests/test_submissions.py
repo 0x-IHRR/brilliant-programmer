@@ -629,7 +629,9 @@ def test_received_usage_survives_settlement_outcome(ready, provider, boundary):
     assert state["total_points"] == 0 and state["completed_at"] is None
     assert len(provider["requests"]) == 2
     if boundary != "stop_at_settlement":
-        assert submission["status"] == "failed"
+        assert submission["status"] == (
+            "stopped" if boundary == "revoke_at_settlement" else "failed"
+        )
         assert submission["code"] == (
             "configuration_revoked" if boundary == "revoke_at_settlement" else "internal_failure"
         )

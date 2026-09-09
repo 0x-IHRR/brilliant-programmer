@@ -189,7 +189,7 @@ def submit(
             422, "请确认将当前题面和本次作答发给已保存模型，重试可能计费"
         )
     config = session.get(ModelConfig, user.id, populate_existing=True)
-    if not config or config.version != body.expected_config_version:
+    if not config or config.revoked or config.version != body.expected_config_version:
         raise HTTPException(409, "模型配置已变更或删除，请读取并确认本次目的地")
     if contains_secret(serialized) or decrypt(config).get_secret_value() in serialized:
         raise HTTPException(422, "作答疑似包含秘密，请脱敏后提交；检测不保证零漏报")
@@ -262,7 +262,7 @@ def retry_submission(
             409, "该提交不可重试或已耗尽六次预算；原答保留，未自动新增轮次"
         )
     config = session.get(ModelConfig, user.id)
-    if not config or config.version != submission.config_version:
+    if not config or config.revoked or config.version != submission.config_version:
         raise HTTPException(409, "配置已变更，请读取并确认新目的地后主动补充")
     submission.status, submission.code, submission.message = (
         "checking",

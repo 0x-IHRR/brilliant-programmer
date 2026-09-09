@@ -103,7 +103,7 @@ def start(
     if active:
         return view(session, active)
     config = session.get(ModelConfig, user.id)
-    if not config:
+    if not config or config.revoked:
         raise HTTPException(409, "请先保存模型配置")
     if config.version != body.expected_config_version:
         raise HTTPException(409, "模型目的地已变更，请刷新并确认本次接收方")

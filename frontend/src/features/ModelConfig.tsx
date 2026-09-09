@@ -1,5 +1,5 @@
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react"
-import { ModelconfigService, type ModelConfigPublic, type ProbeResult } from "../client"
+import { ModelconfigService, type ModelConfigPublic, type ProbeResult, type UsageReport } from "../client"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
@@ -15,6 +15,11 @@ export function ModelConfig({ action, busy }: Props) {
   const [accepted, setAccepted] = useState(false)
   const [probe, setProbe] = useState<ProbeResult | null>(null)
   const [hasDraftKey, setHasDraftKey] = useState(false)
+  const [usage, setUsage] = useState<UsageReport | null>(null)
+  const active = useRef(true)
+  const sessionToken = useRef(sessionStorage.getItem("token"))
+  const current = () => active.current && sessionToken.current === sessionStorage.getItem("token")
+  useEffect(() => { active.current = true; return () => { active.current = false; editVersion.current++ } }, [])
   const editVersion = useRef(0)
   const keyVersion = useRef(0)
   const keyInput = useRef<HTMLInputElement>(null)
@@ -27,7 +32,7 @@ export function ModelConfig({ action, busy }: Props) {
     const version = ++editVersion.current
     setProbe(null)
     const { data } = await ModelconfigService.readConfig()
-    if (version !== editVersion.current) return
+    if (!current() || version !== editVersion.current) return
     // Generated Axios client normalizes a JSON null response to {}.
     const config = data?.version ? data : null
     setSaved(config)
@@ -39,11 +44,21 @@ export function ModelConfig({ action, busy }: Props) {
     setLoaded(true)
   }, [])
   useEffect(() => { void load().catch(error => action(async () => { throw error })) }, [action, load])
+  async function recoverRevocation(version: number) {
+    try {
+      const { data } = await ModelconfigService.readConfig()
+      if (current() && version === editVersion.current && data?.version === saved?.version && data?.revoked) {
+        setSaved(data)
+        setNotice("旧配置已撤销，本次变更未确认完成。当前输入保留，请主动重新保存或删除。")
+      }
+    } catch { /* The original failure remains visible through action. */ }
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     changed()
     const version = editVersion.current
     const submittedKeyVersion = keyVersion.current
+    if (saved) setNotice("正在终止旧配置后续调用并尝试取消在途请求；尚未确认保存成功。")
     await action(async () => {
       const key = keyInput.current?.value ?? ""
       try {
@@ -51,14 +66,18 @@ export function ModelConfig({ action, busy }: Props) {
           service_url: url, model_id: model, api_key: key || null,
           expected_version: saved?.version ?? null, disclosure_accepted: accepted,
         } })
+        if (!current()) return
         setSaved(data)
         if (version === editVersion.current) {
           setUrl(data.service_url)
           setModel(data.model_id)
           setNotice("配置已保存。未调用模型服务，连接和教学质量尚未验证。")
         }
+      } catch (error) {
+        await recoverRevocation(version)
+        throw error
       } finally {
-        if (submittedKeyVersion === keyVersion.current) {
+        if (current() && submittedKeyVersion === keyVersion.current) {
           if (keyInput.current) keyInput.current.value = ""
           setHasDraftKey(false)
         }
@@ -76,11 +95,11 @@ export function ModelConfig({ action, busy }: Props) {
         const { data } = await ModelconfigService.probe({ path: { kind }, body: {
           service_url: url, model_id: model, api_key: key, disclosure_accepted: accepted,
         } })
-        if (version === editVersion.current) setProbe(data)
+        if (current() && version === editVersion.current) setProbe(data)
       } catch (error) {
-        if (version === editVersion.current) throw error
+        if (current() && version === editVersion.current) throw error
       } finally {
-        if (submittedKeyVersion === keyVersion.current) {
+        if (current() && submittedKeyVersion === keyVersion.current) {
           if (keyInput.current) keyInput.current.value = ""
           setHasDraftKey(false)
         }
@@ -89,7 +108,9 @@ export function ModelConfig({ action, busy }: Props) {
   }
   return <section className="space-y-4" aria-labelledby="model-config-title">
     <h2 id="model-config-title" className="text-xl font-semibold">个人模型配置</h2>
-    <p>{loaded ? saved ? "已保存一套配置，Key 已加密保存且不可回读。" : "尚未配置，不会分配默认 Key。" : "正在读取配置…"}</p>
+    <p>{loaded ? saved ? saved.revoked ? "旧配置已撤销，不会继续调用。" : "已保存一套配置，Key 已加密保存且不可回读。" : "尚未配置，不会分配默认 Key。" : "正在读取配置…"}</p>
+    {saved?.revoked && <p role="alert">旧配置已撤销，不可再调用。上次切换可能未完成；请主动重新保存或删除，系统不会恢复旧调用。</p>}
+    {saved && <p>保存新地址、Key 或模型 ID，或删除配置，将结束旧配置关联任务的后续调用并尝试取消在途请求；在途可能收费，不保证撤回或退款。已核对成果与用量保留，新配置须主动启动任务。</p>}
     <p>运营者能够在服务端解密 Key；Key 仅用于向你指定的模型服务认证。训练时，当前案例材料、作答和必要学习上下文会发送至该服务，不发送其他用户记录。请勿粘贴未授权公司或个人资料。</p>
     <p className="break-all">本次保存指定接收方：{url || "请填写服务地址"}</p>
     <form onSubmit={submit} className="space-y-4" autoComplete="off">
@@ -119,14 +140,27 @@ export function ModelConfig({ action, busy }: Props) {
     </div>}
     <Button variant="outline" disabled={busy} onClick={() => action(async () => { await load(); setNotice("已读取服务端配置，未保存输入已丢弃。") })}>刷新配置</Button>
     {saved && <Button variant="outline" disabled={busy} onClick={() => {
-      if (!window.confirm("删除这套配置和 Key？成功后旧版本不能发起新调用。")) return
+      if (!window.confirm("删除这套配置和 Key？将终止旧配置后续调用并尝试取消在途请求；在途可能收费，不保证撤回或退款。已核对成果与用量保留。")) return
       changed()
+      const version = editVersion.current
       void action(async () => {
-        await ModelconfigService.deleteConfig({ query: { expected_version: saved.version } })
-        await load()
-        setNotice("配置及 Key 已删除，旧版本不能发起新调用。")
+        try {
+          await ModelconfigService.deleteConfig({ query: { expected_version: saved.version } })
+          if (!current() || version !== editVersion.current) return
+          await load()
+          if (current()) setNotice("配置及 Key 已删除，旧版本不能发起新调用。")
+        } catch (error) { await recoverRevocation(version); throw error }
       })
     }}>删除配置及 Key</Button>}
+    <Button variant="outline" className="max-w-full h-auto min-h-9 whitespace-normal" disabled={busy} onClick={() => action(async () => {
+      const { data } = await ModelconfigService.readUsage()
+      if (current()) setUsage(data)
+    })}>读取逐次与汇总用量</Button>
+    {usage && <div aria-label="模型用量" className="space-y-2 min-w-0">
+      <p>已记录 {usage.calls.length} 次尝试，按服务器调用标识去重。实际费用请查看模型服务商账单；没有返回用量的调用不表示免费。</p>
+      {Object.entries(usage.totals).map(([field, total]) => <p key={field}>{field === "prompt_tokens" ? "输入" : field === "completion_tokens" ? "输出" : "总 token"}：已知部分 {total.known}；{total.unknown_calls ? `另有 ${total.unknown_calls} 次未知，不能视为完整合计` : "无缺失字段"}。</p>)}
+      <details><summary>逐调用归属与真实用量</summary>{usage.calls.map(call => <p key={`${call.kind}:${call.id}`} className="break-all">{call.kind} · {call.task_id} · 第 {call.number} 次 · 配置版本 {call.config_version ?? "测试/列表编辑快照"} · {call.destination} · {call.model_id} · {call.code}；输入 {call.prompt_tokens ?? "未知"} / 输出 {call.completion_tokens ?? "未知"} / 总 token {call.total_tokens ?? "未知"}</p>)}</details>
+    </div>}
     <p aria-live="polite">{notice}</p>
   </section>
 }

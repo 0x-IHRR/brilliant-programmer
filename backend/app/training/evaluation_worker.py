@@ -19,8 +19,11 @@ from app.model_config.connection import (
     ProbeError,
     request_raw,
 )
-from app.model_config.models import ModelConfig
-from app.model_config.service import lock_owner
+from app.model_config.service import (
+    cancelled_by_revocation,
+    current_for_result,
+    lock_owner,
+)
 from app.training.evaluation_models import Evaluation, EvaluationAttempt
 from app.training.evaluation_schema import (
     EVALUATION_RULE,
@@ -112,7 +115,19 @@ def fail(identity: uuid.UUID, code: str, message: str) -> None:
         ).one()
         if evaluation.status != "checking" or evaluation.stop_requested:
             return
-        evaluation.status, evaluation.code, evaluation.message = "failed", code, message
+        run = session.get(TrainingRun, evaluation.run_id)
+        assert run
+        revoked = cancelled_by_revocation(
+            session, run.user_id, evaluation.config_version, code
+        )
+        if revoked:
+            evaluation.stop_requested = True
+            code = "configuration_revoked"
+        evaluation.status, evaluation.code, evaluation.message = (
+            "stopped" if revoked else "failed",
+            code,
+            message,
+        )
         session.add(evaluation)
         session.commit()
 
@@ -134,9 +149,7 @@ def settle(identity: uuid.UUID, result: GradingCandidate) -> bool:
         ).one()
         if evaluation.status != "checking" or evaluation.stop_requested:
             return False
-        config = session.get(ModelConfig, run.user_id, populate_existing=True)
-        if not config or config.version != evaluation.config_version:
-            raise HTTPException(409, "configuration revoked")
+        current_for_result(session, run.user_id, evaluation.config_version)
         inputs = EvaluationInputs.model_validate_json(json.dumps(evaluation.inputs))
         if (
             evaluation.frozen_sequence is None

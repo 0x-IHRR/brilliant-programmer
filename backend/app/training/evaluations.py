@@ -150,7 +150,7 @@ def start_evaluation(
             "请确认将当前冻结题、来源、原答和许可补答发送至已保存模型；重试可能计费",
         )
     config = session.get(ModelConfig, user.id, populate_existing=True)
-    if not config or config.version != body.expected_config_version:
+    if not config or config.revoked or config.version != body.expected_config_version:
         raise HTTPException(409, "配置已变更，请重新核对评分目的地")
     inputs = evaluation_inputs(submissions)
     serialized = inputs.model_dump_json()
@@ -183,7 +183,7 @@ def clarify_evaluation(
     clarification = None
     if body.answers is not None:
         config = session.get(ModelConfig, user.id, populate_existing=True)
-        if not config or config.version != item.config_version:
+        if not config or config.revoked or config.version != item.config_version:
             raise HTTPException(409, "配置已变更；原答保留，未发送补答")
         try:
             validate_answers(Candidate.model_validate(item.case_snapshot), body.answers)
@@ -239,7 +239,7 @@ def retry_evaluation(
     if not view(session, item).can_retry:
         raise HTTPException(409, "本轮不可继续或预算已耗尽；原答与奖励保留")
     config = session.get(ModelConfig, user.id, populate_existing=True)
-    if not config or config.version != item.config_version:
+    if not config or config.revoked or config.version != item.config_version:
         raise HTTPException(409, "配置已变更；旧评估不能继续调用")
     item.status, item.code, item.message = (
         "checking",
