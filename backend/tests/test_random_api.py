@@ -1,5 +1,7 @@
 """Real owner routes, PostgreSQL and a separate TLS model worker."""
 
+import json
+import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
@@ -95,8 +97,24 @@ def test_first_draft_and_failed_generation_never_create_formal_preference(
 
 def test_preference_cas_owner_replay_fixed_freeze_and_empty_pool(ready, provider):
     owner, auth, identity, config, *_ = ready
+    control = ready[-1]
+    options = json.loads(control.read_text())
+    control.write_text(json.dumps({**options, "before_submission_ok": True}))
     formal(ready)
+    deadline = time.monotonic() + 5
+    while not control.with_name(control.name + ".submission_ok_pending").exists():
+        assert time.monotonic() < deadline
+        time.sleep(0.02)
     original = client.get(test_submissions.url(identity), headers=auth).json()
+    assert original["submissions"][0]["attempts"][0]["code"] == "unknown"
+    control.write_text(json.dumps(options))
+    deadline = time.monotonic() + 5
+    while original["submissions"][0]["attempts"][0]["code"] == "unknown":
+        assert time.monotonic() < deadline, "final submission attempt was not persisted"
+        original = client.get(test_submissions.url(identity), headers=auth).json()
+        time.sleep(0.02)
+    assert original["submissions"][0]["attempts"][0]["code"] == "ok"
+    assert original["awarded_points"] == 10
     baseline = pref(auth)
     barrier = Barrier(2)
 

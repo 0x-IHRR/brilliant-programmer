@@ -21,16 +21,28 @@ from app.model_config.output import check_output
 from app.model_config.service import current_for_result
 from app.training.boss import (
     BossCoverage,
-    FirstStage,
     validate_boss_coverage,
     validate_boss_mapping,
 )
 from app.training.boss_service import stage_for
+from app.training.boss_stages import BossStage, ReleasedStage, validate_stage_mapping
+from app.training.comparison_service import qualification
 from app.training.gate import call_credential
 from app.training.generation import extract_content, generate
+from app.training.history_protocol import (
+    CapacityError,
+    ComparisonPlan,
+    decode_batch,
+    freeze_history,
+    load_persisted_history,
+    plan_comparison,
+    wire_request,
+)
 from app.training.independent_models import IndependentWork
 from app.training.independent_novelty import ScenarioComparison, assess_novelty
-from app.training.independent_service import history
+from app.training.independent_service import capture_history, history
+from app.training.jd_rules import ConfirmedJDGoal
+from app.training.jd_service import generation_goal
 from app.training.models import TrainingAttempt, TrainingRun
 from app.training.schema import (
     Candidate,
@@ -41,6 +53,7 @@ from app.training.schema import (
 )
 from app.training.sources import acquire_source
 from app.training.topic_analysis import Inspection
+from app.training.topic_rules import Goal
 
 
 class Comparisons(Strict):
@@ -55,7 +68,7 @@ class BossComparisons(Comparisons):
     boss_coverage: list[BossCoverage] = Field(min_length=3, max_length=3)
 
 
-def read_stage(identity: uuid.UUID) -> FirstStage | None:
+def read_stage(identity: uuid.UUID) -> ReleasedStage | None:
     with Session(engine) as session:
         return stage_for(session, identity)
 
@@ -93,8 +106,19 @@ def prepare(
             return None
         work = session.get(IndependentWork, identity)
         assert work
-        if not work.history:
-            work.history = history(session, run)
+        if not work.history and work.history_snapshot is None:
+            captured = capture_history(session, run)
+            legacy = [
+                {"run_id": str(i), "case": c.model_dump_json()}
+                for i, c in captured.items()
+            ]
+            if (
+                isinstance(stage_for(session, identity), BossStage)
+                or len(json.dumps(legacy).encode()) > 96 * 1024
+            ):
+                work.history_snapshot = freeze_history(captured).model_dump(mode="json")
+            else:
+                work.history = legacy
             session.add(work)
             session.commit()
             session.refresh(run)
@@ -131,7 +155,13 @@ def recorded_exit(run: TrainingRun) -> str | None:
     return None
 
 
-def accept(identity: uuid.UUID, raw: str, key: str, job_id: int | None) -> bool:
+def accept(
+    identity: uuid.UUID,
+    raw: str,
+    key: str,
+    job_id: int | None,
+    attempt_id: uuid.UUID | None = None,
+) -> bool:
     with Session(engine) as session:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == identity).with_for_update()
@@ -149,18 +179,74 @@ def accept(identity: uuid.UUID, raw: str, key: str, job_id: int | None) -> bool:
                 [Source.model_validate(s) for s in run.sources],
                 key,
             )
-            if stage:
+            if isinstance(stage, BossStage):
+                validate_stage_mapping(stage, case)
+            elif stage:
                 validate_boss_mapping(stage, case)
             work.candidate = case.model_dump()
             run.generation, run.generation_attempts = 1, 0
             run.code, run.message = "comparing", "候选仍私有，正在核对全部已见判断情境"
+        elif work.history_snapshot is not None:
+            if not work.comparison_plan or attempt_id is None:
+                raise ValueError("missing comparison checkpoint identity")
+            attempt_row = session.get(TrainingAttempt, attempt_id)
+            if (
+                not attempt_row
+                or attempt_row.run_id != identity
+                or attempt_row.number != run.attempts
+                or attempt_row.generation != 1
+            ):
+                raise ValueError("different comparison attempt")
+            if freeze_history(capture_history(session, run)) != load_persisted_history(
+                work.history_snapshot
+            ):
+                raise ValueError("history_changed")
+            plan = ComparisonPlan.model_validate_json(json.dumps(work.comparison_plan))
+            index = len(work.comparison_results)
+            if index >= len(plan.batches):
+                return False
+            decode_batch(raw, plan.batches[index], key)
+            work.comparison_results = [
+                *work.comparison_results,
+                {"batch": index, "attempt_id": str(attempt_id), "response": raw},
+            ]
+            if len(work.comparison_results) == len(plan.batches):
+                case = Candidate.model_validate(work.candidate)
+                assessment = qualification(
+                    work, case, [Source.model_validate(v) for v in run.sources], key
+                )
+                work.novelty = {
+                    "assessment": assessment.model_dump(),
+                    "protocol": "comparison-references-v1",
+                }
+                if assessment.status == "novelty_candidate":
+                    run.candidate = case.model_dump()
+                    run.scenario_hash = scenario_fingerprint(case)
+                    run.status, run.code, run.message = (
+                        "completed",
+                        "ready",
+                        "全部已见判断已核对；案例就绪，语义质量尚未验收",
+                    )
+                else:
+                    run.status, run.code, run.message = (
+                        "failed",
+                        "no_qualified_case",
+                        "未找到可核对为陌生的合格案例；未交付新题，可主动重选",
+                    )
+            else:
+                run.code, run.message = (
+                    "comparing",
+                    f"已接收{len(work.comparison_results)}/{len(plan.batches)}比较片；仍为私有候选，尚未完成全部核对",
+                )
         else:
+            if isinstance(stage, BossStage):
+                raise ValueError("later Boss requires complete reference protocol")
             check_output(raw, key)
             parsed = (
                 BossComparisons.model_validate_json(raw)
                 if stage
                 else TopicComparisons.model_validate_json(raw)
-                if run.selection.get("entry") == "free_topic"
+                if run.selection.get("entry") in {"free_topic", "jd"}
                 else Comparisons.model_validate_json(raw)
             )
             if history(session, run) != work.history:
@@ -209,6 +295,63 @@ def accept(identity: uuid.UUID, raw: str, key: str, job_id: int | None) -> bool:
         return True
 
 
+def prepare_comparison_plan(identity: uuid.UUID, job_id: int | None, key: str) -> None:
+    """Caller holds User permission; persist exact request plan before spending calls."""
+    with Session(engine) as session:
+        run = session.exec(
+            select(TrainingRun).where(TrainingRun.id == identity).with_for_update()
+        ).one()
+        if (
+            run.queue_job_id != job_id
+            or run.stop_requested
+            or run.status in {"completed", "failed", "stopped"}
+        ):
+            return
+        current_for_result(session, run.user_id, run.config_version)
+        work = session.get(IndependentWork, identity)
+        assert work
+        if work.history_snapshot is None:
+            return
+        remaining = min(3 - run.generation_attempts, 6 - run.attempts)
+        if work.comparison_plan is not None:
+            plan = ComparisonPlan.model_validate_json(json.dumps(work.comparison_plan))
+            if len(plan.batches) - len(work.comparison_results) > remaining:
+                raise CapacityError("remaining_comparison_calls_cannot_cover_history")
+            return
+        case = Candidate.model_validate(work.candidate)
+        goal = (
+            Goal(
+                target=case.target,
+                text=run.selection["goal"],
+                focus=run.selection["focus"],
+            )
+            if run.selection.get("entry") in {"free_topic", "jd"}
+            else None
+        )
+        if run.selection.get("entry") == "jd":
+            goal = ConfirmedJDGoal(
+                target=case.target,
+                text=run.selection["goal"],
+                focus=run.selection["focus"],
+                requirement_quote=run.selection["requirement_quote"],
+                basis=run.selection["basis"],
+                simulation_label="教学模拟",
+            )
+        plan = plan_comparison(
+            load_persisted_history(work.history_snapshot),
+            case,
+            [Source.model_validate(v) for v in run.sources],
+            run.model_id,
+            key,
+            stage=stage_for(session, identity),
+            topic=goal,
+            remaining_calls=remaining,
+        )
+        work.comparison_plan = plan.model_dump(mode="json")
+        session.add(work)
+        session.commit()
+
+
 async def process(identity: uuid.UUID) -> None:
     # Import at execution time: same task/claim/attempt persistence, no second queue.
     from app.training.worker import (
@@ -246,6 +389,9 @@ async def process(identity: uuid.UUID) -> None:
                 "budget_exhausted", "本阶段三次或总六次预算耗尽；没有自动新轮"
             )
             return
+        # A preparation failure in this iteration must not rewrite the previous
+        # completed attempt's durable outcome or known usage.
+        attempt = None
         counts: dict[str, int | None] = {}
         try:
             async with call_credential(run.user_id, run.config_version) as (
@@ -259,16 +405,21 @@ async def process(identity: uuid.UUID) -> None:
                 if not run.sources:
                     if stage:
                         sources: list[Source] = []
-                        for required in stage.mandatory:
-                            acquired = await acquire_source(
-                                required.target.capability_id
+                        capabilities = (
+                            sorted(
+                                {
+                                    o.source_capability
+                                    for m in stage.mandatory
+                                    for o in m.observations
+                                }
                             )
+                            if isinstance(stage, BossStage)
+                            else [m.target.capability_id for m in stage.mandatory]
+                        )
+                        for capability_id in capabilities:
+                            acquired = await acquire_source(capability_id)
                             sources.extend(
-                                s.model_copy(
-                                    update={
-                                        "id": "boss-" + required.target.capability_id
-                                    }
-                                )
+                                s.model_copy(update={"id": "boss-" + capability_id})
                                 for s in acquired
                             )
                     else:
@@ -280,17 +431,23 @@ async def process(identity: uuid.UUID) -> None:
                     if prepared is None:
                         return
                     run, work = prepared
+                key = secret.get_secret_value()
+                if run.generation == 1 and work.history_snapshot is not None:
+                    await asyncio.to_thread(
+                        prepare_comparison_plan, identity, job_id, key
+                    )
+                    prepared = await asyncio.to_thread(prepare, identity, job_id)
+                    if prepared is None:
+                        return
+                    run, work = prepared
                 attempt = await asyncio.to_thread(begin_attempt, identity, job_id)
                 if attempt is None:
                     return
                 key = secret.get_secret_value()
                 if run.generation == 0:
                     extra: dict[str, Any] = {"boss_stage": stage} if stage else {}
-                    if run.selection.get("entry") == "free_topic":
-                        extra["topic_goal"] = {
-                            "goal": run.selection["goal"],
-                            "focus": run.selection["focus"],
-                        }
+                    if run.selection.get("entry") in {"free_topic", "jd"}:
+                        extra["topic_goal"] = generation_goal(run.selection)
                         check_output(json.dumps(extra, ensure_ascii=False), key)
                     raw, counts = await generate(
                         config.service_url,
@@ -301,6 +458,18 @@ async def process(identity: uuid.UUID) -> None:
                         run.generation_attempts > 0,
                         **extra,
                     )
+                elif work.history_snapshot is not None:
+                    plan = ComparisonPlan.model_validate_json(
+                        json.dumps(work.comparison_plan)
+                    )
+                    payload_bytes = wire_request(
+                        plan.batches[len(work.comparison_results)], config.model_id
+                    )
+                    check_output(payload_bytes.decode(), key)
+                    response, kind, counts = await request_raw(
+                        config.service_url, key, payload_bytes
+                    )
+                    raw, counts = extract_content(response, kind, counts, key)
                 else:
                     payload = json.dumps(
                         {
@@ -334,14 +503,13 @@ async def process(identity: uuid.UUID) -> None:
                                             ],
                                             **(
                                                 {
-                                                    "confirmed_topic": {
-                                                        "goal": run.selection["goal"],
-                                                        "focus": run.selection["focus"],
-                                                    },
+                                                    "confirmed_topic": generation_goal(
+                                                        run.selection
+                                                    ),
                                                     "sources": run.sources,
                                                 }
                                                 if run.selection.get("entry")
-                                                == "free_topic"
+                                                in {"free_topic", "jd"}
                                                 else {}
                                             ),
                                             "schema": (
@@ -349,7 +517,7 @@ async def process(identity: uuid.UUID) -> None:
                                                 if stage
                                                 else TopicComparisons
                                                 if run.selection.get("entry")
-                                                == "free_topic"
+                                                in {"free_topic", "jd"}
                                                 else Comparisons
                                             ).model_json_schema(),
                                             **(
@@ -385,9 +553,21 @@ async def process(identity: uuid.UUID) -> None:
                     )
                     raw, counts = extract_content(response, kind, counts, key)
                 await asyncio.to_thread(record_attempt, attempt.id, "ok", counts)
-                if not await asyncio.to_thread(accept, identity, raw, key, job_id):
+                if not await asyncio.to_thread(
+                    accept, identity, raw, key, job_id, attempt.id
+                ):
                     return
                 attempt = None
+        except CapacityError:
+            if attempt:
+                await asyncio.to_thread(
+                    record_attempt, attempt.id, "comparison_capacity", counts
+                )
+            await stop_with(
+                "comparison_capacity",
+                "完整历史或剩余比较片无法在本轮大小/调用预算内核验；未完成的片未核对，未交付新题，原答和修为保留",
+            )
+            return
         except ValueError as error:
             if attempt:
                 await asyncio.to_thread(

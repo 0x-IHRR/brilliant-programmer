@@ -18,8 +18,8 @@ from app.model_config.connection import Attempt
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.models import User
-from app.training.boss import FirstStage
 from app.training.boss_service import stage_for
+from app.training.boss_stages import ReleasedStage
 from app.training.models import TrainingAttempt, TrainingRun
 from app.training.preference_models import RandomPreference
 from app.training.queue import DSN
@@ -43,7 +43,8 @@ class Start(BaseModel):
 
 class TaskPublic(BaseModel):
     topic_snapshot: StartSnapshot | None = None
-    boss_stage: FirstStage | None = None
+    jd_simulation: dict[str, str] | None = None
+    boss_stage: ReleasedStage | None = None
     id: uuid.UUID
     status: str
     code: str
@@ -95,7 +96,22 @@ def view(session: Session, run: TrainingRun) -> TaskPublic:
             focus=run.selection["focus"],
             target=EvidenceKey.model_validate(run.target),
         )
-        if run.selection.get("entry") == "free_topic"
+        if run.selection.get("entry") in {"free_topic", "jd"}
+        else None,
+        jd_simulation={
+            "topic_id": run.selection.get("topic_id", ""),
+            **{
+                field: run.selection[field]
+                for field in (
+                    "jd_document_id",
+                    "jd_role_name",
+                    "requirement_quote",
+                    "basis",
+                    "simulation_label",
+                )
+            },
+        }
+        if run.selection.get("entry") == "jd"
         else None,
         boss_stage=stage_for(session, run.id),
         recommendation_reason=run.selection.get("reason"),

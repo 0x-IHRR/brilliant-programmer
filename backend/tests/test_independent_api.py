@@ -414,12 +414,23 @@ def test_unknown_history_exits_without_a_call_and_same_case_cannot_be_washed(
 def test_full_history_resource_exit_does_not_silently_trim_or_call_model(
     tmp_path, provider, origin
 ):
+    from app.training.history_protocol import CapacityError, freeze_history
+    from app.training.schema import Candidate
+
     auth, origin_id, *_ = origin
     with Session(engine) as session:
         original = session.get(TrainingRun, origin_id)
-        for _ in range(65):
+        complete = {}
+        for number in range(600):
+            data = original.candidate | {
+                "task": "请核对材料中的执行证据。" * 380 + str(number)
+            }
+            case = Candidate.model_validate_json(json.dumps(data))
+            identity = uuid.uuid4()
+            complete[identity] = case
             session.add(
                 TrainingRun(
+                    id=identity,
                     user_id=original.user_id,
                     config_version=original.config_version,
                     destination=original.destination,
@@ -427,19 +438,25 @@ def test_full_history_resource_exit_does_not_silently_trim_or_call_model(
                     target=original.target,
                     selection=original.selection,
                     sources=original.sources,
-                    candidate=original.candidate,
+                    candidate=case.model_dump(mode="json"),
                     status="completed",
                 )
             )
+        # Every complete snapshot is valid and distinct after exact-value
+        # reference sharing. This exercises the new real 8MiB storage boundary,
+        # not the intentionally removed legacy 96KiB restriction.
+        assert len({case.model_dump_json() for case in complete.values()}) == 600
+        with pytest.raises(CapacityError, match="history_snapshot_exceeds_8MiB"):
+            freeze_history(complete)
         session.commit()
     identity, _ = start_check(origin)
     process, _ = start_worker(tmp_path, provider, identity)
     try:
         result = wait_run(auth, identity).json()
-        assert result["code"] == "history_exceeds_budget", result
+        assert result["code"] == "comparison_capacity", result
         assert result["attempts"] == [] and result["case"] is None
         assert provider["requests"] == []
-        assert "当前完整历史" in result["message"]
+        assert "完整历史" in result["message"] and "未交付新题" in result["message"]
     finally:
         stop_worker(process)
 

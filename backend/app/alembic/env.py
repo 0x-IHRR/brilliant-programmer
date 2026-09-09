@@ -29,8 +29,10 @@ from app.training import concept_models  # noqa: F401
 from app.training import practice_models  # noqa: F401
 from app.training import draft_collection  # noqa: F401
 from app.training import draft_models  # noqa: F401
+from app.training import review_models  # noqa: F401
 from app.training import evaluation_models  # noqa: F401
 from app.training import preference_models  # noqa: F401
+from app.training import jd_models  # noqa: F401
 from app.training import topic_models  # noqa: F401
 from app.training import boss_models  # noqa: F401
 from app.training import independent_models  # noqa: F401

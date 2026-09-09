@@ -9,7 +9,7 @@ test("首阶段标准先展示、三项原答保留、失败补练与首次晋�
   await page.goto("/?boss=1")
   await page.evaluate(t => sessionStorage.setItem("token", t), token)
   await page.reload()
-  const entry = page.getByRole("region", { name: "首阶段Boss入口" })
+  const entry = page.getByRole("region", { name: "Boss挑战入口" })
   const training = page.getByRole("region", { name: "随机第一关" })
   const result = page.getByRole("region", { name: "Boss结算与晋升" })
   let first = ""
@@ -43,11 +43,11 @@ test("首阶段标准先展示、三项原答保留、失败补练与首次晋�
     if (wrong) {
       await expect(result.getByText("本次确认了具体短板，保留原等级与历史", { exact: true })).toBeVisible({ timeout: 15000 })
       await expect(result.getByRole("link", { name: "针对 frontend.state 补练或主动检验", exact: true })).toBeVisible()
-      await expect(result.getByText(/本轮首次晋升已保存/)).toHaveCount(0)
+      await expect(result.getByText(/本轮晋升已保存/)).toHaveCount(0)
       await result.screenshot({ path: "test-results/boss-shortfall-320.png" })
       await result.getByRole("link", { name: "返回Boss入口，查看标准或主动新题重试", exact: true }).click()
     } else {
-      await expect(result.getByText(/本轮首次晋升已保存/)).toBeVisible({ timeout: 15000 })
+      await expect(result.getByText(/本轮晋升已保存/)).toBeVisible({ timeout: 15000 })
       await expect(training.getByText(/不直接更新等级/)).toHaveCount(0)
       await expect(result.getByText("服务器当前等级：初级程序员 · 累计修为：120", { exact: true })).toBeVisible()
       await expect(page.getByText(/@.* · 初级程序员/, { exact: false })).toBeVisible()
@@ -57,7 +57,7 @@ test("首阶段标准先展示、三项原答保留、失败补练与首次晋�
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await result.screenshot({ path: "test-results/boss-promotion-200.png" })
       await page.reload()
-      await expect(result.getByText(/本轮首次晋升已保存/)).toBeVisible()
+      await expect(result.getByText(/本轮晋升已保存/)).toBeVisible()
       const old = await (await request.get(`/api/v1/boss/tasks/${first}`, { headers: { Authorization: `Bearer ${token}` } })).json()
       expect(old.decision.outcome).toBe("evidenced_fail")
       expect(old.decision.shortfalls).toHaveLength(1)

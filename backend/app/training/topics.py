@@ -12,7 +12,9 @@ from app.capabilities.unlocks import open_unit
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.training.independent_routes import enqueue as enqueue_training
+from app.training.jd_models import JDTopic
 from app.training.models import TrainingRun
+from app.training.projection import read_snapshot
 from app.training.queue import DSN
 from app.training.routes import TaskPublic, VerifiedUser
 from app.training.routes import view as training_view
@@ -78,7 +80,16 @@ class TopicPublic(BaseModel):
     completed_node_ids: list[uuid.UUID]
 
 
-def public(session: Session, item: Topic) -> TopicPublic:
+def public(_session: Session, item: Topic) -> TopicPublic:
+    # All mutation callers commit before projecting; terminal/duplicate paths
+    # have no pending writes. Do not release their locks or wait for model gates.
+    with read_snapshot() as snapshot:
+        current = snapshot.get(Topic, item.id)
+        assert current is not None
+        return _public(snapshot, current)
+
+
+def _public(session: Session, item: Topic) -> TopicPublic:
     # ponytail: reads this route's retained versions/runs in full; intended for small
     # personal histories. Measure large histories before adding pagination, not a
     # learning expiry or an artificial limit on accumulated progress.
@@ -124,17 +135,21 @@ def enqueue(session: Session, job: TopicJob) -> None:
 
 @router.get("")
 def list_topics(
-    user: VerifiedUser, session: SessionDep, response: Response
+    user: VerifiedUser, _session: SessionDep, response: Response
 ) -> list[TopicPublic]:
     response.headers["Cache-Control"] = "no-store"
-    return [
-        public(session, item)
-        for item in session.exec(
-            select(Topic)
-            .where(Topic.user_id == user.id)
-            .order_by(col(Topic.created_at).desc())
-        ).all()
-    ]
+    with read_snapshot() as snapshot:
+        return [
+            _public(snapshot, item)
+            for item in snapshot.exec(
+                select(Topic)
+                .where(
+                    Topic.user_id == user.id,
+                    col(Topic.id).not_in(select(JDTopic.topic_id)),
+                )
+                .order_by(col(Topic.created_at).desc())
+            ).all()
+        ]
 
 
 @router.get("/{topic_id}")
@@ -174,6 +189,10 @@ def request_analysis(
     item = session.get(Topic, body.topic_id)
     if item:
         item = owned(session, item.id, user.id, lock=True)
+        from app.training.jd_service import is_jd
+
+        if is_jd(session, item.id):
+            raise HTTPException(409, "请从 JD 入口更新招聘原文")
     else:
         item = Topic(id=body.topic_id, user_id=user.id)
         session.add(item)
@@ -258,7 +277,12 @@ def edit_topic(
             "confirmed": False,
         }
     )
-    save_version(session, item, candidate)
+    from app.training.jd_service import is_jd, save_edit
+
+    if is_jd(session, item.id):
+        save_edit(session, item, candidate)
+    else:
+        save_version(session, item, candidate)
     session.commit()
     return public(session, item)
 
@@ -335,6 +359,22 @@ def start_topic(
             "topic_node_id": str(node.id),
         },
     )
+    from app.training.jd_service import is_jd
+    from app.training.jd_service import route as jd_route
+
+    if is_jd(session, item.id):
+        frozen = jd_route(session, item, current.id)
+        assert frozen is not None
+        mapping = next(m for m in frozen.mappings if m.node_id == node.id)
+        run.selection = {
+            **run.selection,
+            "entry": "jd",
+            "jd_document_id": str(frozen.document.id),
+            "jd_role_name": frozen.role_name,
+            "requirement_quote": mapping.requirement.quote.text,
+            "basis": mapping.requirement.basis,
+            "simulation_label": "教学模拟",
+        }
     session.add(run)
     session.flush()
     enqueue_training(session, run)

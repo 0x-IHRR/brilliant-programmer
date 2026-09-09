@@ -6,7 +6,8 @@ with a unique promotion identity. Settlement facts never come from clients.
 """
 
 import uuid
-from typing import Literal
+from collections.abc import Sequence
+from typing import Literal, Protocol
 
 from app.capabilities.catalog import CATALOG, EvidenceKey
 from app.training.evaluation_schema import EvaluationInputs, validate_grading
@@ -147,6 +148,60 @@ def assess_first_boss(
     if not can_launch_first_boss(launch_points, stage.from_level):
         return BossDecision(outcome="not_admitted")
     validate_boss_mapping(stage, case)
+    result = assess_mapped_boss(
+        mandatory=stage.mandatory,
+        run_id=run_id,
+        mode=mode,
+        freeze_sequence=freeze_sequence,
+        case=case,
+        sources=sources,
+        inputs=inputs,
+        grading_raw=grading_raw,
+        novelty=novelty,
+        deliveries=deliveries,
+        key=key,
+        converted_sequence=converted_sequence,
+        disputed=disputed,
+    )
+    if (
+        result.outcome == "independent_pass_candidate"
+        and current_level == stage.from_level
+    ):
+        if pending_revalidation:
+            return BossDecision(outcome="pending_revalidation")
+        return result.model_copy(update={"promote_to": stage.to_level})
+    return result
+
+
+class MappedJudgment(Protocol):
+    @property
+    def judgment_id(self) -> str: ...
+
+    @property
+    def target(self) -> EvidenceKey: ...
+
+
+def assess_mapped_boss(
+    *,
+    mandatory: Sequence[MappedJudgment],
+    run_id: uuid.UUID,
+    mode: Mode,
+    freeze_sequence: int,
+    case: Candidate,
+    sources: list[Source],
+    inputs: EvaluationInputs,
+    grading_raw: str | None,
+    novelty: NoveltyAssessment,
+    deliveries: list[OrderedDelivery],
+    key: str,
+    converted_sequence: int | None = None,
+    disputed: bool = False,
+) -> BossDecision:
+    """Shared frozen-result interpretation; callers bind their released mapping.
+
+    No admission or promotion here. One failed judgment yields only its mapped
+    target, even when its case observes several domains.
+    """
     if disputed:
         return BossDecision(outcome="disputed")
     outcome = frozen_outcome(
@@ -162,19 +217,13 @@ def assess_first_boss(
         key=key,
         converted_sequence=converted_sequence,
     )
-    if outcome == "independent_pass_candidate":
-        if current_level != stage.from_level:
-            return BossDecision(outcome=outcome)
-        if pending_revalidation:
-            return BossDecision(outcome="pending_revalidation")
-        return BossDecision(outcome=outcome, promote_to=stage.to_level)
     if outcome != "evidenced_fail":
         return BossDecision(outcome=outcome)
     assert grading_raw is not None
     grading = validate_grading(grading_raw, case, sources, inputs, key)
     by_id = {item.judgment_id: item for item in grading.items}
     gaps = []
-    for item in stage.mandatory:
+    for item in mandatory:
         grade = by_id[item.judgment_id]
         if grade.conclusion == "evidenced_fail" and grade.gap is not None:
             gaps.append(
