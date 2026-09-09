@@ -51,11 +51,19 @@ def context(case: Candidate) -> dict[str, Any]:
     }
 
 
-def prepare(identity: uuid.UUID) -> tuple[TrainingRun, IndependentWork]:
+def prepare(
+    identity: uuid.UUID, job_id: int | None
+) -> tuple[TrainingRun, IndependentWork] | None:
     with Session(engine) as session:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == identity).with_for_update()
         ).one()
+        if (
+            run.queue_job_id != job_id
+            or run.stop_requested
+            or run.status in {"completed", "failed", "stopped"}
+        ):
+            return None
         work = session.get(IndependentWork, identity)
         assert work
         if not work.history:
@@ -192,8 +200,11 @@ async def process(identity: uuid.UUID) -> None:
                 config,
                 secret,
             ):
-                run, work = await asyncio.to_thread(prepare, identity)
-                attempt = await asyncio.to_thread(begin_attempt, identity)
+                prepared = await asyncio.to_thread(prepare, identity, job_id)
+                if prepared is None:
+                    return
+                run, work = prepared
+                attempt = await asyncio.to_thread(begin_attempt, identity, job_id)
                 if attempt is None:
                     return
                 key = secret.get_secret_value()

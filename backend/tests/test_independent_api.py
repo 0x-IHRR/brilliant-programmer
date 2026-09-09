@@ -721,3 +721,51 @@ def test_failed_job_reconcile_cannot_overwrite_a_new_retry(
             ).status_code
             == 200
         )
+
+
+def test_old_execution_waiting_for_credential_cannot_claim_retry_budget(
+    tmp_path, provider, origin
+):
+    auth, *_ = origin
+    identity, _ = start_check(origin)
+    process, control = start_worker(
+        tmp_path,
+        provider,
+        identity,
+        independent_once=True,
+        before_independent_credential=True,
+    )
+    try:
+        wait_until(type(control)(str(control) + ".credential_waiting").exists)
+        with Session(engine) as session:
+            old_job = session.get(TrainingRun, uuid.UUID(identity)).queue_job_id
+        stopped = client.post(f"/api/v1/training/tasks/{identity}/stop", headers=auth)
+        assert stopped.status_code == 200 and stopped.json()["status"] == "stopped"
+        retry = client.post(
+            f"/api/v1/training/tasks/{identity}/independent/retry", headers=auth
+        )
+        assert retry.status_code == 202, retry.text
+        before = client.get(f"/api/v1/training/tasks/{identity}", headers=auth).json()
+        with Session(engine) as session:
+            run = session.get(TrainingRun, uuid.UUID(identity))
+            assert run.queue_job_id != old_job
+            assert (run.attempts, run.generation_attempts) == (0, 0)
+        options = json.loads(control.read_text())
+        options["before_independent_credential"] = False
+        control.write_text(json.dumps(options))
+        wait_until(type(control)(str(control) + ".execution_finished").exists)
+        assert process.wait(timeout=3) == 0
+        after = client.get(f"/api/v1/training/tasks/{identity}", headers=auth).json()
+        assert after == before
+        assert provider["requests"] == []
+        with Session(engine) as session:
+            run = session.get(TrainingRun, uuid.UUID(identity))
+            assert (run.attempts, run.generation_attempts) == (0, 0)
+        # A fresh queue worker can still finish the retry with its full budget.
+        process, _ = start_worker(tmp_path, provider, identity)
+        result = wait_run(auth, identity).json()
+        assert result["status"] == "completed", result
+        assert len(result["attempts"]) == len(provider["requests"]) == 2
+    finally:
+        stop_worker(process)
+        client.post(f"/api/v1/training/tasks/{identity}/stop", headers=auth)

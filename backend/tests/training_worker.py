@@ -6,6 +6,7 @@ import socket
 import ssl
 import sys
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from app.model_config import connection
@@ -85,6 +86,19 @@ def accept(*args):
 
 
 worker.accept_candidate = accept
+original_independent_credential = independent_worker.call_credential
+
+
+@asynccontextmanager
+async def independent_credential(*args):
+    while json.loads(control.read_text()).get("before_independent_credential"):
+        Path(str(control) + ".credential_waiting").touch()
+        await asyncio.sleep(0.02)
+    async with original_independent_credential(*args) as credential:
+        yield credential
+
+
+independent_worker.call_credential = independent_credential
 original_independent_accept = independent_worker.accept
 
 
@@ -186,6 +200,12 @@ submission_worker.fail = fail_marker
 
 
 async def run():
+    if data.get("independent_once"):
+        # A stale execution whose queue abort has not reached it yet. Exercise
+        # the actual process/gate/HTTP path without relying on watcher timing.
+        await worker.process(__import__("uuid").UUID(data["run_id"]))
+        Path(str(control) + ".execution_finished").touch()
+        return
     async with queue.open_async():
         for task_name in (
             "training.generate",

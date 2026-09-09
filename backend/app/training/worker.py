@@ -128,13 +128,16 @@ def finish(
         session.commit()
 
 
-def begin_attempt(run_id: uuid.UUID) -> TrainingAttempt | None:
+def begin_attempt(
+    run_id: uuid.UUID, job_id: int | None = None
+) -> TrainingAttempt | None:
     with Session(engine) as session:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
         ).one()
         if (
-            run.stop_requested
+            (job_id is not None and run.queue_job_id != job_id)
+            or run.stop_requested
             or run.status in TERMINAL
             or run.attempts >= 6
             or run.generation_attempts >= 3
