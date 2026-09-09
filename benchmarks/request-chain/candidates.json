@@ -297,7 +297,7 @@
             "citations": [
               {
                 "source_id": "queue",
-                "quote": "all of the other elements have to be shifted by one"
+                "quote": "fast appends and pops from both ends"
               }
             ]
           }
@@ -367,7 +367,7 @@
                     "value": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。",
                     "citation": {
                       "source_id": "queue",
-                      "quote": "all of the other elements have to be shifted by one"
+                      "quote": "fast appends and pops from both ends"
                     }
                   }
                 ],
@@ -417,7 +417,7 @@
                     "value": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。",
                     "citation": {
                       "source_id": "queue",
-                      "quote": "all of the other elements have to be shifted by one"
+                      "quote": "fast appends and pops from both ends"
                     }
                   }
                 ],
@@ -466,7 +466,7 @@
             "citations": [
               {
                 "source_id": "queue",
-                "quote": "all of the other elements have to be shifted by one"
+                "quote": "fast appends and pops from both ends"
               }
             ]
           }
@@ -557,6 +557,10 @@
               {
                 "source_id": "queue",
                 "quote": "all of the other elements have to be shifted by one"
+              },
+              {
+                "source_id": "queue",
+                "quote": "fast appends and pops from both ends"
               }
             ]
           }
@@ -726,6 +730,10 @@
               {
                 "source_id": "queue",
                 "quote": "all of the other elements have to be shifted by one"
+              },
+              {
+                "source_id": "queue",
+                "quote": "fast appends and pops from both ends"
               }
             ]
           }
@@ -1074,7 +1082,7 @@
             "citations": [
               {
                 "source_id": "thread",
-                "quote": "sharing memory space"
+                "quote": "subsequent attempts to acquire it block"
               }
             ]
           }
@@ -1144,7 +1152,7 @@
                     "value": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。",
                     "citation": {
                       "source_id": "thread",
-                      "quote": "sharing memory space"
+                      "quote": "subsequent attempts to acquire it block"
                     }
                   }
                 ],
@@ -1194,7 +1202,7 @@
                     "value": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。",
                     "citation": {
                       "source_id": "thread",
-                      "quote": "sharing memory space"
+                      "quote": "subsequent attempts to acquire it block"
                     }
                   }
                 ],
@@ -1243,7 +1251,7 @@
             "citations": [
               {
                 "source_id": "thread",
-                "quote": "sharing memory space"
+                "quote": "subsequent attempts to acquire it block"
               }
             ]
           }
@@ -1333,7 +1341,7 @@
             "citations": [
               {
                 "source_id": "thread",
-                "quote": "sharing memory space"
+                "quote": "Daemon threads are abruptly stopped at shutdown."
               }
             ]
           }
@@ -1403,7 +1411,7 @@
                     "value": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。",
                     "citation": {
                       "source_id": "thread",
-                      "quote": "sharing memory space"
+                      "quote": "Daemon threads are abruptly stopped at shutdown."
                     }
                   }
                 ],
@@ -1453,7 +1461,7 @@
                     "value": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。",
                     "citation": {
                       "source_id": "thread",
-                      "quote": "sharing memory space"
+                      "quote": "Daemon threads are abruptly stopped at shutdown."
                     }
                   }
                 ],
@@ -1502,7 +1510,7 @@
             "citations": [
               {
                 "source_id": "thread",
-                "quote": "sharing memory space"
+                "quote": "Daemon threads are abruptly stopped at shutdown."
               }
             ]
           }
@@ -3156,11 +3164,7 @@
             "citations": [
               {
                 "source_id": "tls",
-                "quote": "A valid certificate chain or partial chain was received"
-              },
-              {
-                "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
               }
             ]
           }
@@ -3230,7 +3234,7 @@
                     "value": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。",
                     "citation": {
                       "source_id": "tls",
-                      "quote": "A valid certificate chain or partial chain was received"
+                      "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
                     }
                   }
                 ],
@@ -3280,7 +3284,7 @@
                     "value": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。",
                     "citation": {
                       "source_id": "tls",
-                      "quote": "A valid certificate chain or partial chain was received"
+                      "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
                     }
                   }
                 ],
@@ -3328,12 +3332,8 @@
             },
             "citations": [
               {
-                "source_id": "tls",
-                "quote": "A valid certificate chain or partial chain was received"
-              },
-              {
                 "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "unexpected condition"
               }
             ]
           }
@@ -3423,7 +3423,7 @@
             "citations": [
               {
                 "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "did not receive a timely response"
               }
             ]
           }
@@ -3493,7 +3493,7 @@
                     "value": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。",
                     "citation": {
                       "source_id": "http",
-                      "quote": "PUT, DELETE, and safe request methods"
+                      "quote": "did not receive a timely response"
                     }
                   }
                 ],
@@ -3543,7 +3543,7 @@
                     "value": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。",
                     "citation": {
                       "source_id": "http",
-                      "quote": "PUT, DELETE, and safe request methods"
+                      "quote": "did not receive a timely response"
                     }
                   }
                 ],
@@ -3592,7 +3592,7 @@
             "citations": [
               {
                 "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "did not receive a timely response"
               }
             ]
           }
@@ -3683,11 +3683,7 @@
             "citations": [
               {
                 "source_id": "tls",
-                "quote": "A valid certificate chain or partial chain was received"
-              },
-              {
-                "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
               }
             ]
           }
@@ -3718,7 +3714,7 @@
             "evidence_ids": [
               "observation"
             ],
-            "counterexample": "两段TLS均验证成功，上游收到同请求ID并返回应用503；代理如实转发。",
+            "counterexample": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
             "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
           }
         ],
@@ -3757,7 +3753,7 @@
                     "value": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。",
                     "citation": {
                       "source_id": "tls",
-                      "quote": "A valid certificate chain or partial chain was received"
+                      "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
                     }
                   }
                 ],
@@ -3807,7 +3803,7 @@
                     "value": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。",
                     "citation": {
                       "source_id": "tls",
-                      "quote": "A valid certificate chain or partial chain was received"
+                      "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
                     }
                   }
                 ],
@@ -3821,7 +3817,7 @@
                   }
                 ],
                 "rule_quote": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
-                "counterexample_quote": "两段TLS均验证成功，上游收到同请求ID并返回应用503；代理如实转发。",
+                "counterexample_quote": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
                 "explanation": "该答案把题面不支持的结论当作事实。前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
                 "gap": "需要区分题面已证实、未知与不能推出的结论。"
               }
@@ -3840,7 +3836,7 @@
         },
         "catalog_version": "fullstack-v1.0.0",
         "title": "两段TLS不能混为一段：条件变化",
-        "task": "两段TLS均验证成功，上游收到同请求ID并返回应用503；代理如实转发。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "task": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。 请选下一步，并说明依据、不能推出的结论和验证方式。",
         "assumptions": [
           "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
           "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
@@ -3849,18 +3845,14 @@
           {
             "id": "observation",
             "label": "教学材料",
-            "text": "两段TLS均验证成功，上游收到同请求ID并返回应用503；代理如实转发。",
+            "text": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
             "facts": {
-              "observed_boundary": "两段TLS均验证成功，上游收到同请求ID并返回应用503；代理如实转发。"
+              "observed_boundary": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。"
             },
             "citations": [
               {
-                "source_id": "tls",
-                "quote": "A valid certificate chain or partial chain was received"
-              },
-              {
                 "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "did not receive a timely response"
               }
             ]
           }
@@ -3871,7 +3863,7 @@
             "kind": "choice",
             "prompt": "哪一行动符合当前证据？",
             "options": [
-              "定位上游应用可用性，保留两段TLS验证",
+              "保留已提交成果，定位代理等待与响应链路，保留两段TLS验证",
               "全局关闭浏览器证书校验来绕过上游错误"
             ],
             "evidence_ids": [
@@ -3887,7 +3879,7 @@
             ],
             "acceptable_orders": [],
             "acceptable_predictions": [],
-            "reasoning": "实际失败阶段改为上游HTTP服务，不能继续归因于未发生的证书错误。",
+            "reasoning": "两段TLS已成功，且有上游提交证据；504只说明代理未及时收到响应，不证明未提交。应定位超时链路，不关闭证书校验。",
             "evidence_ids": [
               "observation"
             ],
@@ -3896,14 +3888,14 @@
           }
         ],
         "variation": {
-          "causal_condition": "两段TLS均验证成功，上游收到同请求ID并返回应用503；代理如实转发。",
-          "expected_evidence": "两段TLS均验证成功，上游收到同请求ID并返回应用503；代理如实转发。",
-          "decision_effect": "定位上游应用可用性，保留两段TLS验证"
+          "causal_condition": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
+          "expected_evidence": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
+          "decision_effect": "保留已提交成果，定位代理等待与响应链路，保留两段TLS验证"
         },
         "missing_evidence": [],
         "conflicts": []
       },
-      "variation_basis": "实际失败阶段改为上游HTTP服务，不能继续归因于未发生的证书错误。",
+      "variation_basis": "两段TLS已成功，且有上游提交证据；504只说明代理未及时收到响应，不证明未提交。应定位超时链路，不关闭证书校验。",
       "cosmetic_variant": {
         "title": "两段TLS不能混为一段（换名版）",
         "expected": "no_qualified_case",
@@ -3950,7 +3942,7 @@
             "citations": [
               {
                 "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "non- idempotent method unless it has some means"
               }
             ]
           }
@@ -4020,7 +4012,7 @@
                     "value": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。",
                     "citation": {
                       "source_id": "http",
-                      "quote": "PUT, DELETE, and safe request methods"
+                      "quote": "non- idempotent method unless it has some means"
                     }
                   }
                 ],
@@ -4070,7 +4062,7 @@
                     "value": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。",
                     "citation": {
                       "source_id": "http",
-                      "quote": "PUT, DELETE, and safe request methods"
+                      "quote": "non- idempotent method unless it has some means"
                     }
                   }
                 ],
@@ -4209,7 +4201,7 @@
             "citations": [
               {
                 "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "non- idempotent method unless it has some means"
               }
             ]
           }
@@ -4279,7 +4271,7 @@
                     "value": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。",
                     "citation": {
                       "source_id": "http",
-                      "quote": "PUT, DELETE, and safe request methods"
+                      "quote": "non- idempotent method unless it has some means"
                     }
                   }
                 ],
@@ -4329,7 +4321,7 @@
                     "value": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。",
                     "citation": {
                       "source_id": "http",
-                      "quote": "PUT, DELETE, and safe request methods"
+                      "quote": "non- idempotent method unless it has some means"
                     }
                   }
                 ],
@@ -4378,7 +4370,7 @@
             "citations": [
               {
                 "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "non- idempotent method unless it has some means"
               }
             ]
           }
@@ -4468,7 +4460,7 @@
             "citations": [
               {
                 "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "non- idempotent method unless it has some means"
               }
             ]
           }
@@ -4538,7 +4530,7 @@
                     "value": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。",
                     "citation": {
                       "source_id": "http",
-                      "quote": "PUT, DELETE, and safe request methods"
+                      "quote": "non- idempotent method unless it has some means"
                     }
                   }
                 ],
@@ -4588,7 +4580,7 @@
                     "value": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。",
                     "citation": {
                       "source_id": "http",
-                      "quote": "PUT, DELETE, and safe request methods"
+                      "quote": "non- idempotent method unless it has some means"
                     }
                   }
                 ],
@@ -4637,7 +4629,7 @@
             "citations": [
               {
                 "source_id": "http",
-                "quote": "PUT, DELETE, and safe request methods"
+                "quote": "non- idempotent method unless it has some means"
               }
             ]
           }

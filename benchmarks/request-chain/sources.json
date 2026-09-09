@@ -45,14 +45,14 @@
     "id": "http",
     "url": "https://www.rfc-editor.org/rfc/rfc9110.txt",
     "version": "RFC9110 June2022; response-sha256:21c1cdce6ab0e5509b04d84a28000836c7a087cf786efe6f04877ebfff47232a",
-    "locator": "RFC9110 June2022 / §§9.2.2,15.6.5; whitespace-normalized exact excerpts",
-    "text": "PUT, DELETE, and safe request methods\n[…]\nA client SHOULD NOT automatically retry a request\n[…]\ndid not receive a timely response"
+    "locator": "RFC9110 June2022 / §9.2.2 first paragraph PUT list and third paragraph non-idempotent retry exceptions; §15.6.5 504 timely response; §15.6.1 500 unexpected condition. Whitespace-normalized exact fragments; read full cited paragraphs for qualifiers.",
+    "text": "PUT, DELETE, and safe request methods\n[…]\nnon- idempotent method unless it has some means\n[…]\ndid not receive a timely response\n[…]\nunexpected condition"
   },
   "tls": {
     "id": "tls",
     "url": "https://www.rfc-editor.org/rfc/rfc8446.txt",
     "version": "RFC8446 August2018; response-sha256:47871bc8820a2c3b6ea89f061055577058862cf543686b82d10131239702b3bd",
-    "locator": "RFC8446 August2018 / §6.2 unknown_ca; whitespace-normalized exact excerpts",
-    "text": "A valid certificate chain or partial chain was received"
+    "locator": "RFC8446 August2018 / §6.2 unknown_ca alert definition: CA not located or not matched to known trust anchor; whitespace-normalized exact excerpt.",
+    "text": "CA certificate could not be located or could not be matched with a known trust anchor."
   }
 }

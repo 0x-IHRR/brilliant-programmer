@@ -49,6 +49,36 @@ def test_exact_coverage_no_duplicate_family_or_human_claim():
 
 @pytest.mark.parametrize("draft", batch.cases, ids=lambda d: d.id)
 def test_real_candidate_grading_and_variation_contracts(draft):
+    # Regression for the reviewed first-excerpt bug: these cases need their
+    # own normative proposition, not any quote from the same official document.
+    relevant = {
+        "systems.execution-1": "sharing memory space",
+        "systems.execution-2": "subsequent attempts to acquire it block",
+        "systems.execution-3": "Daemon threads are abruptly stopped at shutdown.",
+        "network.trace-1": "known trust anchor",
+        "network.trace-2": "timely response",
+        "network.trace-3": "known trust anchor",
+        "network.delivery-1": "non- idempotent method unless",
+        "network.delivery-2": "non- idempotent method unless",
+        "network.delivery-3": "non- idempotent method unless",
+    }
+    if draft.id in relevant:
+        assert relevant[draft.id] in draft.candidate.evidence[0].citations[0].quote
+    variant_relevant = {
+        "network.trace-1": "unexpected condition",
+        "network.trace-3": "timely response",
+        "network.delivery-1": "PUT, DELETE",
+    }
+    if draft.id in variant_relevant:
+        assert (
+            variant_relevant[draft.id]
+            in draft.positive_variant.evidence[0].citations[0].quote
+        )
+    for label in draft.answers:
+        assert (
+            label.expected_grading.items[0].grounding[0].citation
+            == draft.candidate.evidence[0].citations[0]
+        )
     cited = [sources[k] for k in draft.source_ids]
     case = validate_candidate(
         draft.candidate.model_dump_json(),
