@@ -90,7 +90,7 @@ export function SubmissionForm({ runId, caseData, config, panel, onPanel }: { ru
     {completed && reviewAllowed && <Button className={buttonClass} variant="outline" onClick={() => setReviewing(value => !value)}>{reviewing ? "收起复盘补充" : "编辑复盘补充"}</Button>}
     {(!completed || reviewing) && <form className="space-y-3" onSubmit={event => {
       event.preventDefault()
-      if (!config || !accepted || !state) return
+      if (!config || !accepted || !state || draft.choosing) return
       const body: Submit = { request_id: "", answers, disclosure_accepted: true, evaluate_after_submit: !completed, expected_config_version: config.version, previous_submission_id: latest?.id ?? null }
       const old = pending.current
       body.request_id = old && JSON.stringify({ ...old, request_id: "" }) === JSON.stringify(body) ? old.request_id : crypto.randomUUID()
@@ -115,7 +115,7 @@ export function SubmissionForm({ runId, caseData, config, panel, onPanel }: { ru
       {config ? <>
         <p className="break-all">本次交卷检查接收方：{config.service_url} · {config.model_id}</p>
         <label className="flex items-start gap-2"><input type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} /><span>{completed ? "保存本轮复盘补充，保留原答及冻结评分；不再次调用模型、评分或奖励。" : "允许将当前公开题面与作答发送给此模型检查相关性；完成后继续发送当前冻结题、来源、原答及一次许可补答，逐项生成简短反馈。每次最多 3 次尝试，同一提交至多 6 次；重试可能计费，可靠性未验证。"}</span></label>
-        <Button className={buttonClass} type="submit" disabled={!state || !draft.ready || draft.status === "conflict" || !accepted || busy || Boolean(checking)}>{completed ? "保存复盘补充（不重评）" : latest ? "提交同轮补充（保留原答）" : "正式交卷"}</Button>
+        <Button className={buttonClass} type="submit" disabled={!state || !draft.ready || draft.choosing || draft.status === "conflict" || !accepted || busy || Boolean(checking)}>{completed ? "保存复盘补充（不重评）" : latest ? "提交同轮补充（保留原答）" : "正式交卷"}</Button>
       </> : <p>请保存模型配置并重新读取目的地后交卷；已有记录仍保留。</p>}
     </form>}
     <Evaluation runId={runId} caseData={caseData} config={config} submitted={completed} onFrozen={setReviewAllowed} />
