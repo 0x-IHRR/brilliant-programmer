@@ -1,0 +1,4452 @@
+{
+  "origin": "ai_draft",
+  "review_status": "pending_human_review",
+  "cases": [
+    {
+      "id": "testing.coverage-1",
+      "family": "testing.coverage",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "playwright"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "testing.coverage",
+          "difficulty": "基础",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "保存按钮亮起能证明什么",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。",
+            "facts": {
+              "observed_boundary": "验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。"
+            },
+            "citations": [
+              {
+                "source_id": "playwright",
+                "quote": "avoid relying on implementation details"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "补保存成功响应和刷新后实际恢复内容的检查。",
+              "按钮变灰就宣布持久保存通过。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "内部按钮状态不足以证明刷新后的用户行为契约，需观察真正保存与恢复。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。 因此“按钮变灰就宣布持久保存通过。”不成立。",
+            "help_boundary": "指出“补保存成功响应和刷新后实际恢复内容的检查。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。",
+          "expected_evidence": "应核对的冻结观察：验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。",
+          "decision_effect": "补保存成功响应和刷新后实际恢复内容的检查。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "内部按钮状态不足以证明刷新后的用户行为契约，需观察真正保存与恢复。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "内部按钮状态不足以证明刷新后的用户行为契约，需观察真正保存与恢复。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。",
+                    "citation": {
+                      "source_id": "playwright",
+                      "quote": "avoid relying on implementation details"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。"
+                  }
+                ],
+                "rule_quote": "内部按钮状态不足以证明刷新后的用户行为契约，需观察真正保存与恢复。",
+                "counterexample_quote": null,
+                "explanation": "内部按钮状态不足以证明刷新后的用户行为契约，需观察真正保存与恢复。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "内部按钮状态不足以证明刷新后的用户行为契约，需观察真正保存与恢复。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为按钮变灰就宣布持久保存通过。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为按钮变灰就宣布持久保存通过。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。",
+                    "citation": {
+                      "source_id": "playwright",
+                      "quote": "avoid relying on implementation details"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。"
+                  }
+                ],
+                "rule_quote": "内部按钮状态不足以证明刷新后的用户行为契约，需观察真正保存与恢复。",
+                "counterexample_quote": "反例：验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。 因此“按钮变灰就宣布持久保存通过。”不成立。",
+                "explanation": "内部按钮状态不足以证明刷新后的用户行为契约，需观察真正保存与恢复。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。 因此“按钮变灰就宣布持久保存通过。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "testing.coverage",
+          "difficulty": "基础",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "保存按钮亮起能证明什么：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "已等待保存200并重新读取同版本内容一致；缺失的是保存失败后输入保留路径。",
+            "facts": {
+              "observed_boundary": "已等待保存200并重新读取同版本内容一致；缺失的是保存失败后输入保留路径。"
+            },
+            "citations": [
+              {
+                "source_id": "playwright",
+                "quote": "avoid relying on implementation details"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保留成功路径，新增明确保存失败时本地输入仍在的验收。",
+              "按钮变灰就宣布持久保存通过。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "已有持久成功证据不需抹去，但不能覆盖尚未测的失败恢复。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：已等待保存200并重新读取同版本内容一致；缺失的是保存失败后输入保留路径。 因此“按钮变灰就宣布持久保存通过。”不成立。",
+            "help_boundary": "指出“保留成功路径，新增明确保存失败时本地输入仍在的验收。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "已等待保存200并重新读取同版本内容一致；缺失的是保存失败后输入保留路径。",
+          "expected_evidence": "应核对的冻结观察：已等待保存200并重新读取同版本内容一致；缺失的是保存失败后输入保留路径。",
+          "decision_effect": "保留成功路径，新增明确保存失败时本地输入仍在的验收。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "保存按钮亮起能证明什么（换名版本）",
+      "variation_basis": "由“验收要求刷新后保留草稿；测试仅断言保存按钮变灰，未等待服务响应或重新读取。”变为“已等待保存200并重新读取同版本内容一致；缺失的是保存失败后输入保留路径。”，故“补保存成功响应和刷新后实际恢复内容的检查。”改为“保留成功路径，新增明确保存失败时本地输入仍在的验收。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "内部按钮状态不足以证明刷新后的用户行为契约，需观察真正保存与恢复。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "testing.coverage-2",
+      "family": "testing.coverage",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "playwright"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "testing.coverage",
+          "difficulty": "进阶",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "迟到提示与即时断言",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。",
+            "facts": {
+              "observed_boundary": "点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。"
+            },
+            "citations": [
+              {
+                "source_id": "playwright",
+                "quote": "wait and retry if needed"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "用响应/条件屏障建立时序，再等待提示可见，保留结果断言。",
+              "加固定长sleep并删掉提示断言。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "异步条件尚未满足不等于功能失败，等待真实条件能保留契约而不凭时间猜。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。 因此“加固定长sleep并删掉提示断言。”不成立。",
+            "help_boundary": "指出“用响应/条件屏障建立时序，再等待提示可见，保留结果断言。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。",
+          "expected_evidence": "应核对的冻结观察：点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。",
+          "decision_effect": "用响应/条件屏障建立时序，再等待提示可见，保留结果断言。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "异步条件尚未满足不等于功能失败，等待真实条件能保留契约而不凭时间猜。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "异步条件尚未满足不等于功能失败，等待真实条件能保留契约而不凭时间猜。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。",
+                    "citation": {
+                      "source_id": "playwright",
+                      "quote": "wait and retry if needed"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。"
+                  }
+                ],
+                "rule_quote": "异步条件尚未满足不等于功能失败，等待真实条件能保留契约而不凭时间猜。",
+                "counterexample_quote": null,
+                "explanation": "异步条件尚未满足不等于功能失败，等待真实条件能保留契约而不凭时间猜。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "异步条件尚未满足不等于功能失败，等待真实条件能保留契约而不凭时间猜。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为加固定长sleep并删掉提示断言。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为加固定长sleep并删掉提示断言。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。",
+                    "citation": {
+                      "source_id": "playwright",
+                      "quote": "wait and retry if needed"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。"
+                  }
+                ],
+                "rule_quote": "异步条件尚未满足不等于功能失败，等待真实条件能保留契约而不凭时间猜。",
+                "counterexample_quote": "反例：点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。 因此“加固定长sleep并删掉提示断言。”不成立。",
+                "explanation": "异步条件尚未满足不等于功能失败，等待真实条件能保留契约而不凭时间猜。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。 因此“加固定长sleep并删掉提示断言。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "testing.coverage",
+          "difficulty": "进阶",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "迟到提示与即时断言：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "受控响应已明确失败，页面错误提示可见但输入被清空，验收要求失败保输入。",
+            "facts": {
+              "observed_boundary": "受控响应已明确失败，页面错误提示可见但输入被清空，验收要求失败保输入。"
+            },
+            "citations": [
+              {
+                "source_id": "playwright",
+                "quote": "wait and retry if needed"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保错误反馈断言并报告输入丢失，不再延长等待掩盖缺陷。",
+              "加固定长sleep并删掉提示断言。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "等待条件已确定，实际持久输入行为与要求冲突，不属于尚未就绪。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：受控响应已明确失败，页面错误提示可见但输入被清空，验收要求失败保输入。 因此“加固定长sleep并删掉提示断言。”不成立。",
+            "help_boundary": "指出“保错误反馈断言并报告输入丢失，不再延长等待掩盖缺陷。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "受控响应已明确失败，页面错误提示可见但输入被清空，验收要求失败保输入。",
+          "expected_evidence": "应核对的冻结观察：受控响应已明确失败，页面错误提示可见但输入被清空，验收要求失败保输入。",
+          "decision_effect": "保错误反馈断言并报告输入丢失，不再延长等待掩盖缺陷。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "迟到提示与即时断言（换名版本）",
+      "variation_basis": "由“点击提交后提示在网络响应后显示；测试立即查询一次可见性并失败，受控响应尚未释放。”变为“受控响应已明确失败，页面错误提示可见但输入被清空，验收要求失败保输入。”，故“用响应/条件屏障建立时序，再等待提示可见，保留结果断言。”改为“保错误反馈断言并报告输入丢失，不再延长等待掩盖缺陷。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "异步条件尚未满足不等于功能失败，等待真实条件能保留契约而不凭时间猜。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "testing.coverage-3",
+      "family": "testing.coverage",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "playwright"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "testing.coverage",
+          "difficulty": "综合",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "跨账号测试共用会话",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。",
+            "facts": {
+              "observed_boundary": "退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。"
+            },
+            "citations": [
+              {
+                "source_id": "playwright",
+                "quote": "Each test should be completely isolated from another test"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "隔离两账号会话，保存A旧token并实际请求受保护端点核拒绝，同时验证B合法访问。",
+              "B能登录就证明A旧token失效且无跨用户泄漏。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "共享测试状态污染了被测身份，必须按明确会话契约分别观察。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。 因此“B能登录就证明A旧token失效且无跨用户泄漏。”不成立。",
+            "help_boundary": "指出“隔离两账号会话，保存A旧token并实际请求受保护端点核拒绝，同时验证B合法访问。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。",
+          "expected_evidence": "应核对的冻结观察：退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。",
+          "decision_effect": "隔离两账号会话，保存A旧token并实际请求受保护端点核拒绝，同时验证B合法访问。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "共享测试状态污染了被测身份，必须按明确会话契约分别观察。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "共享测试状态污染了被测身份，必须按明确会话契约分别观察。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。",
+                    "citation": {
+                      "source_id": "playwright",
+                      "quote": "Each test should be completely isolated from another test"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。"
+                  }
+                ],
+                "rule_quote": "共享测试状态污染了被测身份，必须按明确会话契约分别观察。",
+                "counterexample_quote": null,
+                "explanation": "共享测试状态污染了被测身份，必须按明确会话契约分别观察。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "共享测试状态污染了被测身份，必须按明确会话契约分别观察。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为B能登录就证明A旧token失效且无跨用户泄漏。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为B能登录就证明A旧token失效且无跨用户泄漏。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。",
+                    "citation": {
+                      "source_id": "playwright",
+                      "quote": "Each test should be completely isolated from another test"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。"
+                  }
+                ],
+                "rule_quote": "共享测试状态污染了被测身份，必须按明确会话契约分别观察。",
+                "counterexample_quote": "反例：退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。 因此“B能登录就证明A旧token失效且无跨用户泄漏。”不成立。",
+                "explanation": "共享测试状态污染了被测身份，必须按明确会话契约分别观察。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。 因此“B能登录就证明A旧token失效且无跨用户泄漏。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "testing.coverage",
+          "difficulty": "综合",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "跨账号测试共用会话：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "两账号已隔离，A旧token确实401；B合法写入失败后其本地输入消失，A数据未改。",
+            "facts": {
+              "observed_boundary": "两账号已隔离，A旧token确实401；B合法写入失败后其本地输入消失，A数据未改。"
+            },
+            "citations": [
+              {
+                "source_id": "playwright",
+                "quote": "Each test should be completely isolated from another test"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已证实会话隔离结论，另测B失败恢复与原记录不变，不把问题归为旧token绕过。",
+              "B能登录就证明A旧token失效且无跨用户泄漏。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "身份和数据边界已有证据，新增失败属于不同的用户可观察恢复契约。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：两账号已隔离，A旧token确实401；B合法写入失败后其本地输入消失，A数据未改。 因此“B能登录就证明A旧token失效且无跨用户泄漏。”不成立。",
+            "help_boundary": "指出“保已证实会话隔离结论，另测B失败恢复与原记录不变，不把问题归为旧token绕过。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "两账号已隔离，A旧token确实401；B合法写入失败后其本地输入消失，A数据未改。",
+          "expected_evidence": "应核对的冻结观察：两账号已隔离，A旧token确实401；B合法写入失败后其本地输入消失，A数据未改。",
+          "decision_effect": "保已证实会话隔离结论，另测B失败恢复与原记录不变，不把问题归为旧token绕过。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "跨账号测试共用会话（换名版本）",
+      "variation_basis": "由“退出旧会话后应拒绝旧token；测试A/B共用storage，B的登录替换了A凭据，旧token从未再次调用API。”变为“两账号已隔离，A旧token确实401；B合法写入失败后其本地输入消失，A数据未改。”，故“隔离两账号会话，保存A旧token并实际请求受保护端点核拒绝，同时验证B合法访问。”改为“保已证实会话隔离结论，另测B失败恢复与原记录不变，不把问题归为旧token绕过。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "共享测试状态污染了被测身份，必须按明确会话契约分别观察。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "testing.bias-1",
+      "family": "testing.bias",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "pitfalls"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "testing.bias",
+          "difficulty": "基础",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "拿训练分数当陌生表现",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。",
+            "facts": {
+              "observed_boundary": "模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。"
+            },
+            "citations": [
+              {
+                "source_id": "pitfalls",
+                "quote": "Test data should never be used to make choices about the model"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保留训练结果但补未参与选择的测试集评价，当前泛化尚未证明。",
+              "99%训练分数可直接宣传所有陌生样本准确率。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "测试数据不能参与模型选择，训练表现不足以估计未见数据。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。 因此“99%训练分数可直接宣传所有陌生样本准确率。”不成立。",
+            "help_boundary": "指出“保留训练结果但补未参与选择的测试集评价，当前泛化尚未证明。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。",
+          "expected_evidence": "应核对的冻结观察：模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。",
+          "decision_effect": "保留训练结果但补未参与选择的测试集评价，当前泛化尚未证明。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "测试数据不能参与模型选择，训练表现不足以估计未见数据。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "测试数据不能参与模型选择，训练表现不足以估计未见数据。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。",
+                    "citation": {
+                      "source_id": "pitfalls",
+                      "quote": "Test data should never be used to make choices about the model"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。"
+                  }
+                ],
+                "rule_quote": "测试数据不能参与模型选择，训练表现不足以估计未见数据。",
+                "counterexample_quote": null,
+                "explanation": "测试数据不能参与模型选择，训练表现不足以估计未见数据。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "测试数据不能参与模型选择，训练表现不足以估计未见数据。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为99%训练分数可直接宣传所有陌生样本准确率。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为99%训练分数可直接宣传所有陌生样本准确率。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。",
+                    "citation": {
+                      "source_id": "pitfalls",
+                      "quote": "Test data should never be used to make choices about the model"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。"
+                  }
+                ],
+                "rule_quote": "测试数据不能参与模型选择，训练表现不足以估计未见数据。",
+                "counterexample_quote": "反例：模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。 因此“99%训练分数可直接宣传所有陌生样本准确率。”不成立。",
+                "explanation": "测试数据不能参与模型选择，训练表现不足以估计未见数据。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。 因此“99%训练分数可直接宣传所有陌生样本准确率。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "testing.bias",
+          "difficulty": "基础",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "拿训练分数当陌生表现：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "已冻结独立同分布测试集并完成一次评价；目标新增了另一设备分布但该分布无样本。",
+            "facts": {
+              "observed_boundary": "已冻结独立同分布测试集并完成一次评价；目标新增了另一设备分布但该分布无样本。"
+            },
+            "citations": [
+              {
+                "source_id": "pitfalls",
+                "quote": "Test data should never be used to make choices about the model"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "仅报告已测同分布结果，另补目标设备分布样本，不自动外推。",
+              "99%训练分数可直接宣传所有陌生样本准确率。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "独立测试成立也只覆盖实际抽样分布，改变目标需新证据。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：已冻结独立同分布测试集并完成一次评价；目标新增了另一设备分布但该分布无样本。 因此“99%训练分数可直接宣传所有陌生样本准确率。”不成立。",
+            "help_boundary": "指出“仅报告已测同分布结果，另补目标设备分布样本，不自动外推。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "已冻结独立同分布测试集并完成一次评价；目标新增了另一设备分布但该分布无样本。",
+          "expected_evidence": "应核对的冻结观察：已冻结独立同分布测试集并完成一次评价；目标新增了另一设备分布但该分布无样本。",
+          "decision_effect": "仅报告已测同分布结果，另补目标设备分布样本，不自动外推。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "拿训练分数当陌生表现（换名版本）",
+      "variation_basis": "由“模型在训练样本上得到99%；没有独立测试集，目标是预测未见样本。”变为“已冻结独立同分布测试集并完成一次评价；目标新增了另一设备分布但该分布无样本。”，故“保留训练结果但补未参与选择的测试集评价，当前泛化尚未证明。”改为“仅报告已测同分布结果，另补目标设备分布样本，不自动外推。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "测试数据不能参与模型选择，训练表现不足以估计未见数据。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "testing.bias-2",
+      "family": "testing.bias",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "pitfalls"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "testing.bias",
+          "difficulty": "进阶",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "先全量归一化再切分",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。",
+            "facts": {
+              "observed_boundary": "先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。"
+            },
+            "citations": [
+              {
+                "source_id": "pitfalls",
+                "quote": "split the data into train and test subsets first"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先切分，仅在训练数据拟合变换，再对测试数据应用该变换重评。",
+              "归一化没有标签所以不可能造成测试信息泄漏。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "预处理也会从数据学习，测试数据参与拟合会污染独立评价。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。 因此“归一化没有标签所以不可能造成测试信息泄漏。”不成立。",
+            "help_boundary": "指出“先切分，仅在训练数据拟合变换，再对测试数据应用该变换重评。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。",
+          "expected_evidence": "应核对的冻结观察：先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。",
+          "decision_effect": "先切分，仅在训练数据拟合变换，再对测试数据应用该变换重评。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "预处理也会从数据学习，测试数据参与拟合会污染独立评价。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "预处理也会从数据学习，测试数据参与拟合会污染独立评价。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。",
+                    "citation": {
+                      "source_id": "pitfalls",
+                      "quote": "split the data into train and test subsets first"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。"
+                  }
+                ],
+                "rule_quote": "预处理也会从数据学习，测试数据参与拟合会污染独立评价。",
+                "counterexample_quote": null,
+                "explanation": "预处理也会从数据学习，测试数据参与拟合会污染独立评价。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "预处理也会从数据学习，测试数据参与拟合会污染独立评价。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为归一化没有标签所以不可能造成测试信息泄漏。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为归一化没有标签所以不可能造成测试信息泄漏。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。",
+                    "citation": {
+                      "source_id": "pitfalls",
+                      "quote": "split the data into train and test subsets first"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。"
+                  }
+                ],
+                "rule_quote": "预处理也会从数据学习，测试数据参与拟合会污染独立评价。",
+                "counterexample_quote": "反例：先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。 因此“归一化没有标签所以不可能造成测试信息泄漏。”不成立。",
+                "explanation": "预处理也会从数据学习，测试数据参与拟合会污染独立评价。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。 因此“归一化没有标签所以不可能造成测试信息泄漏。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "testing.bias",
+          "difficulty": "进阶",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "先全量归一化再切分：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "归一化已仅fit训练集，但模型每次调参都根据同一测试集得分挑选。",
+            "facts": {
+              "observed_boundary": "归一化已仅fit训练集，但模型每次调参都根据同一测试集得分挑选。"
+            },
+            "citations": [
+              {
+                "source_id": "pitfalls",
+                "quote": "Test data should never be used to make choices about the model"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保预处理边界，另用验证集选参并保最终测试集未参与选择。",
+              "归一化没有标签所以不可能造成测试信息泄漏。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "变换泄漏已移除，重复使用测试分数选模型仍会破坏最终评价独立性。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：归一化已仅fit训练集，但模型每次调参都根据同一测试集得分挑选。 因此“归一化没有标签所以不可能造成测试信息泄漏。”不成立。",
+            "help_boundary": "指出“保预处理边界，另用验证集选参并保最终测试集未参与选择。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "归一化已仅fit训练集，但模型每次调参都根据同一测试集得分挑选。",
+          "expected_evidence": "应核对的冻结观察：归一化已仅fit训练集，但模型每次调参都根据同一测试集得分挑选。",
+          "decision_effect": "保预处理边界，另用验证集选参并保最终测试集未参与选择。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "先全量归一化再切分（换名版本）",
+      "variation_basis": "由“先用全部数据拟合归一化均值，再随机拆训练/测试并调模型，测试样本影响了变换。”变为“归一化已仅fit训练集，但模型每次调参都根据同一测试集得分挑选。”，故“先切分，仅在训练数据拟合变换，再对测试数据应用该变换重评。”改为“保预处理边界，另用验证集选参并保最终测试集未参与选择。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "预处理也会从数据学习，测试数据参与拟合会污染独立评价。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "testing.bias-3",
+      "family": "testing.bias",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "cross"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "testing.bias",
+          "difficulty": "综合",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "同主体随机拆分与未来部署",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。",
+            "facts": {
+              "observed_boundary": "每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。"
+            },
+            "citations": [
+              {
+                "source_id": "cross",
+                "quote": "same subject is never in both testing and training"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按设备组隔离再评估，不能用同设备随机拆分成绩代表新设备。",
+              "随机打乱足够充分，所以同设备重复不影响未见设备结论。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "分组结构使样本不独立，目标未见主体需要对应的组隔离。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。 因此“随机打乱足够充分，所以同设备重复不影响未见设备结论。”不成立。",
+            "help_boundary": "指出“按设备组隔离再评估，不能用同设备随机拆分成绩代表新设备。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。",
+          "expected_evidence": "应核对的冻结观察：每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。",
+          "decision_effect": "按设备组隔离再评估，不能用同设备随机拆分成绩代表新设备。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "分组结构使样本不独立，目标未见主体需要对应的组隔离。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "分组结构使样本不独立，目标未见主体需要对应的组隔离。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。",
+                    "citation": {
+                      "source_id": "cross",
+                      "quote": "same subject is never in both testing and training"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。"
+                  }
+                ],
+                "rule_quote": "分组结构使样本不独立，目标未见主体需要对应的组隔离。",
+                "counterexample_quote": null,
+                "explanation": "分组结构使样本不独立，目标未见主体需要对应的组隔离。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "分组结构使样本不独立，目标未见主体需要对应的组隔离。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为随机打乱足够充分，所以同设备重复不影响未见设备结论。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为随机打乱足够充分，所以同设备重复不影响未见设备结论。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。",
+                    "citation": {
+                      "source_id": "cross",
+                      "quote": "same subject is never in both testing and training"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。"
+                  }
+                ],
+                "rule_quote": "分组结构使样本不独立，目标未见主体需要对应的组隔离。",
+                "counterexample_quote": "反例：每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。 因此“随机打乱足够充分，所以同设备重复不影响未见设备结论。”不成立。",
+                "explanation": "分组结构使样本不独立，目标未见主体需要对应的组隔离。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。 因此“随机打乱足够充分，所以同设备重复不影响未见设备结论。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "testing.bias",
+          "difficulty": "综合",
+          "background_id": "testing-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "同主体随机拆分与未来部署：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "目标改为已知设备的未来时段，所有训练记录须早于测试；随机组拆分却打乱时间。",
+            "facts": {
+              "observed_boundary": "目标改为已知设备的未来时段，所有训练记录须早于测试；随机组拆分却打乱时间。"
+            },
+            "citations": [
+              {
+                "source_id": "cross",
+                "quote": "time-series aware cross-validation scheme"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按目标保时间顺序评价未来时段，并说明是否还需设备分组条件。",
+              "随机打乱足够充分，所以同设备重复不影响未见设备结论。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新的部署目标强调时间依赖，不能把组隔离自动当未来时间验证。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：目标改为已知设备的未来时段，所有训练记录须早于测试；随机组拆分却打乱时间。 因此“随机打乱足够充分，所以同设备重复不影响未见设备结论。”不成立。",
+            "help_boundary": "指出“按目标保时间顺序评价未来时段，并说明是否还需设备分组条件。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "目标改为已知设备的未来时段，所有训练记录须早于测试；随机组拆分却打乱时间。",
+          "expected_evidence": "应核对的冻结观察：目标改为已知设备的未来时段，所有训练记录须早于测试；随机组拆分却打乱时间。",
+          "decision_effect": "按目标保时间顺序评价未来时段，并说明是否还需设备分组条件。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "同主体随机拆分与未来部署（换名版本）",
+      "variation_basis": "由“每台设备有多条近似记录，随机按行拆分使同设备进入训练和测试；目标是预测未见设备。”变为“目标改为已知设备的未来时段，所有训练记录须早于测试；随机组拆分却打乱时间。”，故“按设备组隔离再评估，不能用同设备随机拆分成绩代表新设备。”改为“按目标保时间顺序评价未来时段，并说明是否还需设备分组条件。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "分组结构使样本不独立，目标未见主体需要对应的组隔离。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "performance.bottleneck-1",
+      "family": "performance.bottleneck",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "monitoring"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "performance.bottleneck",
+          "difficulty": "基础",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "均值下降与错误变多",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。",
+            "facts": {
+              "observed_boundary": "发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。"
+            },
+            "citations": [
+              {
+                "source_id": "monitoring",
+                "quote": "distinguish between the latency of successful requests"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先拆成功/失败延迟及错误率，不把均值下降宣称性能改善。",
+              "平均值下降说明用户请求整体变好了。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "快速错误会拉低均值，必须保成功质量和错误成本一起看。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。 因此“平均值下降说明用户请求整体变好了。”不成立。",
+            "help_boundary": "指出“先拆成功/失败延迟及错误率，不把均值下降宣称性能改善。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。",
+          "expected_evidence": "应核对的冻结观察：发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。",
+          "decision_effect": "先拆成功/失败延迟及错误率，不把均值下降宣称性能改善。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "快速错误会拉低均值，必须保成功质量和错误成本一起看。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "快速错误会拉低均值，必须保成功质量和错误成本一起看。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。",
+                    "citation": {
+                      "source_id": "monitoring",
+                      "quote": "distinguish between the latency of successful requests"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。"
+                  }
+                ],
+                "rule_quote": "快速错误会拉低均值，必须保成功质量和错误成本一起看。",
+                "counterexample_quote": null,
+                "explanation": "快速错误会拉低均值，必须保成功质量和错误成本一起看。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "快速错误会拉低均值，必须保成功质量和错误成本一起看。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为平均值下降说明用户请求整体变好了。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为平均值下降说明用户请求整体变好了。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。",
+                    "citation": {
+                      "source_id": "monitoring",
+                      "quote": "distinguish between the latency of successful requests"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。"
+                  }
+                ],
+                "rule_quote": "快速错误会拉低均值，必须保成功质量和错误成本一起看。",
+                "counterexample_quote": "反例：发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。 因此“平均值下降说明用户请求整体变好了。”不成立。",
+                "explanation": "快速错误会拉低均值，必须保成功质量和错误成本一起看。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。 因此“平均值下降说明用户请求整体变好了。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "performance.bottleneck",
+          "difficulty": "基础",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "均值下降与错误变多：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "错误率稳定1%，成功请求p99从250ms升到2s；均值仍80ms且没有等待分解。",
+            "facts": {
+              "observed_boundary": "错误率稳定1%，成功请求p99从250ms升到2s；均值仍80ms且没有等待分解。"
+            },
+            "citations": [
+              {
+                "source_id": "monitoring",
+                "quote": "99th percentile response time"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "报告成功尾延迟退化并补等待/资源证据，不凭均值或单p99认定根因。",
+              "平均值下降说明用户请求整体变好了。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "错误混淆已排除，尾部问题需进一步定位，不能猜是某个SQL。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：错误率稳定1%，成功请求p99从250ms升到2s；均值仍80ms且没有等待分解。 因此“平均值下降说明用户请求整体变好了。”不成立。",
+            "help_boundary": "指出“报告成功尾延迟退化并补等待/资源证据，不凭均值或单p99认定根因。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "错误率稳定1%，成功请求p99从250ms升到2s；均值仍80ms且没有等待分解。",
+          "expected_evidence": "应核对的冻结观察：错误率稳定1%，成功请求p99从250ms升到2s；均值仍80ms且没有等待分解。",
+          "decision_effect": "报告成功尾延迟退化并补等待/资源证据，不凭均值或单p99认定根因。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "均值下降与错误变多（换名版本）",
+      "variation_basis": "由“发布后平均响应从200ms降到80ms，同时快速500从1%升到40%；成功请求耗时尚未分开。”变为“错误率稳定1%，成功请求p99从250ms升到2s；均值仍80ms且没有等待分解。”，故“先拆成功/失败延迟及错误率，不把均值下降宣称性能改善。”改为“报告成功尾延迟退化并补等待/资源证据，不凭均值或单p99认定根因。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "快速错误会拉低均值，必须保成功质量和错误成本一起看。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "performance.bottleneck-2",
+      "family": "performance.bottleneck",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "monitoring"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "performance.bottleneck",
+          "difficulty": "进阶",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "请求总耗时与连接池等待",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。",
+            "facts": {
+              "observed_boundary": "单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。"
+            },
+            "citations": [
+              {
+                "source_id": "monitoring",
+                "quote": "latency, traffic, errors, and saturation"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先测连接占用与等待来源，不把总耗时归给SQL执行。",
+              "总900ms意味着SQL慢，立即加索引。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "测得的主要时间在等待而非SQL，需用能区分假设的指标定位。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。 因此“总900ms意味着SQL慢，立即加索引。”不成立。",
+            "help_boundary": "指出“先测连接占用与等待来源，不把总耗时归给SQL执行。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。",
+          "expected_evidence": "应核对的冻结观察：单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。",
+          "decision_effect": "先测连接占用与等待来源，不把总耗时归给SQL执行。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "测得的主要时间在等待而非SQL，需用能区分假设的指标定位。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "测得的主要时间在等待而非SQL，需用能区分假设的指标定位。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。",
+                    "citation": {
+                      "source_id": "monitoring",
+                      "quote": "latency, traffic, errors, and saturation"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。"
+                  }
+                ],
+                "rule_quote": "测得的主要时间在等待而非SQL，需用能区分假设的指标定位。",
+                "counterexample_quote": null,
+                "explanation": "测得的主要时间在等待而非SQL，需用能区分假设的指标定位。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "测得的主要时间在等待而非SQL，需用能区分假设的指标定位。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为总900ms意味着SQL慢，立即加索引。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为总900ms意味着SQL慢，立即加索引。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。",
+                    "citation": {
+                      "source_id": "monitoring",
+                      "quote": "latency, traffic, errors, and saturation"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。"
+                  }
+                ],
+                "rule_quote": "测得的主要时间在等待而非SQL，需用能区分假设的指标定位。",
+                "counterexample_quote": "反例：单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。 因此“总900ms意味着SQL慢，立即加索引。”不成立。",
+                "explanation": "测得的主要时间在等待而非SQL，需用能区分假设的指标定位。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。 因此“总900ms意味着SQL慢，立即加索引。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "performance.bottleneck",
+          "difficulty": "进阶",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "请求总耗时与连接池等待：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "连接等待已降到5ms；SQL实际800ms且计划扫描大部分无关行，CPU未饱和。",
+            "facts": {
+              "observed_boundary": "连接等待已降到5ms；SQL实际800ms且计划扫描大部分无关行，CPU未饱和。"
+            },
+            "citations": [
+              {
+                "source_id": "monitoring",
+                "quote": "latency, traffic, errors, and saturation"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "转向SQL执行与选择性验证，再比较索引成本，不重复扩大连接池。",
+              "总900ms意味着SQL慢，立即加索引。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "主要时间归属已改变，旧连接池判断不能覆盖新执行证据。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：连接等待已降到5ms；SQL实际800ms且计划扫描大部分无关行，CPU未饱和。 因此“总900ms意味着SQL慢，立即加索引。”不成立。",
+            "help_boundary": "指出“转向SQL执行与选择性验证，再比较索引成本，不重复扩大连接池。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "连接等待已降到5ms；SQL实际800ms且计划扫描大部分无关行，CPU未饱和。",
+          "expected_evidence": "应核对的冻结观察：连接等待已降到5ms；SQL实际800ms且计划扫描大部分无关行，CPU未饱和。",
+          "decision_effect": "转向SQL执行与选择性验证，再比较索引成本，不重复扩大连接池。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "请求总耗时与连接池等待（换名版本）",
+      "variation_basis": "由“单请求总900ms，其中连接池等待800ms、SQL实际20ms；CPU空闲且没有SQL计划异常证据。”变为“连接等待已降到5ms；SQL实际800ms且计划扫描大部分无关行，CPU未饱和。”，故“先测连接占用与等待来源，不把总耗时归给SQL执行。”改为“转向SQL执行与选择性验证，再比较索引成本，不重复扩大连接池。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "测得的主要时间在等待而非SQL，需用能区分假设的指标定位。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "performance.bottleneck-3",
+      "family": "performance.bottleneck",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "monitoring"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "performance.bottleneck",
+          "difficulty": "综合",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "均匀平均掩盖热点尾部",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。",
+            "facts": {
+              "observed_boundary": "总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。"
+            },
+            "citations": [
+              {
+                "source_id": "monitoring",
+                "quote": "99th percentile response time"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按分片拆流量/饱和/错误，核热点分布及迁移风险，再决定调整。",
+              "总体CPU没满就无限增加同热点并发。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "总体平均可掩盖局部饱和，跨指标与分片观察才区分热点假设。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。 因此“总体CPU没满就无限增加同热点并发。”不成立。",
+            "help_boundary": "指出“按分片拆流量/饱和/错误，核热点分布及迁移风险，再决定调整。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。",
+          "expected_evidence": "应核对的冻结观察：总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。",
+          "decision_effect": "按分片拆流量/饱和/错误，核热点分布及迁移风险，再决定调整。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "总体平均可掩盖局部饱和，跨指标与分片观察才区分热点假设。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "总体平均可掩盖局部饱和，跨指标与分片观察才区分热点假设。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。",
+                    "citation": {
+                      "source_id": "monitoring",
+                      "quote": "99th percentile response time"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。"
+                  }
+                ],
+                "rule_quote": "总体平均可掩盖局部饱和，跨指标与分片观察才区分热点假设。",
+                "counterexample_quote": null,
+                "explanation": "总体平均可掩盖局部饱和，跨指标与分片观察才区分热点假设。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "总体平均可掩盖局部饱和，跨指标与分片观察才区分热点假设。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为总体CPU没满就无限增加同热点并发。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为总体CPU没满就无限增加同热点并发。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。",
+                    "citation": {
+                      "source_id": "monitoring",
+                      "quote": "99th percentile response time"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。"
+                  }
+                ],
+                "rule_quote": "总体平均可掩盖局部饱和，跨指标与分片观察才区分热点假设。",
+                "counterexample_quote": "反例：总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。 因此“总体CPU没满就无限增加同热点并发。”不成立。",
+                "explanation": "总体平均可掩盖局部饱和，跨指标与分片观察才区分热点假设。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。 因此“总体CPU没满就无限增加同热点并发。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "performance.bottleneck",
+          "difficulty": "综合",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "均匀平均掩盖热点尾部：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "分片流量已均衡且队列低；外部依赖慢错误使成功/失败耗时分布不同。",
+            "facts": {
+              "observed_boundary": "分片流量已均衡且队列低；外部依赖慢错误使成功/失败耗时分布不同。"
+            },
+            "citations": [
+              {
+                "source_id": "monitoring",
+                "quote": "distinguish between the latency of successful requests"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "转向依赖链和成功/错误延迟拆分，保当前分片均衡事实。",
+              "总体CPU没满就无限增加同热点并发。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新证据不再支持热点瓶颈，应跟随实际等待与错误边界改判。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：分片流量已均衡且队列低；外部依赖慢错误使成功/失败耗时分布不同。 因此“总体CPU没满就无限增加同热点并发。”不成立。",
+            "help_boundary": "指出“转向依赖链和成功/错误延迟拆分，保当前分片均衡事实。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "分片流量已均衡且队列低；外部依赖慢错误使成功/失败耗时分布不同。",
+          "expected_evidence": "应核对的冻结观察：分片流量已均衡且队列低；外部依赖慢错误使成功/失败耗时分布不同。",
+          "decision_effect": "转向依赖链和成功/错误延迟拆分，保当前分片均衡事实。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "均匀平均掩盖热点尾部（换名版本）",
+      "variation_basis": "由“总体CPU50%、均值稳定；一个分片p99与队列上升，其他分片空闲，错误集中在热点；路由键分布尚未核对。”变为“分片流量已均衡且队列低；外部依赖慢错误使成功/失败耗时分布不同。”，故“按分片拆流量/饱和/错误，核热点分布及迁移风险，再决定调整。”改为“转向依赖链和成功/错误延迟拆分，保当前分片均衡事实。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "总体平均可掩盖局部饱和，跨指标与分片观察才区分热点假设。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "performance.capacity-1",
+      "family": "performance.capacity",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "overload"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "performance.capacity",
+          "difficulty": "基础",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "持续入流超过服务率",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。",
+            "facts": {
+              "observed_boundary": "受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。"
+            },
+            "citations": [
+              {
+                "source_id": "overload",
+                "quote": "only accept that load as capacity frees up"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "设置有界受理与明确背压，记录已受理任务；不能承诺无限排队立即成功。",
+              "把队列改无限就能长期保持零延迟零失败。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "持续净流入会增加积压，容量限制需明确反馈而非隐藏资源耗尽。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。 因此“把队列改无限就能长期保持零延迟零失败。”不成立。",
+            "help_boundary": "指出“设置有界受理与明确背压，记录已受理任务；不能承诺无限排队立即成功。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。",
+          "expected_evidence": "应核对的冻结观察：受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。",
+          "decision_effect": "设置有界受理与明确背压，记录已受理任务；不能承诺无限排队立即成功。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "持续净流入会增加积压，容量限制需明确反馈而非隐藏资源耗尽。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "持续净流入会增加积压，容量限制需明确反馈而非隐藏资源耗尽。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。",
+                    "citation": {
+                      "source_id": "overload",
+                      "quote": "only accept that load as capacity frees up"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。"
+                  }
+                ],
+                "rule_quote": "持续净流入会增加积压，容量限制需明确反馈而非隐藏资源耗尽。",
+                "counterexample_quote": null,
+                "explanation": "持续净流入会增加积压，容量限制需明确反馈而非隐藏资源耗尽。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "持续净流入会增加积压，容量限制需明确反馈而非隐藏资源耗尽。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为把队列改无限就能长期保持零延迟零失败。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为把队列改无限就能长期保持零延迟零失败。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。",
+                    "citation": {
+                      "source_id": "overload",
+                      "quote": "only accept that load as capacity frees up"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。"
+                  }
+                ],
+                "rule_quote": "持续净流入会增加积压，容量限制需明确反馈而非隐藏资源耗尽。",
+                "counterexample_quote": "反例：受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。 因此“把队列改无限就能长期保持零延迟零失败。”不成立。",
+                "explanation": "持续净流入会增加积压，容量限制需明确反馈而非隐藏资源耗尽。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。 因此“把队列改无限就能长期保持零延迟零失败。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "performance.capacity",
+          "difficulty": "基础",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "持续入流超过服务率：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "流量已降到40/s、服务80/s，队列正下降且内存安全。",
+            "facts": {
+              "observed_boundary": "流量已降到40/s、服务80/s，队列正下降且内存安全。"
+            },
+            "citations": [
+              {
+                "source_id": "overload",
+                "quote": "only accept that load as capacity frees up"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按测量逐步恢复受理并观察排空，不继续按旧峰值拒绝全部流量。",
+              "把队列改无限就能长期保持零延迟零失败。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "净流入改变后可恢复容量利用，过载保护不等于永久停服。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：流量已降到40/s、服务80/s，队列正下降且内存安全。 因此“把队列改无限就能长期保持零延迟零失败。”不成立。",
+            "help_boundary": "指出“按测量逐步恢复受理并观察排空，不继续按旧峰值拒绝全部流量。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "流量已降到40/s、服务80/s，队列正下降且内存安全。",
+          "expected_evidence": "应核对的冻结观察：流量已降到40/s、服务80/s，队列正下降且内存安全。",
+          "decision_effect": "按测量逐步恢复受理并观察排空，不继续按旧峰值拒绝全部流量。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "持续入流超过服务率（换名版本）",
+      "variation_basis": "由“受控测得到达120/s、服务80/s，积压持续增长，内存有限；未受理请求允许明确拒绝重试。”变为“流量已降到40/s、服务80/s，队列正下降且内存安全。”，故“设置有界受理与明确背压，记录已受理任务；不能承诺无限排队立即成功。”改为“按测量逐步恢复受理并观察排空，不继续按旧峰值拒绝全部流量。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "持续净流入会增加积压，容量限制需明确反馈而非隐藏资源耗尽。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "performance.capacity-2",
+      "family": "performance.capacity",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "overload"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "performance.capacity",
+          "difficulty": "进阶",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "三层重试放大故障",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。",
+            "facts": {
+              "observed_boundary": "入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。"
+            },
+            "citations": [
+              {
+                "source_id": "overload",
+                "quote": "per-client retry budget"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "核整链请求预算与退避，限制重试占比并传递不可重试失败，保实际用量。",
+              "每层都有3次上限，所以全链最多只会请求3次。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "独立层级预算会相乘放大，重试同样消耗已紧张的容量。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。 因此“每层都有3次上限，所以全链最多只会请求3次。”不成立。",
+            "help_boundary": "指出“核整链请求预算与退避，限制重试占比并传递不可重试失败，保实际用量。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。",
+          "expected_evidence": "应核对的冻结观察：入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。",
+          "decision_effect": "核整链请求预算与退避，限制重试占比并传递不可重试失败，保实际用量。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "独立层级预算会相乘放大，重试同样消耗已紧张的容量。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "独立层级预算会相乘放大，重试同样消耗已紧张的容量。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。",
+                    "citation": {
+                      "source_id": "overload",
+                      "quote": "per-client retry budget"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。"
+                  }
+                ],
+                "rule_quote": "独立层级预算会相乘放大，重试同样消耗已紧张的容量。",
+                "counterexample_quote": null,
+                "explanation": "独立层级预算会相乘放大，重试同样消耗已紧张的容量。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "独立层级预算会相乘放大，重试同样消耗已紧张的容量。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为每层都有3次上限，所以全链最多只会请求3次。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为每层都有3次上限，所以全链最多只会请求3次。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。",
+                    "citation": {
+                      "source_id": "overload",
+                      "quote": "per-client retry budget"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。"
+                  }
+                ],
+                "rule_quote": "独立层级预算会相乘放大，重试同样消耗已紧张的容量。",
+                "counterexample_quote": "反例：入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。 因此“每层都有3次上限，所以全链最多只会请求3次。”不成立。",
+                "explanation": "独立层级预算会相乘放大，重试同样消耗已紧张的容量。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。 因此“每层都有3次上限，所以全链最多只会请求3次。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "performance.capacity",
+          "difficulty": "进阶",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "三层重试放大故障：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "已统一请求预算，但租户A重试占用多数容量，租户B关键新请求被挤压。",
+            "facts": {
+              "observed_boundary": "已统一请求预算，但租户A重试占用多数容量，租户B关键新请求被挤压。"
+            },
+            "citations": [
+              {
+                "source_id": "overload",
+                "quote": "per-client retry budget"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "进一步按客户端/业务关键性隔离预算与受理，不只改全局次数。",
+              "每层都有3次上限，所以全链最多只会请求3次。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "全链上限解决单请求放大，仍不能自动解决跨客户端资源公平。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：已统一请求预算，但租户A重试占用多数容量，租户B关键新请求被挤压。 因此“每层都有3次上限，所以全链最多只会请求3次。”不成立。",
+            "help_boundary": "指出“进一步按客户端/业务关键性隔离预算与受理，不只改全局次数。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "已统一请求预算，但租户A重试占用多数容量，租户B关键新请求被挤压。",
+          "expected_evidence": "应核对的冻结观察：已统一请求预算，但租户A重试占用多数容量，租户B关键新请求被挤压。",
+          "decision_effect": "进一步按客户端/业务关键性隔离预算与受理，不只改全局次数。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "三层重试放大故障（换名版本）",
+      "variation_basis": "由“入口/业务/数据库客户端各自最多重试3次，失败立即重试；下游过载，重试流量远超新请求。”变为“已统一请求预算，但租户A重试占用多数容量，租户B关键新请求被挤压。”，故“核整链请求预算与退避，限制重试占比并传递不可重试失败，保实际用量。”改为“进一步按客户端/业务关键性隔离预算与受理，不只改全局次数。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "独立层级预算会相乘放大，重试同样消耗已紧张的容量。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "performance.capacity-3",
+      "family": "performance.capacity",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "overload"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "performance.capacity",
+          "difficulty": "综合",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "扩容十分钟与账务积压",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。",
+            "facts": {
+              "observed_boundary": "到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。"
+            },
+            "citations": [
+              {
+                "source_id": "overload",
+                "quote": "how critical we consider that request"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "优先保已受理账务的持久状态，限制新受理并延后报表，测排空与重试恢复。",
+              "删除全部积压让队列变短，再宣称恢复成功。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "关键性及容量需同时考虑，丢弃已受理账务不符合冻结业务规则。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。 因此“删除全部积压让队列变短，再宣称恢复成功。”不成立。",
+            "help_boundary": "指出“优先保已受理账务的持久状态，限制新受理并延后报表，测排空与重试恢复。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。",
+          "expected_evidence": "应核对的冻结观察：到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。",
+          "decision_effect": "优先保已受理账务的持久状态，限制新受理并延后报表，测排空与重试恢复。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "关键性及容量需同时考虑，丢弃已受理账务不符合冻结业务规则。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "关键性及容量需同时考虑，丢弃已受理账务不符合冻结业务规则。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。",
+                    "citation": {
+                      "source_id": "overload",
+                      "quote": "how critical we consider that request"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。"
+                  }
+                ],
+                "rule_quote": "关键性及容量需同时考虑，丢弃已受理账务不符合冻结业务规则。",
+                "counterexample_quote": null,
+                "explanation": "关键性及容量需同时考虑，丢弃已受理账务不符合冻结业务规则。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "关键性及容量需同时考虑，丢弃已受理账务不符合冻结业务规则。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为删除全部积压让队列变短，再宣称恢复成功。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为删除全部积压让队列变短，再宣称恢复成功。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。",
+                    "citation": {
+                      "source_id": "overload",
+                      "quote": "how critical we consider that request"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。"
+                  }
+                ],
+                "rule_quote": "关键性及容量需同时考虑，丢弃已受理账务不符合冻结业务规则。",
+                "counterexample_quote": "反例：到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。 因此“删除全部积压让队列变短，再宣称恢复成功。”不成立。",
+                "explanation": "关键性及容量需同时考虑，丢弃已受理账务不符合冻结业务规则。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。 因此“删除全部积压让队列变短，再宣称恢复成功。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "performance.capacity",
+          "difficulty": "综合",
+          "background_id": "performance-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "扩容十分钟与账务积压：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "扩容完成且服务率高于入流，但重复回放出现同业务身份；账务不得重复结算。",
+            "facts": {
+              "observed_boundary": "扩容完成且服务率高于入流，但重复回放出现同业务身份；账务不得重复结算。"
+            },
+            "citations": [
+              {
+                "source_id": "overload",
+                "quote": "how critical we consider that request"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "在恢复吞吐时核持久业务防重与排空结果，不能只看队列下降。",
+              "删除全部积压让队列变短，再宣称恢复成功。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "容量恢复不等于业务完整性恢复，重复记录使验证条件改变。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：扩容完成且服务率高于入流，但重复回放出现同业务身份；账务不得重复结算。 因此“删除全部积压让队列变短，再宣称恢复成功。”不成立。",
+            "help_boundary": "指出“在恢复吞吐时核持久业务防重与排空结果，不能只看队列下降。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "扩容完成且服务率高于入流，但重复回放出现同业务身份；账务不得重复结算。",
+          "expected_evidence": "应核对的冻结观察：扩容完成且服务率高于入流，但重复回放出现同业务身份；账务不得重复结算。",
+          "decision_effect": "在恢复吞吐时核持久业务防重与排空结果，不能只看队列下降。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "扩容十分钟与账务积压（换名版本）",
+      "variation_basis": "由“到达突增十倍，扩容需10分钟；已受理账务不得丢，低优先级报表允许延后，持久队列有容量上限。”变为“扩容完成且服务率高于入流，但重复回放出现同业务身份；账务不得重复结算。”，故“优先保已受理账务的持久状态，限制新受理并延后报表，测排空与重试恢复。”改为“在恢复吞吐时核持久业务防重与排空结果，不能只看队列下降。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "关键性及容量需同时考虑，丢弃已受理账务不符合冻结业务规则。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "operations.configuration-1",
+      "family": "operations.configuration",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "compose"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "operations.configuration",
+          "difficulty": "基础",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "镜像ENV与运行覆盖",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。",
+            "facts": {
+              "observed_boundary": "镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。"
+            },
+            "citations": [
+              {
+                "source_id": "compose",
+                "quote": "Set using just the environment attribute"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按运行environment覆盖镜像ENV预期new，并在实例核实际值。",
+              "镜像构建成功说明运行一定仍为old。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "明确运行注入优先于镜像默认，构建状态不能替代运行配置核验。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。 因此“镜像构建成功说明运行一定仍为old。”不成立。",
+            "help_boundary": "指出“按运行environment覆盖镜像ENV预期new，并在实例核实际值。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。",
+          "expected_evidence": "应核对的冻结观察：镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。",
+          "decision_effect": "按运行environment覆盖镜像ENV预期new，并在实例核实际值。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "明确运行注入优先于镜像默认，构建状态不能替代运行配置核验。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "明确运行注入优先于镜像默认，构建状态不能替代运行配置核验。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。",
+                    "citation": {
+                      "source_id": "compose",
+                      "quote": "Set using just the environment attribute"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。"
+                  }
+                ],
+                "rule_quote": "明确运行注入优先于镜像默认，构建状态不能替代运行配置核验。",
+                "counterexample_quote": null,
+                "explanation": "明确运行注入优先于镜像默认，构建状态不能替代运行配置核验。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "明确运行注入优先于镜像默认，构建状态不能替代运行配置核验。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为镜像构建成功说明运行一定仍为old。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为镜像构建成功说明运行一定仍为old。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。",
+                    "citation": {
+                      "source_id": "compose",
+                      "quote": "Set using just the environment attribute"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。"
+                  }
+                ],
+                "rule_quote": "明确运行注入优先于镜像默认，构建状态不能替代运行配置核验。",
+                "counterexample_quote": "反例：镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。 因此“镜像构建成功说明运行一定仍为old。”不成立。",
+                "explanation": "明确运行注入优先于镜像默认，构建状态不能替代运行配置核验。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。 因此“镜像构建成功说明运行一定仍为old。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "operations.configuration",
+          "difficulty": "基础",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "镜像ENV与运行覆盖：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "Compose已移除该变量及env_file；仅宿主shell设MODE=new，未映射；镜像仍old。",
+            "facts": {
+              "observed_boundary": "Compose已移除该变量及env_file；仅宿主shell设MODE=new，未映射；镜像仍old。"
+            },
+            "citations": [
+              {
+                "source_id": "compose",
+                "quote": "Set in a container image in the ENV directive"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "不能把宿主变量自动当容器注入，预期镜像old并核实例。",
+              "镜像构建成功说明运行一定仍为old。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "映射被移除改变了生效来源，宿主值本身不自动覆盖镜像。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：Compose已移除该变量及env_file；仅宿主shell设MODE=new，未映射；镜像仍old。 因此“镜像构建成功说明运行一定仍为old。”不成立。",
+            "help_boundary": "指出“不能把宿主变量自动当容器注入，预期镜像old并核实例。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "Compose已移除该变量及env_file；仅宿主shell设MODE=new，未映射；镜像仍old。",
+          "expected_evidence": "应核对的冻结观察：Compose已移除该变量及env_file；仅宿主shell设MODE=new，未映射；镜像仍old。",
+          "decision_effect": "不能把宿主变量自动当容器注入，预期镜像old并核实例。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "镜像ENV与运行覆盖（换名版本）",
+      "variation_basis": "由“镜像ENV设MODE=old；Compose environment字面设MODE=new；无CLI覆盖或其他插值；新建容器。”变为“Compose已移除该变量及env_file；仅宿主shell设MODE=new，未映射；镜像仍old。”，故“按运行environment覆盖镜像ENV预期new，并在实例核实际值。”改为“不能把宿主变量自动当容器注入，预期镜像old并核实例。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "明确运行注入优先于镜像默认，构建状态不能替代运行配置核验。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "operations.configuration-2",
+      "family": "operations.configuration",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "probes"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "operations.configuration",
+          "difficulty": "进阶",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "存活与就绪分开",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。",
+            "facts": {
+              "observed_boundary": "Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。"
+            },
+            "citations": [
+              {
+                "source_id": "probes",
+                "quote": "ready to start accepting traffic"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "定位就绪失败和依赖，不能以存活成功强行标可服务。",
+              "进程存在就禁用readiness以完成发布。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "就绪决定接流量，存活与能完成请求是不同事实。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。 因此“进程存在就禁用readiness以完成发布。”不成立。",
+            "help_boundary": "指出“定位就绪失败和依赖，不能以存活成功强行标可服务。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。",
+          "expected_evidence": "应核对的冻结观察：Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。",
+          "decision_effect": "定位就绪失败和依赖，不能以存活成功强行标可服务。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "就绪决定接流量，存活与能完成请求是不同事实。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "就绪决定接流量，存活与能完成请求是不同事实。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。",
+                    "citation": {
+                      "source_id": "probes",
+                      "quote": "ready to start accepting traffic"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。"
+                  }
+                ],
+                "rule_quote": "就绪决定接流量，存活与能完成请求是不同事实。",
+                "counterexample_quote": null,
+                "explanation": "就绪决定接流量，存活与能完成请求是不同事实。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "就绪决定接流量，存活与能完成请求是不同事实。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为进程存在就禁用readiness以完成发布。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为进程存在就禁用readiness以完成发布。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。",
+                    "citation": {
+                      "source_id": "probes",
+                      "quote": "ready to start accepting traffic"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。"
+                  }
+                ],
+                "rule_quote": "就绪决定接流量，存活与能完成请求是不同事实。",
+                "counterexample_quote": "反例：Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。 因此“进程存在就禁用readiness以完成发布。”不成立。",
+                "explanation": "就绪决定接流量，存活与能完成请求是不同事实。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。 因此“进程存在就禁用readiness以完成发布。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "operations.configuration",
+          "difficulty": "进阶",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "存活与就绪分开：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "依赖恢复、readiness成功，但liveness连续失败到阈值，探针自身检查路径仍需核对。",
+            "facts": {
+              "observed_boundary": "依赖恢复、readiness成功，但liveness连续失败到阈值，探针自身检查路径仍需核对。"
+            },
+            "citations": [
+              {
+                "source_id": "probes",
+                "quote": "liveness probes to know when to restart a container"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "核对liveness失败依据与重启行为，不能用一次就绪成功否定它。",
+              "进程存在就禁用readiness以完成发布。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "两探针职责不同，新故障不能沿用旧的依赖就绪诊断。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：依赖恢复、readiness成功，但liveness连续失败到阈值，探针自身检查路径仍需核对。 因此“进程存在就禁用readiness以完成发布。”不成立。",
+            "help_boundary": "指出“核对liveness失败依据与重启行为，不能用一次就绪成功否定它。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "依赖恢复、readiness成功，但liveness连续失败到阈值，探针自身检查路径仍需核对。",
+          "expected_evidence": "应核对的冻结观察：依赖恢复、readiness成功，但liveness连续失败到阈值，探针自身检查路径仍需核对。",
+          "decision_effect": "核对liveness失败依据与重启行为，不能用一次就绪成功否定它。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "存活与就绪分开（换名版本）",
+      "variation_basis": "由“Kubernetes容器进程存活，liveness成功，readiness因依赖不可用失败；Service应只向就绪实例发流量。”变为“依赖恢复、readiness成功，但liveness连续失败到阈值，探针自身检查路径仍需核对。”，故“定位就绪失败和依赖，不能以存活成功强行标可服务。”改为“核对liveness失败依据与重启行为，不能用一次就绪成功否定它。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "就绪决定接流量，存活与能完成请求是不同事实。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "operations.configuration-3",
+      "family": "operations.configuration",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "probes"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "operations.configuration",
+          "difficulty": "综合",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "慢启动与探针接管",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。",
+            "facts": {
+              "observed_boundary": "应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。"
+            },
+            "citations": [
+              {
+                "source_id": "probes",
+                "quote": "until the startup probe has succeeded"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按实际启动上界配置startup窗口并验证成功后liveness接管，不永久关闭健康检查。",
+              "直接删掉全部探针即可证明服务可靠。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "启动阶段与运行失活需分别检查，合适窗口避免把正常初始化误杀。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。 因此“直接删掉全部探针即可证明服务可靠。”不成立。",
+            "help_boundary": "指出“按实际启动上界配置startup窗口并验证成功后liveness接管，不永久关闭健康检查。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。",
+          "expected_evidence": "应核对的冻结观察：应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。",
+          "decision_effect": "按实际启动上界配置startup窗口并验证成功后liveness接管，不永久关闭健康检查。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "启动阶段与运行失活需分别检查，合适窗口避免把正常初始化误杀。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "启动阶段与运行失活需分别检查，合适窗口避免把正常初始化误杀。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。",
+                    "citation": {
+                      "source_id": "probes",
+                      "quote": "until the startup probe has succeeded"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。"
+                  }
+                ],
+                "rule_quote": "启动阶段与运行失活需分别检查，合适窗口避免把正常初始化误杀。",
+                "counterexample_quote": null,
+                "explanation": "启动阶段与运行失活需分别检查，合适窗口避免把正常初始化误杀。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "启动阶段与运行失活需分别检查，合适窗口避免把正常初始化误杀。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为直接删掉全部探针即可证明服务可靠。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为直接删掉全部探针即可证明服务可靠。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。",
+                    "citation": {
+                      "source_id": "probes",
+                      "quote": "until the startup probe has succeeded"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。"
+                  }
+                ],
+                "rule_quote": "启动阶段与运行失活需分别检查，合适窗口避免把正常初始化误杀。",
+                "counterexample_quote": "反例：应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。 因此“直接删掉全部探针即可证明服务可靠。”不成立。",
+                "explanation": "启动阶段与运行失活需分别检查，合适窗口避免把正常初始化误杀。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。 因此“直接删掉全部探针即可证明服务可靠。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "operations.configuration",
+          "difficulty": "综合",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "慢启动与探针接管：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "startup已成功，此后进程真正死锁且liveness按阈值失败；readiness也失败。",
+            "facts": {
+              "observed_boundary": "startup已成功，此后进程真正死锁且liveness按阈值失败；readiness也失败。"
+            },
+            "citations": [
+              {
+                "source_id": "probes",
+                "quote": "liveness probes to know when to restart a container"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "让运行期探针执行既定恢复并查死锁，不继续无限延长启动宽限。",
+              "直接删掉全部探针即可证明服务可靠。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "启动已结束，新的运行故障不能用冷启动理由掩盖。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：startup已成功，此后进程真正死锁且liveness按阈值失败；readiness也失败。 因此“直接删掉全部探针即可证明服务可靠。”不成立。",
+            "help_boundary": "指出“让运行期探针执行既定恢复并查死锁，不继续无限延长启动宽限。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "startup已成功，此后进程真正死锁且liveness按阈值失败；readiness也失败。",
+          "expected_evidence": "应核对的冻结观察：startup已成功，此后进程真正死锁且liveness按阈值失败；readiness也失败。",
+          "decision_effect": "让运行期探针执行既定恢复并查死锁，不继续无限延长启动宽限。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "慢启动与探针接管（换名版本）",
+      "variation_basis": "由“应用冷启动需90秒，未配置startup；liveness每10秒失败3次导致启动未完成即重启；资源与启动日志无死锁证据。”变为“startup已成功，此后进程真正死锁且liveness按阈值失败；readiness也失败。”，故“按实际启动上界配置startup窗口并验证成功后liveness接管，不永久关闭健康检查。”改为“让运行期探针执行既定恢复并查死锁，不继续无限延长启动宽限。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "启动阶段与运行失活需分别检查，合适窗口避免把正常初始化误杀。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "operations.recovery-1",
+      "family": "operations.recovery",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "deployment"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "operations.recovery",
+          "difficulty": "基础",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "回滚镜像会恢复数据吗",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。",
+            "facts": {
+              "observed_boundary": "新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。"
+            },
+            "citations": [
+              {
+                "source_id": "deployment",
+                "quote": "only the Deployment's Pod template part is rolled back"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先止损并保留证据，回退应用后仍需独立核对受损数据与恢复方案。",
+              "回到旧镜像就表示被改数据也回到旧值。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "Deployment回退只作用Pod模板，不逆转数据库写入。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。 因此“回到旧镜像就表示被改数据也回到旧值。”不成立。",
+            "help_boundary": "指出“先止损并保留证据，回退应用后仍需独立核对受损数据与恢复方案。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。",
+          "expected_evidence": "应核对的冻结观察：新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。",
+          "decision_effect": "先止损并保留证据，回退应用后仍需独立核对受损数据与恢复方案。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "Deployment回退只作用Pod模板，不逆转数据库写入。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "Deployment回退只作用Pod模板，不逆转数据库写入。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。",
+                    "citation": {
+                      "source_id": "deployment",
+                      "quote": "only the Deployment's Pod template part is rolled back"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。"
+                  }
+                ],
+                "rule_quote": "Deployment回退只作用Pod模板，不逆转数据库写入。",
+                "counterexample_quote": null,
+                "explanation": "Deployment回退只作用Pod模板，不逆转数据库写入。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "Deployment回退只作用Pod模板，不逆转数据库写入。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为回到旧镜像就表示被改数据也回到旧值。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为回到旧镜像就表示被改数据也回到旧值。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。",
+                    "citation": {
+                      "source_id": "deployment",
+                      "quote": "only the Deployment's Pod template part is rolled back"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。"
+                  }
+                ],
+                "rule_quote": "Deployment回退只作用Pod模板，不逆转数据库写入。",
+                "counterexample_quote": "反例：新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。 因此“回到旧镜像就表示被改数据也回到旧值。”不成立。",
+                "explanation": "Deployment回退只作用Pod模板，不逆转数据库写入。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。 因此“回到旧镜像就表示被改数据也回到旧值。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "operations.recovery",
+          "difficulty": "基础",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "回滚镜像会恢复数据吗：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "确认新版本没有写坏数据，故障仅错误镜像名导致未启动；旧模板可用。",
+            "facts": {
+              "observed_boundary": "确认新版本没有写坏数据，故障仅错误镜像名导致未启动；旧模板可用。"
+            },
+            "citations": [
+              {
+                "source_id": "deployment",
+                "quote": "only the Deployment's Pod template part is rolled back"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "回退到已核旧模板并做启动/就绪与关键读写冒烟，不进行无依据的数据覆盖。",
+              "回到旧镜像就表示被改数据也回到旧值。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "没有数据损坏的证据使恢复范围变小，不能照搬整库还原。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：确认新版本没有写坏数据，故障仅错误镜像名导致未启动；旧模板可用。 因此“回到旧镜像就表示被改数据也回到旧值。”不成立。",
+            "help_boundary": "指出“回退到已核旧模板并做启动/就绪与关键读写冒烟，不进行无依据的数据覆盖。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "确认新版本没有写坏数据，故障仅错误镜像名导致未启动；旧模板可用。",
+          "expected_evidence": "应核对的冻结观察：确认新版本没有写坏数据，故障仅错误镜像名导致未启动；旧模板可用。",
+          "decision_effect": "回退到已核旧模板并做启动/就绪与关键读写冒烟，不进行无依据的数据覆盖。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "回滚镜像会恢复数据吗（换名版本）",
+      "variation_basis": "由“新Deployment版本故障且已错误修改部分数据库行；只有Pod模板回退操作，尚未数据恢复。”变为“确认新版本没有写坏数据，故障仅错误镜像名导致未启动；旧模板可用。”，故“先止损并保留证据，回退应用后仍需独立核对受损数据与恢复方案。”改为“回退到已核旧模板并做启动/就绪与关键读写冒烟，不进行无依据的数据覆盖。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "Deployment回退只作用Pod模板，不逆转数据库写入。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "operations.recovery-2",
+      "family": "operations.recovery",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "pitr"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "operations.recovery",
+          "difficulty": "进阶",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "有备份但WAL中间缺段",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。",
+            "facts": {
+              "observed_boundary": "PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。"
+            },
+            "citations": [
+              {
+                "source_id": "pitr",
+                "quote": "continuous sequence of archived WAL files"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "明确目标尚不可达，先找齐连续WAL或选择可证实恢复点，隔离演练。",
+              "基础备份存在就保证能恢复到任意后来时间。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "PITR依赖连续日志，不能跨缺段冒称重放成功。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。 因此“基础备份存在就保证能恢复到任意后来时间。”不成立。",
+            "help_boundary": "指出“明确目标尚不可达，先找齐连续WAL或选择可证实恢复点，隔离演练。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。",
+          "expected_evidence": "应核对的冻结观察：PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。",
+          "decision_effect": "明确目标尚不可达，先找齐连续WAL或选择可证实恢复点，隔离演练。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "PITR依赖连续日志，不能跨缺段冒称重放成功。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "PITR依赖连续日志，不能跨缺段冒称重放成功。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。",
+                    "citation": {
+                      "source_id": "pitr",
+                      "quote": "continuous sequence of archived WAL files"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。"
+                  }
+                ],
+                "rule_quote": "PITR依赖连续日志，不能跨缺段冒称重放成功。",
+                "counterexample_quote": null,
+                "explanation": "PITR依赖连续日志，不能跨缺段冒称重放成功。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "PITR依赖连续日志，不能跨缺段冒称重放成功。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为基础备份存在就保证能恢复到任意后来时间。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为基础备份存在就保证能恢复到任意后来时间。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。",
+                    "citation": {
+                      "source_id": "pitr",
+                      "quote": "continuous sequence of archived WAL files"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。"
+                  }
+                ],
+                "rule_quote": "PITR依赖连续日志，不能跨缺段冒称重放成功。",
+                "counterexample_quote": "反例：PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。 因此“基础备份存在就保证能恢复到任意后来时间。”不成立。",
+                "explanation": "PITR依赖连续日志，不能跨缺段冒称重放成功。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。 因此“基础备份存在就保证能恢复到任意后来时间。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "operations.recovery",
+          "difficulty": "进阶",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "有备份但WAL中间缺段：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "所需WAL与时间线已补齐；隔离恢复到目标完成，但手动认证配置文件未备份。",
+            "facts": {
+              "observed_boundary": "所需WAL与时间线已补齐；隔离恢复到目标完成，但手动认证配置文件未备份。"
+            },
+            "citations": [
+              {
+                "source_id": "pitr",
+                "quote": "will not restore changes made to configuration files"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已恢复数据结果，另恢复并核对配置权限，不能把WAL当配置备份。",
+              "基础备份存在就保证能恢复到任意后来时间。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "数据重放条件成立仍不包含手动配置，恢复验收还需独立配置证据。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：所需WAL与时间线已补齐；隔离恢复到目标完成，但手动认证配置文件未备份。 因此“基础备份存在就保证能恢复到任意后来时间。”不成立。",
+            "help_boundary": "指出“保已恢复数据结果，另恢复并核对配置权限，不能把WAL当配置备份。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "所需WAL与时间线已补齐；隔离恢复到目标完成，但手动认证配置文件未备份。",
+          "expected_evidence": "应核对的冻结观察：所需WAL与时间线已补齐；隔离恢复到目标完成，但手动认证配置文件未备份。",
+          "decision_effect": "保已恢复数据结果，另恢复并核对配置权限，不能把WAL当配置备份。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "有备份但WAL中间缺段（换名版本）",
+      "variation_basis": "由“PostgreSQL基础备份可读，目标在其结束后；但从备份起点到目标之间缺一段WAL，源数据已损坏。”变为“所需WAL与时间线已补齐；隔离恢复到目标完成，但手动认证配置文件未备份。”，故“明确目标尚不可达，先找齐连续WAL或选择可证实恢复点，隔离演练。”改为“保已恢复数据结果，另恢复并核对配置权限，不能把WAL当配置备份。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "PITR依赖连续日志，不能跨缺段冒称重放成功。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "operations.recovery-3",
+      "family": "operations.recovery",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "pitr"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "operations.recovery",
+          "difficulty": "综合",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "恢复点不能落在基础备份内部",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。",
+            "facts": {
+              "observed_boundary": "现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。"
+            },
+            "citations": [
+              {
+                "source_id": "pitr",
+                "quote": "after the ending time of the base backup"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "拒绝宣称该目标可由此备份恢复，先找更早可用基础备份并界定损失窗口。",
+              "WAL足够多就能把10:20结束的备份恢复到10:10。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "目标必须晚于所用基础备份结束，日志不能取消此条件。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。 因此“WAL足够多就能把10:20结束的备份恢复到10:10。”不成立。",
+            "help_boundary": "指出“拒绝宣称该目标可由此备份恢复，先找更早可用基础备份并界定损失窗口。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。",
+          "expected_evidence": "应核对的冻结观察：现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。",
+          "decision_effect": "拒绝宣称该目标可由此备份恢复，先找更早可用基础备份并界定损失窗口。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "目标必须晚于所用基础备份结束，日志不能取消此条件。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "目标必须晚于所用基础备份结束，日志不能取消此条件。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。",
+                    "citation": {
+                      "source_id": "pitr",
+                      "quote": "after the ending time of the base backup"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。"
+                  }
+                ],
+                "rule_quote": "目标必须晚于所用基础备份结束，日志不能取消此条件。",
+                "counterexample_quote": null,
+                "explanation": "目标必须晚于所用基础备份结束，日志不能取消此条件。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "目标必须晚于所用基础备份结束，日志不能取消此条件。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为WAL足够多就能把10:20结束的备份恢复到10:10。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为WAL足够多就能把10:20结束的备份恢复到10:10。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。",
+                    "citation": {
+                      "source_id": "pitr",
+                      "quote": "after the ending time of the base backup"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。"
+                  }
+                ],
+                "rule_quote": "目标必须晚于所用基础备份结束，日志不能取消此条件。",
+                "counterexample_quote": "反例：现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。 因此“WAL足够多就能把10:20结束的备份恢复到10:10。”不成立。",
+                "explanation": "目标必须晚于所用基础备份结束，日志不能取消此条件。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。 因此“WAL足够多就能把10:20结束的备份恢复到10:10。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "operations.recovery",
+          "difficulty": "综合",
+          "background_id": "operations-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "恢复点不能落在基础备份内部：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "找到9:00结束的备份及连续WAL；10:10目标可恢复，但10:10后有合法新订单和后续删除记录。",
+            "facts": {
+              "observed_boundary": "找到9:00结束的备份及连续WAL；10:10目标可恢复，但10:10后有合法新订单和后续删除记录。"
+            },
+            "citations": [
+              {
+                "source_id": "pitr",
+                "quote": "after the ending time of the base backup"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先隔离恢复并核对损失与合法变更/删除，再决定授权修复，不直接覆盖当前库。",
+              "WAL足够多就能把10:20结束的备份恢复到10:10。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "技术恢复点成立不等于可无损替换当前数据，必须核对目标后的合法事实。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：找到9:00结束的备份及连续WAL；10:10目标可恢复，但10:10后有合法新订单和后续删除记录。 因此“WAL足够多就能把10:20结束的备份恢复到10:10。”不成立。",
+            "help_boundary": "指出“先隔离恢复并核对损失与合法变更/删除，再决定授权修复，不直接覆盖当前库。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "找到9:00结束的备份及连续WAL；10:10目标可恢复，但10:10后有合法新订单和后续删除记录。",
+          "expected_evidence": "应核对的冻结观察：找到9:00结束的备份及连续WAL；10:10目标可恢复，但10:10后有合法新订单和后续删除记录。",
+          "decision_effect": "先隔离恢复并核对损失与合法变更/删除，再决定授权修复，不直接覆盖当前库。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "恢复点不能落在基础备份内部（换名版本）",
+      "variation_basis": "由“现有基础备份10:00开始10:20结束，拟恢复到10:10避免损坏；没有更早基础备份，另有WAL。”变为“找到9:00结束的备份及连续WAL；10:10目标可恢复，但10:10后有合法新订单和后续删除记录。”，故“拒绝宣称该目标可由此备份恢复，先找更早可用基础备份并界定损失窗口。”改为“先隔离恢复并核对损失与合法变更/删除，再决定授权修复，不直接覆盖当前库。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "目标必须晚于所用基础备份结束，日志不能取消此条件。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    }
+  ]
+}
