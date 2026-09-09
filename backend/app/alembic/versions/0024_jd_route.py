@@ -4,7 +4,7 @@ from alembic import op
 import sqlalchemy as sa
 
 revision = "0024_jd_route"
-down_revision = "0022_score_review"
+down_revision = "0023_boss_revalidation"
 branch_labels = None
 depends_on = None
 

@@ -202,6 +202,10 @@ export type BossAccess = {
      * Run Ids
      */
     run_ids: Array<string>;
+    /**
+     * Revalidations
+     */
+    revalidations: Array<RevalidationPublic>;
 };
 
 /**
@@ -246,6 +250,19 @@ export type BossPublic = {
      * Promotion Id
      */
     promotion_id: string | null;
+    /**
+     * Revalidation Of
+     */
+    revalidation_of: string | null;
+    revalidation: RevalidationPublic | null;
+    /**
+     * Disposition
+     */
+    disposition: string | null;
+    /**
+     * Launch Level
+     */
+    launch_level: string;
     /**
      * Current Level
      */
@@ -298,6 +315,14 @@ export type BossStart = {
      * Request Id
      */
     request_id: string;
+    /**
+     * Revalidation Of
+     */
+    revalidation_of?: string | null;
+    /**
+     * Expected Revalidation Event Id
+     */
+    expected_revalidation_event_id?: string | null;
     /**
      * Expected Stage
      */
@@ -2127,6 +2152,66 @@ export type Requirement = {
      */
     explanation: string;
     goal: Goal | null;
+};
+
+/**
+ * RevalidationEventPublic
+ */
+export type RevalidationEventPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Sequence
+     */
+    sequence: number;
+    /**
+     * Kind
+     */
+    kind: string;
+    /**
+     * Review Run Id
+     */
+    review_run_id: string | null;
+    /**
+     * Resolved Run Id
+     */
+    resolved_run_id: string | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+};
+
+/**
+ * RevalidationPublic
+ */
+export type RevalidationPublic = {
+    /**
+     * Promotion Id
+     */
+    promotion_id: string;
+    /**
+     * Original Run Id
+     */
+    original_run_id: string;
+    /**
+     * Stage
+     */
+    stage: FirstStage | BossStage;
+    /**
+     * Current Event Id
+     */
+    current_event_id: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Events
+     */
+    events: Array<RevalidationEventPublic>;
 };
 
 /**
