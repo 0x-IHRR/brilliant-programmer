@@ -243,3 +243,37 @@ def test_reworded_same_scenario_does_not_gain_novelty_from_different_option_text
         ).status
         == "no_qualified_case"
     )
+
+
+def test_decision_effect_cannot_bypass_unchanged_facts_and_variation(frozen):
+    case, sources = frozen
+    run_id = uuid.uuid4()
+    data = case.model_dump()
+    data["judgments"][0]["options"][0] = "先查处理日志"
+    data["rubric"][0]["reasoning"] = "没收到确认并不说明未处理，要先查日志。"
+    new = Candidate.model_validate(data)
+    assert new.evidence == case.evidence
+    assert new.variation == case.variation
+    assert new.task == case.task
+    _, comparison = variant(case, run_id)
+    record = comparison.model_dump()
+    record["changes"][0].update(
+        {
+            "dimension": "decision_effect",
+            "after": {"evidence_id": "e1", "fact": "ack", "value": "absent"},
+            "before_variation": case.variation.decision_effect,
+            "after_variation": new.variation.decision_effect,
+            "after_consequence": new.judgments[0].options[0],
+            "after_reasoning": new.rubric[0].reasoning,
+            "explanation": "只是同义改写，无判断情境变化。",
+        }
+    )
+    result = assess_novelty(
+        new,
+        sources,
+        {run_id: case},
+        [ScenarioComparison.model_validate(record)],
+        "fake-key",
+    )
+    assert result.status == "no_qualified_case"
+    assert result.reason == "unbound_or_cosmetic_change"

@@ -117,14 +117,13 @@ def _bound_change(
     if change.effect == "different_decision":
         # Option indices are identities, not meanings. Reordering options is not
         # a changed decision, nor is selecting two existing valid alternatives.
+        # This schema has no witness for a changed decision context with unchanged
+        # facts. Do not let a dimension label or paraphrased answer fill that gap.
         old_decisions, new_decisions = _decisions(old, before), _decisions(new, after)
         return (
             change.before_consequence in old_decisions - new_decisions
             and change.after_consequence in new_decisions - old_decisions
-            and (
-                change.before.value != change.after.value
-                or change.dimension == "decision_effect"
-            )
+            and change.before.value != change.after.value
         )
     # Same conclusion may require different evidence. Preserve this legitimate
     # variant instead of requiring every answer or structure to change.
