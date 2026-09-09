@@ -58,5 +58,6 @@ jobs:
           (cd backend && ../.venv/bin/python tests/unlock_browser.py)
           (cd backend && ../.venv/bin/python tests/random_browser.py)
           (cd backend && ../.venv/bin/python tests/boss_browser.py)
+          (cd backend && ../.venv/bin/python tests/boss_stages_browser.py)
           (cd backend && ../.venv/bin/python tests/topic_browser.py)
           bun run --cwd frontend test
