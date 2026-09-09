@@ -88,6 +88,9 @@ def report(session: Session, user_id: uuid.UUID) -> UsageReport:
     queries.append(
         "SELECT id,kind,operation_id AS task_id,NULL::uuid AS config_version,destination,model_id,number,code,prompt_tokens,completion_tokens,total_tokens FROM probe_attempt WHERE user_id=:user_id AND code<>'not_dispatched'"
     )
+    queries.append(
+        "SELECT a.id,'review' AS kind,a.run_id AS task_id,a.config_version,a.destination,a.model_id,a.number,a.code,a.prompt_tokens,a.completion_tokens,a.total_tokens FROM review_attempt a JOIN training_run r ON r.id=a.run_id WHERE r.user_id=:user_id"
+    )
     calls = [
         UsageCall.model_validate(dict(row))
         for row in session.execute(

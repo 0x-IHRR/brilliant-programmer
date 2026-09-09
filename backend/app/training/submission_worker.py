@@ -28,6 +28,7 @@ from app.training.generation import extract_content
 from app.training.guided import exercise_candidate, practice_completion
 from app.training.models import TrainingRun
 from app.training.queue import DSN, queue
+from app.training.review_service import points
 from app.training.schema import Candidate
 from app.training.sources import contains_secret
 from app.training.submission_models import (
@@ -167,7 +168,10 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
             )
         if all(item.status == "related" for item in result.items):
             now = datetime.now(UTC)
-            if not session.get(PracticeAward, run.id):
+            if (
+                not session.get(PracticeAward, run.id)
+                and points(session, run.user_id, run.id) == 0
+            ):
                 session.add(
                     PracticeAward(
                         run_id=run.id,

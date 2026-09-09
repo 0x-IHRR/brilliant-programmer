@@ -43,6 +43,7 @@ async def call_permission(
     )
     watcher: asyncio.Task[None] | None = None
     caller = asyncio.current_task()
+    failure: BaseException | None = None
 
     async def watch() -> None:
         while True:
@@ -53,19 +54,35 @@ async def call_permission(
             await asyncio.sleep(0.1)
 
     try:
-        try:
-            config = await asyncio.shield(acquisition)
-        except asyncio.CancelledError:
-            # A cancelled waiter must release a lock its thread later acquires.
-            await acquisition
-            raise
+        config = await asyncio.shield(acquisition)
         watcher = asyncio.create_task(watch())
         yield config
+    except BaseException as error:
+        # Includes CancelledCall/ProbeError with already received usage. A later
+        # cancellation during cleanup must not replace this original evidence.
+        failure = error
+        raise
     finally:
-        if watcher:
-            watcher.cancel()
-            await asyncio.gather(watcher, return_exceptions=True)
-        await asyncio.to_thread(session.close)
+        async def release() -> None:
+            if watcher:
+                watcher.cancel()
+                await asyncio.gather(watcher, return_exceptions=True)
+            # to_thread cannot be stopped by cancelling its awaiter. Wait for
+            # acquisition before closing, including repeatedly cancelled waiters.
+            await asyncio.gather(acquisition, return_exceptions=True)
+            await asyncio.to_thread(session.close)
+
+        cleanup = asyncio.create_task(release())
+        interrupted: asyncio.CancelledError | None = None
+        while not cleanup.done():
+            try:
+                await asyncio.shield(cleanup)
+            except asyncio.CancelledError as error:
+                interrupted = error
+        cleanup.result()  # Cleanup failures must remain visible.
+        if interrupted is not None and failure is None:
+            # A successful body does not swallow a cancellation during cleanup.
+            raise interrupted
 
 
 @asynccontextmanager

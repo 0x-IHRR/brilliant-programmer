@@ -9,30 +9,37 @@ from app.models import User
 from app.training.boss import (
     BossCoverage,
     BossDecision,
-    FirstStage,
     assess_first_boss,
     validate_boss_coverage,
 )
 from app.training.boss_models import BossAttempt, BossPromotion
+from app.training.boss_stages import (
+    BossStage,
+    ObservationCoverage,
+    ReleasedStage,
+    StageDecision,
+    assess_stage,
+    parse_stage,
+)
+from app.training.comparison_service import coverage, qualification
 from app.training.evaluation_models import Evaluation
 from app.training.evaluation_schema import EvaluationInputs
 from app.training.independent_models import IndependentWork
-from app.training.independent_novelty import ScenarioComparison, assess_novelty
 from app.training.models import TrainingRun
+from app.training.review_models import ScoreReview
+from app.training.review_service import effective_grading
 from app.training.schema import Candidate, Source
 from app.training.submission_models import Submission
 
 
-def stage_for(session: Session, run_id: uuid.UUID) -> FirstStage | None:
+def stage_for(session: Session, run_id: uuid.UUID) -> ReleasedStage | None:
     attempt = session.get(BossAttempt, run_id)
-    return (
-        FirstStage.model_validate_json(json.dumps(attempt.stage)) if attempt else None
-    )
+    return parse_stage(attempt.stage) if attempt else None
 
 
 def decision_for(
     session: Session, run: TrainingRun, evaluation: Evaluation
-) -> BossDecision | None:
+) -> BossDecision | StageDecision | None:
     from app.training.independent_service import deliveries
 
     attempt = session.get(BossAttempt, run.id)
@@ -48,7 +55,7 @@ def decision_for(
     try:
         if not work or not work.novelty or run.launch_mode != "independent":
             raise ValueError("missing Boss qualification")
-        stage = FirstStage.model_validate_json(json.dumps(attempt.stage))
+        stage = parse_stage(attempt.stage)
         case = Candidate.model_validate(evaluation.case_snapshot)
         sources = [Source.model_validate(s) for s in evaluation.sources]
         inputs = EvaluationInputs.model_validate_json(json.dumps(evaluation.inputs))
@@ -60,24 +67,32 @@ def decision_for(
             or attempt.launch_level != stage.from_level
         ):
             raise ValueError("different accepted Boss lineage")
-        parsed = work.novelty["comparisons"]
+        grading_raw, excluded = effective_grading(session, run, evaluation)
+        if excluded:
+            return None
+        novelty = qualification(work, case, sources, "")
+        if isinstance(stage, BossStage):
+            return assess_stage(
+                stage=stage,
+                launch_points=attempt.launch_points,
+                current_level=owner.level,
+                run_id=run.id,
+                mode="independent",
+                freeze_sequence=evaluation.frozen_sequence,
+                case=case,
+                sources=sources,
+                inputs=inputs,
+                grading_raw=grading_raw,
+                novelty=novelty,
+                deliveries=deliveries(session, run.id),
+                key="",
+                converted_sequence=run.converted_sequence,
+                coverage=[
+                    ObservationCoverage.model_validate(c) for c in coverage(work)
+                ],
+            )
         validate_boss_coverage(
-            stage,
-            case,
-            [BossCoverage.model_validate(c) for c in parsed["boss_coverage"]],
-        )
-        novelty = assess_novelty(
-            case,
-            sources,
-            {
-                uuid.UUID(h["run_id"]): Candidate.model_validate_json(h["case"])
-                for h in work.history
-            },
-            [
-                ScenarioComparison.model_validate_json(json.dumps(c))
-                for c in parsed["comparisons"]
-            ],
-            "",
+            stage, case, [BossCoverage.model_validate(c) for c in coverage(work)]
         )
         return assess_first_boss(
             stage=stage,
@@ -89,7 +104,7 @@ def decision_for(
             case=case,
             sources=sources,
             inputs=inputs,
-            grading_raw=json.dumps(evaluation.result) if evaluation.result else None,
+            grading_raw=grading_raw,
             novelty=novelty,
             deliveries=deliveries(session, run.id),
             key="",
@@ -105,13 +120,17 @@ def settle_boss(session: Session, run: TrainingRun, evaluation: Evaluation) -> N
     #28 revalidation does not exist yet; no fabricated pending state is stored.
     Existing first promotion and actual current level independently prevent replay.
     """
+    # Review never initiates a Boss transition, including a late help receipt.
+    # Existing promotions stay intact; #28 owns subsequent revalidation.
+    if session.get(ScoreReview, run.id):
+        return
     result = decision_for(session, run, evaluation)
     if not result or not result.promote_to:
         return
     owner = session.get(User, run.user_id, populate_existing=True)
     assert owner
     stage = stage_for(session, run.id)
-    assert stage and evaluation.frozen_sequence
+    assert stage and stage.to_level and evaluation.frozen_sequence
     previous = session.exec(
         select(BossPromotion).where(
             BossPromotion.user_id == owner.id,

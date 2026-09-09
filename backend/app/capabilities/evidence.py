@@ -34,6 +34,8 @@ class Evidence(BaseModel):
     qualified_novelty: bool
     case_digest: str | None
     judgment_ids: list[str]
+    review_id: uuid.UUID | None = None
+    review_decision: str | None = None
     semantic_reliability: Literal["unverified"] = "unverified"
 
 

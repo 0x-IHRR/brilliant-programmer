@@ -47,7 +47,7 @@ def deliveries(session: Session, run_id: uuid.UUID) -> list[OrderedDelivery]:
     ]
 
 
-def history(session: Session, run: TrainingRun) -> list[dict[str, str]]:
+def capture_history(session: Session, run: TrainingRun) -> dict[uuid.UUID, Candidate]:
     """Complete user history, never latest-N or hash-only semantic exclusion.
 
     Legacy public cases conservatively count as seen. No private generated case
@@ -63,7 +63,7 @@ def history(session: Session, run: TrainingRun) -> list[dict[str, str]]:
         )
         .order_by(col(TrainingRun.created_at), col(TrainingRun.id))
     ).all()
-    result = []
+    result = {}
     for row in rows:
         # SQL JSON null is not SQL NULL. A stopped/failed unpublished round
         # has no seen case and must not poison later direct prerequisite checks.
@@ -75,7 +75,16 @@ def history(session: Session, run: TrainingRun) -> list[dict[str, str]]:
         ):
             raise ValueError("unresolved_history_delivery")
         case = Candidate.model_validate(row.candidate)
-        result.append({"run_id": str(row.id), "case": case.model_dump_json()})
+        result[row.id] = case
+    return result
+
+
+def history(session: Session, run: TrainingRun) -> list[dict[str, str]]:
+    """Legacy checkpoint reader; new tasks use a bounded reference snapshot."""
+    result = [
+        {"run_id": str(identity), "case": case.model_dump_json()}
+        for identity, case in capture_history(session, run).items()
+    ]
     if len(json.dumps(result).encode()) > HISTORY_BYTES:
         raise ValueError("history_exceeds_budget")
     return result

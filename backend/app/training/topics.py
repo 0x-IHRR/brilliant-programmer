@@ -13,6 +13,7 @@ from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.training.independent_routes import enqueue as enqueue_training
 from app.training.models import TrainingRun
+from app.training.projection import read_snapshot
 from app.training.queue import DSN
 from app.training.routes import TaskPublic, VerifiedUser
 from app.training.routes import view as training_view
@@ -78,7 +79,16 @@ class TopicPublic(BaseModel):
     completed_node_ids: list[uuid.UUID]
 
 
-def public(session: Session, item: Topic) -> TopicPublic:
+def public(_session: Session, item: Topic) -> TopicPublic:
+    # All mutation callers commit before projecting; terminal/duplicate paths
+    # have no pending writes. Do not release their locks or wait for model gates.
+    with read_snapshot() as snapshot:
+        current = snapshot.get(Topic, item.id)
+        assert current is not None
+        return _public(snapshot, current)
+
+
+def _public(session: Session, item: Topic) -> TopicPublic:
     # ponytail: reads this route's retained versions/runs in full; intended for small
     # personal histories. Measure large histories before adding pagination, not a
     # learning expiry or an artificial limit on accumulated progress.
@@ -124,17 +134,18 @@ def enqueue(session: Session, job: TopicJob) -> None:
 
 @router.get("")
 def list_topics(
-    user: VerifiedUser, session: SessionDep, response: Response
+    user: VerifiedUser, _session: SessionDep, response: Response
 ) -> list[TopicPublic]:
     response.headers["Cache-Control"] = "no-store"
-    return [
-        public(session, item)
-        for item in session.exec(
-            select(Topic)
-            .where(Topic.user_id == user.id)
-            .order_by(col(Topic.created_at).desc())
-        ).all()
-    ]
+    with read_snapshot() as snapshot:
+        return [
+            _public(snapshot, item)
+            for item in snapshot.exec(
+                select(Topic)
+                .where(Topic.user_id == user.id)
+                .order_by(col(Topic.created_at).desc())
+            ).all()
+        ]
 
 
 @router.get("/{topic_id}")

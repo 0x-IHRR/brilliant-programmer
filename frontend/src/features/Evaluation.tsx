@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { EvaluationsService, type Answer, type EvaluationPublic, type ModelConfigPublic, type PublicCase } from "../client"
+import { ScoreReview } from "./ScoreReview"
 import { Button } from "../components/ui/button"
 
 export function Evaluation({ runId, caseData, config, submitted, onFrozen, boss = false }: { boss?: boolean; runId: string; caseData: PublicCase; config: ModelConfigPublic | null; submitted: boolean; onFrozen: (frozen: boolean) => void }) {
@@ -55,7 +56,7 @@ export function Evaluation({ runId, caseData, config, submitted, onFrozen, boss 
     {error && <p role="alert">{error}</p>}
     {state && <>
       <p role="status">{state.message}</p>
-      {state.independent_outcome && <p role="status">独立检验记录：{({ independent_pass_candidate: boss ? "符合独立通过条件的证据候选（模型语义质量未验证；等级请核对本轮Boss结算）" : "符合独立通过条件的证据候选（模型语义质量未验证，不直接更新等级）", pending_delivery: "帮助交付尚未核实，独立结算等待回执；可核实说明或主动另开新题", practice: "按练习记录，已有修为保留", unclear: "尚未证明掌握", evidenced_fail: "本次独立作答有据未通过", invalid_case: "案例无效，不记能力失败", system_failure: "系统未能完成，不记能力失败", no_qualified_case: "当前案例未通过陌生性核验" } as Record<string, string>)[state.independent_outcome] ?? state.independent_outcome}</p>}
+      {state.independent_outcome && <p role="status">原评分独立检验记录（复核当前结果见下方）：{({ independent_pass_candidate: boss ? "符合独立通过条件的证据候选（模型语义质量未验证；等级请核对本轮Boss结算）" : "符合独立通过条件的证据候选（模型语义质量未验证，不直接更新等级）", pending_delivery: "帮助交付尚未核实，独立结算等待回执；可核实说明或主动另开新题", practice: "按练习记录，已有修为保留", unclear: "尚未证明掌握", evidenced_fail: "本次独立作答有据未通过", invalid_case: "案例无效，不记能力失败", system_failure: "系统未能完成，不记能力失败", no_qualified_case: "当前案例未通过陌生性核验" } as Record<string, string>)[state.independent_outcome] ?? state.independent_outcome}</p>}
       <p className="break-all">本评估接收方：{state.destination} · {state.model_id}</p>
       {state.frozen_sequence !== null && <p>评估输入已冻结 · 服务端事件 {state.frozen_sequence}。此后查看反馈不会改写原答。</p>}
       {checking && <Button className={buttonClass} variant="outline" disabled={busy} onClick={() => act(() => EvaluationsService.stopEvaluation({ path: { run_id: runId } }))}>停止本次评分</Button>}
@@ -70,6 +71,7 @@ export function Evaluation({ runId, caseData, config, submitted, onFrozen, boss 
         <Button type="submit" className={buttonClass} disabled={busy}>提交一次中性补答并冻结</Button>
         <Button type="button" variant="outline" className={buttonClass} disabled={busy} onClick={() => act(() => EvaluationsService.clarifyEvaluation({ path: { run_id: runId }, body: { answers: null } }))}>结束澄清，保留尚未证明掌握</Button>
       </form>}
+      {state.frozen_sequence != null && <p>以下为原评分记录；已申请复核时，当前有效结论请看下方评分复核与能力地图。</p>}
       {state.result?.items.map(item => <article key={item.judgment_id} className="space-y-2 border p-2">
         <h5>{caseData.judgments.find(j => j.id === item.judgment_id)?.prompt}</h5>
         <p>{({ pass: "通过", evidenced_fail: "有据未通过", unclear: "尚未证明掌握" })[item.conclusion]}</p>
@@ -78,6 +80,7 @@ export function Evaluation({ runId, caseData, config, submitted, onFrozen, boss 
         <details><summary>核对原答与冻结证据</summary>{item.answer_quotes.map((q, i) => <blockquote key={i} className="whitespace-pre-wrap">{q.input === "original" ? "原答" : "许可补答"}：{q.quote}</blockquote>)}{item.grounding.map((g, i) => <blockquote key={i} className="whitespace-pre-wrap">{g.citation.source_id}：{g.citation.quote} · {g.fact} = {g.value}</blockquote>)}{item.rule_quote && <p>{item.rule_quote}</p>}{item.counterexample_quote && <p>{item.counterexample_quote}</p>}</details>
       </article>)}
       <details><summary>评分调用与用量（{state.attempts.length} 次）</summary>{state.attempts.map(a => <p key={a.number}>第 {a.number} 次 · {a.code} · 输入 {a.prompt_tokens ?? "未知"} / 输出 {a.completion_tokens ?? "未知"} / 总 token {a.total_tokens ?? "未知"}</p>)}</details>
+      {state.status === "completed" && state.frozen_sequence != null && <ScoreReview key={runId} runId={runId} config={config} />}
     </>}
   </section>
 }

@@ -6,7 +6,6 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, field_validator
-from sqlalchemy import func
 from sqlmodel import col, select
 
 from app.api.deps import SessionDep
@@ -16,22 +15,29 @@ from app.training.boss import (
     FIRST_STAGE,
     BossDecision,
     FirstStage,
-    can_launch_first_boss,
 )
 from app.training.boss_models import BossAttempt, BossPromotion
 from app.training.boss_service import decision_for
+from app.training.boss_stages import (
+    STAGES,
+    BossStage,
+    ReleasedStage,
+    StageDecision,
+    parse_stage,
+    stage_at_level,
+)
 from app.training.evaluation_models import Evaluation
 from app.training.independent_models import IndependentWork
 from app.training.independent_routes import enqueue
 from app.training.models import TrainingRun
+from app.training.review_service import points
 from app.training.routes import TaskPublic, VerifiedUser, owned, view
-from app.training.submission_models import PracticeAward
 
 router = APIRouter(prefix="/boss", tags=["boss"])
 
 
 class BossAccess(BaseModel):
-    stage: FirstStage
+    stage: ReleasedStage
     points: int
     level: str
     can_start: bool
@@ -41,31 +47,31 @@ class BossAccess(BaseModel):
 class BossStart(BaseModel):
     model_config = ConfigDict(extra="forbid")
     request_id: uuid.UUID
-    expected_stage: FirstStage
+    expected_stage: ReleasedStage
     expected_config_version: uuid.UUID
     disclosure_accepted: bool
 
     @field_validator("expected_stage", mode="before")
     @classmethod
-    def stage_from_json(cls, value: Any) -> FirstStage:
-        return FirstStage.model_validate_json(json.dumps(value))
+    def stage_from_json(cls, value: Any) -> ReleasedStage:
+        if not isinstance(value, dict):
+            raise ValueError("expected frozen stage object")
+        return (
+            FirstStage if value.get("version") == FIRST_STAGE.version else BossStage
+        ).model_validate_json(json.dumps(value))
 
 
 class BossPublic(BaseModel):
     run_id: uuid.UUID
-    stage: FirstStage
-    decision: BossDecision | None
+    stage: ReleasedStage
+    decision: BossDecision | StageDecision | None
     promotion_id: uuid.UUID | None
     current_level: str
     points: int
 
 
 def points_for(session: SessionDep, user_id: uuid.UUID) -> int:
-    return session.exec(
-        select(func.coalesce(func.sum(PracticeAward.points), 0)).where(
-            PracticeAward.user_id == user_id
-        )
-    ).one()
+    return points(session, user_id)
 
 
 @router.get("/access")
@@ -82,11 +88,14 @@ def boss_access(
         .where(TrainingRun.user_id == user.id)
         .order_by(col(TrainingRun.created_at).desc())
     ).all()
+    stage = stage_at_level(user.level)
+    if stage is None:
+        raise HTTPException(409, "当前等级无已发布挑战标准")
     return BossAccess(
-        stage=FIRST_STAGE,
+        stage=stage,
         points=points,
         level=user.level,
-        can_start=can_launch_first_boss(points, user.level),
+        can_start=points >= stage.launch_points,
         run_ids=list(runs),
     )
 
@@ -96,8 +105,8 @@ def start_boss(
     body: BossStart, user: VerifiedUser, session: SessionDep, response: Response
 ) -> TaskPublic:
     response.headers["Cache-Control"] = "no-store"
-    if body.expected_stage != FIRST_STAGE:
-        raise HTTPException(409, "阶段标准已变化，请重新读取并确认三个必考范围")
+    if body.expected_stage not in (FIRST_STAGE, *STAGES):
+        raise HTTPException(409, "阶段标准已变化，请重新读取并确认全部必考范围")
     lock_owner(session, user.id)
     session.refresh(user)
     existing = session.get(TrainingRun, body.request_id)
@@ -112,9 +121,11 @@ def start_boss(
             raise HTTPException(409, "该请求身份已用于其他挑战，请读取原记录")
         return view(session, existing)
     points = points_for(session, user.id)
-    if not can_launch_first_boss(points, user.level):
+    stage = stage_at_level(user.level)
+    if stage != body.expected_stage or points < body.expected_stage.launch_points:
         raise HTTPException(
-            409, "首阶段Boss需小白阶段累计100点；修为不自动晋升，也不要求刷完全部小关"
+            409,
+            "当前阶段或累计修为未满足冻结标准；修为不自动晋升，也不要求刷完全部小关",
         )
     if not body.disclosure_accepted:
         raise HTTPException(422, "请先确认阶段标准、必考范围与模型目的地；重试可能计费")
@@ -135,11 +146,12 @@ def start_boss(
         config_version=config.version,
         destination=config.service_url,
         model_id=config.model_id,
-        target=FIRST_STAGE.mandatory[0].target.model_dump(),
+        target=body.expected_stage.mandatory[0].target.model_dump(),
         selection={
-            "entry": "first_boss",
-            "catalog_version": FIRST_STAGE.catalog_version,
-            "goal": "首阶段Boss：请求链路、局部因果与查证验证",
+            "entry": "boss",
+            "catalog_version": body.expected_stage.catalog_version,
+            "goal": "Boss："
+            + "、".join(m.scope for m in body.expected_stage.mandatory),
         },
     )
     session.add(run)
@@ -147,7 +159,7 @@ def start_boss(
     session.add(
         BossAttempt(
             run_id=run.id,
-            stage=FIRST_STAGE.model_dump(mode="json"),
+            stage=body.expected_stage.model_dump(mode="json"),
             launch_points=points,
             launch_level=user.level,
         )
@@ -167,7 +179,7 @@ def read_boss(
     run = owned(session, run_id, user.id)
     attempt = session.get(BossAttempt, run.id)
     if not attempt:
-        raise HTTPException(404, "不是首阶段Boss")
+        raise HTTPException(404, "不是Boss挑战")
     evaluation = session.get(Evaluation, run.id)
     result = decision_for(session, run, evaluation) if evaluation else None
     promotion = session.exec(
@@ -176,7 +188,7 @@ def read_boss(
     session.refresh(user)
     return BossPublic(
         run_id=run.id,
-        stage=FIRST_STAGE,
+        stage=parse_stage(attempt.stage),
         decision=result,
         promotion_id=promotion.id if promotion else None,
         current_level=user.level,
