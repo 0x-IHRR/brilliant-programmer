@@ -11,6 +11,7 @@ from app.project.models import ProjectRun
 from app.training.concept_models import ConceptHelp
 from app.training.evaluation_models import Evaluation
 from app.training.models import TrainingRun
+from app.training.review_models import ScoreReview
 from app.training.submission_models import Submission
 from app.training.topic_models import TopicJob
 
@@ -45,6 +46,7 @@ def stop_old_tasks(session: Session, user_id: uuid.UUID, version: uuid.UUID) -> 
         (ProjectRun, ProjectRun.user_id == user_id),
         (Submission, col(Submission.run_id).in_(run_ids)),
         (Evaluation, col(Evaluation.run_id).in_(run_ids)),
+        (ScoreReview, col(ScoreReview.run_id).in_(run_ids)),
         (ConceptHelp, col(ConceptHelp.run_id).in_(run_ids)),
     ):
         items = session.exec(
