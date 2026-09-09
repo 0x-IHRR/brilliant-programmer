@@ -16,11 +16,21 @@ test("未作答求助、主动深入与内容绑定渲染事实在320px和200%�
     (token) => sessionStorage.setItem("token", token!),
     process.env.CONCEPT_BROWSER_TOKEN,
   )
+  let releaseDraft!: () => void
+  const draftGate = new Promise<void>(resolve => { releaseDraft = resolve })
+  await page.route("**/training/tasks/*/draft", async route => {
+    if (route.request().method() !== "GET") { await route.continue(); return }
+    await draftGate
+    await route.continue()
+  })
   await page.reload()
   const training = page.getByRole("region", { name: "随机第一关" })
   await expect(
     training.getByText("比较请求证据", { exact: true }),
   ).toBeVisible()
+  await expect(training.getByLabel("草稿保存状态").getByRole("status")).toHaveText("正在读取已保存进度")
+  releaseDraft()
+  await expect(training.getByLabel("草稿保存状态").getByRole("status")).not.toHaveText("正在读取已保存进度")
   await training.getByRole("button", { name: "概念", exact: true }).click()
   const coach = page.getByRole("region", { name: "概念教练" })
   await coach.getByRole("textbox").fill("幂等是什么意思？")
@@ -63,6 +73,7 @@ test("未作答求助、主动深入与内容绑定渲染事实在320px和200%�
   await coach.getByText(/^进一步原理：/).scrollIntoViewIfNeeded()
   await page.screenshot({ path: "test-results/concept-deep-200.png" })
   await page.reload()
+  await expect(training.getByLabel("草稿保存状态").getByRole("status")).not.toHaveText("正在读取已保存进度")
   await training.getByRole("button", { name: "概念", exact: true }).click()
   await coach.getByText("交付事实与历史说明", { exact: true }).first().click()
   await expect(coach.getByText(/页面完整渲染回执已保存/).first()).toBeVisible()
