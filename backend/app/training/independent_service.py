@@ -120,6 +120,24 @@ def record_frozen(session: Session, run: TrainingRun, evaluation: Evaluation) ->
         key="",
         converted_sequence=run.converted_sequence,
     )
+    from app.quality.rules import Binding
+    from app.quality.service import freeze, status
+
+    current, _ = status(
+        session,
+        Binding(
+            user_id=run.user_id,
+            config_version=evaluation.config_version,
+            destination=evaluation.destination,
+            model_id=evaluation.model_id,
+            evaluation_rule=evaluation.rule_version,
+        ),
+        [Source.model_validate(s) for s in evaluation.sources],
+    )
+    # A delivery still being resolved has not yet established independent evidence.
+    # Known failure freezes denial now; a later retest cannot revive this round.
+    if current == "failed" or outcome != "pending_delivery":
+        freeze(session, run, evaluation)
     from app.training.boss_service import settle_boss
 
     settle_boss(session, run, evaluation)

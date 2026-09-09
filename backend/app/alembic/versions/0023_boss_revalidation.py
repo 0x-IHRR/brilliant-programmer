@@ -48,7 +48,7 @@ def upgrade():
             for review in reviews:
                 run = session.get(TrainingRun, review.run_id)
                 session.exec(select(User).where(User.id == run.user_id).with_for_update()).one()
-                mark_reviewed_promotion(session, run, review)
+                mark_reviewed_promotion(session, run, review, legacy_backfill=True)
             session.flush()
 
 

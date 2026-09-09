@@ -10,12 +10,16 @@ from sqlmodel import col, select
 from app.api.deps import SessionDep
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
+from app.quality.rules import Binding
+from app.quality.service import require_start
 from app.training.draft_collection import lock_run
+from app.training.evaluation_schema import EVALUATION_RULE
 from app.training.events import next_event
 from app.training.independent_models import IndependentWork
 from app.training.models import TrainingRun
 from app.training.queue import DSN
 from app.training.routes import TaskPublic, VerifiedUser, owned, view
+from app.training.schema import Source
 from app.training.worker import generate_training
 
 router = APIRouter(prefix="/training", tags=["independent"])
@@ -29,6 +33,20 @@ class CheckStart(BaseModel):
 
 
 def enqueue(session: SessionDep, run: TrainingRun) -> None:
+    # Shared by replay-safe new checks, direct prerequisite checks, Boss and retry.
+    # All callers already hold User; the gate commits with the queued run.
+    if run.launch_mode == "independent":
+        require_start(
+            session,
+            Binding(
+                user_id=run.user_id,
+                config_version=run.config_version,
+                destination=run.destination,
+                model_id=run.model_id,
+                evaluation_rule=EVALUATION_RULE,
+            ),
+            [Source.model_validate(s) for s in run.sources] or None,
+        )
     app = procrastinate.App(connector=procrastinate.SyncPsycopgConnector(conninfo=DSN))
     task = app.task(name="training.generate")(generate_training.func)
     run.queue_job_id = task.configure(
