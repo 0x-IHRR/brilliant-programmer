@@ -15,6 +15,7 @@ from app.model_config.service import decrypt, lock_owner
 from app.training.draft_collection import submit_guard
 from app.training.evaluation_models import Evaluation
 from app.training.events import next_event
+from app.training.projection import read_snapshot
 from app.training.queue import DSN
 from app.training.review_service import points
 from app.training.routes import VerifiedUser, owned
@@ -47,10 +48,22 @@ def enqueue(session: Session, submission: Submission) -> None:
 
 
 def state(
-    session: Session,
+    _session: Session,
     run_id: uuid.UUID,
     user_id: uuid.UUID,
     practice_help_id: uuid.UUID | None = None,
+) -> SubmissionState:
+    # Every caller has committed its writes before projecting, or has made no
+    # changes on an idempotent/terminal return. Preserve its transaction locks.
+    with read_snapshot() as snapshot:
+        return _state(snapshot, run_id, user_id, practice_help_id)
+
+
+def _state(
+    session: Session,
+    run_id: uuid.UUID,
+    user_id: uuid.UUID,
+    practice_help_id: uuid.UUID | None,
 ) -> SubmissionState:
     run = owned(session, run_id, user_id)
     submissions = session.exec(
