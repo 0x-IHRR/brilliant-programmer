@@ -46,6 +46,7 @@ class TaskPublic(BaseModel):
     current_mode: str
     origin_id: uuid.UUID | None
     independent_outcome: str | None
+    return_target: EvidenceKey | None = None
 
 
 def owned(session: Session, run_id: uuid.UUID, user_id: uuid.UUID) -> TrainingRun:
@@ -71,6 +72,9 @@ def view(session: Session, run: TrainingRun) -> TaskPublic:
         .order_by(col(TrainingAttempt.number))
     ).all()
     return TaskPublic(
+        return_target=EvidenceKey.model_validate(run.selection["return_target"])
+        if run.selection.get("return_target")
+        else None,
         launch_mode=run.launch_mode,
         current_mode="practice"
         if run.converted_sequence is not None
@@ -161,6 +165,12 @@ def start(
         for c in d.capabilities
         if c.id == target.capability_id
     )
+    # The explicit random entry selected this prerequisite-free published unit.
+    # Persist in this SAME owner transaction (not the worker's separate HTTP
+    # permission transaction, whose User lock would block the opening FK).
+    from app.capabilities.unlocks import open_unit
+
+    open_unit(session, user.id, target)
     run = TrainingRun(
         user_id=user.id,
         config_version=config.version,

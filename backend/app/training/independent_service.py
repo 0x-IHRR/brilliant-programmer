@@ -65,6 +65,10 @@ def history(session: Session, run: TrainingRun) -> list[dict[str, str]]:
     ).all()
     result = []
     for row in rows:
+        # SQL JSON null is not SQL NULL. A stopped/failed unpublished round
+        # has no seen case and must not poison later direct prerequisite checks.
+        if row.candidate is None:
+            continue
         if any(
             e.status == "delivery_unknown"
             for e in resolved_deliveries(row.id, deliveries(session, row.id))

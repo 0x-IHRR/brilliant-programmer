@@ -32,6 +32,7 @@ from app.training.schema import (
     scenario_fingerprint,
     validate_candidate,
 )
+from app.training.sources import acquire_source
 
 
 class Comparisons(Strict):
@@ -166,7 +167,13 @@ def accept(identity: uuid.UUID, raw: str, key: str, job_id: int | None) -> bool:
 
 async def process(identity: uuid.UUID) -> None:
     # Import at execution time: same task/claim/attempt persistence, no second queue.
-    from app.training.worker import begin_attempt, finish, read_run, record_attempt
+    from app.training.worker import (
+        begin_attempt,
+        finish,
+        read_run,
+        record_attempt,
+        save_sources,
+    )
 
     initial = await asyncio.to_thread(read_run, identity)
     job_id = initial.queue_job_id
@@ -204,6 +211,15 @@ async def process(identity: uuid.UUID) -> None:
                 if prepared is None:
                     return
                 run, work = prepared
+                if not run.sources:
+                    sources = await acquire_source(
+                        EvidenceKey.model_validate(run.target).capability_id
+                    )
+                    await asyncio.to_thread(save_sources, identity, sources)
+                    prepared = await asyncio.to_thread(prepare, identity, job_id)
+                    if prepared is None:
+                        return
+                    run, work = prepared
                 attempt = await asyncio.to_thread(begin_attempt, identity, job_id)
                 if attempt is None:
                     return
