@@ -21,6 +21,7 @@ from app.training.gate import call_credential
 from app.training.generation import generate
 from app.training.models import TrainingAttempt, TrainingRun
 from app.training.queue import queue
+from app.training.review_worker import recover_reviews
 from app.training.schema import Source, scenario_fingerprint, validate_candidate
 from app.training.sources import acquire_source
 from app.training.submission_worker import (  # noqa: F401
@@ -437,6 +438,7 @@ async def generate_training(run_id: str) -> None:
 async def recover(timestamp: int = 0) -> None:
     del timestamp
 
+    await asyncio.to_thread(recover_reviews)
     await asyncio.to_thread(reconcile_topics)
     await asyncio.to_thread(reconcile_stops)
     await asyncio.to_thread(reconcile_failed_submissions)
@@ -449,6 +451,7 @@ async def recover(timestamp: int = 0) -> None:
         "training.check_submission",
         "project.analyze",
         "training.evaluate",
+        "training.review",
         "training.concept",
     ):
         for job in await queue.job_manager.get_stalled_jobs(task_name=task_name):

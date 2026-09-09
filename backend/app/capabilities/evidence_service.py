@@ -30,6 +30,8 @@ from app.training.independent_novelty import (
     case_digest,
 )
 from app.training.models import TrainingRun
+from app.training.review_models import ScoreReview
+from app.training.review_service import effective_grading
 from app.training.schema import Candidate, Source
 from app.training.submission_models import Submission
 
@@ -57,6 +59,7 @@ def read_evidence(session: Session, user_id: uuid.UUID) -> EvidenceMap:
         ).first()
         outcome = "practice" if run.launch_mode == "practice" else "awaiting_evaluation"
         qualified = False
+        facet_eligible = False
         digest = None
         judgments: list[str] = []
         if observation:
@@ -98,11 +101,35 @@ def read_evidence(session: Session, user_id: uuid.UUID) -> EvidenceMap:
                 qualified = (
                     assessment.status == "novelty_candidate" and outcome == expected
                 )
+                facet_eligible = qualified
+                # Preserve the ORIGINAL observation's help/novelty qualification.
+                # Select the reviewed witnesses BEFORE Boss per-facet grounding;
+                # replacing a projected facet afterward would grant unsupported proof.
+                if session.get(ScoreReview, run.id):
+                    raw, excluded = effective_grading(session, run, evaluation)
+                    if excluded:
+                        outcome, qualified = excluded, False
+                    elif raw:
+                        grading = validate_grading(raw, case, sources, inputs, "")
+                        revised = {item.conclusion for item in grading.items}
+                        if qualified:
+                            outcome = (
+                                "evidenced_fail"
+                                if "evidenced_fail" in revised
+                                else "unclear"
+                                if "unclear" in revised
+                                else "independent_pass_candidate"
+                            )
                 digest = case_digest(case)
                 judgments = [item.judgment_id for item in grading.items]
             except ValueError, KeyError, TypeError:
                 outcome = "evidence_unavailable"
+        review = session.get(ScoreReview, run.id)
+        if review and review.decision in {"pending", "disputed"}:
+            outcome, qualified = review.decision, False
         record = Evidence(
+            review_id=review.request_id if review else None,
+            review_decision=review.decision if review else None,
             original_id=original.id,
             run_id=run.id,
             order=order.position,
@@ -120,7 +147,7 @@ def read_evidence(session: Session, user_id: uuid.UUID) -> EvidenceMap:
             judgment_ids=judgments,
         )
         stage = stage_for(session, run.id)
-        if stage and observation and qualified:
+        if stage and observation and (qualified or (review and facet_eligible)):
             try:
                 assert work and work.novelty
                 facets = []
@@ -146,7 +173,10 @@ def read_evidence(session: Session, user_id: uuid.UUID) -> EvidenceMap:
                                 "target": mandatory.target,
                                 "judgment_ids": [mandatory.judgment_id],
                                 "outcome": (
-                                    "independent_pass_candidate"
+                                    outcome
+                                    if review
+                                    and review.decision in {"pending", "disputed"}
+                                    else "independent_pass_candidate"
                                     if item.conclusion == "pass"
                                     and (
                                         not isinstance(stage, BossStage)

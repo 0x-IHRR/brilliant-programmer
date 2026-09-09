@@ -26,6 +26,8 @@ from app.training.evaluation_models import Evaluation
 from app.training.evaluation_schema import EvaluationInputs
 from app.training.independent_models import IndependentWork
 from app.training.models import TrainingRun
+from app.training.review_models import ScoreReview
+from app.training.review_service import effective_grading
 from app.training.schema import Candidate, Source
 from app.training.submission_models import Submission
 
@@ -65,6 +67,9 @@ def decision_for(
             or attempt.launch_level != stage.from_level
         ):
             raise ValueError("different accepted Boss lineage")
+        grading_raw, excluded = effective_grading(session, run, evaluation)
+        if excluded:
+            return None
         novelty = qualification(work, case, sources, "")
         if isinstance(stage, BossStage):
             return assess_stage(
@@ -77,9 +82,7 @@ def decision_for(
                 case=case,
                 sources=sources,
                 inputs=inputs,
-                grading_raw=json.dumps(evaluation.result)
-                if evaluation.result
-                else None,
+                grading_raw=grading_raw,
                 novelty=novelty,
                 deliveries=deliveries(session, run.id),
                 key="",
@@ -101,7 +104,7 @@ def decision_for(
             case=case,
             sources=sources,
             inputs=inputs,
-            grading_raw=json.dumps(evaluation.result) if evaluation.result else None,
+            grading_raw=grading_raw,
             novelty=novelty,
             deliveries=deliveries(session, run.id),
             key="",
@@ -117,6 +120,10 @@ def settle_boss(session: Session, run: TrainingRun, evaluation: Evaluation) -> N
     #28 revalidation does not exist yet; no fabricated pending state is stored.
     Existing first promotion and actual current level independently prevent replay.
     """
+    # Review never initiates a Boss transition, including a late help receipt.
+    # Existing promotions stay intact; #28 owns subsequent revalidation.
+    if session.get(ScoreReview, run.id):
+        return
     result = decision_for(session, run, evaluation)
     if not result or not result.promote_to:
         return

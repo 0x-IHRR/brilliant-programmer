@@ -759,6 +759,14 @@ export type Evidence = {
      */
     judgment_ids: Array<string>;
     /**
+     * Review Id
+     */
+    review_id?: string | null;
+    /**
+     * Review Decision
+     */
+    review_decision?: string | null;
+    /**
      * Semantic Reliability
      */
     semantic_reliability?: 'unverified';
@@ -1519,6 +1527,21 @@ export type Observation = {
 };
 
 /**
+ * Opinion
+ */
+export type Opinion = {
+    /**
+     * Decision
+     */
+    decision: 'upheld' | 'corrected' | 'disputed';
+    /**
+     * Explanation
+     */
+    explanation: string;
+    grading: GradingCandidate | null;
+};
+
+/**
  * PasswordResetEmail
  */
 export type PasswordResetEmail = {
@@ -1966,6 +1989,131 @@ export type Repository = {
      * End Line
      */
     end_line?: number | null;
+};
+
+/**
+ * ReviewCall
+ */
+export type ReviewCall = {
+    /**
+     * Number
+     */
+    number: number;
+    /**
+     * Config Version
+     */
+    config_version: string;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Prompt Tokens
+     */
+    prompt_tokens: number | null;
+    /**
+     * Completion Tokens
+     */
+    completion_tokens: number | null;
+    /**
+     * Total Tokens
+     */
+    total_tokens: number | null;
+};
+
+/**
+ * ReviewPublic
+ */
+export type ReviewPublic = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Decision
+     */
+    decision: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Config Version
+     */
+    config_version: string;
+    /**
+     * Destination
+     */
+    destination: string;
+    /**
+     * Model Id
+     */
+    model_id: string;
+    /**
+     * Accepted At
+     */
+    accepted_at: string;
+    opinion: Opinion | null;
+    /**
+     * Attempts
+     */
+    attempts: Array<ReviewCall>;
+    /**
+     * Remaining Attempts
+     */
+    remaining_attempts: number;
+};
+
+/**
+ * ReviewResume
+ */
+export type ReviewResume = {
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+};
+
+/**
+ * ReviewStart
+ */
+export type ReviewStart = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
 };
 
 /**
@@ -4980,6 +5128,128 @@ export type topicsJobActionResponses = {
 };
 
 export type topicsJobActionResponse = topicsJobActionResponses[keyof topicsJobActionResponses];
+
+export type reviewsReadReviewData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/review';
+};
+
+export type reviewsReadReviewErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type reviewsReadReviewError = reviewsReadReviewErrors[keyof reviewsReadReviewErrors];
+
+export type reviewsReadReviewResponses = {
+    /**
+     * Response Reviews-Read Review
+     *
+     * Successful Response
+     */
+    200: ReviewPublic | null;
+};
+
+export type reviewsReadReviewResponse = reviewsReadReviewResponses[keyof reviewsReadReviewResponses];
+
+export type reviewsStartReviewData = {
+    body: ReviewStart;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/review';
+};
+
+export type reviewsStartReviewErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type reviewsStartReviewError = reviewsStartReviewErrors[keyof reviewsStartReviewErrors];
+
+export type reviewsStartReviewResponses = {
+    /**
+     * Successful Response
+     */
+    202: ReviewPublic;
+};
+
+export type reviewsStartReviewResponse = reviewsStartReviewResponses[keyof reviewsStartReviewResponses];
+
+export type reviewsRetryReviewData = {
+    body: ReviewResume;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/review/retry';
+};
+
+export type reviewsRetryReviewErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type reviewsRetryReviewError = reviewsRetryReviewErrors[keyof reviewsRetryReviewErrors];
+
+export type reviewsRetryReviewResponses = {
+    /**
+     * Successful Response
+     */
+    202: ReviewPublic;
+};
+
+export type reviewsRetryReviewResponse = reviewsRetryReviewResponses[keyof reviewsRetryReviewResponses];
+
+export type reviewsStopReviewData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/review/stop';
+};
+
+export type reviewsStopReviewErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type reviewsStopReviewError = reviewsStopReviewErrors[keyof reviewsStopReviewErrors];
+
+export type reviewsStopReviewResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReviewPublic;
+};
+
+export type reviewsStopReviewResponse = reviewsStopReviewResponses[keyof reviewsStopReviewResponses];
 
 export type healthHealthData = {
     body?: never;

@@ -123,7 +123,9 @@ def provider(tmp_path):
                 return
             status = {"auth": 401, "limited": 429, "temporary": 503}.get(mode, 200)
             context_data = json.loads(payload["messages"][1]["content"])
-            if context_data.get("purpose") == "evidence_feedback":
+            if context_data.get("purpose") == "score_review":
+                value = state["review"](context_data)
+            elif context_data.get("purpose") == "evidence_feedback":
                 value = state["grading"](context_data)
             elif context_data.get("purpose") in {"concept_generate", "concept_inspect"}:
                 value = state["coach"](context_data)
