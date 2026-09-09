@@ -1221,6 +1221,38 @@ export type PracticeState = {
 };
 
 /**
+ * PreferencePublic
+ */
+export type PreferencePublic = {
+    /**
+     * Version
+     */
+    version: string | null;
+    /**
+     * Mode
+     */
+    mode: 'recommended' | '基础' | '进阶' | '综合';
+    /**
+     * Has Record
+     */
+    has_record: boolean;
+};
+
+/**
+ * PreferenceUpdate
+ */
+export type PreferenceUpdate = {
+    /**
+     * Expected Version
+     */
+    expected_version: string | null;
+    /**
+     * Mode
+     */
+    mode: 'recommended' | '基础' | '进阶' | '综合';
+};
+
+/**
  * ProbeInput
  */
 export type ProbeInput = {
@@ -1668,6 +1700,14 @@ export type Start = {
      * Previous Run Id
      */
     previous_run_id?: string | null;
+    /**
+     * Request Id
+     */
+    request_id?: string | null;
+    /**
+     * Expected Preference Version
+     */
+    expected_preference_version?: string | null;
 };
 
 /**
@@ -1887,6 +1927,14 @@ export type TaskPublic = {
      */
     independent_outcome: string | null;
     return_target?: EvidenceKey | null;
+    /**
+     * Recommendation Reason
+     */
+    recommendation_reason?: string | null;
+    /**
+     * Random Mode
+     */
+    random_mode?: string | null;
 };
 
 /**
@@ -2765,6 +2813,47 @@ export type modelconfigProbeResponses = {
 };
 
 export type modelconfigProbeResponse = modelconfigProbeResponses[keyof modelconfigProbeResponses];
+
+export type trainingReadPreferenceData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/training/random-preference';
+};
+
+export type trainingReadPreferenceResponses = {
+    /**
+     * Successful Response
+     */
+    200: PreferencePublic;
+};
+
+export type trainingReadPreferenceResponse = trainingReadPreferenceResponses[keyof trainingReadPreferenceResponses];
+
+export type trainingSavePreferenceData = {
+    body: PreferenceUpdate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/training/random-preference';
+};
+
+export type trainingSavePreferenceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type trainingSavePreferenceError = trainingSavePreferenceErrors[keyof trainingSavePreferenceErrors];
+
+export type trainingSavePreferenceResponses = {
+    /**
+     * Successful Response
+     */
+    200: PreferencePublic;
+};
+
+export type trainingSavePreferenceResponse = trainingSavePreferenceResponses[keyof trainingSavePreferenceResponses];
 
 export type trainingStartData = {
     body: Start;

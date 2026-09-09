@@ -1,5 +1,6 @@
 import asyncio
 import uuid
+from datetime import UTC, datetime
 
 from fastapi import HTTPException
 from sqlalchemy import text
@@ -190,6 +191,8 @@ def accept_candidate(run_id: uuid.UUID, raw: str, key: str) -> bool:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
         ).one()
+        if run.candidate:
+            return True
         current_for_result(session, run.user_id, run.config_version)
         candidate = validate_candidate(
             raw,
@@ -207,6 +210,10 @@ def accept_candidate(run_id: uuid.UUID, raw: str, key: str) -> bool:
         ).first()
         if previous:
             raise ValueError("repeated scenario")
+        # call_credential's separate Session already holds User until this
+        # acceptance commits. Update only this run: no second User lock/FK insert.
+        if run.selection.get("random_mode") == "recommended":
+            run.recommendation_delivered_at = datetime.now(UTC)
         run.candidate = candidate.model_dump()
         run.scenario_hash = fingerprint
         run.status = "stopped" if run.stop_requested else "completed"

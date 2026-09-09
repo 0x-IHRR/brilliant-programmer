@@ -30,6 +30,7 @@ from app.training import practice_models  # noqa: F401
 from app.training import draft_collection  # noqa: F401
 from app.training import draft_models  # noqa: F401
 from app.training import evaluation_models  # noqa: F401
+from app.training import preference_models  # noqa: F401
 from app.training import independent_models  # noqa: F401
 from app.project.models import ProjectRun, ProjectAttempt  # noqa
 from app.models import SQLModel  # noqa

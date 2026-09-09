@@ -644,10 +644,10 @@ def test_seed_replay_concurrent_start_and_formal_submission_boundary(provider):
         run.formal_submitted_at = datetime.now(UTC)
         session.add(run)
         session.commit()
-    assert (
-        client.post("/api/v1/training/random", headers=auth, json=payload).status_code
-        == 409
-    )
+    recommended = client.post("/api/v1/training/random", headers=auth, json=payload)
+    assert recommended.status_code == 202
+    assert recommended.json()["random_mode"] == "recommended"
+    assert client.post(f"/api/v1/training/tasks/{recommended.json()['id']}/stop", headers=auth).status_code == 200
     assert provider["requests"] == []
 
 
