@@ -29,8 +29,22 @@ router = APIRouter(prefix="/model-config", tags=["modelconfig"])
 VerifiedUser = Annotated[User, Depends(get_training_user)]
 
 
-def public(config: ModelConfig) -> ModelConfigPublic:
+def public(config: ModelConfig, session: Session) -> ModelConfigPublic:
+    from app.quality.public import describe
+    from app.quality.rules import Binding
+    from app.training.evaluation_schema import EVALUATION_RULE
+
     return ModelConfigPublic(
+        quality=describe(
+            session,
+            Binding(
+                user_id=config.user_id,
+                config_version=config.version,
+                destination=config.service_url,
+                model_id=config.model_id,
+                evaluation_rule=EVALUATION_RULE,
+            ),
+        ),
         version=config.version,
         service_url=config.service_url,
         model_id=config.model_id,
@@ -44,7 +58,7 @@ def read_config(
 ) -> ModelConfigPublic | None:
     response.headers["Cache-Control"] = "no-store"
     config = session.get(ModelConfig, user.id)
-    return public(config) if config else None
+    return public(config, session) if config else None
 
 
 @router.get("/usage")
@@ -89,7 +103,7 @@ def save_config(
     config = session.merge(replacement)
     session.commit()
     session.refresh(config)
-    return public(config)
+    return public(config, session)
 
 
 @router.delete("", status_code=204)

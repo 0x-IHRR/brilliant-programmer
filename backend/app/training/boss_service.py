@@ -203,7 +203,11 @@ def append_revalidation(
 
 
 def mark_reviewed_promotion(
-    session: Session, run: TrainingRun, review: ScoreReview
+    session: Session,
+    run: TrainingRun,
+    review: ScoreReview,
+    *,
+    legacy_backfill: bool = False,
 ) -> None:
     """Same User transaction as the validated review terminal; never lower a level."""
     if review.status != "completed" or review.decision != "corrected":
@@ -221,6 +225,13 @@ def mark_reviewed_promotion(
     attempt = session.get(BossAttempt, run.id)
     if not evaluation or not attempt:
         return
+    if not legacy_backfill:
+        from app.quality.service import permitted
+
+        if not permitted(session, run.id) or not permitted(session, run.id, "review"):
+            if session.get(BossDisposition, run.id) is None:
+                session.add(BossDisposition(run_id=run.id, outcome="blocked_quality"))
+            return
     if promotion:
         try:
             inputs = EvaluationInputs.model_validate_json(json.dumps(evaluation.inputs))
@@ -277,6 +288,11 @@ def settle_boss(session: Session, run: TrainingRun, evaluation: Evaluation) -> N
         or session.get(ScoreReview, run.id) is not None
         or session.get(BossDisposition, run.id) is not None
     ):
+        return
+    from app.quality.service import permitted
+
+    if not permitted(session, run.id):
+        session.add(BossDisposition(run_id=run.id, outcome="blocked_quality"))
         return
     # Freeze the blocked disposition even for a pending delivery: clearing an
     # unrelated restriction later cannot turn an old receipt into a new promotion.

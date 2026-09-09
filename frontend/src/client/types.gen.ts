@@ -709,6 +709,10 @@ export type EvaluationInputs = {
  */
 export type EvaluationPublic = {
     /**
+     * Grading Quality
+     */
+    grading_quality?: string;
+    /**
      * Run Id
      */
     run_id: string;
@@ -839,6 +843,14 @@ export type Evidence = {
      * Semantic Reliability
      */
     semantic_reliability?: 'unverified';
+    /**
+     * Grading Quality
+     */
+    grading_quality?: 'unverified' | 'passed' | 'failed' | 'version_mismatch';
+    /**
+     * Quality Report Id
+     */
+    quality_report_id?: string | null;
 };
 
 /**
@@ -1570,6 +1582,7 @@ export type Mapping = {
  * ModelConfigPublic
  */
 export type ModelConfigPublic = {
+    quality?: QualityPublic | null;
     /**
      * Version
      */
@@ -2007,6 +2020,56 @@ export type PublicationChoice = {
 };
 
 /**
+ * QualityPublic
+ */
+export type QualityPublic = {
+    /**
+     * Status
+     */
+    status: 'unverified' | 'passed' | 'failed' | 'version_mismatch';
+    /**
+     * Report Id
+     */
+    report_id?: string | null;
+    /**
+     * Artifact Sha256
+     */
+    artifact_sha256?: string | null;
+    /**
+     * Evaluation Rule
+     */
+    evaluation_rule: string;
+    /**
+     * Corpus Version
+     */
+    corpus_version?: string | null;
+    /**
+     * Annotation Version
+     */
+    annotation_version?: string | null;
+    /**
+     * Checked At
+     */
+    checked_at?: string | null;
+    /**
+     * Sample Count
+     */
+    sample_count?: number | null;
+    /**
+     * Correct Count
+     */
+    correct_count?: number | null;
+    /**
+     * Safety False Accepts
+     */
+    safety_false_accepts?: number | null;
+    /**
+     * Source Versions
+     */
+    source_versions?: Array<string>;
+};
+
+/**
  * Quote
  */
 export type Quote = {
@@ -2256,6 +2319,10 @@ export type ReviewCall = {
  * ReviewPublic
  */
 export type ReviewPublic = {
+    /**
+     * Grading Quality
+     */
+    grading_quality?: string;
     /**
      * Run Id
      */

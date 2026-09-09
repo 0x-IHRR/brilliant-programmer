@@ -48,6 +48,7 @@ class Clarify(BaseModel):
 
 
 class EvaluationPublic(BaseModel):
+    grading_quality: str = "unverified"
     run_id: uuid.UUID
     status: str
     code: str
@@ -81,8 +82,18 @@ def _view(session: Session, item: Evaluation) -> EvaluationPublic:
         .order_by(col(IndependentObservation.sequence).desc())
     ).first()
     session.refresh(item)
+    from app.quality.models import QualityDisposition
+
+    quality = session.get(QualityDisposition, (item.run_id, "original"))
     return EvaluationPublic(
-        independent_outcome=observation.outcome if observation else None,
+        grading_quality=quality.status if quality else "unverified",
+        independent_outcome=(
+            "quality_failed"
+            if quality and quality.status == "failed"
+            else observation.outcome
+        )
+        if observation
+        else None,
         **item.model_dump(
             include={
                 "run_id",

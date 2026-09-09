@@ -7,12 +7,15 @@ projection; do not trim history or impose a learning cap to hide its cost.
 
 import json
 import uuid
+from typing import cast
 
 from sqlmodel import Session, col, select
 
 from app.capabilities.catalog import EvidenceKey
 from app.capabilities.evidence import Evidence, EvidenceMap, project
 from app.capabilities.evidence_models import OriginalOrder
+from app.quality.models import QualityDisposition
+from app.quality.rules import QualityStatus
 from app.training.boss import BossCoverage, validate_boss_coverage
 from app.training.boss_service import stage_for
 from app.training.boss_stages import (
@@ -127,7 +130,23 @@ def read_evidence(session: Session, user_id: uuid.UUID) -> EvidenceMap:
         review = session.get(ScoreReview, run.id)
         if review and review.decision in {"pending", "disputed"}:
             outcome, qualified = review.decision, False
+        quality = session.get(
+            QualityDisposition,
+            (
+                run.id,
+                "review" if review and review.status == "completed" else "original",
+            ),
+        )
+        original_quality = session.get(QualityDisposition, (run.id, "original"))
+        if (quality and quality.status == "failed") or (
+            original_quality and original_quality.status == "failed"
+        ):
+            outcome, qualified, facet_eligible = "quality_failed", False, False
         record = Evidence(
+            grading_quality=cast(QualityStatus, quality.status)
+            if quality
+            else "unverified",
+            quality_report_id=quality.report_id if quality else None,
             review_id=review.request_id if review else None,
             review_decision=review.decision if review else None,
             original_id=original.id,

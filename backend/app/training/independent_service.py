@@ -96,11 +96,14 @@ def record_frozen(session: Session, run: TrainingRun, evaluation: Evaluation) ->
     Earlier observations stay immutable; resolving an unknown appends a new fact
     about the same frozen input. Post-freeze help cannot change that outcome.
     """
-    if (
-        run.launch_mode != "independent"
-        or not evaluation.frozen_sequence
-        or evaluation.status != "completed"
-    ):
+    if not evaluation.frozen_sequence or evaluation.status != "completed":
+        return
+    if run.launch_mode != "independent":
+        # Both worker settlement and ending a permitted clarification arrive here.
+        # A deleted current key does not change the frozen evaluation's binding.
+        from app.quality.service import freeze as freeze_quality
+
+        freeze_quality(session, run, evaluation)
         return
     work = session.get(IndependentWork, run.id)
     if not work or not work.novelty:
@@ -120,6 +123,24 @@ def record_frozen(session: Session, run: TrainingRun, evaluation: Evaluation) ->
         key="",
         converted_sequence=run.converted_sequence,
     )
+    from app.quality.rules import Binding
+    from app.quality.service import freeze, status
+
+    current, _ = status(
+        session,
+        Binding(
+            user_id=run.user_id,
+            config_version=evaluation.config_version,
+            destination=evaluation.destination,
+            model_id=evaluation.model_id,
+            evaluation_rule=evaluation.rule_version,
+        ),
+        [Source.model_validate(s) for s in evaluation.sources],
+    )
+    # A delivery still being resolved has not yet established independent evidence.
+    # Known failure freezes denial now; a later retest cannot revive this round.
+    if current == "failed" or outcome != "pending_delivery":
+        freeze(session, run, evaluation)
     from app.training.boss_service import settle_boss
 
     settle_boss(session, run, evaluation)

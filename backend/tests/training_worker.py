@@ -12,6 +12,7 @@ from pathlib import Path
 
 from app.model_config import connection
 from app.training import (
+    evaluation_worker,
     independent_worker,
     review_worker,
     sources,
@@ -112,6 +113,17 @@ def accept(*args):
 
 
 worker.accept_candidate = accept
+original_quality_settle = evaluation_worker.settle
+
+
+def quality_settle(*args):
+    while json.loads(control.read_text()).get("before_quality_settle"):
+        Path(str(control) + ".quality_settling").touch()
+        time.sleep(0.02)
+    return original_quality_settle(*args)
+
+
+evaluation_worker.settle = quality_settle
 original_independent_credential = independent_worker.call_credential
 
 

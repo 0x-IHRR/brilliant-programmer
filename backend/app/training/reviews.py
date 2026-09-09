@@ -49,6 +49,7 @@ class ReviewCall(BaseModel):
 
 
 class ReviewPublic(BaseModel):
+    grading_quality: str = "unverified"
     run_id: uuid.UUID
     request_id: uuid.UUID
     decision: str
@@ -66,7 +67,11 @@ class ReviewPublic(BaseModel):
 
 def view(session: Session, item: ScoreReview) -> ReviewPublic:
     session.refresh(item)
+    from app.quality.models import QualityDisposition
+
+    quality = session.get(QualityDisposition, (item.run_id, "review"))
     return ReviewPublic(
+        grading_quality=quality.status if quality else "unverified",
         **item.model_dump(
             exclude={
                 "snapshot",

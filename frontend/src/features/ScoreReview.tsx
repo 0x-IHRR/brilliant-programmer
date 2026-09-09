@@ -58,6 +58,7 @@ export function ScoreReview({ runId, config }: { runId: string; config: ModelCon
     {state && <>
       <p role="status">{({ pending: "待复核：本次评分暂不参与能力证明与新的解锁判断，其他练习可继续。", upheld: "复核维持原判", corrected: "原判已更正，已按原作答位置回算当前完整历史", disputed: "复核后仍有争议：本次不作为掌握、失败或连续记录的依据，可另做独立新案例" } as Record<string, string>)[state.decision]}</p>
       <p>{state.message}</p>
+      <p>本次复核评分质量：{state.grading_quality === "failed" ? "已知未达标，不新增独立证明，也不据此解除补验" : state.grading_quality === "passed" ? "符合本次实际配置与来源的报告范围" : state.grading_quality === "version_mismatch" ? "版本不匹配，评分可靠性未验证" : "评分可靠性未验证"}。原评分与本次复核分别保留质量依据。</p>
       <p>已有开放单元、等级与积分保留。复核不会直接晋升或扣分；更正只补原轮累计应得积分的差额。</p>
       {active && <Button className={button} variant="outline" disabled={busy} onClick={() => void act(() => ReviewsService.stopReview({ path: { run_id: runId } }))}>停止复核（在途费用不保证撤回）</Button>}
       {state.opinion?.explanation && <p className="whitespace-pre-wrap">复核依据：{state.opinion.explanation}</p>}

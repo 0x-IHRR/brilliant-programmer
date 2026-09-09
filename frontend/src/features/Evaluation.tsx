@@ -56,7 +56,8 @@ export function Evaluation({ runId, caseData, config, submitted, onFrozen, boss 
     {error && <p role="alert">{error}</p>}
     {state && <>
       <p role="status">{state.message}</p>
-      {state.independent_outcome && <p role="status">原评分独立检验记录（复核当前结果见下方）：{({ independent_pass_candidate: boss ? "符合独立通过条件的证据候选（模型语义质量未验证；等级请核对本轮Boss结算）" : "符合独立通过条件的证据候选（模型语义质量未验证，不直接更新等级）", pending_delivery: "帮助交付尚未核实，独立结算等待回执；可核实说明或主动另开新题", practice: "按练习记录，已有修为保留", unclear: "尚未证明掌握", evidenced_fail: "本次独立作答有据未通过", invalid_case: "案例无效，不记能力失败", system_failure: "系统未能完成，不记能力失败", no_qualified_case: "当前案例未通过陌生性核验" } as Record<string, string>)[state.independent_outcome] ?? state.independent_outcome}</p>}
+      <p>本次评分质量：{state.grading_quality === "failed" ? "已知未达标，仅供普通练习与复盘" : state.grading_quality === "passed" ? "符合所绑定报告范围，仍不代表学习效果已证实" : state.grading_quality === "version_mismatch" ? "报告版本不匹配，评分可靠性未验证" : "评分可靠性未验证"}。</p>
+      {state.independent_outcome && <p role="status">原评分独立检验记录（复核当前结果见下方）：{({ independent_pass_candidate: boss ? "符合独立通过条件的证据候选（模型语义质量未验证；等级请核对本轮Boss结算）" : "符合独立通过条件的证据候选（模型语义质量未验证，不直接更新等级）", pending_delivery: "帮助交付尚未核实，独立结算等待回执；可核实说明或主动另开新题", practice: "按练习记录，已有修为保留", unclear: "尚未证明掌握", evidenced_fail: "本次独立作答有据未通过", invalid_case: "案例无效，不记能力失败", system_failure: "系统未能完成，不记能力失败", no_qualified_case: "当前案例未通过陌生性核验", quality_failed: "实际评分配置已有未达标依据，本轮不作为新增独立证明；已有修为保留" } as Record<string, string>)[state.independent_outcome] ?? state.independent_outcome}</p>}
       <p className="break-all">本评估接收方：{state.destination} · {state.model_id}</p>
       {state.frozen_sequence !== null && <p>评估输入已冻结 · 服务端事件 {state.frozen_sequence}。此后查看反馈不会改写原答。</p>}
       {checking && <Button className={buttonClass} variant="outline" disabled={busy} onClick={() => act(() => EvaluationsService.stopEvaluation({ path: { run_id: runId } }))}>停止本次评分</Button>}

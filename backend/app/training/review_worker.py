@@ -178,8 +178,26 @@ def settle(identity: uuid.UUID, job_id: int | None, raw: str) -> bool:
         )
         session.add(item)
         settle_difference(session, run, item)
+        from app.quality.rules import Binding
+        from app.quality.service import freeze as freeze_quality
         from app.training.boss_service import mark_reviewed_promotion
+        from app.training.evaluation_models import Evaluation
 
+        evaluation = session.get(Evaluation, run.id)
+        assert evaluation
+        freeze_quality(
+            session,
+            run,
+            evaluation,
+            phase="review",
+            binding=Binding(
+                user_id=run.user_id,
+                config_version=item.config_version,
+                destination=item.destination,
+                model_id=item.model_id,
+                evaluation_rule=evaluation.rule_version,
+            ),
+        )
         mark_reviewed_promotion(session, run, item)
         # No original evaluation/observation overwrite and no Boss promotion. The
         # shared projection reads this interpretation before each facet's grounding.
