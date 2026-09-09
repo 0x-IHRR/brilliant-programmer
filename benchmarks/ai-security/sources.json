@@ -1,0 +1,44 @@
+{
+  "rag": {
+    "id": "rag",
+    "url": "https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview",
+    "version": "Azure AI Search RAG overview, Content preparation / token constraints; snapshot2026-09-10; response-sha256:4c632701639b52666b3dde2da702350a0143cd50c52cad2272559ed157242ba6",
+    "locator": "Azure AI Search RAG overview, Content preparation / token constraints; snapshot2026-09-10。规范摘要（AI中文改写，待人工核验，非逐字引句）：RAG以检索内容支持回答，内容准备和真正相关片段决定可用依据；引用标识可追溯来源但不自动证明主张符合片段。检索需服从权限，不能把未获准资料发给模型。具体产品承诺、适用版本及例外仍需核原文；本题政策片段全部为教学假设。",
+    "text": "RAG quality depends on how you prepare content for retrieval\n[…]\nBuilt-in citation tracking shows provenance\n[…]\nmust only retrieve authorized content"
+  },
+  "injection": {
+    "id": "injection",
+    "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/382113ba1fbd7e99ffa21bcf90d7fd8a19be546b/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.md",
+    "version": "OWASP/CheatSheetSeries commit 382113ba1fbd7e99ffa21bcf90d7fd8a19be546b; response-sha256:581a9bb96bc934fa277fde7610b6e05fdd485d79ff617851de99fc1262f56f74",
+    "locator": "OWASP Prompt Injection Prevention, Agent-Specific Defenses / HITL / Action screening。规范摘要（AI中文改写，待人工核验，非逐字引句）：模型建议/外部文本不能授予工具权限；服务端按用户意图、会话、具体动作与参数校验，限制权限并对高风险动作保持人工监督。提示分隔、过滤或另一模型检查都是多层防护，不能单独保证无注入；不把示例关键词过滤当完整防线。",
+    "text": "Validate tool calls against user permissions and session context\n[…]\nImplement human oversight for high-risk operations\n[…]\nagainst the original user intent"
+  },
+  "auth": {
+    "id": "auth",
+    "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/382113ba1fbd7e99ffa21bcf90d7fd8a19be546b/cheatsheets/Authorization_Cheat_Sheet.md",
+    "version": "OWASP/CheatSheetSeries commit 382113ba1fbd7e99ffa21bcf90d7fd8a19be546b; response-sha256:dd56db698a11513111fc0a8e99e4f0e2492c86a5d82528c5a1db35434ca18cfc",
+    "locator": "OWASP Authorization, Validate the Permissions on Every Request / Static Resources。规范摘要（AI中文改写，待人工核验，非逐字引句）：认证身份不等于所有资源权限；服务端按每个实际请求的主体、动作、资源归属检查，默认拒绝未许可访问。难猜ID/前端隐藏/只保护主路由都不能代替授权，静态导出和批量入口同样受约束。",
+    "text": "Permission should be validated correctly on every request\n[…]\nAuthorization is distinct from authentication\n[…]\nstatic resources must also be appropriately secured"
+  },
+  "xss": {
+    "id": "xss",
+    "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/382113ba1fbd7e99ffa21bcf90d7fd8a19be546b/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.md",
+    "version": "OWASP/CheatSheetSeries commit 382113ba1fbd7e99ffa21bcf90d7fd8a19be546b; response-sha256:b6cfca5d70ccb0906372af03ca8473728aa1749a7efbb02f8fcdc70a68f0947e",
+    "locator": "OWASP XSS Prevention, HTML Contexts / Safe Sinks / URL defense。规范摘要（AI中文改写，待人工核验，非逐字引句）：纯文本可写入textContent而非当HTML解析；不同HTML/属性/URL上下文需要对应处理，HTML转义不能代替URL协议校验。需要富文本时另用适当维护的sanitizer并避免后续变换破坏结果；本题不要求或执行任何攻击脚本。",
+    "text": "It is a **Safe Sink**\n[…]\nAllow-list http and HTTPS URLs only"
+  },
+  "ssrf": {
+    "id": "ssrf",
+    "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/382113ba1fbd7e99ffa21bcf90d7fd8a19be546b/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.md",
+    "version": "OWASP/CheatSheetSeries commit 382113ba1fbd7e99ffa21bcf90d7fd8a19be546b; response-sha256:d9323c8d09e4259ea597524fb1513422b8c82f96b287b79405f424b599e74da2",
+    "locator": "OWASP SSRF Prevention, Application layer / Domain name / redirection。规范摘要（AI中文改写，待人工核验，非逐字引句）：仅检查初始字符串或HTTPS不能证明目标安全；按实际出站策略核解析后的目标，防止DNS变化和重定向绕过。固定可信目标可用allowlist；任意外部目标场景不能假设同样固定清单。建议禁用自动重定向，并结合应用/网络层限制；不得把解析时合法自动当连接时合法。",
+    "text": "Disable the support for the following\n[…]\nbind a legit domain name to an internal IP address"
+  },
+  "secrets": {
+    "id": "secrets",
+    "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/382113ba1fbd7e99ffa21bcf90d7fd8a19be546b/cheatsheets/Secrets_Management_Cheat_Sheet.md",
+    "version": "OWASP/CheatSheetSeries commit 382113ba1fbd7e99ffa21bcf90d7fd8a19be546b; response-sha256:302a2e4cb2153616a3c41d8a79d7407f24c03207fe60752892b71ec2776bc60c",
+    "locator": "OWASP Secrets Management, Revocation / lifecycle detection。规范摘要（AI中文改写，待人工核验，非逐字引句）：泄露或可能泄露的秘密需撤销并限制访问，再按恢复流程配置新凭据、核消费者与异常使用；只删日志不撤销可用凭据。秘密不以明文进入日志，应遮蔽/保护；有审计记录不等于已验证无滥用，保必要脱敏证据并核访问范围。",
+    "text": "When secrets are no longer required or potentially compromised\n[…]\nNever be logged (must implement\n[…]\nrestrict access"
+  }
+}

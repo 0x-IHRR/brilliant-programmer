@@ -1,0 +1,2979 @@
+{
+  "origin": "ai_draft",
+  "review_status": "pending_human_review",
+  "cases": [
+    {
+      "id": "ai.grounding-1",
+      "family": "ai.grounding",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "rag"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "ai.grounding",
+          "difficulty": "基础",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "带引用也可能答非所据",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。",
+            "facts": {
+              "observed_boundary": "合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。"
+            },
+            "citations": [
+              {
+                "source_id": "rag",
+                "quote": "Built-in citation tracking shows provenance"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "指出回答与实际片段不符，按明确条款纠正或要求补充支持依据。",
+              "只要引用链接存在就认定无限次已被来源证明。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "引用定位只是可追溯，当前片段的数量约束与主张直接冲突。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。 因此“只要引用链接存在就认定无限次已被来源证明。”不成立。",
+            "help_boundary": "指出“指出回答与实际片段不符，按明确条款纠正或要求补充支持依据。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。",
+          "expected_evidence": "应核对的冻结观察：合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。",
+          "decision_effect": "指出回答与实际片段不符，按明确条款纠正或要求补充支持依据。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "引用定位只是可追溯，当前片段的数量约束与主张直接冲突。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "引用定位只是可追溯，当前片段的数量约束与主张直接冲突。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。",
+                    "citation": {
+                      "source_id": "rag",
+                      "quote": "Built-in citation tracking shows provenance"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。"
+                  }
+                ],
+                "rule_quote": "引用定位只是可追溯，当前片段的数量约束与主张直接冲突。",
+                "counterexample_quote": null,
+                "explanation": "引用定位只是可追溯，当前片段的数量约束与主张直接冲突。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "引用定位只是可追溯，当前片段的数量约束与主张直接冲突。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为只要引用链接存在就认定无限次已被来源证明。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为只要引用链接存在就认定无限次已被来源证明。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。",
+                    "citation": {
+                      "source_id": "rag",
+                      "quote": "Built-in citation tracking shows provenance"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。"
+                  }
+                ],
+                "rule_quote": "引用定位只是可追溯，当前片段的数量约束与主张直接冲突。",
+                "counterexample_quote": "反例：合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。 因此“只要引用链接存在就认定无限次已被来源证明。”不成立。",
+                "explanation": "引用定位只是可追溯，当前片段的数量约束与主张直接冲突。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。 因此“只要引用链接存在就认定无限次已被来源证明。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "ai.grounding",
+          "difficulty": "基础",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "带引用也可能答非所据：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "完整片段显示每月100次只适用于2024旧版，用户问2026新版但新条款未取得。",
+            "facts": {
+              "observed_boundary": "完整片段显示每月100次只适用于2024旧版，用户问2026新版但新条款未取得。"
+            },
+            "citations": [
+              {
+                "source_id": "rag",
+                "quote": "RAG quality depends on how you prepare content for retrieval"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保旧版范围，补当前适用条款后再回答新版额度，不拿旧版数字直接推广。",
+              "只要引用链接存在就认定无限次已被来源证明。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新增版本限制改变可支持范围，应补证而不是猜当前额度。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：完整片段显示每月100次只适用于2024旧版，用户问2026新版但新条款未取得。 因此“只要引用链接存在就认定无限次已被来源证明。”不成立。",
+            "help_boundary": "指出“保旧版范围，补当前适用条款后再回答新版额度，不拿旧版数字直接推广。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "完整片段显示每月100次只适用于2024旧版，用户问2026新版但新条款未取得。",
+          "expected_evidence": "应核对的冻结观察：完整片段显示每月100次只适用于2024旧版，用户问2026新版但新条款未取得。",
+          "decision_effect": "保旧版范围，补当前适用条款后再回答新版额度，不拿旧版数字直接推广。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "带引用也可能答非所据（换名版本）",
+      "variation_basis": "由“合成手册写“免费计划每月100次”；模型引用该段却回答无限次，未提供其他条款。”变为“完整片段显示每月100次只适用于2024旧版，用户问2026新版但新条款未取得。”，故“指出回答与实际片段不符，按明确条款纠正或要求补充支持依据。”改为“保旧版范围，补当前适用条款后再回答新版额度，不拿旧版数字直接推广。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "引用定位只是可追溯，当前片段的数量约束与主张直接冲突。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "ai.grounding-2",
+      "family": "ai.grounding",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "rag"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "ai.grounding",
+          "difficulty": "进阶",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "切片遗漏关键例外",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。",
+            "facts": {
+              "observed_boundary": "合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。"
+            },
+            "citations": [
+              {
+                "source_id": "rag",
+                "quote": "RAG quality depends on how you prepare content for retrieval"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "恢复相关例外上下文，按已履约条件核结论，不把截断片段当完整规则。",
+              "召回分数高就允许忽略未传输的例外。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "缺失限定会改变判断，相关性分数不能代替完整适用条件。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。 因此“召回分数高就允许忽略未传输的例外。”不成立。",
+            "help_boundary": "指出“恢复相关例外上下文，按已履约条件核结论，不把截断片段当完整规则。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。",
+          "expected_evidence": "应核对的冻结观察：合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。",
+          "decision_effect": "恢复相关例外上下文，按已履约条件核结论，不把截断片段当完整规则。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "缺失限定会改变判断，相关性分数不能代替完整适用条件。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "缺失限定会改变判断，相关性分数不能代替完整适用条件。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。",
+                    "citation": {
+                      "source_id": "rag",
+                      "quote": "RAG quality depends on how you prepare content for retrieval"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。"
+                  }
+                ],
+                "rule_quote": "缺失限定会改变判断，相关性分数不能代替完整适用条件。",
+                "counterexample_quote": null,
+                "explanation": "缺失限定会改变判断，相关性分数不能代替完整适用条件。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "缺失限定会改变判断，相关性分数不能代替完整适用条件。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为召回分数高就允许忽略未传输的例外。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为召回分数高就允许忽略未传输的例外。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。",
+                    "citation": {
+                      "source_id": "rag",
+                      "quote": "RAG quality depends on how you prepare content for retrieval"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。"
+                  }
+                ],
+                "rule_quote": "缺失限定会改变判断，相关性分数不能代替完整适用条件。",
+                "counterexample_quote": "反例：合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。 因此“召回分数高就允许忽略未传输的例外。”不成立。",
+                "explanation": "缺失限定会改变判断，相关性分数不能代替完整适用条件。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。 因此“召回分数高就允许忽略未传输的例外。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "ai.grounding",
+          "difficulty": "进阶",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "切片遗漏关键例外：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "已完整取得例外；订单履约状态缺失，只有付款记录且无法确定履约。",
+            "facts": {
+              "observed_boundary": "已完整取得例外；订单履约状态缺失，只有付款记录且无法确定履约。"
+            },
+            "citations": [
+              {
+                "source_id": "rag",
+                "quote": "RAG quality depends on how you prepare content for retrieval"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已知退款规则并查询履约事实，再判该订单是否符合，不能凭付款推断未履约。",
+              "召回分数高就允许忽略未传输的例外。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "规范缺口已解决，当前缺的是应用规则所需的运行事实。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：已完整取得例外；订单履约状态缺失，只有付款记录且无法确定履约。 因此“召回分数高就允许忽略未传输的例外。”不成立。",
+            "help_boundary": "指出“保已知退款规则并查询履约事实，再判该订单是否符合，不能凭付款推断未履约。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "已完整取得例外；订单履约状态缺失，只有付款记录且无法确定履约。",
+          "expected_evidence": "应核对的冻结观察：已完整取得例外；订单履约状态缺失，只有付款记录且无法确定履约。",
+          "decision_effect": "保已知退款规则并查询履约事实，再判该订单是否符合，不能凭付款推断未履约。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "切片遗漏关键例外（换名版本）",
+      "variation_basis": "由“合成政策完整句为“已付款可退款，但已履约服务不可退款”；检索只取前半句，订单已履约。”变为“已完整取得例外；订单履约状态缺失，只有付款记录且无法确定履约。”，故“恢复相关例外上下文，按已履约条件核结论，不把截断片段当完整规则。”改为“保已知退款规则并查询履约事实，再判该订单是否符合，不能凭付款推断未履约。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "缺失限定会改变判断，相关性分数不能代替完整适用条件。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "ai.grounding-3",
+      "family": "ai.grounding",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "rag"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "ai.grounding",
+          "difficulty": "综合",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "多来源冲突与越权补证",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。",
+            "facts": {
+              "observed_boundary": "合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。"
+            },
+            "citations": [
+              {
+                "source_id": "rag",
+                "quote": "must only retrieve authorized content"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "标明冲突并请求可授权的权威澄清，禁止为补证越权读取内部文件。",
+              "两个模型都选同一数字就可跳过来源冲突和权限。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "未决冲突不能由模型一致解决，补证仍受实际授权范围约束。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。 因此“两个模型都选同一数字就可跳过来源冲突和权限。”不成立。",
+            "help_boundary": "指出“标明冲突并请求可授权的权威澄清，禁止为补证越权读取内部文件。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。",
+          "expected_evidence": "应核对的冻结观察：合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。",
+          "decision_effect": "标明冲突并请求可授权的权威澄清，禁止为补证越权读取内部文件。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "未决冲突不能由模型一致解决，补证仍受实际授权范围约束。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "未决冲突不能由模型一致解决，补证仍受实际授权范围约束。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。",
+                    "citation": {
+                      "source_id": "rag",
+                      "quote": "must only retrieve authorized content"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。"
+                  }
+                ],
+                "rule_quote": "未决冲突不能由模型一致解决，补证仍受实际授权范围约束。",
+                "counterexample_quote": null,
+                "explanation": "未决冲突不能由模型一致解决，补证仍受实际授权范围约束。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "未决冲突不能由模型一致解决，补证仍受实际授权范围约束。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为两个模型都选同一数字就可跳过来源冲突和权限。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为两个模型都选同一数字就可跳过来源冲突和权限。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。",
+                    "citation": {
+                      "source_id": "rag",
+                      "quote": "must only retrieve authorized content"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。"
+                  }
+                ],
+                "rule_quote": "未决冲突不能由模型一致解决，补证仍受实际授权范围约束。",
+                "counterexample_quote": "反例：合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。 因此“两个模型都选同一数字就可跳过来源冲突和权限。”不成立。",
+                "explanation": "未决冲突不能由模型一致解决，补证仍受实际授权范围约束。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。 因此“两个模型都选同一数字就可跳过来源冲突和权限。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "ai.grounding",
+          "difficulty": "综合",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "多来源冲突与越权补证：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "有权负责人已发布适用优先级且用户可访问；但答案仍引用被废止旧段，当前新段已可检索。",
+            "facts": {
+              "observed_boundary": "有权负责人已发布适用优先级且用户可访问；但答案仍引用被废止旧段，当前新段已可检索。"
+            },
+            "citations": [
+              {
+                "source_id": "rag",
+                "quote": "Built-in citation tracking shows provenance"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按已确认版本更新检索和引用，核主张绑定有效段，不继续称冲突未决。",
+              "两个模型都选同一数字就可跳过来源冲突和权限。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "优先级已有来源后应更新实际依据，保历史不等于沿用已废止结论。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：有权负责人已发布适用优先级且用户可访问；但答案仍引用被废止旧段，当前新段已可检索。 因此“两个模型都选同一数字就可跳过来源冲突和权限。”不成立。",
+            "help_boundary": "指出“按已确认版本更新检索和引用，核主张绑定有效段，不继续称冲突未决。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "有权负责人已发布适用优先级且用户可访问；但答案仍引用被废止旧段，当前新段已可检索。",
+          "expected_evidence": "应核对的冻结观察：有权负责人已发布适用优先级且用户可访问；但答案仍引用被废止旧段，当前新段已可检索。",
+          "decision_effect": "按已确认版本更新检索和引用，核主张绑定有效段，不继续称冲突未决。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "多来源冲突与越权补证（换名版本）",
+      "variation_basis": "由“合成两份同版本政策给不同保留期，均无优先级；另有无权限内部文件可能澄清，系统尚未读取。”变为“有权负责人已发布适用优先级且用户可访问；但答案仍引用被废止旧段，当前新段已可检索。”，故“标明冲突并请求可授权的权威澄清，禁止为补证越权读取内部文件。”改为“按已确认版本更新检索和引用，核主张绑定有效段，不继续称冲突未决。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "未决冲突不能由模型一致解决，补证仍受实际授权范围约束。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "ai.tools-1",
+      "family": "ai.tools",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "injection"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "ai.tools",
+          "difficulty": "基础",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "生成工具参数不代表执行获准",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。",
+            "facts": {
+              "observed_boundary": "用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。"
+            },
+            "citations": [
+              {
+                "source_id": "injection",
+                "quote": "Validate tool calls against user permissions and session context"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保比较任务，拒绝执行删除并按原意校验工具动作，合法JSON不授予权限。",
+              "参数符合schema就直接执行删除。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "工具可调用性与用户授权是不同条件，结构正确不能扩展任务范围。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。 因此“参数符合schema就直接执行删除。”不成立。",
+            "help_boundary": "指出“保比较任务，拒绝执行删除并按原意校验工具动作，合法JSON不授予权限。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。",
+          "expected_evidence": "应核对的冻结观察：用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。",
+          "decision_effect": "保比较任务，拒绝执行删除并按原意校验工具动作，合法JSON不授予权限。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "工具可调用性与用户授权是不同条件，结构正确不能扩展任务范围。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "工具可调用性与用户授权是不同条件，结构正确不能扩展任务范围。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。",
+                    "citation": {
+                      "source_id": "injection",
+                      "quote": "Validate tool calls against user permissions and session context"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。"
+                  }
+                ],
+                "rule_quote": "工具可调用性与用户授权是不同条件，结构正确不能扩展任务范围。",
+                "counterexample_quote": null,
+                "explanation": "工具可调用性与用户授权是不同条件，结构正确不能扩展任务范围。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "工具可调用性与用户授权是不同条件，结构正确不能扩展任务范围。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为参数符合schema就直接执行删除。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为参数符合schema就直接执行删除。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。",
+                    "citation": {
+                      "source_id": "injection",
+                      "quote": "Validate tool calls against user permissions and session context"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。"
+                  }
+                ],
+                "rule_quote": "工具可调用性与用户授权是不同条件，结构正确不能扩展任务范围。",
+                "counterexample_quote": "反例：用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。 因此“参数符合schema就直接执行删除。”不成立。",
+                "explanation": "工具可调用性与用户授权是不同条件，结构正确不能扩展任务范围。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。 因此“参数符合schema就直接执行删除。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "ai.tools",
+          "difficulty": "基础",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "生成工具参数不代表执行获准：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "用户已明确授权删除指定临时副本，服务端确认归属；模型却把目标ID改成原始报告。",
+            "facts": {
+              "observed_boundary": "用户已明确授权删除指定临时副本，服务端确认归属；模型却把目标ID改成原始报告。"
+            },
+            "citations": [
+              {
+                "source_id": "injection",
+                "quote": "Validate tool calls against user permissions and session context"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "绑定用户批准的具体副本并拒绝目标漂移，不因已有一次删除授权放行其他资源。",
+              "参数符合schema就直接执行删除。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "授权已存在但范围仍限定目标，参数差异需要真实服务端核对。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：用户已明确授权删除指定临时副本，服务端确认归属；模型却把目标ID改成原始报告。 因此“参数符合schema就直接执行删除。”不成立。",
+            "help_boundary": "指出“绑定用户批准的具体副本并拒绝目标漂移，不因已有一次删除授权放行其他资源。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "用户已明确授权删除指定临时副本，服务端确认归属；模型却把目标ID改成原始报告。",
+          "expected_evidence": "应核对的冻结观察：用户已明确授权删除指定临时副本，服务端确认归属；模型却把目标ID改成原始报告。",
+          "decision_effect": "绑定用户批准的具体副本并拒绝目标漂移，不因已有一次删除授权放行其他资源。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "生成工具参数不代表执行获准（换名版本）",
+      "variation_basis": "由“用户只请AI比较两份报告；模型输出删除报告的合法JSON参数，工具将产生不可逆写入，没有删除授权。”变为“用户已明确授权删除指定临时副本，服务端确认归属；模型却把目标ID改成原始报告。”，故“保比较任务，拒绝执行删除并按原意校验工具动作，合法JSON不授予权限。”改为“绑定用户批准的具体副本并拒绝目标漂移，不因已有一次删除授权放行其他资源。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "工具可调用性与用户授权是不同条件，结构正确不能扩展任务范围。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "ai.tools-2",
+      "family": "ai.tools",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "injection"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "ai.tools",
+          "difficulty": "进阶",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "网页内容冒充用户指令",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。",
+            "facts": {
+              "observed_boundary": "用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。"
+            },
+            "citations": [
+              {
+                "source_id": "injection",
+                "quote": "against the original user intent"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "把网页指令作为不可信资料，保摘要任务，拒绝未授权发信动作。",
+              "网站正文措辞像系统消息即可改写用户授权。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "外部内容不是授权主体，工具动作必须对照原始意图和会话。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。 因此“网站正文措辞像系统消息即可改写用户授权。”不成立。",
+            "help_boundary": "指出“把网页指令作为不可信资料，保摘要任务，拒绝未授权发信动作。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。",
+          "expected_evidence": "应核对的冻结观察：用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。",
+          "decision_effect": "把网页指令作为不可信资料，保摘要任务，拒绝未授权发信动作。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "外部内容不是授权主体，工具动作必须对照原始意图和会话。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "外部内容不是授权主体，工具动作必须对照原始意图和会话。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。",
+                    "citation": {
+                      "source_id": "injection",
+                      "quote": "against the original user intent"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。"
+                  }
+                ],
+                "rule_quote": "外部内容不是授权主体，工具动作必须对照原始意图和会话。",
+                "counterexample_quote": null,
+                "explanation": "外部内容不是授权主体，工具动作必须对照原始意图和会话。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "外部内容不是授权主体，工具动作必须对照原始意图和会话。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为网站正文措辞像系统消息即可改写用户授权。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为网站正文措辞像系统消息即可改写用户授权。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。",
+                    "citation": {
+                      "source_id": "injection",
+                      "quote": "against the original user intent"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。"
+                  }
+                ],
+                "rule_quote": "外部内容不是授权主体，工具动作必须对照原始意图和会话。",
+                "counterexample_quote": "反例：用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。 因此“网站正文措辞像系统消息即可改写用户授权。”不成立。",
+                "explanation": "外部内容不是授权主体，工具动作必须对照原始意图和会话。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。 因此“网站正文措辞像系统消息即可改写用户授权。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "ai.tools",
+          "difficulty": "进阶",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "网页内容冒充用户指令：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "收件人已由用户明确批准，但网页夹带额外附件路径；附件可能含私有凭据且用户未授权读取。",
+            "facts": {
+              "observed_boundary": "收件人已由用户明确批准，但网页夹带额外附件路径；附件可能含私有凭据且用户未授权读取。"
+            },
+            "citations": [
+              {
+                "source_id": "injection",
+                "quote": "Validate tool calls against user permissions and session context"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保收件范围，拒绝额外附件读取/外发，核实际发送载荷不超授权。",
+              "网站正文措辞像系统消息即可改写用户授权。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "一个已批准收件人不使任意私有附件获得访问权限。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：收件人已由用户明确批准，但网页夹带额外附件路径；附件可能含私有凭据且用户未授权读取。 因此“网站正文措辞像系统消息即可改写用户授权。”不成立。",
+            "help_boundary": "指出“保收件范围，拒绝额外附件读取/外发，核实际发送载荷不超授权。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "收件人已由用户明确批准，但网页夹带额外附件路径；附件可能含私有凭据且用户未授权读取。",
+          "expected_evidence": "应核对的冻结观察：收件人已由用户明确批准，但网页夹带额外附件路径；附件可能含私有凭据且用户未授权读取。",
+          "decision_effect": "保收件范围，拒绝额外附件读取/外发，核实际发送载荷不超授权。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "网页内容冒充用户指令（换名版本）",
+      "variation_basis": "由“用户授权提取网页摘要；页面正文要求代理把摘要发给另一个收件人，模型把它当新用户要求。”变为“收件人已由用户明确批准，但网页夹带额外附件路径；附件可能含私有凭据且用户未授权读取。”，故“把网页指令作为不可信资料，保摘要任务，拒绝未授权发信动作。”改为“保收件范围，拒绝额外附件读取/外发，核实际发送载荷不超授权。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "外部内容不是授权主体，工具动作必须对照原始意图和会话。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "ai.tools-3",
+      "family": "ai.tools",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "injection",
+        "auth"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "ai.tools",
+          "difficulty": "综合",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "第二模型赞同仍缺真实权限",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。",
+            "facts": {
+              "observed_boundary": "高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。"
+            },
+            "citations": [
+              {
+                "source_id": "injection",
+                "quote": "Implement human oversight for high-risk operations"
+              },
+              {
+                "source_id": "auth",
+                "quote": "Authorization is distinct from authentication"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保候选方案，补逐资源授权和具体高风险确认后才允许执行，不凭投票放行。",
+              "两个模型一致即可代替服务端授权和高风险确认。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "模型检查不是权限真值，批量动作需要实际意图、资源及参数约束。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。 因此“两个模型一致即可代替服务端授权和高风险确认。”不成立。",
+            "help_boundary": "指出“保候选方案，补逐资源授权和具体高风险确认后才允许执行，不凭投票放行。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。",
+          "expected_evidence": "应核对的冻结观察：高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。",
+          "decision_effect": "保候选方案，补逐资源授权和具体高风险确认后才允许执行，不凭投票放行。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "模型检查不是权限真值，批量动作需要实际意图、资源及参数约束。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "模型检查不是权限真值，批量动作需要实际意图、资源及参数约束。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。",
+                    "citation": {
+                      "source_id": "injection",
+                      "quote": "Implement human oversight for high-risk operations"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。"
+                  }
+                ],
+                "rule_quote": "模型检查不是权限真值，批量动作需要实际意图、资源及参数约束。",
+                "counterexample_quote": null,
+                "explanation": "模型检查不是权限真值，批量动作需要实际意图、资源及参数约束。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "模型检查不是权限真值，批量动作需要实际意图、资源及参数约束。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为两个模型一致即可代替服务端授权和高风险确认。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为两个模型一致即可代替服务端授权和高风险确认。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。",
+                    "citation": {
+                      "source_id": "injection",
+                      "quote": "Implement human oversight for high-risk operations"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。"
+                  }
+                ],
+                "rule_quote": "模型检查不是权限真值，批量动作需要实际意图、资源及参数约束。",
+                "counterexample_quote": "反例：高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。 因此“两个模型一致即可代替服务端授权和高风险确认。”不成立。",
+                "explanation": "模型检查不是权限真值，批量动作需要实际意图、资源及参数约束。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。 因此“两个模型一致即可代替服务端授权和高风险确认。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "ai.tools",
+          "difficulty": "综合",
+          "background_id": "ai-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "第二模型赞同仍缺真实权限：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "逐资源权限和本次确认已核；执行期间角色被撤销，后续动作尚未派发，服务端仍用旧缓存权限。",
+            "facts": {
+              "observed_boundary": "逐资源权限和本次确认已核；执行期间角色被撤销，后续动作尚未派发，服务端仍用旧缓存权限。"
+            },
+            "citations": [
+              {
+                "source_id": "injection",
+                "quote": "Validate tool calls against user permissions and session context"
+              },
+              {
+                "source_id": "auth",
+                "quote": "Authorization is distinct from authentication"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "停止未派发动作并按当前会话权限重查，保已完成事实，不用旧确认恢复已撤销权限。",
+              "两个模型一致即可代替服务端授权和高风险确认。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "先前合法授权不能覆盖后续撤销，确认也不是永久权限。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：逐资源权限和本次确认已核；执行期间角色被撤销，后续动作尚未派发，服务端仍用旧缓存权限。 因此“两个模型一致即可代替服务端授权和高风险确认。”不成立。",
+            "help_boundary": "指出“停止未派发动作并按当前会话权限重查，保已完成事实，不用旧确认恢复已撤销权限。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "逐资源权限和本次确认已核；执行期间角色被撤销，后续动作尚未派发，服务端仍用旧缓存权限。",
+          "expected_evidence": "应核对的冻结观察：逐资源权限和本次确认已核；执行期间角色被撤销，后续动作尚未派发，服务端仍用旧缓存权限。",
+          "decision_effect": "停止未派发动作并按当前会话权限重查，保已完成事实，不用旧确认恢复已撤销权限。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "第二模型赞同仍缺真实权限（换名版本）",
+      "variation_basis": "由“高风险批量修改工具仅由生成模型和检查模型投票决定；两者同意，服务端未核每条资源权限且没有本次批量修改确认。”变为“逐资源权限和本次确认已核；执行期间角色被撤销，后续动作尚未派发，服务端仍用旧缓存权限。”，故“保候选方案，补逐资源授权和具体高风险确认后才允许执行，不凭投票放行。”改为“停止未派发动作并按当前会话权限重查，保已完成事实，不用旧确认恢复已撤销权限。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "模型检查不是权限真值，批量动作需要实际意图、资源及参数约束。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "security.authorization-1",
+      "family": "security.authorization",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "auth"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "security.authorization",
+          "difficulty": "基础",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "登录不等于拥有订单",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。",
+            "facts": {
+              "observed_boundary": "A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。"
+            },
+            "citations": [
+              {
+                "source_id": "auth",
+                "quote": "Authorization is distinct from authentication"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按认证A与订单归属拒绝读取，增加直接API跨账号回归。",
+              "登录成功且页面看不到链接就表示资源安全。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "真实读取路径缺少资源授权，UI隐藏不能保护直接请求。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。 因此“登录成功且页面看不到链接就表示资源安全。”不成立。",
+            "help_boundary": "指出“按认证A与订单归属拒绝读取，增加直接API跨账号回归。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。",
+          "expected_evidence": "应核对的冻结观察：A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。",
+          "decision_effect": "按认证A与订单归属拒绝读取，增加直接API跨账号回归。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "真实读取路径缺少资源授权，UI隐藏不能保护直接请求。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "真实读取路径缺少资源授权，UI隐藏不能保护直接请求。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。",
+                    "citation": {
+                      "source_id": "auth",
+                      "quote": "Authorization is distinct from authentication"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。"
+                  }
+                ],
+                "rule_quote": "真实读取路径缺少资源授权，UI隐藏不能保护直接请求。",
+                "counterexample_quote": null,
+                "explanation": "真实读取路径缺少资源授权，UI隐藏不能保护直接请求。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "真实读取路径缺少资源授权，UI隐藏不能保护直接请求。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为登录成功且页面看不到链接就表示资源安全。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为登录成功且页面看不到链接就表示资源安全。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。",
+                    "citation": {
+                      "source_id": "auth",
+                      "quote": "Authorization is distinct from authentication"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。"
+                  }
+                ],
+                "rule_quote": "真实读取路径缺少资源授权，UI隐藏不能保护直接请求。",
+                "counterexample_quote": "反例：A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。 因此“登录成功且页面看不到链接就表示资源安全。”不成立。",
+                "explanation": "真实读取路径缺少资源授权，UI隐藏不能保护直接请求。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。 因此“登录成功且页面看不到链接就表示资源安全。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "security.authorization",
+          "difficulty": "基础",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "登录不等于拥有订单：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "订单详情已核归属拒绝；导出下载URL仍按文件ID公开返回B订单内容。",
+            "facts": {
+              "observed_boundary": "订单详情已核归属拒绝；导出下载URL仍按文件ID公开返回B订单内容。"
+            },
+            "citations": [
+              {
+                "source_id": "auth",
+                "quote": "static resources must also be appropriately secured"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保详情修复，给导出实际读取路径补同样授权并核跨账号拒绝。",
+              "登录成功且页面看不到链接就表示资源安全。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "主路由已安全不代表另一资源出口安全，授权必须覆盖实际下载。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：订单详情已核归属拒绝；导出下载URL仍按文件ID公开返回B订单内容。 因此“登录成功且页面看不到链接就表示资源安全。”不成立。",
+            "help_boundary": "指出“保详情修复，给导出实际读取路径补同样授权并核跨账号拒绝。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "订单详情已核归属拒绝；导出下载URL仍按文件ID公开返回B订单内容。",
+          "expected_evidence": "应核对的冻结观察：订单详情已核归属拒绝；导出下载URL仍按文件ID公开返回B订单内容。",
+          "decision_effect": "保详情修复，给导出实际读取路径补同样授权并核跨账号拒绝。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "登录不等于拥有订单（换名版本）",
+      "variation_basis": "由“A已登录，API按传入订单ID直接返回B的订单；页面只隐藏B订单链接，服务端未核归属。”变为“订单详情已核归属拒绝；导出下载URL仍按文件ID公开返回B订单内容。”，故“按认证A与订单归属拒绝读取，增加直接API跨账号回归。”改为“保详情修复，给导出实际读取路径补同样授权并核跨账号拒绝。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "真实读取路径缺少资源授权，UI隐藏不能保护直接请求。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "security.authorization-2",
+      "family": "security.authorization",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "auth"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "security.authorization",
+          "difficulty": "进阶",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "批量接口遗漏逐项归属",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。",
+            "facts": {
+              "observed_boundary": "单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。"
+            },
+            "citations": [
+              {
+                "source_id": "auth",
+                "quote": "Permission should be validated correctly on every request"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "逐资源检查或拒绝整批混合越权请求，并验证B记录不变。",
+              "第一条合法就代表同一批所有订单合法。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "每个实际被操作资源都需要授权，批量封装不能跳过归属。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。 因此“第一条合法就代表同一批所有订单合法。”不成立。",
+            "help_boundary": "指出“逐资源检查或拒绝整批混合越权请求，并验证B记录不变。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。",
+          "expected_evidence": "应核对的冻结观察：单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。",
+          "decision_effect": "逐资源检查或拒绝整批混合越权请求，并验证B记录不变。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "每个实际被操作资源都需要授权，批量封装不能跳过归属。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "每个实际被操作资源都需要授权，批量封装不能跳过归属。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。",
+                    "citation": {
+                      "source_id": "auth",
+                      "quote": "Permission should be validated correctly on every request"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。"
+                  }
+                ],
+                "rule_quote": "每个实际被操作资源都需要授权，批量封装不能跳过归属。",
+                "counterexample_quote": null,
+                "explanation": "每个实际被操作资源都需要授权，批量封装不能跳过归属。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "每个实际被操作资源都需要授权，批量封装不能跳过归属。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为第一条合法就代表同一批所有订单合法。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为第一条合法就代表同一批所有订单合法。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。",
+                    "citation": {
+                      "source_id": "auth",
+                      "quote": "Permission should be validated correctly on every request"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。"
+                  }
+                ],
+                "rule_quote": "每个实际被操作资源都需要授权，批量封装不能跳过归属。",
+                "counterexample_quote": "反例：单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。 因此“第一条合法就代表同一批所有订单合法。”不成立。",
+                "explanation": "每个实际被操作资源都需要授权，批量封装不能跳过归属。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。 因此“第一条合法就代表同一批所有订单合法。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "security.authorization",
+          "difficulty": "进阶",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "批量接口遗漏逐项归属：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "全部归属已逐条核；用户角色只允许读，批量写仍沿用读权限判断。",
+            "facts": {
+              "observed_boundary": "全部归属已逐条核；用户角色只允许读，批量写仍沿用读权限判断。"
+            },
+            "citations": [
+              {
+                "source_id": "auth",
+                "quote": "Permission should be validated correctly on every request"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保归属检查，再按实际写动作核权限，不把可读当可改。",
+              "第一条合法就代表同一批所有订单合法。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "主体与资源匹配还不足够，授权必须覆盖具体动作。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：全部归属已逐条核；用户角色只允许读，批量写仍沿用读权限判断。 因此“第一条合法就代表同一批所有订单合法。”不成立。",
+            "help_boundary": "指出“保归属检查，再按实际写动作核权限，不把可读当可改。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "全部归属已逐条核；用户角色只允许读，批量写仍沿用读权限判断。",
+          "expected_evidence": "应核对的冻结观察：全部归属已逐条核；用户角色只允许读，批量写仍沿用读权限判断。",
+          "decision_effect": "保归属检查，再按实际写动作核权限，不把可读当可改。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "批量接口遗漏逐项归属（换名版本）",
+      "variation_basis": "由“单条修改核归属，但批量请求仅核第一条；列表包含A订单与B订单，后者也被更新。”变为“全部归属已逐条核；用户角色只允许读，批量写仍沿用读权限判断。”，故“逐资源检查或拒绝整批混合越权请求，并验证B记录不变。”改为“保归属检查，再按实际写动作核权限，不把可读当可改。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "每个实际被操作资源都需要授权，批量封装不能跳过归属。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "security.authorization-3",
+      "family": "security.authorization",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "auth"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "security.authorization",
+          "difficulty": "综合",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "撤销后导出任务还读私有数据",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。",
+            "facts": {
+              "observed_boundary": "异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。"
+            },
+            "citations": [
+              {
+                "source_id": "auth",
+                "quote": "Permission should be validated correctly on every request"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "在实际执行读路径核当前授权，拒绝越界读取并保任务失败事实。",
+              "创建时曾合法就能永久读取所有后来私有记录。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "旧授权快照不自动授予当前读取权，后台路径也不能遗漏权限检查。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。 因此“创建时曾合法就能永久读取所有后来私有记录。”不成立。",
+            "help_boundary": "指出“在实际执行读路径核当前授权，拒绝越界读取并保任务失败事实。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。",
+          "expected_evidence": "应核对的冻结观察：异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。",
+          "decision_effect": "在实际执行读路径核当前授权，拒绝越界读取并保任务失败事实。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "旧授权快照不自动授予当前读取权，后台路径也不能遗漏权限检查。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "旧授权快照不自动授予当前读取权，后台路径也不能遗漏权限检查。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。",
+                    "citation": {
+                      "source_id": "auth",
+                      "quote": "Permission should be validated correctly on every request"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。"
+                  }
+                ],
+                "rule_quote": "旧授权快照不自动授予当前读取权，后台路径也不能遗漏权限检查。",
+                "counterexample_quote": null,
+                "explanation": "旧授权快照不自动授予当前读取权，后台路径也不能遗漏权限检查。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "旧授权快照不自动授予当前读取权，后台路径也不能遗漏权限检查。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为创建时曾合法就能永久读取所有后来私有记录。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为创建时曾合法就能永久读取所有后来私有记录。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。",
+                    "citation": {
+                      "source_id": "auth",
+                      "quote": "Permission should be validated correctly on every request"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。"
+                  }
+                ],
+                "rule_quote": "旧授权快照不自动授予当前读取权，后台路径也不能遗漏权限检查。",
+                "counterexample_quote": "反例：异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。 因此“创建时曾合法就能永久读取所有后来私有记录。”不成立。",
+                "explanation": "旧授权快照不自动授予当前读取权，后台路径也不能遗漏权限检查。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。 因此“创建时曾合法就能永久读取所有后来私有记录。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "security.authorization",
+          "difficulty": "综合",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "撤销后导出任务还读私有数据：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "worker当前授权已核且只生成允许数据；下载链接却无身份绑定并长期公开。",
+            "facts": {
+              "observed_boundary": "worker当前授权已核且只生成允许数据；下载链接却无身份绑定并长期公开。"
+            },
+            "citations": [
+              {
+                "source_id": "auth",
+                "quote": "static resources must also be appropriately secured"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保导出范围检查，约束实际下载授权和有效范围，不能把生成安全外推到交付。",
+              "创建时曾合法就能永久读取所有后来私有记录。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "数据生成和下载是不同访问边界，后者仍须实际保护。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：worker当前授权已核且只生成允许数据；下载链接却无身份绑定并长期公开。 因此“创建时曾合法就能永久读取所有后来私有记录。”不成立。",
+            "help_boundary": "指出“保导出范围检查，约束实际下载授权和有效范围，不能把生成安全外推到交付。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "worker当前授权已核且只生成允许数据；下载链接却无身份绑定并长期公开。",
+          "expected_evidence": "应核对的冻结观察：worker当前授权已核且只生成允许数据；下载链接却无身份绑定并长期公开。",
+          "decision_effect": "保导出范围检查，约束实际下载授权和有效范围，不能把生成安全外推到交付。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "撤销后导出任务还读私有数据（换名版本）",
+      "variation_basis": "由“异步导出创建时有权限；任务执行前权限撤销，worker仍以创建时布尔快照读取整租户数据，尚未完成任何导出。”变为“worker当前授权已核且只生成允许数据；下载链接却无身份绑定并长期公开。”，故“在实际执行读路径核当前授权，拒绝越界读取并保任务失败事实。”改为“保导出范围检查，约束实际下载授权和有效范围，不能把生成安全外推到交付。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "旧授权快照不自动授予当前读取权，后台路径也不能遗漏权限检查。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "security.boundary-1",
+      "family": "security.boundary",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "xss"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "security.input",
+          "difficulty": "基础",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "把模型文字当HTML",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。",
+            "facts": {
+              "observed_boundary": "产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。"
+            },
+            "citations": [
+              {
+                "source_id": "xss",
+                "quote": "It is a **Safe Sink**"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "使用纯文本安全输出边界并保字面内容，不把模型文本当可信HTML。",
+              "模型回答过安全问题所以其HTML可以直接执行。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "输入来源不改变浏览器解析语义，纯文本需求无需开放HTML执行。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。 因此“模型回答过安全问题所以其HTML可以直接执行。”不成立。",
+            "help_boundary": "指出“使用纯文本安全输出边界并保字面内容，不把模型文本当可信HTML。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。",
+          "expected_evidence": "应核对的冻结观察：产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。",
+          "decision_effect": "使用纯文本安全输出边界并保字面内容，不把模型文本当可信HTML。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "输入来源不改变浏览器解析语义，纯文本需求无需开放HTML执行。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "输入来源不改变浏览器解析语义，纯文本需求无需开放HTML执行。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。",
+                    "citation": {
+                      "source_id": "xss",
+                      "quote": "It is a **Safe Sink**"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。"
+                  }
+                ],
+                "rule_quote": "输入来源不改变浏览器解析语义，纯文本需求无需开放HTML执行。",
+                "counterexample_quote": null,
+                "explanation": "输入来源不改变浏览器解析语义，纯文本需求无需开放HTML执行。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "输入来源不改变浏览器解析语义，纯文本需求无需开放HTML执行。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为模型回答过安全问题所以其HTML可以直接执行。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为模型回答过安全问题所以其HTML可以直接执行。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。",
+                    "citation": {
+                      "source_id": "xss",
+                      "quote": "It is a **Safe Sink**"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。"
+                  }
+                ],
+                "rule_quote": "输入来源不改变浏览器解析语义，纯文本需求无需开放HTML执行。",
+                "counterexample_quote": "反例：产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。 因此“模型回答过安全问题所以其HTML可以直接执行。”不成立。",
+                "explanation": "输入来源不改变浏览器解析语义，纯文本需求无需开放HTML执行。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。 因此“模型回答过安全问题所以其HTML可以直接执行。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "security.input",
+          "difficulty": "基础",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "把模型文字当HTML：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "解释已纯文本显示；另一个链接字段被直接放入href，输入协议不在允许的http/https内。",
+            "facts": {
+              "observed_boundary": "解释已纯文本显示；另一个链接字段被直接放入href，输入协议不在允许的http/https内。"
+            },
+            "citations": [
+              {
+                "source_id": "xss",
+                "quote": "Allow-list http and HTTPS URLs only"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保文本输出，按链接上下文校验协议及目标，不能只做HTML转义。",
+              "模型回答过安全问题所以其HTML可以直接执行。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新sink是URL属性，安全文本输出不会自动验证可导航协议。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：解释已纯文本显示；另一个链接字段被直接放入href，输入协议不在允许的http/https内。 因此“模型回答过安全问题所以其HTML可以直接执行。”不成立。",
+            "help_boundary": "指出“保文本输出，按链接上下文校验协议及目标，不能只做HTML转义。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "解释已纯文本显示；另一个链接字段被直接放入href，输入协议不在允许的http/https内。",
+          "expected_evidence": "应核对的冻结观察：解释已纯文本显示；另一个链接字段被直接放入href，输入协议不在允许的http/https内。",
+          "decision_effect": "保文本输出，按链接上下文校验协议及目标，不能只做HTML转义。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "把模型文字当HTML（换名版本）",
+      "variation_basis": "由“产品只需显示模型的纯文字解释；页面却直接解析其原始HTML，受控恶意标签被浏览器当结构处理。”变为“解释已纯文本显示；另一个链接字段被直接放入href，输入协议不在允许的http/https内。”，故“使用纯文本安全输出边界并保字面内容，不把模型文本当可信HTML。”改为“保文本输出，按链接上下文校验协议及目标，不能只做HTML转义。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "输入来源不改变浏览器解析语义，纯文本需求无需开放HTML执行。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "security.boundary-2",
+      "family": "security.boundary",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "ssrf"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "security.input",
+          "difficulty": "进阶",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "只验首个URL挡不住重定向",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。",
+            "facts": {
+              "observed_boundary": "服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。"
+            },
+            "citations": [
+              {
+                "source_id": "ssrf",
+                "quote": "Disable the support for the following"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "禁止未核重定向并按实际目标限制出站，不能只验证初始字符串。",
+              "HTTPS前缀存在就保证后续连接永不进入内网。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "协议名不证明最终网络目标，自动重定向能跨越最初校验边界。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。 因此“HTTPS前缀存在就保证后续连接永不进入内网。”不成立。",
+            "help_boundary": "指出“禁止未核重定向并按实际目标限制出站，不能只验证初始字符串。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。",
+          "expected_evidence": "应核对的冻结观察：服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。",
+          "decision_effect": "禁止未核重定向并按实际目标限制出站，不能只验证初始字符串。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "协议名不证明最终网络目标，自动重定向能跨越最初校验边界。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "协议名不证明最终网络目标，自动重定向能跨越最初校验边界。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。",
+                    "citation": {
+                      "source_id": "ssrf",
+                      "quote": "Disable the support for the following"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。"
+                  }
+                ],
+                "rule_quote": "协议名不证明最终网络目标，自动重定向能跨越最初校验边界。",
+                "counterexample_quote": null,
+                "explanation": "协议名不证明最终网络目标，自动重定向能跨越最初校验边界。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "协议名不证明最终网络目标，自动重定向能跨越最初校验边界。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为HTTPS前缀存在就保证后续连接永不进入内网。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为HTTPS前缀存在就保证后续连接永不进入内网。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。",
+                    "citation": {
+                      "source_id": "ssrf",
+                      "quote": "Disable the support for the following"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。"
+                  }
+                ],
+                "rule_quote": "协议名不证明最终网络目标，自动重定向能跨越最初校验边界。",
+                "counterexample_quote": "反例：服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。 因此“HTTPS前缀存在就保证后续连接永不进入内网。”不成立。",
+                "explanation": "协议名不证明最终网络目标，自动重定向能跨越最初校验边界。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。 因此“HTTPS前缀存在就保证后续连接永不进入内网。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "security.input",
+          "difficulty": "进阶",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "只验首个URL挡不住重定向：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "已禁重定向；同域验证时是公网，连接前重新解析为内网，客户端未绑定已核目标。",
+            "facts": {
+              "observed_boundary": "已禁重定向；同域验证时是公网，连接前重新解析为内网，客户端未绑定已核目标。"
+            },
+            "citations": [
+              {
+                "source_id": "ssrf",
+                "quote": "bind a legit domain name to an internal IP address"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "核实际连接地址与解析变化，保域名TLS校验并阻止内网连接，不只重复字符串检查。",
+              "HTTPS前缀存在就保证后续连接永不进入内网。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "重定向路径已关闭但DNS变化仍改变目标，需要保护真正连接边界。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：已禁重定向；同域验证时是公网，连接前重新解析为内网，客户端未绑定已核目标。 因此“HTTPS前缀存在就保证后续连接永不进入内网。”不成立。",
+            "help_boundary": "指出“核实际连接地址与解析变化，保域名TLS校验并阻止内网连接，不只重复字符串检查。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "已禁重定向；同域验证时是公网，连接前重新解析为内网，客户端未绑定已核目标。",
+          "expected_evidence": "应核对的冻结观察：已禁重定向；同域验证时是公网，连接前重新解析为内网，客户端未绑定已核目标。",
+          "decision_effect": "核实际连接地址与解析变化，保域名TLS校验并阻止内网连接，不只重复字符串检查。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "只验首个URL挡不住重定向（换名版本）",
+      "variation_basis": "由“服务只允许抓取外部公开网页；初始HTTPS地址解析为公网，但HTTP客户端自动跟随到内网目标，未二次检查。”变为“已禁重定向；同域验证时是公网，连接前重新解析为内网，客户端未绑定已核目标。”，故“禁止未核重定向并按实际目标限制出站，不能只验证初始字符串。”改为“核实际连接地址与解析变化，保域名TLS校验并阻止内网连接，不只重复字符串检查。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "协议名不证明最终网络目标，自动重定向能跨越最初校验边界。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "security.boundary-3",
+      "family": "security.boundary",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "secrets"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "security.secrets",
+          "difficulty": "综合",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "删日志不能撤销已泄凭据",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。",
+            "facts": {
+              "observed_boundary": "受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。"
+            },
+            "citations": [
+              {
+                "source_id": "secrets",
+                "quote": "When secrets are no longer required or potentially compromised"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "撤销受影响凭据、更新消费者并核异常使用，保脱敏审计证据，不把删文件当撤销。",
+              "日志删除成功说明别人保存的Key也自动失效。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "已外泄秘密可被复制，只有删除本地载体不会限制其继续访问。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。 因此“日志删除成功说明别人保存的Key也自动失效。”不成立。",
+            "help_boundary": "指出“撤销受影响凭据、更新消费者并核异常使用，保脱敏审计证据，不把删文件当撤销。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。",
+          "expected_evidence": "应核对的冻结观察：受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。",
+          "decision_effect": "撤销受影响凭据、更新消费者并核异常使用，保脱敏审计证据，不把删文件当撤销。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "已外泄秘密可被复制，只有删除本地载体不会限制其继续访问。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "已外泄秘密可被复制，只有删除本地载体不会限制其继续访问。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。",
+                    "citation": {
+                      "source_id": "secrets",
+                      "quote": "When secrets are no longer required or potentially compromised"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。"
+                  }
+                ],
+                "rule_quote": "已外泄秘密可被复制，只有删除本地载体不会限制其继续访问。",
+                "counterexample_quote": null,
+                "explanation": "已外泄秘密可被复制，只有删除本地载体不会限制其继续访问。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "已外泄秘密可被复制，只有删除本地载体不会限制其继续访问。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为日志删除成功说明别人保存的Key也自动失效。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为日志删除成功说明别人保存的Key也自动失效。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。",
+                    "citation": {
+                      "source_id": "secrets",
+                      "quote": "When secrets are no longer required or potentially compromised"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。"
+                  }
+                ],
+                "rule_quote": "已外泄秘密可被复制，只有删除本地载体不会限制其继续访问。",
+                "counterexample_quote": "反例：受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。 因此“日志删除成功说明别人保存的Key也自动失效。”不成立。",
+                "explanation": "已外泄秘密可被复制，只有删除本地载体不会限制其继续访问。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。 因此“日志删除成功说明别人保存的Key也自动失效。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "security.secrets",
+          "difficulty": "综合",
+          "background_id": "security-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "删日志不能撤销已泄凭据：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "受影响Key已撤销且新Key只存秘密管理系统；应用调试路径仍把新Key明文写入日志。",
+            "facts": {
+              "observed_boundary": "受影响Key已撤销且新Key只存秘密管理系统；应用调试路径仍把新Key明文写入日志。"
+            },
+            "citations": [
+              {
+                "source_id": "secrets",
+                "quote": "Never be logged (must implement"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保旧Key撤销事实，修新日志泄漏并再次处理已暴露的新Key，验证日志不含明文。",
+              "日志删除成功说明别人保存的Key也自动失效。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "旧凭据恢复不保护后来再次泄出的秘密，需修产生泄漏的实际路径。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：受影响Key已撤销且新Key只存秘密管理系统；应用调试路径仍把新Key明文写入日志。 因此“日志删除成功说明别人保存的Key也自动失效。”不成立。",
+            "help_boundary": "指出“保旧Key撤销事实，修新日志泄漏并再次处理已暴露的新Key，验证日志不含明文。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "受影响Key已撤销且新Key只存秘密管理系统；应用调试路径仍把新Key明文写入日志。",
+          "expected_evidence": "应核对的冻结观察：受影响Key已撤销且新Key只存秘密管理系统；应用调试路径仍把新Key明文写入日志。",
+          "decision_effect": "保旧Key撤销事实，修新日志泄漏并再次处理已暴露的新Key，验证日志不含明文。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "删日志不能撤销已泄凭据（换名版本）",
+      "variation_basis": "由“受控假Key曾写入可公开读取日志，权限仍有效；团队只删除日志文件就宣布泄露恢复完成。”变为“受影响Key已撤销且新Key只存秘密管理系统；应用调试路径仍把新Key明文写入日志。”，故“撤销受影响凭据、更新消费者并核异常使用，保脱敏审计证据，不把删文件当撤销。”改为“保旧Key撤销事实，修新日志泄漏并再次处理已暴露的新Key，验证日志不含明文。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "已外泄秘密可被复制，只有删除本地载体不会限制其继续访问。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    }
+  ]
+}
