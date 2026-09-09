@@ -206,6 +206,14 @@ class Simulation(StartSnapshot):
     simulation_label: Literal["教学模拟"] = "教学模拟"
 
 
+class ConfirmedJDGoal(Goal):
+    """Minimal provenance retained in each complete-history comparison request."""
+
+    requirement_quote: str
+    basis: Literal["explicit", "inferred"]
+    simulation_label: Literal["教学模拟"]
+
+
 def start(
     route: Route,
     expected_version: uuid.UUID,

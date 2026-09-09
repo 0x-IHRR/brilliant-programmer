@@ -37,6 +37,7 @@ from app.training.independent_novelty import (
     assess_novelty,
     case_digest,
 )
+from app.training.jd_rules import ConfirmedJDGoal
 from app.training.schema import (
     Candidate,
     Citation,
@@ -217,7 +218,7 @@ class ComparisonInput(Strict):
     new: CaseContext
     sources: list[Source]
     stage: Stage | None
-    topic: Goal | None = None
+    topic: Goal | ConfirmedJDGoal | None = None
     criteria: dict[str, str]
     seen: list[CaseContext]
     runs: list[SeenRun]
@@ -291,7 +292,7 @@ class ComparisonPlan(Strict):
     candidate_digest: Text
     model_id: Text
     stage: Stage | None
-    topic: Goal | None = None
+    topic: Goal | ConfirmedJDGoal | None = None
     batches: list[ComparisonInput]
 
 
@@ -301,7 +302,7 @@ def _identity(
     sources: list[Source],
     model_id: str,
     stage: Stage | None,
-    topic: Goal | None = None,
+    topic: Goal | ConfirmedJDGoal | None = None,
 ) -> str:
     return hashlib.sha256(
         json.dumps(
@@ -343,7 +344,7 @@ def plan_comparison(
     key: str,
     *,
     stage: Stage | None = None,
-    topic: Goal | None = None,
+    topic: Goal | ConfirmedJDGoal | None = None,
     remaining_calls: int = 3,
     request_limit: int = REQUEST_BYTES,
 ) -> ComparisonPlan:

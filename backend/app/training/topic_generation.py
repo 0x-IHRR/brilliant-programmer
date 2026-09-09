@@ -14,6 +14,7 @@ from app.model_config.output import check_output
 from app.model_config.service import current_for_result
 from app.training.gate import call_credential
 from app.training.generation import generate
+from app.training.jd_service import generation_goal
 from app.training.models import TrainingRun
 from app.training.schema import Source, validate_candidate
 from app.training.sources import acquire_source
@@ -123,7 +124,7 @@ async def process(identity: uuid.UUID) -> None:
                 attempt = await asyncio.to_thread(begin_attempt, identity, job_id)
                 if attempt is None:
                     return
-                goal = {"goal": run.selection["goal"], "focus": run.selection["focus"]}
+                goal = generation_goal(run.selection)
                 key = secret.get_secret_value()
                 if run.generation == 0:
                     raw, counts = await generate(

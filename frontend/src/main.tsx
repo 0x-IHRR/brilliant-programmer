@@ -13,6 +13,7 @@ import { PasswordReset } from "./features/PasswordReset"
 import { ModelConfig } from "./features/ModelConfig"
 import "./index.css"
 import { FreeTopic } from "./features/FreeTopic"
+import { JDRoute } from "./features/JDRoute"
 import { Training } from "./features/Training"
 import { Project } from "./features/Project"
 import { Boss } from "./features/Boss"
@@ -233,6 +234,7 @@ function App() {
           </Button>
           {user.email_verified && <Boss key={`boss:${user.id}`} />}
           {user.email_verified && <FreeTopic key={`topic:${user.id}`} />}
+          {user.email_verified && <JDRoute key={`jd:${user.id}`} />}
           {user.email_verified && <Training key={`training:${user.id}`} onLevel={reflectLevel} />}
           {user.email_verified && <Project key={`project:${user.id}`} />}
           {user.email_verified && <CapabilityMap key={`capabilitymap:${user.id}`} />}
