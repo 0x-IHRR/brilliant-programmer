@@ -96,11 +96,14 @@ def record_frozen(session: Session, run: TrainingRun, evaluation: Evaluation) ->
     Earlier observations stay immutable; resolving an unknown appends a new fact
     about the same frozen input. Post-freeze help cannot change that outcome.
     """
-    if (
-        run.launch_mode != "independent"
-        or not evaluation.frozen_sequence
-        or evaluation.status != "completed"
-    ):
+    if not evaluation.frozen_sequence or evaluation.status != "completed":
+        return
+    if run.launch_mode != "independent":
+        # Both worker settlement and ending a permitted clarification arrive here.
+        # A deleted current key does not change the frozen evaluation's binding.
+        from app.quality.service import freeze as freeze_quality
+
+        freeze_quality(session, run, evaluation)
         return
     work = session.get(IndependentWork, run.id)
     if not work or not work.novelty:
