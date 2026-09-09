@@ -9,19 +9,22 @@ from sqlmodel import Session
 from app.core.db import engine
 from app.training.history_protocol import ComparisonInput
 from app.training.models import TrainingRun
+from app.training.schema import Candidate
 from tests import test_training
 from tests.test_accounts import client
 from tests.test_boss_history_size import fixture
 from tests.test_history_protocol import response_for
 from tests.test_model_config import account, save
+from tests.test_project_training_rules import material as material
+from tests.test_project_training_rules import selection as project_selection
 
 provider = test_training.provider
 
 
 @pytest.mark.parametrize("inspection", [True, False, None])
-@pytest.mark.parametrize("entry", ["free_topic", "jd"])
+@pytest.mark.parametrize("entry", ["free_topic", "jd", "project"])
 def test_full_reference_comparison_keeps_confirmed_topic_inspection(
-    tmp_path, provider, inspection, entry
+    tmp_path, provider, inspection, entry, material
 ):
     owner, auth = account()
     config = save(auth, service_url=provider["url"]).json()
@@ -40,6 +43,32 @@ def test_full_reference_comparison_keeps_confirmed_topic_inspection(
         if entry == "jd"
         else {}
     )
+    transmitted = provenance.copy()
+    if entry == "project":
+        frozen = project_selection(material)
+        frozen = frozen.model_copy(
+            update={
+                "goal": frozen.goal.model_copy(update={"text": goal, "focus": focus})
+            }
+        )
+        sources = [ref.source for ref in frozen.references]
+
+        def bind(case):
+            value = case.model_dump(mode="json")
+            for evidence in value["evidence"]:
+                for citation in evidence["citations"]:
+                    citation["source_id"] = sources[0].id
+                    citation["quote"] = sources[0].text
+            return Candidate.model_validate_json(json.dumps(value))
+
+        history = {identity: bind(case) for identity, case in history.items()}
+        new = bind(new)
+        provenance = {"project": frozen.model_dump(mode="json")}
+        transmitted = {
+            "module_path": frozen.module_path,
+            "repository_commit": f"{frozen.repository.owner}/{frozen.repository.name}@{frozen.repository.commit}",
+            "simulation_label": "教学模拟",
+        }
     with Session(engine) as session:
         for old, case in history.items():
             session.add(
@@ -81,9 +110,22 @@ def test_full_reference_comparison_keeps_confirmed_topic_inspection(
             assert body["confirmed_topic"] == {
                 "goal": goal,
                 "focus": focus,
-                **provenance,
+                **transmitted,
             }
-            return new.model_dump(mode="json")
+            assert body["sources"] == [
+                source.model_dump(mode="json") for source in sources
+            ]
+            return (
+                {
+                    "case": new.model_dump(mode="json"),
+                    "materials": [
+                        {"evidence_id": e.id, "kind": "synthetic_log"}
+                        for e in new.evidence
+                    ],
+                }
+                if entry == "project"
+                else new.model_dump(mode="json")
+            )
         batch = ComparisonInput.model_validate_json(json.dumps(body["input"]))
         assert batch.topic.text == goal and batch.topic.focus == focus
         assert batch.topic.target == new.target and len(batch.runs) == 70
@@ -92,6 +134,9 @@ def test_full_reference_comparison_keeps_confirmed_topic_inspection(
                 batch.topic.model_dump()[key] == value
                 for key, value in provenance.items()
             )
+        if entry == "project":
+            assert batch.topic.module_path == frozen.module_path
+            assert "synthetic_log" in batch.topic.material_origins
         result = json.loads(response_for(batch, comparisons))
         if inspection is not None:
             result["topic_coverage"] = {

@@ -120,9 +120,15 @@ def finish(
 
 
 def context(item: TopicJob) -> dict[str, Any] | None:
+    from app.project.training_models import ProjectInput
+    from app.project.training_service import analysis_context, is_project
     from app.training.jd_service import is_jd
 
     with Session(engine) as session:
+        if is_project(session, item.topic_id):
+            source = session.get(ProjectInput, item.id)
+            assert source
+            return analysis_context(source)
         if is_jd(session, item.topic_id):
             return (
                 None  # JD analysis needs current text, not previous learning history.
@@ -163,10 +169,14 @@ def accept(identity: uuid.UUID, raw: str, job_id: int | None) -> bool:
         current_for_result(session, item.user_id, item.config_version)
         topic = owned(session, item.topic_id, item.user_id)
         compare(topic, item.expected_version)
+        from app.project.training_service import accept as accept_project
+        from app.project.training_service import is_project
         from app.training.jd_service import accept as accept_jd
         from app.training.jd_service import is_jd
 
-        if is_jd(session, item.topic_id):
+        if is_project(session, item.topic_id):
+            accept_project(session, topic, item, raw)
+        elif is_jd(session, item.topic_id):
             accept_jd(session, topic, item, raw)
         elif item.stage == "analyze":
             result = Analysis.model_validate_json(raw)
@@ -277,7 +287,17 @@ async def process(identity: uuid.UUID) -> None:
                     with Session(engine) as session:
                         return session.get(JDDocument, identity) is not None
 
-                if await asyncio.to_thread(jd_job, item.id):
+                if previous is not None and "confirmed_modules" in previous:
+                    from app.project.training_analysis import analyze as analyze_project
+
+                    raw, counts = await analyze_project(
+                        config.service_url,
+                        config.model_id,
+                        secret.get_secret_value(),
+                        previous,
+                        item.candidate if item.stage == "inspect" else None,
+                    )
+                elif await asyncio.to_thread(jd_job, item.id):
                     from app.training.jd_analysis import analyze as analyze_jd
 
                     raw, counts = await analyze_jd(

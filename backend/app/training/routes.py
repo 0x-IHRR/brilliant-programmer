@@ -44,6 +44,8 @@ class Start(BaseModel):
 class TaskPublic(BaseModel):
     topic_snapshot: StartSnapshot | None = None
     jd_simulation: dict[str, str] | None = None
+    project_simulation: dict[str, str] | None = None
+    project_materials: list[dict[str, str]] | None = None
     boss_stage: ReleasedStage | None = None
     id: uuid.UUID
     status: str
@@ -87,7 +89,25 @@ def view(session: Session, run: TrainingRun) -> TaskPublic:
         .where(TrainingAttempt.run_id == run.id)
         .order_by(col(TrainingAttempt.number))
     ).all()
+    from app.project.training_generation import goal as project_goal
+    from app.project.training_models import ProjectMaterials
+
+    materials = (
+        session.get(ProjectMaterials, run.id)
+        if run.candidate and run.selection.get("entry") == "project"
+        else None
+    )
     return TaskPublic(
+        project_simulation={
+            "topic_id": run.selection.get("topic_id", ""),
+            "module_path": project_goal(run.selection).module_path,
+                "project_run_id": str(run.selection["project"]["project_run_id"]),
+            "repository_commit": project_goal(run.selection).repository_commit,
+            "simulation_label": "教学模拟",
+        }
+        if run.selection.get("entry") == "project"
+        else None,
+        project_materials=materials.origins if materials else None,
         topic_snapshot=StartSnapshot(
             version_id=uuid.UUID(run.selection["topic_version_id"]),
             node_id=uuid.UUID(run.selection["topic_node_id"]),
@@ -96,7 +116,7 @@ def view(session: Session, run: TrainingRun) -> TaskPublic:
             focus=run.selection["focus"],
             target=EvidenceKey.model_validate(run.target),
         )
-        if run.selection.get("entry") in {"free_topic", "jd"}
+        if run.selection.get("entry") in {"free_topic", "jd", "project"}
         else None,
         jd_simulation={
             "topic_id": run.selection.get("topic_id", ""),

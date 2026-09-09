@@ -16,6 +16,7 @@ from pydantic import Field
 
 from app.capabilities.catalog import CATALOG, EvidenceKey
 from app.model_config.output import check_output
+from app.project.training_generation import ConfirmedProjectGoal
 from app.training.boss import (
     BossCoverage,
     FirstStage,
@@ -218,7 +219,7 @@ class ComparisonInput(Strict):
     new: CaseContext
     sources: list[Source]
     stage: Stage | None
-    topic: Goal | ConfirmedJDGoal | None = None
+    topic: Goal | ConfirmedJDGoal | ConfirmedProjectGoal | None = None
     criteria: dict[str, str]
     seen: list[CaseContext]
     runs: list[SeenRun]
@@ -292,7 +293,7 @@ class ComparisonPlan(Strict):
     candidate_digest: Text
     model_id: Text
     stage: Stage | None
-    topic: Goal | ConfirmedJDGoal | None = None
+    topic: Goal | ConfirmedJDGoal | ConfirmedProjectGoal | None = None
     batches: list[ComparisonInput]
 
 
@@ -302,7 +303,7 @@ def _identity(
     sources: list[Source],
     model_id: str,
     stage: Stage | None,
-    topic: Goal | ConfirmedJDGoal | None = None,
+    topic: Goal | ConfirmedJDGoal | ConfirmedProjectGoal | None = None,
 ) -> str:
     return hashlib.sha256(
         json.dumps(
@@ -344,7 +345,7 @@ def plan_comparison(
     key: str,
     *,
     stage: Stage | None = None,
-    topic: Goal | ConfirmedJDGoal | None = None,
+    topic: Goal | ConfirmedJDGoal | ConfirmedProjectGoal | None = None,
     remaining_calls: int = 3,
     request_limit: int = REQUEST_BYTES,
 ) -> ComparisonPlan:

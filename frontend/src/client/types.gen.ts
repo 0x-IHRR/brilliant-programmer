@@ -35,6 +35,36 @@ export type AnalysisPublic = {
 };
 
 /**
+ * AnalyzeProject
+ */
+export type AnalyzeProject = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Topic Id
+     */
+    topic_id: string;
+    /**
+     * Project Run Id
+     */
+    project_run_id: string;
+    /**
+     * Expected Version
+     */
+    expected_version?: string | null;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+};
+
+/**
  * AnalyzeRequest
  */
 export type AnalyzeRequest = {
@@ -146,6 +176,21 @@ export type Background = {
      * Boundary
      */
     boundary: string;
+};
+
+/**
+ * Binding
+ */
+export type Binding = {
+    /**
+     * Node Id
+     */
+    node_id: string;
+    proposal: ModuleGoal;
+    /**
+     * References
+     */
+    references: Array<CodeReference>;
 };
 
 /**
@@ -473,6 +518,18 @@ export type Clarify = {
      * Answers
      */
     answers?: Array<Answer> | null;
+};
+
+/**
+ * CodeReference
+ */
+export type CodeReference = {
+    location: Location;
+    /**
+     * Blob
+     */
+    blob: string;
+    source: Source;
 };
 
 /**
@@ -1632,6 +1689,25 @@ export type ModelConfigSave = {
 };
 
 /**
+ * ModuleGoal
+ */
+export type ModuleGoal = {
+    /**
+     * Module Path
+     */
+    module_path: string;
+    goal: Goal;
+    /**
+     * Evidence
+     */
+    evidence: Array<Location>;
+    /**
+     * Missing
+     */
+    missing?: Array<string>;
+};
+
+/**
  * Node
  */
 export type Node = {
@@ -1885,6 +1961,26 @@ export type ProjectPublic = {
 };
 
 /**
+ * ProjectRoute
+ */
+export type ProjectRoute = {
+    /**
+     * Project Run Id
+     */
+    project_run_id: string;
+    repository: Repository;
+    /**
+     * Map Missing
+     */
+    map_missing: Array<string>;
+    route: Version;
+    /**
+     * Bindings
+     */
+    bindings: Array<Binding>;
+};
+
+/**
  * ProjectStart
  */
 export type ProjectStart = {
@@ -1904,6 +2000,22 @@ export type ProjectStart = {
      * Reanalyze
      */
     reanalyze?: boolean;
+};
+
+/**
+ * ProjectTrainingPublic
+ */
+export type ProjectTrainingPublic = {
+    topic: TopicPublic;
+    /**
+     * Project Run Id
+     */
+    project_run_id: string;
+    current: ProjectRoute | null;
+    /**
+     * Semantic Reliability
+     */
+    semantic_reliability?: string;
 };
 
 /**
@@ -2822,6 +2934,18 @@ export type TaskPublic = {
     jd_simulation?: {
         [key: string]: string;
     } | null;
+    /**
+     * Project Simulation
+     */
+    project_simulation?: {
+        [key: string]: string;
+    } | null;
+    /**
+     * Project Materials
+     */
+    project_materials?: Array<{
+        [key: string]: string;
+    }> | null;
     /**
      * Boss Stage
      */
@@ -5703,6 +5827,79 @@ export type jdsSelectRoleResponses = {
 };
 
 export type jdsSelectRoleResponse = jdsSelectRoleResponses[keyof jdsSelectRoleResponses];
+
+export type projecttrainingListRoutesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/project-training';
+};
+
+export type projecttrainingListRoutesResponses = {
+    /**
+     * Response Projecttraining-List Routes
+     *
+     * Successful Response
+     */
+    200: Array<ProjectTrainingPublic>;
+};
+
+export type projecttrainingListRoutesResponse = projecttrainingListRoutesResponses[keyof projecttrainingListRoutesResponses];
+
+export type projecttrainingReadRouteData = {
+    body?: never;
+    path: {
+        /**
+         * Topic Id
+         */
+        topic_id: string;
+    };
+    query?: never;
+    url: '/api/v1/project-training/{topic_id}';
+};
+
+export type projecttrainingReadRouteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type projecttrainingReadRouteError = projecttrainingReadRouteErrors[keyof projecttrainingReadRouteErrors];
+
+export type projecttrainingReadRouteResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProjectTrainingPublic;
+};
+
+export type projecttrainingReadRouteResponse = projecttrainingReadRouteResponses[keyof projecttrainingReadRouteResponses];
+
+export type projecttrainingAnalyzeRouteData = {
+    body: AnalyzeProject;
+    path?: never;
+    query?: never;
+    url: '/api/v1/project-training/analyze';
+};
+
+export type projecttrainingAnalyzeRouteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type projecttrainingAnalyzeRouteError = projecttrainingAnalyzeRouteErrors[keyof projecttrainingAnalyzeRouteErrors];
+
+export type projecttrainingAnalyzeRouteResponses = {
+    /**
+     * Successful Response
+     */
+    202: ProjectTrainingPublic;
+};
+
+export type projecttrainingAnalyzeRouteResponse = projecttrainingAnalyzeRouteResponses[keyof projecttrainingAnalyzeRouteResponses];
 
 export type healthHealthData = {
     body?: never;
