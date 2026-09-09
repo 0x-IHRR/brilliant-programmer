@@ -56,6 +56,7 @@ def report(session: Session, user_id: uuid.UUID) -> UsageReport:
     for kind, attempt, task, task_pk, owner_join in (
         ("generation", "training_attempt", "training_run", "id", "t.user_id"),
         ("project", "project_attempt", "project_run", "id", "t.user_id"),
+        ("topic", "topic_attempt", "topic_job", "id", "t.user_id"),
         ("submission", "submission_attempt", "training_submission", "id", "r.user_id"),
         (
             "evaluation",
