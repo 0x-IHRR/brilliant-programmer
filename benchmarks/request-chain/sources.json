@@ -1,0 +1,58 @@
+{
+  "queue": {
+    "id": "queue",
+    "url": "https://raw.githubusercontent.com/python/cpython/v3.14.5/Doc/tutorial/datastructures.rst",
+    "version": "CPython v3.14.5; response-sha256:f4ad72009ad81a1995e2e3912bee60d4ab64d89090bb782a94d13f486155b15c",
+    "locator": "CPython v3.14.5 / §5.1.2 Using Lists as Queues; whitespace-normalized exact excerpts",
+    "text": "all of the other elements have to be shifted by one\n[…]\nfast appends and pops from both ends"
+  },
+  "thread": {
+    "id": "thread",
+    "url": "https://raw.githubusercontent.com/python/cpython/v3.14.5/Doc/library/threading.rst",
+    "version": "CPython v3.14.5; response-sha256:35bc2547d513b1ee02b9917391408068f6d8dde044ef2378042b8abc170e07d7",
+    "locator": "CPython v3.14.5 / Introduction, Lock objects, Thread objects; whitespace-normalized exact excerpts",
+    "text": "sharing memory space\n[…]\nsubsequent attempts to acquire it block\n[…]\nDaemon threads are abruptly stopped at shutdown."
+  },
+  "dom": {
+    "id": "dom",
+    "url": "https://dom.spec.whatwg.org/",
+    "version": "DOM living standard retrieved 2026-09-09; response-sha256:bfde1117739cf93463ed17ba0af7d663abf098fbd126f2bcf92e93ce7d787487",
+    "locator": "DOM living standard retrieved 2026-09-09 / #aborting-ongoing-activities; whitespace-normalized exact excerpts",
+    "text": "Though promises do not have a built-in aborting mechanism"
+  },
+  "keyboard": {
+    "id": "keyboard",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html",
+    "version": "WCAG 2.2 Understanding SC2.1.1; response-sha256:fb44d4faaa9fa54a49aee794e969ccc3b7738f4b09e23aa96e3a3c9d44984feb",
+    "locator": "WCAG 2.2 Understanding SC2.1.1 / Success Criterion; whitespace-normalized exact excerpts",
+    "text": "All functionality of the content is operable through a keyboard interface"
+  },
+  "errors": {
+    "id": "errors",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html",
+    "version": "WCAG 2.2 Understanding SC3.3.1; response-sha256:0c33f7d1c0643f3b86d9585cc1b4dfa365950100869d6f67bd0e2b949834e361",
+    "locator": "WCAG 2.2 Understanding SC3.3.1 / Success Criterion; whitespace-normalized exact excerpts",
+    "text": "the item that is in error is identified and the error is described to the user in text."
+  },
+  "reflow": {
+    "id": "reflow",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html",
+    "version": "WCAG 2.2 Understanding SC1.4.10; response-sha256:d322027ca3f1f43f516687120442c60f02ee3f82b09cb26933c9ee7abfeabb33",
+    "locator": "WCAG 2.2 Understanding SC1.4.10 / Success Criterion; whitespace-normalized exact excerpts",
+    "text": "without requiring scrolling in two dimensions\n[…]\n320 CSS pixels"
+  },
+  "http": {
+    "id": "http",
+    "url": "https://www.rfc-editor.org/rfc/rfc9110.txt",
+    "version": "RFC9110 June2022; response-sha256:21c1cdce6ab0e5509b04d84a28000836c7a087cf786efe6f04877ebfff47232a",
+    "locator": "RFC9110 June2022 / §§9.2.2,15.6.5; whitespace-normalized exact excerpts",
+    "text": "PUT, DELETE, and safe request methods\n[…]\nA client SHOULD NOT automatically retry a request\n[…]\ndid not receive a timely response"
+  },
+  "tls": {
+    "id": "tls",
+    "url": "https://www.rfc-editor.org/rfc/rfc8446.txt",
+    "version": "RFC8446 August2018; response-sha256:47871bc8820a2c3b6ea89f061055577058862cf543686b82d10131239702b3bd",
+    "locator": "RFC8446 August2018 / §6.2 unknown_ca; whitespace-normalized exact excerpts",
+    "text": "A valid certificate chain or partial chain was received"
+  }
+}
