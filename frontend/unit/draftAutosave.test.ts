@@ -128,3 +128,19 @@ test("a newer edit restarts debounce after an older timer expired during flight"
   expect(writes[1].expected_version).toBe("saved-" + writes[0].request_id)
   expect(saver.status).toBe("saved")
 })
+
+test("accepting a server version does not claim the chosen local input is already saved", async () => {
+  const writes: DraftWrite[] = []
+  const chosen = progress("local choice after conflict")
+  const saver = new DraftAutosave(chosen, "read-server-version", async request => {
+    writes.push(request)
+    return { version: "new-version", request_id: request.request_id }
+  }, () => {}, null)
+  expect(saver.status).toBe("idle")
+  saver.edit(chosen)
+  await saver.flush()
+  expect(writes).toHaveLength(1)
+  expect(writes[0].expected_version).toBe("read-server-version")
+  expect(writes[0].progress).toEqual(chosen)
+  expect(saver.status).toBe("saved")
+})

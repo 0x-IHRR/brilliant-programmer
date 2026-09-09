@@ -19,28 +19,36 @@ export class DraftAutosave {
   private flight: Promise<void> | null = null
   private due = 0
   private flushAfterFlight = false
+  private retired = false
 
   constructor(
     progress: DraftProgress,
     private version: string | null,
     private save: Save,
     private changed: (status: SaveStatus) => void,
+    savedProgress: DraftProgress | null = progress,
   ) {
     this.desired = structuredClone(progress)
-    this.saved = version ? structuredClone(progress) : null
-    this.status = version ? "saved" : "idle"
+    this.saved = version && savedProgress ? structuredClone(savedProgress) : null
+    this.status = this.saved ? "saved" : "idle"
   }
+
+  get savedVersion() { return this.version }
+  markConflict() { clearTimeout(this.timer); this.setStatus("conflict") }
+  retire() { this.retired = true; clearTimeout(this.timer) }
 
   get progress() { return structuredClone(this.desired) }
 
   private setStatus(status: SaveStatus) { this.status = status; this.changed(status) }
   private dirty() { return JSON.stringify(this.desired) !== JSON.stringify(this.saved) }
   private schedule() {
+    if (this.retired) return
     clearTimeout(this.timer)
     this.timer = setTimeout(() => { void this.flush() }, Math.max(0, this.due - Date.now()))
   }
 
   edit(progress: DraftProgress) {
+    if (this.retired) return
     this.desired = structuredClone(progress)
     this.due = Date.now() + 1000
     // A flush queued for older input must not bypass this edit's debounce.
@@ -56,6 +64,7 @@ export class DraftAutosave {
   // the request. Only a matching successful response produces "saved".
   async flush(): Promise<void> {
     clearTimeout(this.timer)
+    if (this.retired) return
     if (this.status === "conflict" || this.status === "failed") return
     if (this.flight) { this.flushAfterFlight = true; return this.flight }
     if (!this.pending && !this.dirty()) { this.setStatus("saved"); return }

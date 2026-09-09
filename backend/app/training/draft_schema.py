@@ -8,6 +8,7 @@ from pydantic import Field
 
 from app.training.schema import Candidate, Strict, Text
 
+JsonUUID = Annotated[uuid.UUID, Field(strict=False)]
 DraftText = Annotated[str, Field(max_length=6000)]
 
 
@@ -21,19 +22,19 @@ class DraftProgress(Strict):
     answers: list[DraftAnswer] = Field(default_factory=list, max_length=4)
     step: Literal["materials", "judgments", "coach"] = "materials"
     # An editor for an original answer and an editor for a supplement are distinct.
-    based_on_submission_id: uuid.UUID | None = None
+    based_on_submission_id: JsonUUID | None = None
 
 
 class SaveDraft(Strict):
-    request_id: uuid.UUID
-    expected_version: uuid.UUID | None
+    request_id: JsonUUID
+    expected_version: JsonUUID | None
     progress: DraftProgress
 
 
 class DraftSnapshot(Strict):
-    run_id: uuid.UUID
-    version: uuid.UUID
-    request_id: uuid.UUID
+    run_id: JsonUUID
+    version: JsonUUID
+    request_id: JsonUUID
     saved_at: datetime
     progress: DraftProgress
 
