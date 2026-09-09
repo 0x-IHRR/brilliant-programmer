@@ -73,6 +73,7 @@ test("真实任务恢复、隐藏答案隔离和320px键盘工作台", async ({ 
   await expect(training.getByText(/请补充：你的理由与当前任务有什么关系/)).toBeVisible()
   await expect(training.getByText("草稿版本冲突，当前输入保留，未覆盖其他版本", { exact: true })).toBeVisible()
   await training.getByRole("button", { name: "从最新提交记录开始补充" }).click()
+  await training.getByRole("article", { name: /^草稿版本 / }).filter({ hasText: "我还是不明白。" }).last().getByRole("button", { name: /选择版本/ }).click()
   await expect(training.getByRole("radio").nth(1)).toBeChecked()
   await expect(training.getByLabel("第 1 步")).toHaveValue("2")
   await expect(training.getByLabel("第 2 步")).toHaveValue("1")

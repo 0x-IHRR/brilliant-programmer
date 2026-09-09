@@ -1,3 +1,4 @@
+import { DraftVersions } from "./DraftVersions"
 import { useEffect, useRef, useState } from "react"
 import { SubmissionsService, type DraftAnswer, type ModelConfigPublic, type PublicCase, type SubmissionState, type Submit } from "../client"
 import { useDraftEditor } from "./useDraftEditor"
@@ -54,6 +55,7 @@ export function SubmissionForm({ runId, caseData, config, panel, onPanel }: { ru
       {draft.error && <p role="alert">{draft.error}</p>}
       {draft.status === "failed" && <Button variant="outline" className={buttonClass} onClick={() => void draft.retry()}>重试保存草稿</Button>}
       {(!draft.ready || draft.status === "conflict") && <Button variant="outline" className={buttonClass} onClick={() => void draft.read()}>读取草稿并比较</Button>}
+    <DraftVersions collection={draft.collection} expanded={Boolean(draft.comparison)} caseData={caseData} busy={draft.choosing || busy} choose={draft.chooseVersion} remove={draft.remove} read={draft.read} />
       {draft.comparison && <div className="space-y-2 border p-2">
         <p>请选择后再继续。不会自动合并；其他设备此后再保存仍会触发新冲突。</p>
         <details open><summary>本机未保存输入</summary>{preview(draft.localProgress?.answers)}</details>
@@ -102,7 +104,7 @@ export function SubmissionForm({ runId, caseData, config, panel, onPanel }: { ru
     }}>
       {caseData.judgments.map(judgment => {
         const answer = answers.find(item => item.judgment_id === judgment.id)!
-        return <fieldset disabled={!draft.ready || busy || Boolean(checking)} key={judgment.id} className="min-w-0 space-y-2 border p-2">
+        return <fieldset disabled={!draft.ready || draft.choosing || busy || Boolean(checking)} key={judgment.id} className="min-w-0 space-y-2 border p-2">
         <legend>{judgment.prompt}</legend>
         {judgment.kind === "choice" && judgment.options.map((option, position) => <label className="flex items-start gap-2" key={position}><input required type="radio" name={`${runId}-${judgment.id}`} checked={answer.value === position} onChange={() => edit(judgment.id, { value: position })} /><span>{option}</span></label>)}
         {judgment.kind === "order" && judgment.options.map((_, step) => <label key={step} className="block">第 {step + 1} 步<select required className={inputClass} value={(answer.value as number[])[step] < 0 ? "" : (answer.value as number[])[step]} onChange={e => edit(judgment.id, { value: (answer.value as number[]).map((value, i) => i === step ? Number(e.target.value) : value) })}><option value="">请选择顺序</option>{judgment.options.map((item, position) => <option key={position} value={position}>{item}</option>)}</select></label>)}

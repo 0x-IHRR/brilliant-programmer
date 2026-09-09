@@ -9,6 +9,7 @@ from sqlmodel import Session, select
 
 from app.core.db import engine
 from app.training.submission_models import PracticeAward, Submission
+from tests.draft_requests import put, snapshot
 from tests.test_accounts import client
 from tests.test_concepts import coach, publish, receipt, request, wait
 from tests.test_model_config import account
@@ -205,7 +206,7 @@ def test_practice_draft_is_separate_and_original_lineage_unchanged(ready, provid
             "step": "materials",
         },
     }
-    stored = client.put(original_path, headers=auth, json=original)
+    stored = put(original_path, headers=auth, json=original)
     assert stored.status_code == 200
     help_id = demo(ready)
     receipt(auth, identity, publish(auth, identity, help_id))
@@ -219,13 +220,25 @@ def test_practice_draft_is_separate_and_original_lineage_unchanged(ready, provid
             "step": "judgments",
         },
     }
-    saved = client.put(path + "/draft", headers=auth, json=draft)
+    saved = put(path + "/draft", headers=auth, json=draft)
     assert saved.status_code == 200, saved.text
-    assert client.get(original_path, headers=auth).json() == stored.json()
-    assert client.get(path + "/draft", headers=auth).json() == saved.json()
-    assert client.put(path + "/draft", headers=auth, json=draft).json() == saved.json()
+    assert client.get(original_path, headers=auth).json() == snapshot(stored.json())
+    assert client.get(path + "/draft", headers=auth).json() == snapshot(saved.json())
+    assert put(path + "/draft", headers=auth, json=draft).json() == saved.json()
     other = {**draft, "request_id": str(uuid.uuid4())}
-    assert client.put(path + "/draft", headers=auth, json=other).status_code == 409
+    assert put(path + "/draft", headers=auth, json=other).status_code == 409
+    conflict = client.get(path + "/draft/versions", headers=auth).json()
+    assert len(conflict["unresolved"]) == 2
+    assert client.post(path, headers=auth, json=body(config)).status_code == 409
+    chosen = client.post(
+        path + "/draft/choose",
+        headers=auth,
+        json={
+            "observed_revision": conflict["revision"],
+            "version": conflict["current"],
+        },
+    )
+    assert chosen.status_code == 200 and len(chosen.json()["versions"]) == 2
     assert len(provider["requests"]) == before
     assert not client.get(path, headers=auth).json()["completed"]
     assert client.get(path, headers=auth).json()["records"]["awarded_points"] == 0
@@ -243,11 +256,33 @@ def test_practice_draft_is_separate_and_original_lineage_unchanged(ready, provid
             "step": "coach",
         },
     }
-    second_saved = client.put(second_path + "/draft", headers=auth, json=second_draft)
+    second_saved = put(second_path + "/draft", headers=auth, json=second_draft)
     assert second_saved.status_code == 200, second_saved.text
-    assert client.get(path + "/draft", headers=auth).json() == saved.json()
-    assert client.get(second_path + "/draft", headers=auth).json() == second_saved.json()
-    assert client.get(original_path, headers=auth).json() == stored.json()
+    assert client.get(path + "/draft", headers=auth).json() == snapshot(saved.json())
+    assert client.get(second_path + "/draft", headers=auth).json() == snapshot(
+        second_saved.json()
+    )
+    assert client.get(original_path, headers=auth).json() == snapshot(stored.json())
+    help_before = client.get(
+        f"/api/v1/training/tasks/{identity}/help", headers=auth
+    ).json()
+    versions = client.get(second_path + "/draft/versions", headers=auth).json()
+    removed = client.request(
+        "DELETE",
+        second_path + "/draft",
+        headers=auth,
+        json={
+            "observed_revision": versions["revision"],
+            "version": versions["current"],
+        },
+    )
+    assert removed.status_code == 200
+    assert client.get(second_path + "/draft", headers=auth).json() is None
+    assert (
+        client.get(f"/api/v1/training/tasks/{identity}/help", headers=auth).json()
+        == help_before
+    )
+    assert client.get(original_path, headers=auth).json() == snapshot(stored.json())
     assert len(provider["requests"]) == before
 
 

@@ -33,17 +33,31 @@ with tempfile.TemporaryDirectory(prefix="draft-browser-") as directory:
         assert second.status_code == 202
         second_id = second.json()["id"]
         assert wait_run(auth, second_id).json()["status"] == "completed"
-        switch_auth = login(client.get("/api/v1/users/me", headers=auth).json()["email"])
+        switch_auth = login(
+            client.get("/api/v1/users/me", headers=auth).json()["email"]
+        )
         _, other_auth = account()
         assert save(other_auth, service_url=supplier["url"]).status_code == 200
         subprocess.run(
-            ["bun", "run", "--cwd", "../frontend", "test", "draft.spec.ts", *sys.argv[1:]],
+            [
+                "bun",
+                "run",
+                "--cwd",
+                "../frontend",
+                "test",
+                os.environ.get("DRAFT_TEST_FILE", "draft.spec.ts"),
+                *sys.argv[1:],
+            ],
             env={
                 **os.environ,
                 "DRAFT_BROWSER_TOKEN": auth["Authorization"].removeprefix("Bearer "),
                 "DRAFT_FIRST_RUN": identity,
-                "DRAFT_SWITCH_TOKEN": switch_auth["Authorization"].removeprefix("Bearer "),
-                "DRAFT_OTHER_TOKEN": other_auth["Authorization"].removeprefix("Bearer "),
+                "DRAFT_SWITCH_TOKEN": switch_auth["Authorization"].removeprefix(
+                    "Bearer "
+                ),
+                "DRAFT_OTHER_TOKEN": other_auth["Authorization"].removeprefix(
+                    "Bearer "
+                ),
                 "DRAFT_SECOND_RUN": second_id,
             },
             check=True,
