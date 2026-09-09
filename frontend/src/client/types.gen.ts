@@ -141,6 +141,33 @@ export type Capability = {
 };
 
 /**
+ * CapabilityState
+ */
+export type CapabilityState = {
+    target: EvidenceKey;
+    /**
+     * Status
+     */
+    status?: 'unverified' | 'verified' | 'needs_consolidation';
+    /**
+     * Streak
+     */
+    streak?: number;
+    /**
+     * Latest Verified At
+     */
+    latest_verified_at?: string | null;
+    /**
+     * Recovery Started At Order
+     */
+    recovery_started_at_order?: number | null;
+    /**
+     * History
+     */
+    history?: Array<Transition>;
+};
+
+/**
  * Catalog
  */
 export type Catalog = {
@@ -469,6 +496,65 @@ export type EvaluationStart = {
 };
 
 /**
+ * Evidence
+ */
+export type Evidence = {
+    /**
+     * Original Id
+     */
+    original_id: string;
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Order
+     */
+    order: number;
+    /**
+     * Submitted At
+     */
+    submitted_at: string;
+    /**
+     * Order Source
+     */
+    order_source: 'user_locked' | 'legacy_created_at_uuid';
+    target: EvidenceKey;
+    /**
+     * Observation Id
+     */
+    observation_id: string | null;
+    /**
+     * Observation Sequence
+     */
+    observation_sequence: number | null;
+    /**
+     * Frozen Sequence
+     */
+    frozen_sequence: number | null;
+    /**
+     * Outcome
+     */
+    outcome: string;
+    /**
+     * Qualified Novelty
+     */
+    qualified_novelty: boolean;
+    /**
+     * Case Digest
+     */
+    case_digest: string | null;
+    /**
+     * Judgment Ids
+     */
+    judgment_ids: Array<string>;
+    /**
+     * Semantic Reliability
+     */
+    semantic_reliability?: 'unverified';
+};
+
+/**
  * EvidenceKey
  */
 export type EvidenceKey = {
@@ -484,6 +570,24 @@ export type EvidenceKey = {
      * Background Id
      */
     background_id: string;
+};
+
+/**
+ * EvidenceMap
+ */
+export type EvidenceMap = {
+    /**
+     * Rule Version
+     */
+    rule_version?: string;
+    /**
+     * Semantic Reliability
+     */
+    semantic_reliability?: 'unverified';
+    /**
+     * States
+     */
+    states: Array<CapabilityState>;
 };
 
 /**
@@ -1785,6 +1889,25 @@ export type TokenTotal = {
 };
 
 /**
+ * Transition
+ */
+export type Transition = {
+    evidence: Evidence;
+    /**
+     * Status
+     */
+    status: 'unverified' | 'verified' | 'needs_consolidation';
+    /**
+     * Streak
+     */
+    streak: number;
+    /**
+     * Counted
+     */
+    counted: boolean;
+};
+
+/**
  * UsageCall
  */
 export type UsageCall = {
@@ -2372,6 +2495,22 @@ export type capabilitiesReadCatalogResponses = {
 };
 
 export type capabilitiesReadCatalogResponse = capabilitiesReadCatalogResponses[keyof capabilitiesReadCatalogResponses];
+
+export type capabilitiesReadCapabilityEvidenceData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/capabilities/evidence';
+};
+
+export type capabilitiesReadCapabilityEvidenceResponses = {
+    /**
+     * Successful Response
+     */
+    200: EvidenceMap;
+};
+
+export type capabilitiesReadCapabilityEvidenceResponse = capabilitiesReadCapabilityEvidenceResponses[keyof capabilitiesReadCapabilityEvidenceResponses];
 
 export type modelconfigDeleteConfigData = {
     body?: never;

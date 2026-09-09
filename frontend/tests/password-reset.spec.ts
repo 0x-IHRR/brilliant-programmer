@@ -89,7 +89,7 @@ test("password recovery revokes two devices; mobile keyboard and failure recover
 })
 
 
-for (const delayedPath of ["/api/v1/capabilities/catalog", "/api/v1/model-config", "/api/v1/training/tasks", "/api/v1/projects"]) {
+for (const delayedPath of ["/api/v1/capabilities/catalog", "/api/v1/capabilities/evidence", "/api/v1/model-config", "/api/v1/training/tasks", "/api/v1/projects"]) {
   test(`late 401 from ${delayedPath} preserves replacement session`, async ({ page }) => {
     // Real UI and generated SDK; controlled responses isolate the response-order race.
     const users = {
@@ -117,6 +117,8 @@ for (const delayedPath of ["/api/v1/capabilities/catalog", "/api/v1/model-config
         await route.fulfill({ status: 401, json: { detail: "请重新登录" } })
       } else if (path === "/api/v1/capabilities/catalog") {
         await route.fulfill({ json: { version: "test", quality: "test", domains: [], backgrounds: [], difficulty_criteria: { 基础: "test" } } })
+      } else if (path === "/api/v1/capabilities/evidence") {
+        await route.fulfill({ json: { rule_version: "test", semantic_reliability: "unverified", states: [] } })
       } else if (path === "/api/v1/model-config") {
         await route.fulfill({ json: null })
       } else if (path === "/api/v1/training/tasks") {
