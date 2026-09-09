@@ -18,8 +18,8 @@ from app.model_config.connection import Attempt
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.models import User
-from app.training.boss import FirstStage
 from app.training.boss_service import stage_for
+from app.training.boss_stages import ReleasedStage
 from app.training.models import TrainingAttempt, TrainingRun
 from app.training.preference_models import RandomPreference
 from app.training.queue import DSN
@@ -43,7 +43,7 @@ class Start(BaseModel):
 
 class TaskPublic(BaseModel):
     topic_snapshot: StartSnapshot | None = None
-    boss_stage: FirstStage | None = None
+    boss_stage: ReleasedStage | None = None
     id: uuid.UUID
     status: str
     code: str

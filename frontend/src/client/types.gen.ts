@@ -152,7 +152,10 @@ export type Body_accounts_login = {
  * BossAccess
  */
 export type BossAccess = {
-    stage: FirstStage;
+    /**
+     * Stage
+     */
+    stage: FirstStage | BossStage;
     /**
      * Points
      */
@@ -201,8 +204,14 @@ export type BossPublic = {
      * Run Id
      */
     run_id: string;
-    stage: FirstStage;
-    decision: BossDecision | null;
+    /**
+     * Stage
+     */
+    stage: FirstStage | BossStage;
+    /**
+     * Decision
+     */
+    decision: BossDecision | StageDecision | null;
     /**
      * Promotion Id
      */
@@ -218,6 +227,40 @@ export type BossPublic = {
 };
 
 /**
+ * BossStage
+ */
+export type BossStage = {
+    /**
+     * Version
+     */
+    version: string;
+    /**
+     * Catalog Version
+     */
+    catalog_version: string;
+    /**
+     * From Level
+     */
+    from_level: '初级程序员' | '中级程序员' | '高级程序员' | '牛逼程序员' | '传奇程序员' | 'AI级程序员';
+    /**
+     * To Level
+     */
+    to_level: '初级程序员' | '中级程序员' | '高级程序员' | '牛逼程序员' | '传奇程序员' | 'AI级程序员' | null;
+    /**
+     * Launch Points
+     */
+    launch_points: number;
+    /**
+     * Mandatory
+     */
+    mandatory: Array<StageJudgment>;
+    /**
+     * Passing Rule
+     */
+    passing_rule: string;
+};
+
+/**
  * BossStart
  */
 export type BossStart = {
@@ -225,7 +268,10 @@ export type BossStart = {
      * Request Id
      */
     request_id: string;
-    expected_stage: FirstStage;
+    /**
+     * Expected Stage
+     */
+    expected_stage: FirstStage | BossStage;
     /**
      * Expected Config Version
      */
@@ -1455,6 +1501,24 @@ export type Node = {
 };
 
 /**
+ * Observation
+ */
+export type Observation = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Requirement
+     */
+    requirement: string;
+    /**
+     * Source Capability
+     */
+    source_capability: string;
+};
+
+/**
  * PasswordResetEmail
  */
 export type PasswordResetEmail = {
@@ -1978,6 +2042,47 @@ export type Source = {
 };
 
 /**
+ * StageDecision
+ */
+export type StageDecision = {
+    /**
+     * Outcome
+     */
+    outcome: 'practice' | 'pending_delivery' | 'no_qualified_case' | 'invalid_case' | 'system_failure' | 'unclear' | 'evidenced_fail' | 'independent_pass_candidate' | 'not_admitted' | 'disputed' | 'pending_revalidation';
+    /**
+     * Promote To
+     */
+    promote_to?: '初级程序员' | '中级程序员' | '高级程序员' | '牛逼程序员' | '传奇程序员' | 'AI级程序员' | null;
+    /**
+     * Shortfalls
+     */
+    shortfalls?: Array<ConfirmedShortfall>;
+    /**
+     * Semantic Reliability
+     */
+    semantic_reliability?: 'unverified';
+};
+
+/**
+ * StageJudgment
+ */
+export type StageJudgment = {
+    /**
+     * Judgment Id
+     */
+    judgment_id: string;
+    /**
+     * Scope
+     */
+    scope: string;
+    target: EvidenceKey;
+    /**
+     * Observations
+     */
+    observations: Array<Observation>;
+};
+
+/**
  * Start
  */
 export type Start = {
@@ -2219,7 +2324,10 @@ export type TargetStart = {
  */
 export type TaskPublic = {
     topic_snapshot?: StartSnapshot | null;
-    boss_stage?: FirstStage | null;
+    /**
+     * Boss Stage
+     */
+    boss_stage?: FirstStage | BossStage | null;
     /**
      * Id
      */

@@ -138,6 +138,21 @@ def independent_accept(*args):
     result = original_independent_accept(*args)
     if phase == 1:
         Path(str(control) + ".independent_finished").touch()
+        from sqlmodel import Session
+
+        from app.core.db import engine
+        from app.training.independent_models import IndependentWork
+
+        with Session(engine) as session:
+            work = session.get(IndependentWork, args[0])
+            committed = len(work.comparison_results) if work else 0
+        while (
+            committed
+            and json.loads(control.read_text()).get("after_comparison_batch")
+            == committed
+        ):
+            Path(str(control) + ".comparison_committed").touch()
+            time.sleep(0.02)
     return result
 
 
@@ -146,6 +161,14 @@ original_training_record = worker.record_attempt
 
 
 def training_record(*args):
+    while (
+        args[1] == "ok"
+        and json.loads(control.read_text()).get("before_completed_training_ok")
+        and worker.read_run(__import__("uuid").UUID(data["run_id"])).status
+        == "completed"
+    ):
+        Path(str(control) + ".training_ok_pending").touch()
+        time.sleep(0.02)
     result = original_training_record(*args)
     while json.loads(control.read_text()).get("after_training_record") == args[1]:
         Path(str(control) + ".training_recorded").touch()
