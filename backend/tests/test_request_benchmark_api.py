@@ -25,8 +25,14 @@ def configure(provider, draft, *, variant=False, cosmetic=False):
     # The TLS server transports exact saved excerpts; its URL is intentionally
     # controlled, not masquerading as the upstream official site.
     provider["source_text"] = (
-        "\n".join(sources[k].text for k in draft.source_ids)
-        + "\nControlled transport of frozen excerpts; all scenario observations remain teaching assumptions."
+        "Controlled transport of frozen source records, not the upstream official server. "
+        "All scenario observations remain teaching assumptions.\n"
+        + "\n\n".join(
+            f"Original URL: {sources[k].url}\nVersion: {sources[k].version}\n"
+            f"Locator and explicitly marked summary: {sources[k].locator}\n"
+            f"Exact excerpts (separate from summary):\n{sources[k].text}"
+            for k in draft.source_ids
+        )
     )
     candidate = draft.positive_variant if variant else draft.candidate
     if cosmetic:
@@ -154,6 +160,12 @@ def test_all_18_independent_drafts_frozen_evidence_scope(tmp_path, provider, dra
             and result["case"]["title"] == draft.candidate.title
         ), result
         assert "rubric" not in result["case"]
+        generation = json.loads(provider["requests"][0]["messages"][1]["content"])
+        transported = "\n".join(source["text"] for source in generation["sources"])
+        for source_id in draft.source_ids:
+            source = sources[source_id]
+            for field in (source.locator, source.url, source.version, source.text):
+                assert field in transported
         evaluated = evaluate(auth, identity, config, draft.candidate, 0)
         assert evaluated["independent_outcome"] == "independent_pass_candidate", (
             evaluated
