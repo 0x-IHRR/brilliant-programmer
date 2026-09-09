@@ -530,10 +530,34 @@ def test_inspection_temporary_failure_reuses_private_candidate(provider, tmp_pat
         },
     )
     assert started.status_code == 202
-    process, _ = start_worker(tmp_path, provider, started.json()["id"])
+    process, control = start_worker(
+        tmp_path, provider, started.json()["id"], before_completed_training_ok=True
+    )
     try:
+        deadline = time.monotonic() + 5
+        while not control.with_name(control.name + ".training_ok_pending").exists():
+            assert time.monotonic() < deadline
+            time.sleep(0.02)
         result = wait_run(auth, started.json()["id"]).json()
         assert result["case"], result
+        assert [a["code"] for a in result["attempts"]] == [
+            "ok",
+            "temporary_service",
+            "unknown",
+        ]
+        assert result["attempts"][-1]["prompt_tokens"] == 11
+        options = json.loads(control.read_text())
+        control.write_text(
+            json.dumps({**options, "before_completed_training_ok": False})
+        )
+        deadline = time.monotonic() + 5
+        while result["attempts"][-1]["code"] == "unknown":
+            assert time.monotonic() < deadline, (
+                "final inspection attempt was not persisted"
+            )
+            result = wait_run(auth, started.json()["id"]).json()
+            time.sleep(0.02)
+        assert result["attempts"][-1]["prompt_tokens"] == 11
         assert len(provider["requests"]) == 3
         assert provider["requests"][1] == provider["requests"][2]
         assert [a["code"] for a in result["attempts"]] == [
@@ -548,6 +572,10 @@ def test_inspection_temporary_failure_reuses_private_candidate(provider, tmp_pat
             assert saved.candidate["title"] == result["case"]["title"]
         assert "HIDDEN_" not in json.dumps(result)
     finally:
+        options = json.loads(control.read_text())
+        control.write_text(
+            json.dumps({**options, "before_completed_training_ok": False})
+        )
         stop_worker(process)
 
 

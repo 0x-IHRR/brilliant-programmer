@@ -161,6 +161,14 @@ original_training_record = worker.record_attempt
 
 
 def training_record(*args):
+    while (
+        args[1] == "ok"
+        and json.loads(control.read_text()).get("before_completed_training_ok")
+        and worker.read_run(__import__("uuid").UUID(data["run_id"])).status
+        == "completed"
+    ):
+        Path(str(control) + ".training_ok_pending").touch()
+        time.sleep(0.02)
     result = original_training_record(*args)
     while json.loads(control.read_text()).get("after_training_record") == args[1]:
         Path(str(control) + ".training_recorded").touch()
