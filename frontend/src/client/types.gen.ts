@@ -709,6 +709,10 @@ export type EvaluationInputs = {
  */
 export type EvaluationPublic = {
     /**
+     * Grading Quality
+     */
+    grading_quality?: string;
+    /**
      * Run Id
      */
     run_id: string;
@@ -2315,6 +2319,10 @@ export type ReviewCall = {
  * ReviewPublic
  */
 export type ReviewPublic = {
+    /**
+     * Grading Quality
+     */
+    grading_quality?: string;
     /**
      * Run Id
      */

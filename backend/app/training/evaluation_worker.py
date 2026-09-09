@@ -180,6 +180,10 @@ def settle(identity: uuid.UUID, result: GradingCandidate) -> bool:
                 if session.get(BossAttempt, identity)
                 else "已逐项核对。结论不直接更新等级或独立掌握证明；完成奖励保留。",
             )
+        if evaluation.status == "completed" and run.launch_mode != "independent":
+            from app.quality.service import freeze as freeze_quality
+
+            freeze_quality(session, run, evaluation)
         session.add(evaluation)
         record_frozen(session, run, evaluation)
         session.commit()
