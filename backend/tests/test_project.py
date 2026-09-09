@@ -545,6 +545,12 @@ def test_repeated_queue_dispatch_cannot_reanalyze_completed_task(tmp_path, provi
     auth, identity = start_project(provider)
     process, control = start_worker(tmp_path, provider, identity, after_record="ok")
     try:
+        # Queue startup is a separate observation from the persisted call result.
+        deadline = time.monotonic() + 15
+        while not Path(str(control) + ".ready").exists():
+            assert process.poll() is None, "worker exited before queue opened"
+            assert time.monotonic() < deadline, "worker queue did not open"
+            time.sleep(0.02)
         # The public ready fact commits before the final attempt outcome.
         # Capture the comparison only after the existing real-worker barrier
         # confirms that final outcome has reached PostgreSQL.

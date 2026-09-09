@@ -17,7 +17,11 @@ from app.model_config.connection import (
     ProbeError,
     request_raw,
 )
-from app.model_config.service import lock_owner
+from app.model_config.service import (
+    cancelled_by_revocation,
+    current_for_result,
+    lock_owner,
+)
 from app.project.acquisition import acquire
 from app.project.analysis import syntax_map
 from app.project.github import MAX_REQUESTS, SECRET, GitHub
@@ -67,7 +71,13 @@ def finish(
         run = session.exec(
             select(ProjectRun).where(ProjectRun.id == identity).with_for_update()
         ).one()
+        if run.status not in TERMINAL and cancelled_by_revocation(
+            session, run.user_id, run.config_version, code
+        ):
+            run.stop_requested = True
+            code = "configuration_revoked"
         if result is not None:
+            current_for_result(session, run.user_id, run.config_version)
             run.project_map = result.model_dump()
         run.status = (
             "stopped"

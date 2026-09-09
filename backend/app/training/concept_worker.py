@@ -11,8 +11,11 @@ from sqlmodel import Session, col, select
 
 from app.core.db import engine
 from app.model_config.connection import BACKOFF_SECONDS, CancelledCall, ProbeError
-from app.model_config.models import ModelConfig
-from app.model_config.service import lock_owner
+from app.model_config.service import (
+    cancelled_by_revocation,
+    current_for_result,
+    lock_owner,
+)
 from app.training.concept import (
     coach_call,
     context_for,
@@ -117,7 +120,19 @@ def fail(identity: uuid.UUID, code: str, message: str) -> None:
         ).one()
         if item.status != "checking" or item.stop_requested:
             return
-        item.status, item.code, item.message = "failed", code, message
+        run = session.get(TrainingRun, item.run_id)
+        assert run
+        revoked = cancelled_by_revocation(
+            session, run.user_id, item.config_version, code
+        )
+        if revoked:
+            item.stop_requested = True
+            code = "configuration_revoked"
+        item.status, item.code, item.message = (
+            "stopped" if revoked else "failed",
+            code,
+            message,
+        )
         session.add(item)
         session.commit()
 
@@ -139,9 +154,7 @@ def accept(identity: uuid.UUID, raw: str, key: str, stage: str) -> bool:
         ).one()
         if item.status != "checking" or item.stop_requested or item.stage != stage:
             return False
-        config = session.get(ModelConfig, run.user_id, populate_existing=True)
-        if not config or config.version != item.config_version:
-            raise HTTPException(409, "configuration revoked")
+        current_for_result(session, run.user_id, item.config_version)
         if stage == "generate":
             content: ConceptContent | GuidanceDraft = validate_content(
                 raw,

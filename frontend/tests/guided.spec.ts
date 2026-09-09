@@ -7,8 +7,18 @@ test("主动提示示范、单项跟练草稿恢复与同轮奖励", async ({ pa
   await page.setViewportSize({ width: 320, height: 780 })
   await page.goto(`/?training_run=${process.env.GUIDED_BROWSER_RUN}`)
   await page.evaluate(token => sessionStorage.setItem("token", token!), process.env.GUIDED_BROWSER_TOKEN)
+  let releaseDraft!: () => void
+  const draftGate = new Promise<void>(resolve => { releaseDraft = resolve })
+  await page.route("**/training/tasks/*/draft", async route => {
+    if (route.request().method() !== "GET") { await route.continue(); return }
+    await draftGate
+    await route.continue()
+  })
   await page.reload()
   const training = page.getByRole("region", { name: "随机第一关" })
+  await expect(training.getByLabel("草稿保存状态").getByRole("status")).toHaveText("正在读取已保存进度")
+  releaseDraft()
+  await expect(training.getByLabel("草稿保存状态").getByRole("status")).not.toHaveText("正在读取已保存进度")
   await training.getByRole("button", { name: "概念", exact: true }).click()
   const coach = page.getByRole("region", { name: "概念教练" })
   await expect(coach.getByText("可接受结论：", { exact: true })).toHaveCount(0)

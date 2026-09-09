@@ -225,7 +225,7 @@ def request_help(
             422, "请确认将当前案例、作答、求助和必要帮助记录发给已保存模型；可能计费"
         )
     config = session.get(ModelConfig, user.id, populate_existing=True)
-    if not config or config.version != body.expected_config_version:
+    if not config or config.revoked or config.version != body.expected_config_version:
         raise HTTPException(409, "配置已变化，请重新读取并确认模型目的地")
     if body.kind != "concept" and (body.parent_id or body.input.depth != "basic"):
         raise HTTPException(422, "提示和示范不附带概念深入历史")
@@ -314,7 +314,7 @@ def retry_help(
     if not view(session, item).can_retry:
         raise HTTPException(409, "当前帮助不可重试或预算耗尽；输入与记录保留")
     config = session.get(ModelConfig, user.id, populate_existing=True)
-    if not config or config.version != item.config_version:
+    if not config or config.revoked or config.version != item.config_version:
         raise HTTPException(409, "旧配置已撤销；请核对新目的地后主动发起新的帮助")
     item.status, item.code, item.message = (
         "checking",

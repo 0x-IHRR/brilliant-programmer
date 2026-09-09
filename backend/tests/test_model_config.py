@@ -67,7 +67,7 @@ def test_lifecycle_is_encrypted_persistent_owned_and_revoked(monkeypatch, caplog
     assert result.status_code == 200, result.text
     current = result.json()
     version = uuid.UUID(current["version"])
-    assert set(current) == {"version", "service_url", "model_id", "has_key"}
+    assert set(current) == {"version", "service_url", "model_id", "has_key", "revoked"}
     assert FAKE_KEY not in result.text
     assert client.get(URL, headers=auth).headers["cache-control"] == "no-store"
     with Session(engine) as session:

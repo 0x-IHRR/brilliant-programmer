@@ -108,7 +108,7 @@ def start_project(
         raise HTTPException(422, "请确认本次公开资料目的地与重试可能计费")
     lock_owner(session, user.id)
     config = session.get(ModelConfig, user.id)
-    if not config or config.version != body.expected_config_version:
+    if not config or config.revoked or config.version != body.expected_config_version:
         raise HTTPException(409, "模型配置缺失或已变更，请读取并确认已保存目的地")
     active = session.exec(
         select(ProjectRun).where(
@@ -180,7 +180,7 @@ def retry_project(
             409, "本轮不可继续重试或预算已耗尽；停止代表本轮结束，可主动重分析新一轮"
         )
     config = session.get(ModelConfig, user.id)
-    if not config or config.version != run.config_version:
+    if not config or config.revoked or config.version != run.config_version:
         raise HTTPException(409, "配置已变更，请确认新配置后主动重分析")
     active = session.exec(
         select(ProjectRun.id).where(

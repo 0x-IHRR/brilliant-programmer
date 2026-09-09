@@ -136,6 +136,7 @@ def submit_practice(
     if not completed and (
         not body.disclosure_accepted
         or not config
+        or config.revoked
         or config.version != body.expected_config_version
     ):
         raise HTTPException(409, "请核对已保存模型目的地并允许检查当前跟练作答")

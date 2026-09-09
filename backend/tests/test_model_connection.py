@@ -338,8 +338,15 @@ def test_real_tls_http_boundary(tmp_path, monkeypatch, mode, caplog):
             }
             if mode in ("auth_slow", "forbidden_slow", "balance_slow"):
                 monkeypatch.setattr(routes, "recheck_caller", lambda _token: None)
+                from sqlmodel import Session
+
+                from app.core.db import engine
+                from app.models import User
+                owner, _ = account()
+                with Session(engine) as session:
+                    user = session.get(User, owner)
                 result = await routes.probe(
-                    "test", draft, "synthetic", None, Response()
+                    "test", draft, "synthetic", user, Response()
                 )
                 assert not result.ok and result.code == (
                     "balance" if mode == "balance_slow" else "authentication"

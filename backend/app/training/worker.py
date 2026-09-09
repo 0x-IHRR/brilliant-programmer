@@ -7,6 +7,7 @@ from sqlmodel import Session, col, select
 from app.capabilities.catalog import CATALOG, EvidenceKey
 from app.core.db import engine
 from app.model_config.connection import BACKOFF_SECONDS, CancelledCall, ProbeError
+from app.model_config.service import cancelled_by_revocation, current_for_result
 from app.project.worker import reconcile_failed_projects
 from app.training.concept_worker import reconcile_concepts
 from app.training.evaluation_worker import reconcile_failed_evaluations
@@ -46,6 +47,13 @@ def finish(run_id: uuid.UUID, code: str, message: str) -> None:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
         ).one()
+        # Acceptance/stop/failure may commit before a late cancellation unwinds.
+        # The task lock makes that terminal fact authoritative for every caller.
+        if run.status in TERMINAL:
+            return
+        if cancelled_by_revocation(session, run.user_id, run.config_version, code):
+            run.stop_requested = True
+            code = "configuration_revoked"
         if run.candidate:
             run.status = "stopped" if run.stop_requested else "completed"
         else:
@@ -114,6 +122,7 @@ def accept_candidate(run_id: uuid.UUID, raw: str, key: str) -> bool:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
         ).one()
+        current_for_result(session, run.user_id, run.config_version)
         candidate = validate_candidate(
             raw,
             EvidenceKey.model_validate(run.target),

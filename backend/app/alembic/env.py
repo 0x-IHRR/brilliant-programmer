@@ -20,6 +20,7 @@ fileConfig(config.config_file_name)
 # target_metadata = None
 
 from app.model_config.models import ModelConfig  # noqa
+from app.model_config import usage  # noqa: F401
 from app.training.models import TrainingRun, TrainingAttempt  # noqa
 from app.training.submission_models import Submission, SubmissionAttempt, PracticeAward  # noqa
 from app.training import concept_models  # noqa: F401
