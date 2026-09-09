@@ -9,8 +9,8 @@ from sqlmodel import Session, col, select
 from app.core.db import engine
 from app.model_config.connection import CancelledCall, ProbeError
 from app.model_config.output import check_output
-from app.model_config.service import lock_owner
-from app.training.gate import call_credential, revoked
+from app.model_config.service import current_for_result, lock_owner
+from app.training.gate import call_credential
 from app.training.queue import queue
 from app.training.topic_analysis import Inspection, analyze
 from app.training.topic_models import TopicAttempt, TopicJob
@@ -120,7 +120,13 @@ def finish(
 
 
 def context(item: TopicJob) -> dict[str, Any] | None:
+    from app.training.jd_service import is_jd
+
     with Session(engine) as session:
+        if is_jd(session, item.topic_id):
+            return (
+                None  # JD analysis needs current text, not previous learning history.
+            )
         topic = owned(session, item.topic_id, item.user_id)
         previous = version(session, topic, item.expected_version)
         return (
@@ -154,11 +160,15 @@ def accept(identity: uuid.UUID, raw: str, job_id: int | None) -> bool:
             or item.status in TERMINAL
         ):
             return False
-        if revoked(item.user_id, item.config_version):
-            raise HTTPException(409, "模型配置已撤销，候选未发布")
+        current_for_result(session, item.user_id, item.config_version)
         topic = owned(session, item.topic_id, item.user_id)
         compare(topic, item.expected_version)
-        if item.stage == "analyze":
+        from app.training.jd_service import accept as accept_jd
+        from app.training.jd_service import is_jd
+
+        if is_jd(session, item.topic_id):
+            accept_jd(session, topic, item, raw)
+        elif item.stage == "analyze":
             result = Analysis.model_validate_json(raw)
             # Validate real catalog keys before sending a candidate for inspection.
             propose(
@@ -261,14 +271,31 @@ async def process(identity: uuid.UUID) -> None:
                         "本阶段尝试或一次纠错已耗尽，原输入保留",
                     )
                     return
-                raw, counts = await analyze(
-                    config.service_url,
-                    config.model_id,
-                    secret.get_secret_value(),
-                    item.input_text,
-                    previous,
-                    item.candidate if item.stage == "inspect" else None,
-                )
+                from app.training.jd_models import JDDocument
+
+                def jd_job(identity: uuid.UUID) -> bool:
+                    with Session(engine) as session:
+                        return session.get(JDDocument, identity) is not None
+
+                if await asyncio.to_thread(jd_job, item.id):
+                    from app.training.jd_analysis import analyze as analyze_jd
+
+                    raw, counts = await analyze_jd(
+                        config.service_url,
+                        config.model_id,
+                        secret.get_secret_value(),
+                        item.input_text,
+                        item.candidate if item.stage == "inspect" else None,
+                    )
+                else:
+                    raw, counts = await analyze(
+                        config.service_url,
+                        config.model_id,
+                        secret.get_secret_value(),
+                        item.input_text,
+                        previous,
+                        item.candidate if item.stage == "inspect" else None,
+                    )
                 await asyncio.to_thread(record, attempt, "unknown", counts)
             if not await asyncio.to_thread(accept, identity, raw, job_id):
                 return
