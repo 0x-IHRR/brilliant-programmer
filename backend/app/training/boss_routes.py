@@ -2,11 +2,12 @@
 
 import json
 import uuid
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, field_validator
-from sqlmodel import col, select
+from sqlmodel import Session, col, select
 
 from app.api.deps import SessionDep
 from app.model_config.models import ModelConfig
@@ -16,8 +17,13 @@ from app.training.boss import (
     BossDecision,
     FirstStage,
 )
-from app.training.boss_models import BossAttempt, BossPromotion
-from app.training.boss_service import decision_for
+from app.training.boss_models import (
+    BossAttempt,
+    BossDisposition,
+    BossPromotion,
+    BossRevalidation,
+)
+from app.training.boss_service import decision_for, revalidations
 from app.training.boss_stages import (
     STAGES,
     BossStage,
@@ -36,17 +42,61 @@ from app.training.routes import TaskPublic, VerifiedUser, owned, view
 router = APIRouter(prefix="/boss", tags=["boss"])
 
 
+class RevalidationEventPublic(BaseModel):
+    id: uuid.UUID
+    sequence: int
+    kind: str
+    review_run_id: uuid.UUID | None
+    resolved_run_id: uuid.UUID | None
+    created_at: datetime
+
+
+class RevalidationPublic(BaseModel):
+    promotion_id: uuid.UUID
+    original_run_id: uuid.UUID
+    stage: ReleasedStage
+    current_event_id: uuid.UUID
+    status: str
+    events: list[RevalidationEventPublic]
+
+
+def revalidation_view(session: Session, item: BossRevalidation) -> RevalidationPublic:
+    promotion = session.get(BossPromotion, item.promotion_id)
+    assert promotion
+    attempt = session.get(BossAttempt, promotion.run_id)
+    assert attempt
+    events = session.exec(
+        select(BossRevalidation)
+        .where(BossRevalidation.promotion_id == item.promotion_id)
+        .order_by(col(BossRevalidation.sequence))
+    ).all()
+    return RevalidationPublic(
+        promotion_id=promotion.id,
+        original_run_id=promotion.run_id,
+        stage=parse_stage(attempt.stage),
+        current_event_id=item.id,
+        status=item.kind,
+        events=[
+            RevalidationEventPublic.model_validate(e, from_attributes=True)
+            for e in events
+        ],
+    )
+
+
 class BossAccess(BaseModel):
     stage: ReleasedStage
     points: int
     level: str
     can_start: bool
     run_ids: list[uuid.UUID]
+    revalidations: list[RevalidationPublic]
 
 
 class BossStart(BaseModel):
     model_config = ConfigDict(extra="forbid")
     request_id: uuid.UUID
+    revalidation_of: uuid.UUID | None = None
+    expected_revalidation_event_id: uuid.UUID | None = None
     expected_stage: ReleasedStage
     expected_config_version: uuid.UUID
     disclosure_accepted: bool
@@ -66,6 +116,10 @@ class BossPublic(BaseModel):
     stage: ReleasedStage
     decision: BossDecision | StageDecision | None
     promotion_id: uuid.UUID | None
+    revalidation_of: uuid.UUID | None
+    revalidation: RevalidationPublic | None
+    disposition: str | None
+    launch_level: str
     current_level: str
     points: int
 
@@ -97,6 +151,9 @@ def boss_access(
         level=user.level,
         can_start=points >= stage.launch_points,
         run_ids=list(runs),
+        revalidations=[
+            revalidation_view(session, item) for item in revalidations(session, user.id)
+        ],
     )
 
 
@@ -117,11 +174,28 @@ def start_boss(
             or not attempt
             or attempt.stage != body.expected_stage.model_dump(mode="json")
             or existing.config_version != body.expected_config_version
+            or attempt.revalidation_of != body.revalidation_of
+            or attempt.revalidation_event_id != body.expected_revalidation_event_id
         ):
             raise HTTPException(409, "该请求身份已用于其他挑战，请读取原记录")
         return view(session, existing)
     points = points_for(session, user.id)
     stage = stage_at_level(user.level)
+    pending = revalidations(session, user.id, pending_only=True)
+    if body.revalidation_of is not None:
+        required = next(
+            (item for item in pending if item.promotion_id == body.revalidation_of),
+            None,
+        )
+        if not required or required.id != body.expected_revalidation_event_id:
+            raise HTTPException(409, "该条补验要求已变化或不属于本人，请重新读取")
+        promotion = session.get(BossPromotion, required.promotion_id)
+        assert promotion
+        original = session.get(BossAttempt, promotion.run_id)
+        assert original
+        stage = parse_stage(original.stage)
+    elif body.expected_revalidation_event_id is not None:
+        raise HTTPException(422, "请明确关联原晋级记录")
     if stage != body.expected_stage or points < body.expected_stage.launch_points:
         raise HTTPException(
             409,
@@ -162,6 +236,9 @@ def start_boss(
             stage=body.expected_stage.model_dump(mode="json"),
             launch_points=points,
             launch_level=user.level,
+            revalidation_of=body.revalidation_of,
+            revalidation_event_id=body.expected_revalidation_event_id,
+            promotion_blocked=bool(pending),
         )
     )
     session.add(IndependentWork(run_id=run.id))
@@ -186,11 +263,25 @@ def read_boss(
         select(BossPromotion).where(BossPromotion.run_id == run.id)
     ).first()
     session.refresh(user)
+    associated = promotion.id if promotion else attempt.revalidation_of
+    item = next(
+        (
+            row
+            for row in revalidations(session, user.id)
+            if row.promotion_id == associated
+        ),
+        None,
+    )
+    disposition = session.get(BossDisposition, run.id)
     return BossPublic(
         run_id=run.id,
         stage=parse_stage(attempt.stage),
         decision=result,
         promotion_id=promotion.id if promotion else None,
+        revalidation_of=attempt.revalidation_of,
+        revalidation=revalidation_view(session, item) if item else None,
+        disposition=disposition.outcome if disposition else None,
+        launch_level=attempt.launch_level,
         current_level=user.level,
         points=points_for(session, user.id),
     )

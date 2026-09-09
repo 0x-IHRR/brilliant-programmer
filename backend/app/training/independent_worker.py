@@ -41,6 +41,8 @@ from app.training.history_protocol import (
 from app.training.independent_models import IndependentWork
 from app.training.independent_novelty import ScenarioComparison, assess_novelty
 from app.training.independent_service import capture_history, history
+from app.training.jd_rules import ConfirmedJDGoal
+from app.training.jd_service import generation_goal
 from app.training.models import TrainingAttempt, TrainingRun
 from app.training.schema import (
     Candidate,
@@ -244,7 +246,7 @@ def accept(
                 BossComparisons.model_validate_json(raw)
                 if stage
                 else TopicComparisons.model_validate_json(raw)
-                if run.selection.get("entry") == "free_topic"
+                if run.selection.get("entry") in {"free_topic", "jd"}
                 else Comparisons.model_validate_json(raw)
             )
             if history(session, run) != work.history:
@@ -323,9 +325,18 @@ def prepare_comparison_plan(identity: uuid.UUID, job_id: int | None, key: str) -
                 text=run.selection["goal"],
                 focus=run.selection["focus"],
             )
-            if run.selection.get("entry") == "free_topic"
+            if run.selection.get("entry") in {"free_topic", "jd"}
             else None
         )
+        if run.selection.get("entry") == "jd":
+            goal = ConfirmedJDGoal(
+                target=case.target,
+                text=run.selection["goal"],
+                focus=run.selection["focus"],
+                requirement_quote=run.selection["requirement_quote"],
+                basis=run.selection["basis"],
+                simulation_label="教学模拟",
+            )
         plan = plan_comparison(
             load_persisted_history(work.history_snapshot),
             case,
@@ -435,11 +446,8 @@ async def process(identity: uuid.UUID) -> None:
                 key = secret.get_secret_value()
                 if run.generation == 0:
                     extra: dict[str, Any] = {"boss_stage": stage} if stage else {}
-                    if run.selection.get("entry") == "free_topic":
-                        extra["topic_goal"] = {
-                            "goal": run.selection["goal"],
-                            "focus": run.selection["focus"],
-                        }
+                    if run.selection.get("entry") in {"free_topic", "jd"}:
+                        extra["topic_goal"] = generation_goal(run.selection)
                         check_output(json.dumps(extra, ensure_ascii=False), key)
                     raw, counts = await generate(
                         config.service_url,
@@ -495,14 +503,13 @@ async def process(identity: uuid.UUID) -> None:
                                             ],
                                             **(
                                                 {
-                                                    "confirmed_topic": {
-                                                        "goal": run.selection["goal"],
-                                                        "focus": run.selection["focus"],
-                                                    },
+                                                    "confirmed_topic": generation_goal(
+                                                        run.selection
+                                                    ),
                                                     "sources": run.sources,
                                                 }
                                                 if run.selection.get("entry")
-                                                == "free_topic"
+                                                in {"free_topic", "jd"}
                                                 else {}
                                             ),
                                             "schema": (
@@ -510,7 +517,7 @@ async def process(identity: uuid.UUID) -> None:
                                                 if stage
                                                 else TopicComparisons
                                                 if run.selection.get("entry")
-                                                == "free_topic"
+                                                in {"free_topic", "jd"}
                                                 else Comparisons
                                             ).model_json_schema(),
                                             **(
