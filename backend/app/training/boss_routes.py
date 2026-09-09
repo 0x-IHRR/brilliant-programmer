@@ -6,7 +6,6 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, field_validator
-from sqlalchemy import func
 from sqlmodel import col, select
 
 from app.api.deps import SessionDep
@@ -31,8 +30,8 @@ from app.training.evaluation_models import Evaluation
 from app.training.independent_models import IndependentWork
 from app.training.independent_routes import enqueue
 from app.training.models import TrainingRun
+from app.training.review_service import points
 from app.training.routes import TaskPublic, VerifiedUser, owned, view
-from app.training.submission_models import PracticeAward
 
 router = APIRouter(prefix="/boss", tags=["boss"])
 
@@ -72,11 +71,7 @@ class BossPublic(BaseModel):
 
 
 def points_for(session: SessionDep, user_id: uuid.UUID) -> int:
-    return session.exec(
-        select(func.coalesce(func.sum(PracticeAward.points), 0)).where(
-            PracticeAward.user_id == user_id
-        )
-    ).one()
+    return points(session, user_id)
 
 
 @router.get("/access")

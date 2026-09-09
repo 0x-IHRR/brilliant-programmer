@@ -25,6 +25,7 @@ from app.training.evaluation_worker import RETRYABLE, freeze
 from app.training.events import next_event
 from app.training.independent_models import IndependentObservation
 from app.training.independent_service import record_frozen
+from app.training.projection import read_snapshot
 from app.training.queue import DSN
 from app.training.routes import VerifiedUser, owned
 from app.training.schema import Candidate
@@ -62,7 +63,16 @@ class EvaluationPublic(BaseModel):
     independent_outcome: str | None
 
 
-def view(session: Session, item: Evaluation) -> EvaluationPublic:
+def view(_session: Session, item: Evaluation) -> EvaluationPublic:
+    # POST callers commit before returning; retry's eligibility read precedes
+    # its mutation and retains the original User lock throughout.
+    with read_snapshot() as snapshot:
+        current = snapshot.get(Evaluation, item.run_id)
+        assert current is not None
+        return _view(snapshot, current)
+
+
+def _view(session: Session, item: Evaluation) -> EvaluationPublic:
     observation = session.exec(
         select(IndependentObservation)
         .where(

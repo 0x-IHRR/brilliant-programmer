@@ -13,6 +13,7 @@ from pathlib import Path
 from app.model_config import connection
 from app.training import (
     independent_worker,
+    review_worker,
     sources,
     submission_worker,
     topic_worker,
@@ -265,6 +266,38 @@ def topic_finish(*args, **kwargs):
 topic_worker.finish = topic_finish
 
 
+original_review_finish = review_worker.finish
+
+
+def review_finish(*args, **kwargs):
+    while (
+        json.loads(control.read_text()).get("review_before_finish")
+        and str(args[0]) == data["run_id"]
+    ):
+        Path(str(control) + ".review_finishing").touch()
+        time.sleep(0.02)
+    return original_review_finish(*args, **kwargs)
+
+
+review_worker.finish = review_finish
+original_review_settle = review_worker.settle
+
+
+def review_settle(*args, **kwargs):
+    while (
+        json.loads(control.read_text()).get("review_before_settle")
+        and str(args[0]) == data["run_id"]
+    ):
+        Path(str(control) + ".review_settling").touch()
+        time.sleep(0.02)
+    if json.loads(control.read_text()).get("review_storage_failure"):
+        raise RuntimeError("controlled review storage failure")
+    return original_review_settle(*args, **kwargs)
+
+
+review_worker.settle = review_settle
+
+
 async def run():
     if data.get("independent_once"):
         # A stale execution whose queue abort has not reached it yet. Exercise
@@ -278,6 +311,7 @@ async def run():
             "training.generate",
             "training.check_submission",
             "training.evaluate",
+            "training.review",
             "training.concept",
         ):
             for job in await queue.job_manager.get_stalled_jobs(

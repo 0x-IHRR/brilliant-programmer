@@ -47,6 +47,7 @@ jobs:
           (cd backend && ../.venv/bin/python tests/training_browser.py)
           (cd backend && ../.venv/bin/python tests/project_browser.py)
           (cd backend && ../.venv/bin/python tests/evaluation_browser.py)
+          (cd backend && ../.venv/bin/python tests/review_browser.py)
           (cd backend && ../.venv/bin/python tests/concept_browser.py)
           (cd backend && ../.venv/bin/python tests/draft_browser.py)
           (cd backend && DRAFT_TEST_FILE=draft-conflicts.spec.ts ../.venv/bin/python tests/draft_browser.py)
