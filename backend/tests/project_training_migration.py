@@ -55,7 +55,7 @@ with isolated.begin() as connection:
         )
         before[table] = (
             connection.execute(
-                text(f'SELECT row_to_json(t) FROM "{table}" t ORDER BY 1::text')
+                text(f'SELECT row_to_json(t) FROM "{table}" t ORDER BY row_to_json(t)::text')
             )
             .scalars()
             .all()
@@ -65,7 +65,7 @@ with isolated.begin() as connection:
     for table, _ in scopes:
         assert (
             connection.execute(
-                text(f'SELECT row_to_json(t) FROM "{table}" t ORDER BY 1::text')
+                text(f'SELECT row_to_json(t) FROM "{table}" t ORDER BY row_to_json(t)::text')
             )
             .scalars()
             .all()
