@@ -2,7 +2,7 @@
 
 Display/persist FIRST_STAGE before generation; bind mandatory IDs before answering.
 Settlement must hold the owner lock and bind original/evaluation/rule snapshots,
-with a unique promotion identity. This is not a public request payload.
+with a unique promotion identity. Settlement facts never come from clients.
 """
 
 import uuid
@@ -183,3 +183,53 @@ def assess_first_boss(
                 )
             )
     return BossDecision(outcome=outcome, shortfalls=tuple(gaps))
+
+
+class BossCoverage(Strict):
+    judgment_id: Text
+    target: EvidenceKey
+    criterion_quote: Text
+    prompt_quote: Text
+    reasoning_quote: Text
+    evidence_id: Text
+    fact: Text
+    value: Text
+    source_id: Text
+    assessment: Literal["matches", "unclear", "mismatch"]
+    explanation: Text
+
+
+def validate_boss_coverage(
+    stage: FirstStage, case: Candidate, coverage: list[BossCoverage]
+) -> None:
+    """Bind the inspector's semantic claim to actual prompts/facts/criteria.
+
+    This remains model-interpreted, not human certification. Missing, unclear or
+    contradictory claims fail closed; no self-labelled coverage from generation.
+    """
+    validate_boss_mapping(stage, case)
+    required = {item.judgment_id: item for item in stage.mandatory}
+    if len(coverage) != len(required) or {c.judgment_id for c in coverage} != set(
+        required
+    ):
+        raise ValueError("incomplete Boss coverage")
+    judgments = {j.id: j for j in case.judgments}
+    rubrics = {r.judgment_id: r for r in case.rubric}
+    evidence = {e.id: e for e in case.evidence}
+    criteria = {c.id: c.criterion for d in CATALOG.domains for c in d.capabilities}
+    for claim in coverage:
+        item = required[claim.judgment_id]
+        material = evidence.get(claim.evidence_id)
+        if (
+            claim.target != item.target
+            or claim.criterion_quote != criteria[item.target.capability_id]
+            or claim.prompt_quote != judgments[item.judgment_id].prompt
+            or claim.reasoning_quote != rubrics[item.judgment_id].reasoning
+            or claim.evidence_id not in rubrics[item.judgment_id].evidence_ids
+            or material is None
+            or material.facts.get(claim.fact) != claim.value
+            or claim.source_id != "boss-" + item.target.capability_id
+            or not any(c.source_id == claim.source_id for c in material.citations)
+            or claim.assessment != "matches"
+        ):
+            raise ValueError("unverified Boss mandatory coverage")

@@ -259,3 +259,56 @@ def test_late_passed_boss_keeps_pass_but_cannot_promote_again():
     assert original_result.promote_to == "初级程序员"
     assert late_result == original_result.model_copy(update={"promote_to": None})
     assert args["inputs"].model_dump_json() == before
+
+
+def coverage_witness():
+    from app.capabilities.catalog import CATALOG
+    from app.training.boss import BossCoverage
+    from app.training.independent_worker import context
+    from tests.boss_scenarios import REFERENCE, candidate, comparisons
+
+    criteria = {c.id: c.criterion for d in CATALOG.domains for c in d.capabilities}
+    payload = {
+        "messages": [
+            {},
+            {
+                "content": json.dumps(
+                    {
+                        "target": FIRST_STAGE.mandatory[0].target.model_dump(),
+                        "sources": [
+                            {"id": "boss-" + m.target.capability_id, "text": REFERENCE}
+                            for m in FIRST_STAGE.mandatory
+                        ],
+                    }
+                )
+            },
+        ]
+    }
+    case = Candidate.model_validate(candidate(payload))
+    claims = comparisons(
+        {"new": context(case, boss=True), "seen": [], "mandatory_criteria": criteria}
+    )["boss_coverage"]
+    return case, [BossCoverage.model_validate(c) for c in claims]
+
+
+def test_coverage_requires_each_actual_judgment_fact_criterion_and_source():
+    from app.training.boss import validate_boss_coverage
+
+    case, claims = coverage_witness()
+    validate_boss_coverage(FIRST_STAGE, case, claims)
+    with pytest.raises(ValueError, match="incomplete Boss"):
+        validate_boss_coverage(FIRST_STAGE, case, claims[:-1])
+    for change in [
+        {"assessment": "unclear"},
+        {"assessment": "mismatch"},
+        {"prompt_quote": "题面提到了组件，因此所有能力通过"},
+        {"source_id": claims[1].source_id},
+        {"criterion_quote": claims[1].criterion_quote},
+        {"value": "not-observed"},
+        {"target": claims[1].target},
+        {"reasoning_quote": "模型自称已覆盖"},
+    ]:
+        with pytest.raises(ValueError, match="unverified Boss"):
+            validate_boss_coverage(
+                FIRST_STAGE, case, [claims[0].model_copy(update=change), *claims[1:]]
+            )

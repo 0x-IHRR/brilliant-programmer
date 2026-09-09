@@ -4,6 +4,7 @@ from app.api.routes.accounts import router
 from app.capabilities.routes import router as capabilities_router
 from app.model_config.routes import router as model_config_router
 from app.project.routes import router as project_router
+from app.training.boss_routes import router as boss_router
 from app.training.concepts import router as concepts_router
 from app.training.drafts import router as drafts_router
 from app.training.evaluations import router as evaluations_router
@@ -35,3 +36,4 @@ api_router.include_router(drafts_router)
 
 api_router.include_router(practices_router)
 api_router.include_router(independent_router)
+api_router.include_router(boss_router)

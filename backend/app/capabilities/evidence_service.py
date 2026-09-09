@@ -13,6 +13,8 @@ from sqlmodel import Session, col, select
 from app.capabilities.catalog import EvidenceKey
 from app.capabilities.evidence import Evidence, EvidenceMap, project
 from app.capabilities.evidence_models import OriginalOrder
+from app.training.boss import BossCoverage, validate_boss_coverage
+from app.training.boss_service import stage_for
 from app.training.evaluation_models import Evaluation
 from app.training.evaluation_schema import EvaluationInputs, validate_grading
 from app.training.independent_models import IndependentObservation, IndependentWork
@@ -106,23 +108,57 @@ def read_evidence(session: Session, user_id: uuid.UUID) -> EvidenceMap:
                 judgments = [item.judgment_id for item in grading.items]
             except ValueError, KeyError, TypeError:
                 outcome = "evidence_unavailable"
-        records.append(
-            Evidence(
-                original_id=original.id,
-                run_id=run.id,
-                order=order.position,
-                submitted_at=order.submitted_at,
-                order_source="legacy_created_at_uuid"
-                if order.source == "legacy_created_at_uuid"
-                else "user_locked",
-                target=EvidenceKey.model_validate(run.target),
-                observation_id=observation.id if observation else None,
-                observation_sequence=observation.sequence if observation else None,
-                frozen_sequence=observation.frozen_sequence if observation else None,
-                outcome=outcome,
-                qualified_novelty=qualified,
-                case_digest=digest,
-                judgment_ids=judgments,
-            )
+        record = Evidence(
+            original_id=original.id,
+            run_id=run.id,
+            order=order.position,
+            submitted_at=order.submitted_at,
+            order_source="legacy_created_at_uuid"
+            if order.source == "legacy_created_at_uuid"
+            else "user_locked",
+            target=EvidenceKey.model_validate(run.target),
+            observation_id=observation.id if observation else None,
+            observation_sequence=observation.sequence if observation else None,
+            frozen_sequence=observation.frozen_sequence if observation else None,
+            outcome=outcome,
+            qualified_novelty=qualified,
+            case_digest=digest,
+            judgment_ids=judgments,
         )
+        stage = stage_for(session, run.id)
+        if stage and observation and qualified:
+            try:
+                assert work and work.novelty
+                validate_boss_coverage(
+                    stage,
+                    case,
+                    [
+                        BossCoverage.model_validate(c)
+                        for c in work.novelty["comparisons"]["boss_coverage"]
+                    ],
+                )
+                by_id = {item.judgment_id: item for item in grading.items}
+                for mandatory in stage.mandatory:
+                    item = by_id[mandatory.judgment_id]
+                    records.append(
+                        record.model_copy(
+                            update={
+                                "kind": "boss",
+                                "target": mandatory.target,
+                                "judgment_ids": [mandatory.judgment_id],
+                                "outcome": "independent_pass_candidate"
+                                if item.conclusion == "pass"
+                                else item.conclusion,
+                            }
+                        )
+                    )
+                continue
+            except ValueError, KeyError, TypeError:
+                record = record.model_copy(
+                    update={
+                        "outcome": "evidence_unavailable",
+                        "qualified_novelty": False,
+                    }
+                )
+        records.append(record)
     return project(records)
