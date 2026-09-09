@@ -38,6 +38,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun test frontend/unit/draftAutosave.test.ts
       - run: bun run --cwd frontend build
+      - run: sudo --preserve-env=GITHUB_ACTIONS python3 scripts/disable_ci_chrome_source.py
       - run: cd frontend && bunx playwright install --with-deps chromium
       - run: |
           (cd backend && exec ../.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 18080 --no-proxy-headers) > /tmp/api.log 2>&1 &
@@ -60,5 +61,6 @@ jobs:
           (cd backend && ../.venv/bin/python tests/random_browser.py)
           (cd backend && ../.venv/bin/python tests/boss_browser.py)
           (cd backend && ../.venv/bin/python tests/boss_stages_browser.py)
+          (cd backend && ../.venv/bin/python tests/boss_revalidation_browser.py)
           (cd backend && ../.venv/bin/python tests/topic_browser.py)
           bun run --cwd frontend test
