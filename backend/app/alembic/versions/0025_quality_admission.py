@@ -37,7 +37,8 @@ def upgrade():
             'destination', e.destination, 'model_id', e.model_id,
             'evaluation_rule', e.rule_version), CURRENT_TIMESTAMP
         FROM training_evaluation e JOIN training_run r ON r.id=e.run_id
-        WHERE EXISTS(SELECT 1 FROM independent_observation o WHERE o.run_id=e.run_id AND o.outcome <> 'pending_delivery')''')
+        WHERE (r.launch_mode <> 'independent' AND e.status='completed' AND e.frozen_sequence IS NOT NULL)
+           OR EXISTS(SELECT 1 FROM independent_observation o WHERE o.run_id=e.run_id AND o.outcome <> 'pending_delivery')''')
     op.execute('''INSERT INTO quality_disposition(run_id, phase, status, binding, created_at)
         SELECT s.run_id, 'review', 'unverified', json_build_object(
             'user_id', r.user_id, 'config_version', s.config_version,
