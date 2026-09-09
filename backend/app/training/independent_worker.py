@@ -301,6 +301,11 @@ async def process(identity: uuid.UUID) -> None:
                 )
                 return
         except ProbeError as error:
+            if attempt is None:
+                # Source reads have no model attempt budget; persist their failure
+                # instead of entering the model retry loop (same as ordinary runs).
+                await stop_with(error.code, error.message)
+                return
             if attempt:
                 await asyncio.to_thread(
                     record_attempt, attempt.id, error.code, error.counts

@@ -192,3 +192,68 @@ def test_source_failure_is_not_missing_ability_and_consumes_no_model_call(
         assert open_request(auth).status_code == 409
     finally:
         test_training.stop_worker(process)
+
+
+def test_retryable_source_dns_failure_exits_before_any_model_attempt(
+    provider, monkeypatch
+):
+    import asyncio
+    import socket
+
+    import procrastinate
+
+    from app.training import independent_worker
+    from app.training.queue import DSN
+
+    _, auth = account()
+    config = save(auth, service_url=provider["url"]).json()
+    created = client.post(
+        "/api/v1/capabilities/start",
+        headers=auth,
+        json={
+            "request_id": str(uuid.uuid4()),
+            "target": BASE.model_dump(),
+            "catalog_version": CATALOG.version,
+            "mode": "independent",
+            "expected_config_version": config["version"],
+            "disclosure_accepted": True,
+        },
+    )
+    assert created.status_code == 202
+    identity = uuid.UUID(created.json()["id"])
+    with Session(engine) as session:
+        job_id = session.get(TrainingRun, identity).queue_job_id
+    lookups = []
+    # Real process/acquire_source/PublicBackend; only the actual DNS resolver is
+    # controlled. A second lookup fails immediately instead of hanging forever.
+    async def execute():
+        async def unavailable(host, port, **_kwargs):
+            lookups.append((host, port))
+            assert len(lookups) == 1, "source failure entered unbudgeted retry"
+            raise socket.gaierror(socket.EAI_AGAIN, "controlled temporary DNS failure")
+
+        monkeypatch.setattr(asyncio.get_running_loop(), "getaddrinfo", unavailable)
+        monkeypatch.setattr(independent_worker, "BACKOFF_SECONDS", [0])
+        await independent_worker.process(identity)
+
+    try:
+        asyncio.run(execute())
+        result = client.get(f"/api/v1/training/tasks/{identity}", headers=auth).json()
+        assert result["status"] == "failed" and result["code"] == "dns"
+        assert result["message"] == "服务地址无法解析"
+        assert result["case"] is None and result["attempts"] == []
+        assert len(lookups) == 1 and provider["requests"] == []
+        with Session(engine) as session:
+            run = session.get(TrainingRun, identity)
+            assert run.attempts == run.generation_attempts == 0
+            assert not run.sources
+        assert client.get("/api/v1/capabilities/evidence", headers=auth).json()["states"] == []
+        assert open_request(auth).status_code == 409
+    finally:
+        # This test invokes the real process directly, so retire its unclaimed
+        # native queue job without leaving work for another test worker.
+        with procrastinate.App(
+            connector=procrastinate.SyncPsycopgConnector(conninfo=DSN)
+        ).open() as app:
+            app.job_manager.cancel_job_by_id(job_id, abort=True)
+        client.post(f"/api/v1/training/tasks/{identity}/stop", headers=auth)
