@@ -8,18 +8,20 @@ JD 与普通主题共用生成、私人候选核对和全历史独立比较。�
 
 证据投影使用完整能力／难度／背景键和当前复核解释；同一个短只读数据库快照读取路线、历史和证据。无匹配证据是尚未验证，不表示不会；不能映射的背景为未知。读取失败保留现有界面并明确失败，不能伪造无证据结论。
 
+未保存的本机训练卡或保留的冲突输入阻止确认和开题；保存新版本后必须重新确认。普通生成在尝试记账与首 HTTP 之前检查包含完整 JD 引用的目标载荷，防止新配置 Key 恰好存在于旧引用中。
+
 本票还修复继承的 Topic 结果提交与配置撤销竞态：`User → TopicJob → ModelConfig` 行锁内提交，复用 `current_for_result`。原只读撤销检查在检查完成后仍能先提交撤销；确定性 PostgreSQL 屏障在普通 Topic 与 JD 路径均复现旧实现失败，修后撤销先赢拒绝结果、结果先赢完整保留。
 
 ## 验证入口
 
 所有数据库、worker 与浏览器检查串行，使用独立本地合成环境，无付费模型或真实邮件。
 
-- `backend` 目录：`pytest tests/test_jd_rules.py tests/test_jds.py tests/test_jd_config_boundary.py tests/test_jd_evidence.py tests/test_topics.py tests/test_topic_history_protocol.py -q`。
+- `backend` 目录：`pytest tests/test_jd_rules.py tests/test_jds.py tests/test_jd_config_boundary.py tests/test_jd_evidence.py tests/test_jd_rotated_secret.py tests/test_topics.py tests/test_topic_history_protocol.py -q`。
 - 真实受控 TLS：精确原文／推断、无要求、含糊、多岗位、未知背景、错误引用、核对拒绝、秘密阻断；当前目标生成最小外发、停止恢复已收用量、稳定请求身份、跨账号、版本冲突、前置拒绝。70 条保留历史分别测试普通 Topic／JD 的通过、拒绝及缺失覆盖核对。
 - `python tests/jd_browser.py`：320px 与 200% 文本；原文到选择岗位、编辑、确认、真实生成、作答、反馈、刷新恢复；失响应重放同请求、无要求不生成。复用原 `tests/topic_browser.py` 检查旧自由主题流程。
 - `python tests/jd_migration.py`：在专属数据库新建隔离 schema，实际从 0022 升级，逐字段保留旧自由主题路线、原题／原答和奖励；验证四个 JD 表的不可变触发器。
 - `ruff`／严格 `mypy app` 从 backend 目录运行；前端 `bun run build`，锁定依赖和 SDK 生成沿项目工具。
 
-当前迁移 0024 暂接 0022，按协调要求等待 #28 合并后正常整合 main，改接 0023 并重新验证唯一迁移 head 与生成 SDK。首轮针对性检查后提交双轴审查；最终全量和 CI 在整合后执行，不能用当前局部通过冒称完整交付。
+迁移链为 0022 → 0023_boss_revalidation → 0024_jd_route，唯一 head 为 0024。已经应用旧阶段临时 0024 的本地验证数据库保留，不通过 stamp 跳过 0023；整合测试使用同专属 Postgres 的新数据库，真实执行完整迁移。上述迁移脚本另验证含旧记录的升级。SDK 根据整合后的 OpenAPI 生成，JD 浏览器 harness 已列入 CI 的串行专项序列。
 
 真实模型抽取准确率、教学质量、人工标注与大规模账户性能未认证，仍需 #35–40 的外部验收。不使用受控模型响应证明用户会或不会；本次没有部署。
