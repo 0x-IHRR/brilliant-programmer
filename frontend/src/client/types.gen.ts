@@ -1801,6 +1801,34 @@ export type Submit = {
 };
 
 /**
+ * TargetStart
+ */
+export type TargetStart = {
+    target: EvidenceKey;
+    /**
+     * Catalog Version
+     */
+    catalog_version: string;
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Expected Config Version
+     */
+    expected_config_version: string;
+    /**
+     * Disclosure Accepted
+     */
+    disclosure_accepted: boolean;
+    /**
+     * Mode
+     */
+    mode: 'practice' | 'independent';
+    return_target?: EvidenceKey | null;
+};
+
+/**
  * TaskPublic
  */
 export type TaskPublic = {
@@ -1858,6 +1886,7 @@ export type TaskPublic = {
      * Independent Outcome
      */
     independent_outcome: string | null;
+    return_target?: EvidenceKey | null;
 };
 
 /**
@@ -1905,6 +1934,44 @@ export type Transition = {
      * Counted
      */
     counted: boolean;
+};
+
+/**
+ * UnitAccess
+ */
+export type UnitAccess = {
+    target: EvidenceKey;
+    /**
+     * Catalog Version
+     */
+    catalog_version?: string;
+    /**
+     * Opened
+     */
+    opened: boolean;
+    /**
+     * Eligible
+     */
+    eligible: boolean;
+    /**
+     * Missing Required
+     */
+    missing_required: Array<EvidenceKey>;
+    /**
+     * Missing Alternatives
+     */
+    missing_alternatives: Array<Array<EvidenceKey>>;
+};
+
+/**
+ * UnitRequest
+ */
+export type UnitRequest = {
+    target: EvidenceKey;
+    /**
+     * Catalog Version
+     */
+    catalog_version: string;
 };
 
 /**
@@ -2511,6 +2578,74 @@ export type capabilitiesReadCapabilityEvidenceResponses = {
 };
 
 export type capabilitiesReadCapabilityEvidenceResponse = capabilitiesReadCapabilityEvidenceResponses[keyof capabilitiesReadCapabilityEvidenceResponses];
+
+export type capabilitiesReadUnitsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/capabilities/access';
+};
+
+export type capabilitiesReadUnitsResponses = {
+    /**
+     * Response Capabilities-Read Units
+     *
+     * Successful Response
+     */
+    200: Array<UnitAccess>;
+};
+
+export type capabilitiesReadUnitsResponse = capabilitiesReadUnitsResponses[keyof capabilitiesReadUnitsResponses];
+
+export type capabilitiesOpenLearningUnitData = {
+    body: UnitRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/capabilities/open';
+};
+
+export type capabilitiesOpenLearningUnitErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type capabilitiesOpenLearningUnitError = capabilitiesOpenLearningUnitErrors[keyof capabilitiesOpenLearningUnitErrors];
+
+export type capabilitiesOpenLearningUnitResponses = {
+    /**
+     * Successful Response
+     */
+    200: UnitAccess;
+};
+
+export type capabilitiesOpenLearningUnitResponse = capabilitiesOpenLearningUnitResponses[keyof capabilitiesOpenLearningUnitResponses];
+
+export type capabilitiesStartTargetData = {
+    body: TargetStart;
+    path?: never;
+    query?: never;
+    url: '/api/v1/capabilities/start';
+};
+
+export type capabilitiesStartTargetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type capabilitiesStartTargetError = capabilitiesStartTargetErrors[keyof capabilitiesStartTargetErrors];
+
+export type capabilitiesStartTargetResponses = {
+    /**
+     * Successful Response
+     */
+    202: TaskPublic;
+};
+
+export type capabilitiesStartTargetResponse = capabilitiesStartTargetResponses[keyof capabilitiesStartTargetResponses];
 
 export type modelconfigDeleteConfigData = {
     body?: never;

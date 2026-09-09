@@ -1,9 +1,11 @@
+import { LearningUnit } from "./LearningUnit"
 import { useEffect, useState } from "react"
 import { CapabilitiesService, type Catalog, type EvidenceKey, type EvidenceMap } from "../client"
 import { Button } from "../components/ui/button"
 import { Label } from "../components/ui/label"
 
 export function CapabilityMap() {
+  const [selectedUnit, setSelectedUnit] = useState<EvidenceKey | null>(null)
   const [catalog, setCatalog] = useState<Catalog | null>(null)
   const [evidence, setEvidence] = useState<EvidenceMap | null>(null)
   const [evidenceError, setEvidenceError] = useState("")
@@ -21,7 +23,7 @@ export function CapabilityMap() {
       if (active) setEvidence(data)
     }).catch(() => { if (active) setEvidenceError("能力证据读取失败，已有结果保留；请重试确认最新状态。") })
     void CapabilitiesService.readCatalog().then(({ data }) => {
-      if (active) setCatalog(data)
+      if (active) { setCatalog(data); const query = new URLSearchParams(location.search); const cap = data.domains.flatMap(d => d.capabilities).find(c => c.id === query.get("capability")); const tier = query.get("difficulty"); if (cap && (tier === "基础" || tier === "进阶" || tier === "综合")) { setSelectedUnit({ capability_id: cap.id, difficulty: tier, background_id: cap.background_id }); setDifficulty(tier) } }
     }).catch(() => {
       if (active) setError("目录读取失败，请检查登录状态或重试。已有目录保留，未获得新的验证结果。")
     }).finally(() => { if (active) setLoading(false) })
@@ -46,6 +48,7 @@ export function CapabilityMap() {
     {catalog && <>
       <p>目录版本：{catalog.version} · {catalog.domains.length} 个领域</p>
       <p>{catalog.quality}</p>
+      {selectedUnit && <LearningUnit key={JSON.stringify(selectedUnit)} initial={selectedUnit} catalog={catalog} />}
       <div>
         <Label htmlFor="capability-domain">查看领域</Label>
         <select id="capability-domain" className={control} value={domainId} onChange={e => setDomainId(e.target.value)}>
@@ -82,6 +85,7 @@ export function CapabilityMap() {
                 <a className="underline" href={`/?training_run=${item.evidence.run_id}`}>查看原轮与记录</a>
               </article>)}
             </details>}
+            <Button className="h-auto min-h-9 max-w-full whitespace-normal" onClick={() => setSelectedUnit({ capability_id: capability.id, difficulty, background_id: capability.background_id })}>查看此目标的解锁与补基础路径</Button>
             <p className="break-all">稳定 ID：{capability.id}</p>
             <p>可观察判断：{capability.criterion}</p>
             <p>技术背景：{background.name}</p>

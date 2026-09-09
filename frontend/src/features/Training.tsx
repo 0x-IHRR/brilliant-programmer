@@ -103,6 +103,7 @@ export function Training() {
     {runs.length > 1 && <label className="block">查看已有任务<select className="block w-full min-w-0 rounded border p-2" value={run?.id ?? ""} onChange={e => selectRun(e.target.value)}>{runs.map(item => <option key={item.id} value={item.id}>{item.goal} · {item.message}</option>)}</select></label>}
     {run && <article className="space-y-4 rounded border p-3">
       <p role="status">{run.message}</p>
+      {run.return_target && <a className="underline" href={`/?capability=${encodeURIComponent(run.return_target.capability_id)}&difficulty=${encodeURIComponent(run.return_target.difficulty)}`}>返回原目标并核对解锁条件</a>}
       <p>{run.target.difficulty} · 目标：{run.goal}</p>
       <p>{run.launch_mode === "independent" ? "本轮由你主动发起独立检验；最终资格依据实际帮助与冻结作答，语义质量尚未验收。" : "本轮默认练习；普通练习通过不会自动成为独立证明。"}</p>
       {run.current_mode === "practice" && run.launch_mode === "independent" && <p>本题已转为练习，不能原题切回独立；已有修为及此前冻结的合格原答保留。</p>}

@@ -20,6 +20,7 @@ fileConfig(config.config_file_name)
 # target_metadata = None
 
 from app.capabilities import evidence_models  # noqa: F401
+from app.capabilities import unlocks  # noqa: F401
 from app.model_config.models import ModelConfig  # noqa
 from app.model_config import usage  # noqa: F401
 from app.training.models import TrainingRun, TrainingAttempt  # noqa

@@ -86,6 +86,11 @@ def provider(tmp_path):
             pass
 
         def do_GET(self):
+            if state.get("source_failure"):
+                self.send_response(503)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
             content = (
                 "Controlled test reference: missing acknowledgement does not establish that an operation was not executed. "
                 * 3

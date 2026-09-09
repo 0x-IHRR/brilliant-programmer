@@ -346,3 +346,21 @@ API 全套测试需先完成迁移和 `app.initial_data`，并设置对应 Mailp
 验证入口（backend目录、专用数据库且worker/browser串行）：`pytest tests/test_capability_evidence.py tests/test_capability_evidence_api.py -q`，`python tests/capability_evidence_migration.py`，`python tests/capability_evidence_browser.py`。覆盖混排/原位置回算/重复/跨键/有效失败与五轮真实TLS→worker→评分→API恢复链；并发原答唯一顺序、owner和不可变约束；隔离旧库迁移逐字段保留数据及13条旧原答稳定排序；实际地图320px/200%、键盘、刷新与读取失败保留。所有账号、材料和模型均受控合成，无部署、真实外发邮件或付费模型调用。
 
 本票完整后端一次479通过（1项既有Starlette弃用警告），严格mypy76文件、ruff、build和unit7通过。最终串行19项专用浏览器全部通过；普通组首次旧受控路由未包含新增证据API导致4项失败，补齐实际请求并增加该API迟到401会话保护后10项全部通过，未放宽会话断言。最终地图截图含熟悉措辞、本地时间、恢复轨迹与320px/200%显示；真实删除Key后仍可读取证明。CI以本票PR最新运行结果为准。
+
+## 前置解锁与补基础路径（#18）
+
+学习单元由发布目录版本与 `EvidenceKey`（能力、难度、技术背景）唯一确定。地图的 `GET /capabilities/access` 只读本人实际证据与已开放事实；`POST /capabilities/open` 在现有 User 行锁内按 `Level.satisfied_by` 核验全部必需项及每个替代组。没有客户端自报证明入口，修为、查看难度或点击检验均不授予证明或等级。未知／待巩固不当已验证；同背景和同难度精确匹配。缺失全部项与缺失替代组分别返回，不把任选项变成全必修。
+
+`opened_unit` 保留明确成功开放的单元；后续前置待巩固不关闭该单元，新目录版本的单元仍重新核验全部前置。迁移 `0016_capability_evidence → 0017_prerequisite_unlocks` 仅将有明确目录版本且已经存在公开完整案例的旧单元接续为开放，原记录不变；私有候选、JSON null 和失败未发布轮不授予开放。原生数据库 trigger 禁止改写／删除开放记录，存在记录时拒绝降级迁移。新的随机普通入口在明确选定目标后，于原 User 锁事务中保存同一单元的开放事实，直接独立检验的私有或公开候选都不自动解锁目标。
+
+`POST /capabilities/start` 冻结主动选择的目标、模式、目录与模型版本及原目标。普通练习须通过同一解锁检查；主动独立检验可从没有原轮的缺项能力直接新建，不要求先看练习答案。沿用 `training.generate` 单队列、已有 `IndependentWork`、三次阶段／六次总预算、调用许可／撤销与 job 身份保护；必要公开依据通过已有 `acquire_source` 获取，不计模型调用。资料或模型失败单独报告，不归因于用户基础不足。独立检验仍由 #17 的两个实质不同陌生案例连续通过规则产生对应证明。
+
+地图提供明确打开、普通补练、直接检验及返回原目标的实际路径，未选择不改难度。新轮 `selection.return_target` 和普通任务 API 保留原目标；返回后重新核对最新前置，不搬移原作答、草稿、帮助或奖励。请求 ID 重放绑定本人、目标、模式、配置和原目标，不重复建轮。已开放后生成失败不撤销此前明确成功的开放事实。
+
+真实浏览器发现旧停止轮的 `candidate` 可存为 SQL JSON null，原 `IS NOT NULL` 查询会误将其当成损坏的已见案例，阻断无历史直接检验。现只跳过真正为空的未发布候选，非空损坏记录仍失败退出，完整真实已见历史不裁剪；保留 #16 的未知交付和完整历史容量检查。
+
+验证入口（均在 backend 目录，专用 DB/worker/browser 串行）：`pytest tests/test_unlocks.py tests/test_unlock_api.py tests/test_unlock_worker.py -q`、`python tests/unlock_migration.py`、`python tests/unlock_browser.py`。新增验证包含 ALL/每组 OR、背景隔离、真实 User 锁两方向、并发单次开放、失败回滚、旧公开单元迁移、五轮真实受控 TLS 证明／待巩固／恢复及直接检验两轮后返回解锁的浏览器闭环。受控模型只验证软件路径，真实教学与语义质量尚未验收；沿用 #17 完整历史证据投影，未做规模压测。
+
+首次完整回归发现新开放记录的 User 外键检查与 worker 持有 User 锁的另一 Session 相互等待，已中断并确认测试 worker、锁和挂起作业全部收尾。修复将随机普通入口的开放写入放回已有 User 锁事务，保留外键与模型派发保护；生成失败不撤销明确开放事实。修复后的随机出题、原概念 fixture 和解锁 API 定向 25 项通过，随后一次完整后端 489 项全部通过（331 秒，1 项既有 Starlette 弃用警告）。严格 mypy77 文件、ruff、前端 build 和自动保存7项单测通过。强化的隔离迁移验证保留3条旧轮的完整字段，仅迁入1个公开单元；另两个不同单元键的失败／未发布轮不迁入，原公开单元可在无新前置证明下沿真实 User 锁入口重新打开，UPDATE/DELETE被数据库拒绝。
+
+最终串行专用浏览器20项全部通过（训练2、项目1、评分1、概念2、草稿5、冲突2、提交保护1、跟练1、配置切换2、独立检验1、能力证明1、前置解锁1）；普通前端10项通过，跳过的20项均已单独运行。新增闭环以两轮真实受控生成／比较／评分形成基础证明，返回原进阶目标明确解锁并开始普通练习；320px与200%布局无横溢，截图独立保留于 `/tmp/bp-issue-18-artifacts/unlock-blocked-320.png` 和 `unlock-open-200.png`。最终CI以PR最新HEAD为准。
