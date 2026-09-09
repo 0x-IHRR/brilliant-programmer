@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react"
 import { ProjecttrainingService, TopicsService, type Goal, type ModelConfigPublic, type ProjectTrainingPublic, type UnitAccess, type EvidenceKey, type Repository } from "../client"
 import { Button } from "../components/ui/button"
 
+const draftKey = (topic: string, node: string) => `${topic}:${node}`
 const cls = "h-auto min-h-9 max-w-full whitespace-normal"
 export function ProjectTraining({ projectRunId, repository, config }: { projectRunId: string; repository?: Repository; config: ModelConfigPublic | null }) {
   const [routes, setRoutes] = useState<ProjectTrainingPublic[]>([])
   const [selected, setSelected] = useState(() => new URLSearchParams(location.search).get("project_route") ?? "")
-  const [drafts, setDrafts] = useState<Record<string, { topic: string; goal: Goal }>>({})
+  const [drafts, setDrafts] = useState<Record<string, { topic: string; node: string; goal: Goal }>>({})
   const [accepted, setAccepted] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState("")
   const [access, setAccess] = useState<UnitAccess | null>(null)
   const alive = useRef(true), owner = useRef(sessionStorage.getItem("token")), serial = useRef(0)
@@ -23,9 +24,9 @@ export function ProjectTraining({ projectRunId, repository, config }: { projectR
   const version = item?.current?.route
   const running = item?.topic.jobs.some(j => ["queued", "running", "stopping"].includes(j.status))
   const current = () => alive.current && projectIdentity.current === projectGeneration && owner.current === sessionStorage.getItem("token")
-  const dirty = Object.entries(drafts).some(([id, value]) => {
+  const dirty = Object.values(drafts).some(value => {
     if (value.topic !== item?.topic.id) return false
-    const node = version?.nodes.find(n => n.id === id)
+    const node = version?.nodes.find(n => n.id === value.node)
     return !node || JSON.stringify(value.goal) !== JSON.stringify({ target: node.target, text: node.text, focus: node.focus })
   })
   const unsaved = "本机修改尚未保存；先保存并确认新版本再开题，冲突输入保留。"
@@ -95,19 +96,20 @@ export function ProjectTraining({ projectRunId, repository, config }: { projectR
     </section>}
     {item?.current && <><p className="break-all">固定版本：{item.current.repository.owner}/{item.current.repository.name}@{item.current.repository.commit}</p><p>{version?.message}</p><p>{activeRoute?.route.id === version?.id ? "当前已确认路线" : "待确认候选；旧已确认路线与题目保留"}</p><details><summary>本次范围与缺项</summary>{item.current.map_missing.map((m, i) => <p key={i}>{m}</p>)}</details></>}
     {version?.nodes.map((node, index) => {
-      const value = drafts[node.id]?.goal ?? { target: node.target, text: node.text, focus: node.focus }
+      const key = draftKey(item!.topic.id, node.id)
+      const value = drafts[key]?.goal ?? { target: node.target, text: node.text, focus: node.focus }
       const binding = item?.current?.bindings.find(b => b.node_id === node.id)
       return <article key={node.id} className="space-y-2 border p-3"><h4>{binding?.proposal.module_path}</h4><p>{node.target.capability_id} · {node.target.difficulty} · {node.target.background_id}</p><p>{item?.topic.completed_node_ids.includes(node.id) ? "此节点已有正式作答，历史保留" : "此节点尚无完整正式作答；不表示不会"}</p>
-        {(["text", "focus"] as const).map(field => <label key={field} className="block">{field === "text" ? "模块训练目标" : "模块训练重点"}<textarea className="block w-full border p-2" aria-label={field === "text" ? "模块训练目标" : "模块训练重点"} disabled={busy} value={value[field]} onChange={e => setDrafts(old => ({ ...old, [node.id]: { topic: item!.topic.id, goal: { ...value, [field]: e.target.value } } }))} /></label>)}
+        {(["text", "focus"] as const).map(field => <label key={field} className="block">{field === "text" ? "模块训练目标" : "模块训练重点"}<textarea className="block w-full border p-2" aria-label={field === "text" ? "模块训练目标" : "模块训练重点"} disabled={busy} value={value[field]} onChange={e => setDrafts(old => ({ ...old, [key]: { topic: item!.topic.id, node: node.id, goal: { ...value, [field]: e.target.value } } }))} /></label>)}
         <details><summary>冻结源码定位与必要片段</summary>{binding?.references.map(r => <div key={r.source.id}><a className="underline break-all" href={r.source.url} target="_blank" rel="noreferrer">{r.source.locator}</a><pre className="whitespace-pre-wrap break-all">{r.source.text}</pre></div>)}</details>
         {binding?.proposal.missing?.map(m => <p key={m}>缺失材料：{m}</p>)}
-        <Button className={cls} disabled={busy || running} onClick={() => void act(async () => { await TopicsService.editTopic({ path: { topic_id: item!.topic.id }, body: { expected_version: version.id, operation: "edit", node_id: node.id, goal: value } }); await refresh(item!.topic.id); if (current()) setDrafts(old => { const next = { ...old }; delete next[node.id]; return next }) })}>保存模块目标为新版本</Button>
+        <Button className={cls} disabled={busy || running} onClick={() => void act(async () => { await TopicsService.editTopic({ path: { topic_id: item!.topic.id }, body: { expected_version: version.id, operation: "edit", node_id: node.id, goal: value } }); await refresh(item!.topic.id); if (current()) setDrafts(old => { const next = { ...old }; delete next[key]; return next }) })}>保存模块目标为新版本</Button>
         {index > 0 && <Button className={cls} variant="outline" disabled={busy || running} onClick={() => void act(async () => { const order = version.nodes.map(n => n.id); [order[index - 1], order[index]] = [order[index], order[index - 1]]; await TopicsService.editTopic({ path: { topic_id: item!.topic.id }, body: { expected_version: version.id, operation: "reorder", order } }); await refresh(item!.topic.id) })}>上移模块建议</Button>}
         <Button className={cls} disabled={busy || running || dirty || !accepted || item?.topic.active_id !== version.id || !!binding?.proposal.missing?.length || !binding?.references.length} onClick={() => void act(() => start(node.id))}>开始模块教学练习</Button>
       </article>
     })}
     {version && version.nodes.length > 0 && <Button className={cls} disabled={busy || running || dirty || item?.topic.active_id === version.id} onClick={() => void act(async () => { if (dirty) { setError(unsaved); return } await TopicsService.confirmTopic({ path: { topic_id: item!.topic.id }, body: { expected_version: version.id, expected_active_version: activeRoute?.route.id ?? null } }); await refresh(item!.topic.id) })}>确认模块路线（不生成题目）</Button>}
-    {Object.entries(drafts).filter(([id, d]) => d.topic === item?.topic.id && !version?.nodes.some(n => n.id === id)).map(([id, d]) => <div key={id}><p>服务器已换版本，本机未保存修改：{d.goal.text} · {d.goal.focus}</p><Button className={cls} variant="outline" onClick={() => setDrafts(old => { const next = { ...old }; delete next[id]; return next })}>明确放弃这份模块修改</Button></div>)}
+    {Object.entries(drafts).filter(([, d]) => d.topic === item?.topic.id && !version?.nodes.some(n => n.id === d.node)).map(([id, d]) => <div key={id}><p>服务器已换版本，本机未保存修改：{d.goal.text} · {d.goal.focus}</p><Button className={cls} variant="outline" onClick={() => setDrafts(old => { const next = { ...old }; delete next[id]; return next })}>明确放弃这份模块修改</Button></div>)}
     {access && <section aria-label="项目实际前置缺项"><p>目标保留，不自动降级。</p><ul>{access.missing_required.map(prerequisite)}</ul>{access.missing_alternatives.map((group, i) => <div key={i}><p>替代组 {i + 1} 任选一项，各组分别满足</p><ul>{group.map(prerequisite)}</ul></div>)}</section>}
     {item && <details><summary>项目路线与原轮记录</summary>{item.topic.versions.map(v => <p key={v.id}>{v.id} · {v.nodes.map(n => n.text).join(" → ")}</p>)}{item.topic.runs.map(r => <a key={r.id} className="block underline" href={`/?training_run=${r.id}&project_route=${item.topic.id}&project_run=${projectRunId}`}>{r.goal} · {r.message} · 查看作答与反馈</a>)}</details>}
   </section>
