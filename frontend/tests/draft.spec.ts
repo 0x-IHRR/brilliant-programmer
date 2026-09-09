@@ -56,6 +56,7 @@ test("草稿真实断网重连、失响应、刷新、离开和另一设备冲�
   await other.getByRole("button", { name: "读取草稿并比较" }).click()
   await expect(other.getByText("第一台设备的新版本", { exact: false }).first()).toBeVisible()
   await other.getByRole("button", { name: "保留本机输入，按已读版本继续保存" }).click()
+  await other.getByRole("article", { name: /^草稿版本 / }).filter({ hasText: "第二台设备未覆盖的输入" }).last().getByRole("button", { name: /选择版本/ }).click()
   await expect(other.getByText("草稿已保存", { exact: true })).toBeVisible()
   await device.close()
   await page.reload()
@@ -80,8 +81,9 @@ test("旧轮链接恢复按稳定判断ID对齐的未完成草稿", async ({ pag
   const endpoint = `/api/v1/training/tasks/${runId}/draft`
   const headers = { Authorization: `Bearer ${process.env.DRAFT_BROWSER_TOKEN}` }
   const previous = await (await page.request.get(endpoint, { headers })).json()
+  const collection = await (await page.request.get(endpoint + "/versions", { headers })).json()
   const written = await page.request.put(endpoint, { headers, data: {
-    request_id: crypto.randomUUID(), expected_version: previous?.version ?? null,
+    request_id: crypto.randomUUID(), expected_version: previous?.version ?? null, observed_revision: collection.revision, generation: collection.generation,
     progress: { answers: [
       { judgment_id: "j3", value: "还不确定", reason: "预测未完" },
       { judgment_id: "j2", value: [2], reason: "排序未完" },

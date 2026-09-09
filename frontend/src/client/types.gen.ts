@@ -208,6 +208,40 @@ export type Clarify = {
 };
 
 /**
+ * CollectionView
+ */
+export type CollectionView = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Help Id
+     */
+    help_id: string | null;
+    /**
+     * Revision
+     */
+    revision: string;
+    /**
+     * Generation
+     */
+    generation: string;
+    /**
+     * Versions
+     */
+    versions: Array<DraftSnapshot>;
+    /**
+     * Current
+     */
+    current: string | null;
+    /**
+     * Unresolved
+     */
+    unresolved: Array<string>;
+};
+
+/**
  * ConceptContent
  */
 export type ConceptContent = {
@@ -1378,21 +1412,6 @@ export type Repository = {
 };
 
 /**
- * SaveDraft
- */
-export type SaveDraft = {
-    /**
-     * Request Id
-     */
-    request_id: string;
-    /**
-     * Expected Version
-     */
-    expected_version: string | null;
-    progress: DraftProgress;
-};
-
-/**
  * Snapshot
  */
 export type Snapshot = {
@@ -1835,6 +1854,74 @@ export type VerificationRequest = {
      * Token
      */
     token: string;
+};
+
+/**
+ * VersionChoice
+ */
+export type VersionChoice = {
+    /**
+     * Observed Revision
+     */
+    observed_revision: string;
+    /**
+     * Version
+     */
+    version: string;
+};
+
+/**
+ * VersionReceipt
+ */
+export type VersionReceipt = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Version
+     */
+    version: string;
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Saved At
+     */
+    saved_at: string;
+    progress: DraftProgress;
+    /**
+     * Revision
+     */
+    revision: string;
+    /**
+     * Generation
+     */
+    generation: string;
+};
+
+/**
+ * VersionWrite
+ */
+export type VersionWrite = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Expected Version
+     */
+    expected_version: string | null;
+    progress: DraftProgress;
+    /**
+     * Observed Revision
+     */
+    observed_revision: string;
+    /**
+     * Generation
+     */
+    generation: string;
 };
 
 /**
@@ -3043,6 +3130,36 @@ export type conceptsConfirmRenderingResponses = {
 
 export type conceptsConfirmRenderingResponse = conceptsConfirmRenderingResponses[keyof conceptsConfirmRenderingResponses];
 
+export type draftsDeleteDraftData = {
+    body: VersionChoice;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/draft';
+};
+
+export type draftsDeleteDraftErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type draftsDeleteDraftError = draftsDeleteDraftErrors[keyof draftsDeleteDraftErrors];
+
+export type draftsDeleteDraftResponses = {
+    /**
+     * Successful Response
+     */
+    200: CollectionView;
+};
+
+export type draftsDeleteDraftResponse = draftsDeleteDraftResponses[keyof draftsDeleteDraftResponses];
+
 export type draftsReadDraftData = {
     body?: never;
     path: {
@@ -3076,7 +3193,7 @@ export type draftsReadDraftResponses = {
 export type draftsReadDraftResponse = draftsReadDraftResponses[keyof draftsReadDraftResponses];
 
 export type draftsSaveDraftData = {
-    body: SaveDraft;
+    body: VersionWrite;
     path: {
         /**
          * Run Id
@@ -3100,10 +3217,70 @@ export type draftsSaveDraftResponses = {
     /**
      * Successful Response
      */
-    200: DraftSnapshot;
+    200: VersionReceipt;
 };
 
 export type draftsSaveDraftResponse = draftsSaveDraftResponses[keyof draftsSaveDraftResponses];
+
+export type draftsReadVersionsData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/draft/versions';
+};
+
+export type draftsReadVersionsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type draftsReadVersionsError = draftsReadVersionsErrors[keyof draftsReadVersionsErrors];
+
+export type draftsReadVersionsResponses = {
+    /**
+     * Successful Response
+     */
+    200: CollectionView;
+};
+
+export type draftsReadVersionsResponse = draftsReadVersionsResponses[keyof draftsReadVersionsResponses];
+
+export type draftsChooseDraftData = {
+    body: VersionChoice;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/draft/choose';
+};
+
+export type draftsChooseDraftErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type draftsChooseDraftError = draftsChooseDraftErrors[keyof draftsChooseDraftErrors];
+
+export type draftsChooseDraftResponses = {
+    /**
+     * Successful Response
+     */
+    200: CollectionView;
+};
+
+export type draftsChooseDraftResponse = draftsChooseDraftResponses[keyof draftsChooseDraftResponses];
 
 export type practiceReadPracticeData = {
     body?: never;
@@ -3249,6 +3426,40 @@ export type practiceStopPracticeResponses = {
 
 export type practiceStopPracticeResponse = practiceStopPracticeResponses[keyof practiceStopPracticeResponses];
 
+export type practiceDeletePracticeDraftData = {
+    body: VersionChoice;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/practice/draft';
+};
+
+export type practiceDeletePracticeDraftErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type practiceDeletePracticeDraftError = practiceDeletePracticeDraftErrors[keyof practiceDeletePracticeDraftErrors];
+
+export type practiceDeletePracticeDraftResponses = {
+    /**
+     * Successful Response
+     */
+    200: CollectionView;
+};
+
+export type practiceDeletePracticeDraftResponse = practiceDeletePracticeDraftResponses[keyof practiceDeletePracticeDraftResponses];
+
 export type practiceReadPracticeDraftData = {
     body?: never;
     path: {
@@ -3286,7 +3497,7 @@ export type practiceReadPracticeDraftResponses = {
 export type practiceReadPracticeDraftResponse = practiceReadPracticeDraftResponses[keyof practiceReadPracticeDraftResponses];
 
 export type practiceSavePracticeDraftData = {
-    body: SaveDraft;
+    body: VersionWrite;
     path: {
         /**
          * Run Id
@@ -3314,10 +3525,78 @@ export type practiceSavePracticeDraftResponses = {
     /**
      * Successful Response
      */
-    200: DraftSnapshot;
+    200: VersionReceipt;
 };
 
 export type practiceSavePracticeDraftResponse = practiceSavePracticeDraftResponses[keyof practiceSavePracticeDraftResponses];
+
+export type practiceReadPracticeVersionsData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/practice/draft/versions';
+};
+
+export type practiceReadPracticeVersionsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type practiceReadPracticeVersionsError = practiceReadPracticeVersionsErrors[keyof practiceReadPracticeVersionsErrors];
+
+export type practiceReadPracticeVersionsResponses = {
+    /**
+     * Successful Response
+     */
+    200: CollectionView;
+};
+
+export type practiceReadPracticeVersionsResponse = practiceReadPracticeVersionsResponses[keyof practiceReadPracticeVersionsResponses];
+
+export type practiceChoosePracticeDraftData = {
+    body: VersionChoice;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/practice/draft/choose';
+};
+
+export type practiceChoosePracticeDraftErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type practiceChoosePracticeDraftError = practiceChoosePracticeDraftErrors[keyof practiceChoosePracticeDraftErrors];
+
+export type practiceChoosePracticeDraftResponses = {
+    /**
+     * Successful Response
+     */
+    200: CollectionView;
+};
+
+export type practiceChoosePracticeDraftResponse = practiceChoosePracticeDraftResponses[keyof practiceChoosePracticeDraftResponses];
 
 export type healthHealthData = {
     body?: never;

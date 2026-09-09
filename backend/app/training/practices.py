@@ -3,7 +3,6 @@
 import hashlib
 import json
 import uuid
-from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
@@ -13,10 +12,11 @@ from app.api.deps import SessionDep
 from app.model_config.models import ModelConfig
 from app.model_config.output import check_output
 from app.model_config.service import decrypt, lock_owner
+from app.training import draft_collection as collections
 from app.training.concept_models import HelpDelivery
 from app.training.concepts import help_owned
-from app.training.draft_save import prepare_save
-from app.training.draft_schema import DraftSnapshot, SaveDraft
+from app.training.draft_conflicts import choose_version, delete_current
+from app.training.draft_schema import DraftSnapshot
 from app.training.events import next_event
 from app.training.guided import PracticeCase, exercise_candidate, practice_case
 from app.training.models import TrainingRun
@@ -97,6 +97,7 @@ def submit_practice(
     response.headers["Cache-Control"] = "no-store"
     run, candidate = exercise_for(session, run_id, help_id, user.id)
     lock_owner(session, user.id)
+    collections.submit_guard(session, run_id, help_id)
     if body.evaluate_after_submit:
         raise HTTPException(422, "跟练不作为原题独立评估")
     try:
@@ -245,52 +246,77 @@ def read_practice_draft(
 def save_practice_draft(
     run_id: uuid.UUID,
     help_id: uuid.UUID,
-    body: SaveDraft,
+    body: collections.VersionWrite,
     session: SessionDep,
     user: VerifiedUser,
     response: Response,
-) -> DraftSnapshot:
+) -> collections.VersionReceipt:
     response.headers["Cache-Control"] = "no-store"
     _, candidate = exercise_for(session, run_id, help_id, user.id)
     lock_owner(session, user.id)
     session.exec(
         select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
     ).one()
-    item = session.get(PracticeDraft, help_id, populate_existing=True)
-    current = (
-        DraftSnapshot.model_validate_json(item.model_dump_json(exclude={"help_id"}))
-        if item
-        else None
+    return collections.save(
+        session, collections.lock_run(session, run_id), candidate, body, help_id
     )
-    latest = session.exec(
-        select(Submission.id)
-        .where(Submission.practice_help_id == help_id)
-        .order_by(col(Submission.sequence).desc())
-    ).first()
-    try:
-        result = prepare_save(
-            run_id=run_id,
-            candidate=candidate,
-            current=current,
-            request=body,
-            latest_submission_id=latest,
-            saved_at=datetime.now(UTC),
-        )
-    except ValueError:
-        raise HTTPException(422, "跟练草稿格式不符；输入保留") from None
-    if not item:
-        item = PracticeDraft(
-            help_id=help_id,
-            **result.model_dump(exclude={"progress"}),
-            progress=result.progress.model_dump(mode="json"),
-        )
-    elif item.version != result.version:
-        item.version, item.request_id, item.saved_at = (
-            result.version,
-            result.request_id,
-            result.saved_at,
-        )
-        item.progress = result.progress.model_dump(mode="json")
-    session.add(item)
+
+
+@router.get("/draft/versions")
+def read_practice_versions(
+    run_id: uuid.UUID,
+    help_id: uuid.UUID,
+    session: SessionDep,
+    user: VerifiedUser,
+    response: Response,
+) -> collections.CollectionView:
+    exercise_for(session, run_id, help_id, user.id)
+    lock_owner(session, user.id)
+    collections.lock_run(session, run_id)
+    result = collections.load(session, run_id, help_id)
+    collections.store(session, result)
     session.commit()
-    return result
+    response.headers["Cache-Control"] = "no-store"
+    return collections.view(result)
+
+
+@router.post("/draft/choose")
+def choose_practice_draft(
+    run_id: uuid.UUID,
+    help_id: uuid.UUID,
+    body: collections.VersionChoice,
+    session: SessionDep,
+    user: VerifiedUser,
+    response: Response,
+) -> collections.CollectionView:
+    exercise_for(session, run_id, help_id, user.id)
+    lock_owner(session, user.id)
+    collections.lock_run(session, run_id)
+    result = choose_version(
+        collections.load(session, run_id, help_id), **body.model_dump()
+    )
+    collections.store(session, result)
+    session.commit()
+    response.headers["Cache-Control"] = "no-store"
+    return collections.view(result)
+
+
+@router.delete("/draft")
+def delete_practice_draft(
+    run_id: uuid.UUID,
+    help_id: uuid.UUID,
+    body: collections.VersionChoice,
+    session: SessionDep,
+    user: VerifiedUser,
+    response: Response,
+) -> collections.CollectionView:
+    exercise_for(session, run_id, help_id, user.id)
+    lock_owner(session, user.id)
+    collections.lock_run(session, run_id)
+    result = delete_current(
+        collections.load(session, run_id, help_id), **body.model_dump()
+    )
+    collections.store(session, result)
+    session.commit()
+    response.headers["Cache-Control"] = "no-store"
+    return collections.view(result)
