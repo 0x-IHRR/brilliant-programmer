@@ -12,6 +12,7 @@ class ConceptHelp(SQLModel, table=True):
     __tablename__ = "concept_help"
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     run_id: uuid.UUID = Field(foreign_key="training_run.id", index=True)
+    kind: str = "concept"
     parent_id: uuid.UUID | None = Field(default=None, foreign_key="concept_help.id")
     created_sequence: int = Field(sa_column=Column(BigInteger, nullable=False))
     generated_sequence: int | None = Field(default=None, sa_column=Column(BigInteger))

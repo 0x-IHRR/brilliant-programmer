@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react"
-import { DraftsService, SubmissionsService, type Answer, type DraftAnswer, type DraftSnapshot, type PublicCase, type SubmissionState } from "../client"
+import { DraftsService, PracticeService, SubmissionsService, type Answer, type DraftAnswer, type DraftSnapshot, type PublicCase, type SubmissionState } from "../client"
 import { DraftAutosave, type DraftProgress, type SaveStatus } from "./draftAutosave"
 
-export function useDraftEditor(runId: string, caseData: PublicCase, panel: DraftProgress["step"], onPanel: (step: DraftProgress["step"]) => void) {
+export function useDraftEditor(runId: string, caseData: PublicCase, panel: DraftProgress["step"], onPanel: (step: DraftProgress["step"]) => void, practiceHelpId?: string) {
   const empty = (): Answer[] => caseData.judgments.map(j => ({ judgment_id: j.id, value: j.kind === "order" ? j.options.map(() => -1) : "", reason: "" }))
   function normalized(input: DraftAnswer[] = []): Answer[] {
     return empty().map(blank => {
@@ -31,7 +31,7 @@ export function useDraftEditor(runId: string, caseData: PublicCase, panel: Draft
     const editor = new DraftAutosave(progress, version, async body => {
       // Do not let a detached editor dispatch under another account's new session.
       if (sessionToken.current !== sessionStorage.getItem("token")) throw new Error("session changed")
-      const { data } = await DraftsService.saveDraft({ path: { run_id: runId }, body })
+      const { data } = practiceHelpId ? await PracticeService.savePracticeDraft({ path: { run_id: runId, help_id: practiceHelpId }, body }) : await DraftsService.saveDraft({ path: { run_id: runId }, body })
       return data
     }, next => { if (current() && saver.current === editor) setStatus(next) }, unsaved ? null : progress)
     saver.current = editor
@@ -46,8 +46,8 @@ export function useDraftEditor(runId: string, caseData: PublicCase, panel: Draft
     const latestRead = () => current() && generation === readGeneration.current
     try {
       const [draftResponse, submissionResponse] = await Promise.all([
-        DraftsService.readDraft({ path: { run_id: runId } }),
-        SubmissionsService.readSubmissions({ path: { run_id: runId } }),
+        practiceHelpId ? PracticeService.readPracticeDraft({ path: { run_id: runId, help_id: practiceHelpId } }) : DraftsService.readDraft({ path: { run_id: runId } }),
+        practiceHelpId ? PracticeService.readPractice({ path: { run_id: runId, help_id: practiceHelpId } }).then(result => ({ data: result.data.records })) : SubmissionsService.readSubmissions({ path: { run_id: runId } }),
       ])
       if (!latestRead()) return
       const draft = draftResponse.data?.run_id === runId ? draftResponse.data : null
@@ -88,7 +88,7 @@ export function useDraftEditor(runId: string, caseData: PublicCase, panel: Draft
       window.removeEventListener("online", online)
       document.removeEventListener("visibilitychange", visibility)
     }
-  }, [runId])
+  }, [runId, practiceHelpId])
   useEffect(() => {
     const editor = saver.current
     if (ready && editor && editor.progress.step !== panel) editor.edit({ ...editor.progress, step: panel })

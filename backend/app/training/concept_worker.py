@@ -16,6 +16,7 @@ from app.model_config.service import lock_owner
 from app.training.concept import (
     coach_call,
     context_for,
+    help_content,
     inspection_context,
     validate_content,
     validate_inspection,
@@ -24,6 +25,7 @@ from app.training.concept_models import ConceptAttempt, ConceptHelp, HelpDeliver
 from app.training.concept_schema import ConceptContent, HelpInput, classify_content
 from app.training.events import next_event
 from app.training.gate import call_credential
+from app.training.guided import GuidanceDraft
 from app.training.models import TrainingRun
 from app.training.queue import DSN, queue
 from app.training.schema import Candidate, Source
@@ -141,7 +143,7 @@ def accept(identity: uuid.UUID, raw: str, key: str, stage: str) -> bool:
         if not config or config.version != item.config_version:
             raise HTTPException(409, "configuration revoked")
         if stage == "generate":
-            content = validate_content(
+            content: ConceptContent | GuidanceDraft = validate_content(
                 raw,
                 HelpInput.model_validate(item.request),
                 Candidate.model_validate(run.candidate),
@@ -154,7 +156,7 @@ def accept(identity: uuid.UUID, raw: str, key: str, stage: str) -> bool:
             item.attempt_limit = 3
             item.message = "说明已生成，正在检查实际内容；尚未交付"
         else:
-            content = ConceptContent.model_validate(item.content)
+            content = help_content(item.kind, item.content)
             review = validate_inspection(raw, content, key)
             item.checked_sequence = next_event(session, run.id)
             item.inspection = review.model_dump()
@@ -193,7 +195,7 @@ async def process_help(identity: uuid.UUID) -> None:
                 )
                 if stage == "inspect":
                     context = inspection_context(
-                        context, case, ConceptContent.model_validate(item.content)
+                        context, case, help_content(item.kind, item.content)
                     )
                 # Check before claiming a paid dispatch; coach_call checks again at transport.
                 from app.model_config.output import check_output

@@ -10,9 +10,11 @@ from app.training.concept_schema import (
     ConceptContent,
     ContentReview,
     HelpInput,
+    InspectedContent,
     classify_content,
 )
 from app.training.generation import extract_content
+from app.training.guided import GuidanceDraft
 from app.training.schema import Candidate, Source
 from app.training.sources import contains_secret
 
@@ -148,18 +150,40 @@ async def coach_call(
 
 
 def inspection_context(
-    context: dict[str, Any], candidate: Candidate, content: ConceptContent
+    context: dict[str, Any],
+    candidate: Candidate,
+    content: ConceptContent | GuidanceDraft,
 ) -> dict[str, Any]:
     # Hidden rubric is confined to the coach's content inspector, never public output.
     return {
         **context,
         "content": content.model_dump(exclude_none=True),
+        "content_sections": content.sections(),
         "rubric": [r.model_dump() for r in candidate.rubric],
     }
 
 
-def validate_inspection(raw: str, content: ConceptContent, key: str) -> ContentReview:
+def validate_inspection(raw: str, content: InspectedContent, key: str) -> ContentReview:
     check_output(raw, key)
     review = ContentReview.model_validate_json(raw)
     classify_content(content, review)
     return review
+
+
+def help_content(kind: str, value: Any) -> ConceptContent | GuidanceDraft:
+    if kind == "concept":
+        return ConceptContent.model_validate(value)
+    result = GuidanceDraft.model_validate(value)
+    if result.kind != kind:
+        raise ValueError("help content kind changed")
+    return result
+
+
+def safe_guidance(content: GuidanceDraft, key: str) -> None:
+    check_output(content.model_dump_json(), key)
+    if re.search(
+        r"```|<\s*/?\s*[a-zA-Z][^>]*>|#!|javascript\s*:",
+        "\n".join(content.sections().values()),
+        re.I,
+    ):
+        raise ValueError("executable guidance")

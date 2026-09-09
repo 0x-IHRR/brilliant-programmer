@@ -1,6 +1,6 @@
 """Content checks are model inferences, never proof of learning or human approval."""
 
-from typing import Literal
+from typing import Literal, Protocol
 
 from pydantic import Field
 
@@ -17,8 +17,8 @@ class ConceptContent(Strict):
     evidence_ids: list[Text] = Field(min_length=1, max_length=12)
     principle: Text | None = None
 
-    def sections(self) -> dict[Section, str]:
-        result: dict[Section, str] = {
+    def sections(self) -> dict[str, str]:
+        result: dict[str, str] = {
             "plain": self.plain,
             "example": self.example,
             "relation": self.relation,
@@ -29,7 +29,7 @@ class ConceptContent(Strict):
 
 
 class SectionReview(Strict):
-    section: Section
+    section: Text
     quote: Text
     direction: Direction
     reason: Text
@@ -39,10 +39,14 @@ class SectionReview(Strict):
 
 
 class ContentReview(Strict):
-    sections: list[SectionReview] = Field(min_length=3, max_length=4)
+    sections: list[SectionReview] = Field(min_length=1, max_length=512)
 
 
-def classify_content(content: ConceptContent, review: ContentReview) -> Direction:
+class InspectedContent(Protocol):
+    def sections(self) -> dict[str, str]: ...
+
+
+def classify_content(content: InspectedContent, review: ContentReview) -> Direction:
     sections = content.sections()
     if (
         len(review.sections) != len(sections)
@@ -56,7 +60,9 @@ def classify_content(content: ConceptContent, review: ContentReview) -> Directio
             raise ValueError("content rejected")
     # These labels remain semantic inferences. No confidence score or JSON shape
     # establishes neutrality or correctness; controlled tests are not human validation.
-    if any(item.direction == "directional" for item in review.sections):
+    if getattr(content, "direction", None) == "directional" or any(
+        item.direction == "directional" for item in review.sections
+    ):
         return "directional"
     if any(
         item.direction == "uncertain" or item.accuracy == "uncertain"

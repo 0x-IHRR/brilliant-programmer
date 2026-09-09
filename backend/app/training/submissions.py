@@ -24,7 +24,11 @@ from app.training.submission_schema import (
     Submit,
     validate_answers,
 )
-from app.training.submission_worker import RETRYABLE, check_submission
+from app.training.submission_worker import (
+    RETRYABLE,
+    check_submission,
+    finish_submission_stop,
+)
 
 router = APIRouter(prefix="/training", tags=["submissions"])
 
@@ -39,17 +43,24 @@ def enqueue(session: Session, submission: Submission) -> None:
     session.add(submission)
 
 
-def state(session: Session, run_id: uuid.UUID, user_id: uuid.UUID) -> SubmissionState:
+def state(
+    session: Session,
+    run_id: uuid.UUID,
+    user_id: uuid.UUID,
+    practice_help_id: uuid.UUID | None = None,
+) -> SubmissionState:
     run = owned(session, run_id, user_id)
     submissions = session.exec(
         select(Submission)
-        .where(Submission.run_id == run_id)
+        .where(
+            Submission.run_id == run_id, Submission.practice_help_id == practice_help_id
+        )
         .order_by(col(Submission.sequence))
     ).all()
     award = session.get(PracticeAward, run_id)
     return SubmissionState(
         run_id=run_id,
-        completed_at=run.formal_submitted_at,
+        completed_at=run.formal_submitted_at if practice_help_id is None else None,
         awarded_points=award.points if award else 0,
         total_points=session.exec(
             select(func.coalesce(func.sum(PracticeAward.points), 0)).where(
@@ -140,12 +151,18 @@ def submit(
     ).hexdigest()
     existing = session.get(Submission, body.request_id)
     if existing:
-        if existing.run_id != run_id or existing.input_hash != digest:
+        if (
+            existing.run_id != run_id
+            or existing.practice_help_id is not None
+            or existing.input_hash != digest
+        ):
             raise HTTPException(409, "提交身份已用于其他内容，请读取原记录；未覆盖原答")
         return state(session, run_id, user.id)
     duplicate = session.exec(
         select(Submission).where(
-            Submission.run_id == run_id, Submission.input_hash == digest
+            Submission.run_id == run_id,
+            Submission.input_hash == digest,
+            col(Submission.practice_help_id).is_(None),
         )
     ).first()
     if duplicate:
@@ -160,7 +177,7 @@ def submit(
         raise HTTPException(409, "本轮已完成，原答不可覆盖；复盘改答由后续功能提供")
     latest = session.exec(
         select(Submission)
-        .where(Submission.run_id == run_id)
+        .where(Submission.run_id == run_id, col(Submission.practice_help_id).is_(None))
         .order_by(col(Submission.sequence).desc())
     ).first()
     if (latest.id if latest else None) != body.previous_submission_id:
@@ -228,7 +245,10 @@ def retry_submission(
         return state(session, run_id, user.id)
     latest = session.exec(
         select(Submission.id)
-        .where(Submission.run_id == run_id)
+        .where(
+            Submission.run_id == run_id,
+            Submission.practice_help_id == submission.practice_help_id,
+        )
         .order_by(col(Submission.sequence).desc())
     ).first()
     if (
@@ -275,21 +295,12 @@ def stop_submission(
         raise HTTPException(404, "提交不存在")
     if submission.status not in {"checking", "stopping"}:
         return state(session, run_id, user.id)
+    job_id = submission.queue_job_id
     submission.stop_requested, submission.status = True, "stopping"
     session.add(submission)
     session.commit()
-    with procrastinate.App(
-        connector=procrastinate.SyncPsycopgConnector(conninfo=DSN)
-    ).open() as app:
-        if submission.queue_job_id is not None:
-            app.job_manager.cancel_job_by_id(submission.queue_job_id, abort=True)
-    lock_owner(session, user.id)
+    finish_submission_stop(submission.id, job_id)
+    # The finisher commits in its own session; expose its current result (or a
+    # newer retry), rather than this request's cached stopping intent.
     session.refresh(submission)
-    submission.status, submission.code, submission.message = (
-        "stopped",
-        "stopped",
-        "检查已停止；原答保留，未结算。在途费用不保证撤回。",
-    )
-    session.add(submission)
-    session.commit()
     return state(session, run_id, user.id)

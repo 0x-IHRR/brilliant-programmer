@@ -34,7 +34,9 @@ def create_evaluation(
     submissions = list(
         session.exec(
             select(Submission)
-            .where(Submission.run_id == run.id)
+            .where(
+                Submission.run_id == run.id, col(Submission.practice_help_id).is_(None)
+            )
             .order_by(col(Submission.sequence))
         ).all()
     )

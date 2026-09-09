@@ -6,6 +6,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+import procrastinate
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlmodel import Session, col, select
@@ -21,8 +22,9 @@ from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.training.gate import call_credential
 from app.training.generation import extract_content
+from app.training.guided import exercise_candidate, practice_completion
 from app.training.models import TrainingRun
-from app.training.queue import queue
+from app.training.queue import DSN, queue
 from app.training.schema import Candidate
 from app.training.sources import contains_secret
 from app.training.submission_models import (
@@ -138,6 +140,18 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
         if run.completion_rule_version != REWARD_RULE:
             raise HTTPException(409, "unknown completion rule")
         submission.relevance = [item.model_dump() for item in result.items]
+        if submission.practice_help_id:
+            candidate = exercise_candidate(
+                Candidate.model_validate(run.candidate),
+                submission.practice_judgment_id or "",
+            )
+            from app.training.submission_schema import Answer
+
+            practice_completion(
+                candidate,
+                [Answer.model_validate(a) for a in submission.answers],
+                result,
+            )
         if all(item.status == "related" for item in result.items):
             now = datetime.now(UTC)
             if not session.get(PracticeAward, run.id):
@@ -150,6 +164,7 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
                         created_at=now,
                     )
                 )
+            if not submission.practice_help_id and not run.formal_submitted_at:
                 run.formal_submitted_at = now
                 session.add(run)
             submission.status, submission.code, submission.message = (
@@ -157,11 +172,14 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
                 "complete",
                 "本轮已完成，自动获得 10 点修为。完成不等于答对或掌握；可在反馈区域主动核对本次原答。",
             )
+            if submission.practice_help_id:
+                submission.message = "小练习已完成；同轮合计仅一次10点，未改变原题完整性或独立掌握证明。"
         else:
             submission.status, submission.code = "needs_supplement", "needs_supplement"
             prior = session.exec(
                 select(Submission.id).where(
                     Submission.run_id == run.id,
+                    Submission.practice_judgment_id == submission.practice_judgment_id,
                     col(Submission.neutral_clarification).is_(True),
                 )
             ).first()
@@ -172,7 +190,11 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
                 submission.message = "理由仍无关或相关性无法确认，保留待补充；未完成、未结算，不记录能力失败。原答已保留。"
         session.add(submission)
         session.flush()
-        if submission.status == "completed" and submission.evaluate_after_submit:
+        if (
+            submission.status == "completed"
+            and submission.evaluate_after_submit
+            and not submission.practice_help_id
+        ):
             from app.training.evaluation_service import create_evaluation
 
             create_evaluation(session, run, config)
@@ -182,6 +204,8 @@ def settle(identity: uuid.UUID, result: Relevance) -> bool:
 
 def context_for(submission: Submission, run: TrainingRun) -> dict[str, Any]:
     candidate = Candidate.model_validate(run.candidate)
+    if submission.practice_help_id:
+        candidate = exercise_candidate(candidate, submission.practice_judgment_id or "")
     # Only visible task material and this immutable input; no profile, history or rubric.
     return {
         "purpose": "reason_relevance",
@@ -334,6 +358,14 @@ async def check_submission(submission_id: str) -> None:
 
 def reconcile_failed_submissions() -> None:
     """Queue owns the job failure; recover the visible state when storage returns."""
+    with Session(engine) as session:
+        stopping = session.exec(
+            select(Submission.id, Submission.queue_job_id)
+            .where(Submission.status == "stopping")
+            .limit(100)
+        ).all()
+    for identity, job_id in stopping:
+        finish_submission_stop(identity, job_id)
     with engine.connect() as connection:
         identities = connection.execute(
             text("""SELECT s.id FROM training_submission s
@@ -347,3 +379,31 @@ def reconcile_failed_submissions() -> None:
             "internal_failure",
             "上次后台检查未能完成；原答保留，可主动重试原提交，预算不重置。",
         )
+
+
+def finish_submission_stop(identity: uuid.UUID, job_id: int | None) -> None:
+    with procrastinate.App(
+        connector=procrastinate.SyncPsycopgConnector(conninfo=DSN)
+    ).open() as app:
+        if job_id is not None:
+            app.job_manager.cancel_job_by_id(job_id, abort=True)
+    with Session(engine) as session:
+        item = session.get(Submission, identity)
+        assert item
+        run = session.get(TrainingRun, item.run_id)
+        assert run
+        lock_owner(session, run.user_id)
+        session.refresh(item)
+        if (
+            item.status != "stopping"
+            or not item.stop_requested
+            or item.queue_job_id != job_id
+        ):
+            return
+        item.status, item.code, item.message = (
+            "stopped",
+            "stopped",
+            "检查已停止；输入与已有奖励保留，在途费用不保证撤回。",
+        )
+        session.add(item)
+        session.commit()

@@ -137,7 +137,7 @@ def provider(tmp_path):
                 if mode == "bad_relevance":
                     value["items"][0]["judgment_id"] = "unknown-judgment"
             else:
-                value = candidate(payload)
+                value = state.get("candidate", candidate)(payload)
                 if state.get("all_kinds"):
                     value["judgments"] += [
                         {

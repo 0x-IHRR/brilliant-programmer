@@ -594,6 +594,40 @@ export type Grounding = {
 };
 
 /**
+ * GuidanceDraft
+ */
+export type GuidanceDraft = {
+    /**
+     * Kind
+     */
+    kind: 'hint' | 'demonstration';
+    /**
+     * Scenario Fingerprint
+     */
+    scenario_fingerprint: string;
+    /**
+     * Steps
+     */
+    steps: Array<GuidanceStep>;
+    /**
+     * Direction
+     */
+    direction?: 'directional';
+};
+
+/**
+ * GuidanceStep
+ */
+export type GuidanceStep = {
+    judgment: Judgment;
+    /**
+     * Evidence
+     */
+    evidence: Array<PublicEvidence>;
+    solution?: WorkedAnswer | null;
+};
+
+/**
  * HTTPValidationError
  */
 export type HTTPValidationError = {
@@ -629,6 +663,10 @@ export type HelpCreate = {
      * Request Id
      */
     request_id: string;
+    /**
+     * Kind
+     */
+    kind?: 'concept' | 'hint' | 'demonstration';
     /**
      * Expected Config Version
      */
@@ -666,6 +704,10 @@ export type HelpInput = {
  * HelpPublic
  */
 export type HelpPublic = {
+    /**
+     * Kind
+     */
+    kind: string;
     /**
      * Id
      */
@@ -749,11 +791,20 @@ export type HelpPublication = {
      * Receipt Token
      */
     receipt_token: string;
-    content: ConceptContent;
+    /**
+     * Content
+     */
+    content: ConceptContent | GuidanceDraft;
     /**
      * Content Hash
      */
     content_hash: string;
+    /**
+     * Sections
+     */
+    sections: {
+        [key: string]: string;
+    };
     /**
      * Exposure Sequence
      */
@@ -936,6 +987,41 @@ export type PasswordResetRequest = {
      * Password
      */
     password: string;
+};
+
+/**
+ * PracticeCase
+ */
+export type PracticeCase = {
+    /**
+     * Kind
+     */
+    kind?: 'same_scenario_practice';
+    /**
+     * Scenario Fingerprint
+     */
+    scenario_fingerprint: string;
+    case: PublicCase;
+    /**
+     * Instructions
+     */
+    instructions?: string;
+};
+
+/**
+ * PracticeState
+ */
+export type PracticeState = {
+    /**
+     * Help Id
+     */
+    help_id: string;
+    exercise: PracticeCase;
+    records: SubmissionState;
+    /**
+     * Completed
+     */
+    completed: boolean;
 };
 
 /**
@@ -1665,6 +1751,24 @@ export type VerificationRequest = {
      * Token
      */
     token: string;
+};
+
+/**
+ * WorkedAnswer
+ */
+export type WorkedAnswer = {
+    /**
+     * Acceptable Values
+     */
+    acceptable_values: Array<number | Array<number> | string>;
+    /**
+     * Reasoning
+     */
+    reasoning: string;
+    /**
+     * Counterexample
+     */
+    counterexample: string;
 };
 
 /**
@@ -2900,6 +3004,220 @@ export type draftsSaveDraftResponses = {
 };
 
 export type draftsSaveDraftResponse = draftsSaveDraftResponses[keyof draftsSaveDraftResponses];
+
+export type practiceReadPracticeData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/practice';
+};
+
+export type practiceReadPracticeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type practiceReadPracticeError = practiceReadPracticeErrors[keyof practiceReadPracticeErrors];
+
+export type practiceReadPracticeResponses = {
+    /**
+     * Successful Response
+     */
+    200: PracticeState;
+};
+
+export type practiceReadPracticeResponse = practiceReadPracticeResponses[keyof practiceReadPracticeResponses];
+
+export type practiceSubmitPracticeData = {
+    body: Submit;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/practice';
+};
+
+export type practiceSubmitPracticeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type practiceSubmitPracticeError = practiceSubmitPracticeErrors[keyof practiceSubmitPracticeErrors];
+
+export type practiceSubmitPracticeResponses = {
+    /**
+     * Successful Response
+     */
+    202: PracticeState;
+};
+
+export type practiceSubmitPracticeResponse = practiceSubmitPracticeResponses[keyof practiceSubmitPracticeResponses];
+
+export type practiceRetryPracticeData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+        /**
+         * Submission Id
+         */
+        submission_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/practice/{submission_id}/retry';
+};
+
+export type practiceRetryPracticeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type practiceRetryPracticeError = practiceRetryPracticeErrors[keyof practiceRetryPracticeErrors];
+
+export type practiceRetryPracticeResponses = {
+    /**
+     * Successful Response
+     */
+    202: PracticeState;
+};
+
+export type practiceRetryPracticeResponse = practiceRetryPracticeResponses[keyof practiceRetryPracticeResponses];
+
+export type practiceStopPracticeData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+        /**
+         * Submission Id
+         */
+        submission_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/practice/{submission_id}/stop';
+};
+
+export type practiceStopPracticeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type practiceStopPracticeError = practiceStopPracticeErrors[keyof practiceStopPracticeErrors];
+
+export type practiceStopPracticeResponses = {
+    /**
+     * Successful Response
+     */
+    200: PracticeState;
+};
+
+export type practiceStopPracticeResponse = practiceStopPracticeResponses[keyof practiceStopPracticeResponses];
+
+export type practiceReadPracticeDraftData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/practice/draft';
+};
+
+export type practiceReadPracticeDraftErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type practiceReadPracticeDraftError = practiceReadPracticeDraftErrors[keyof practiceReadPracticeDraftErrors];
+
+export type practiceReadPracticeDraftResponses = {
+    /**
+     * Response Practice-Read Practice Draft
+     *
+     * Successful Response
+     */
+    200: DraftSnapshot | null;
+};
+
+export type practiceReadPracticeDraftResponse = practiceReadPracticeDraftResponses[keyof practiceReadPracticeDraftResponses];
+
+export type practiceSavePracticeDraftData = {
+    body: SaveDraft;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+        /**
+         * Help Id
+         */
+        help_id: string;
+    };
+    query?: never;
+    url: '/api/v1/training/tasks/{run_id}/help/{help_id}/practice/draft';
+};
+
+export type practiceSavePracticeDraftErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type practiceSavePracticeDraftError = practiceSavePracticeDraftErrors[keyof practiceSavePracticeDraftErrors];
+
+export type practiceSavePracticeDraftResponses = {
+    /**
+     * Successful Response
+     */
+    200: DraftSnapshot;
+};
+
+export type practiceSavePracticeDraftResponse = practiceSavePracticeDraftResponses[keyof practiceSavePracticeDraftResponses];
 
 export type healthHealthData = {
     body?: never;
