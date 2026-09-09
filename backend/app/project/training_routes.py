@@ -60,6 +60,8 @@ def view(session: Session, topic: Topic) -> ProjectTrainingPublic:
     assert source_run and source_run.snapshot
     group = family(session, topic)
     active = active_route(session, topic)
+    # Ponytail: replay the small account history in this read snapshot; no cache
+    # or background projection. Family/list reads grow with retained versions/runs.
     value = _public(session, topic)
     for identity in family_topics(session, topic):
         if identity == topic.id:

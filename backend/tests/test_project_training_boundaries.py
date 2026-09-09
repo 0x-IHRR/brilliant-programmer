@@ -174,7 +174,7 @@ def test_missing_module_evidence_does_not_generate(provider, tmp_path, material)
         stop_worker(process)
 
 
-def test_project_route_stop_retry_preserves_input_and_received_usage(
+def test_project_route_stop_new_analysis_preserves_input_and_received_usage(
     provider, tmp_path, material
 ):
     _, auth = account()
@@ -204,27 +204,42 @@ def test_project_route_stop_retry_preserves_input_and_received_usage(
         assert len(provider["requests"]) == 1
         provider["release"].set()
         provider["mode"] = "ok"
-        assert client.post(root + "/retry", headers=auth).status_code == 200
+        assert client.post(root + "/retry", headers=auth).status_code == 409
+        replacement = {**body, "request_id": str(uuid.uuid4())}
+        assert (
+            client.post(
+                "/api/v1/project-training/analyze", headers=auth, json=replacement
+            ).status_code
+            == 202
+        )
         final = wait_topic(auth, body["topic_id"])
-        assert final["jobs"][0]["status"] == "completed", final
+        jobs = {job["id"]: job for job in final["jobs"]}
+        assert jobs[replacement["request_id"]]["status"] == "completed", final
+        assert jobs[body["request_id"]]["status"] == "stopped", final
         deadline = time.monotonic() + 5
         while time.monotonic() < deadline:
             calls = client.get("/api/v1/model-config/usage", headers=auth).json()[
                 "calls"
             ]
             if len(calls) == 3 and all(
-                c["code"] == "ok" for c in calls if c["number"] > 1
+                c["code"] == "ok"
+                for c in calls
+                if c["task_id"] == replacement["request_id"]
             ):
                 break
             time.sleep(0.01)
         assert len(calls) == 3 and len(provider["requests"]) == 3
-        first = next(c for c in calls if c["number"] == 1)
+        first = next(c for c in calls if c["task_id"] == body["request_id"])
         assert (
             first["prompt_tokens"] == 11
             and first["completion_tokens"] is None
             and first["total_tokens"] == 20
         )
-        assert all(c["code"] == "ok" for c in calls if c["number"] > 1)
+        assert all(
+            c["code"] == "ok"
+            for c in calls
+            if c["task_id"] == replacement["request_id"]
+        )
         assert (
             client.post(
                 "/api/v1/project-training/analyze", headers=auth, json=body

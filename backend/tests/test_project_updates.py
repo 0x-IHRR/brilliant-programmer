@@ -270,5 +270,151 @@ def test_same_route_candidate_preserves_confirmed_generation(
             assert run.selection["focus"] == original["nodes"][0]["focus"]
         assert public(auth, body["topic_id"])["current"]["route"]["id"] == candidate_id
         assert len(provider["requests"]) == 4
+        from tests.test_submissions import wait_submission
+
+        submitted = client.post(
+            f"/api/v1/training/tasks/{result['id']}/submissions",
+            headers=auth,
+            json={
+                "request_id": str(uuid.uuid4()),
+                "answers": [
+                    {
+                        "judgment_id": "j1",
+                        "value": 0,
+                        "reason": "确认可能丢失，不能仅凭未确认断定没有执行。",
+                    }
+                ],
+                "expected_config_version": config["version"],
+                "disclosure_accepted": True,
+            },
+        )
+        assert submitted.status_code == 202, submitted.text
+        assert wait_submission(auth, result["id"])["awarded_points"] == 10
+        owner = uuid.UUID(client.get("/api/v1/users/me", headers=auth).json()["id"])
+        update = {
+            "request_id": str(uuid.uuid4()),
+            "topic_id": str(uuid.uuid4()),
+            "project_run_id": str(source(owner, config, material)),
+            "previous_version_id": original["id"],
+            "expected_active_version": original["id"],
+            "expected_config_version": config["version"],
+            "disclosure_accepted": True,
+        }
+        assert (
+            client.post(
+                "/api/v1/project-training/analyze", headers=auth, json=update
+            ).status_code
+            == 202
+        )
+        assert wait_topic(auth, update["topic_id"])["jobs"][0]["status"] == "completed"
+        updated = public(auth, update["topic_id"])
+        node = updated["current"]["route"]["nodes"][0]
+        assert node["id"] == original["nodes"][0]["id"]
+        assert node["id"] in updated["topic"]["completed_node_ids"]
+        update_path = f"/api/v1/topics/{update['topic_id']}"
+        reordered = client.post(
+            update_path + "/edit",
+            headers=auth,
+            json={
+                "expected_version": updated["current"]["route"]["id"],
+                "operation": "reorder",
+                "order": [node["id"]],
+            },
+        )
+        assert reordered.status_code == 200
+        assert (
+            node["id"]
+            in public(auth, update["topic_id"])["topic"]["completed_node_ids"]
+        )
+        changed = client.post(
+            update_path + "/edit",
+            headers=auth,
+            json={
+                "expected_version": reordered.json()["current"]["id"],
+                "operation": "edit",
+                "node_id": node["id"],
+                "goal": {
+                    "target": node["target"],
+                    "text": node["text"],
+                    "focus": "新的完整目标重点，不能猜测与旧完成相同",
+                },
+            },
+        )
+        assert changed.status_code == 200
+        final = public(auth, update["topic_id"])
+        assert (
+            final["current"]["route"]["nodes"][0]["id"]
+            not in final["topic"]["completed_node_ids"]
+        )
+        assert any(row["id"] == result["id"] for row in final["topic"]["runs"])
+        assert wait_submission(auth, result["id"])["awarded_points"] == 10
     finally:
         stop_worker(worker)
+
+
+def test_concurrent_family_confirmations_choose_one_current(material):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    from app.model_config.service import lock_owner
+    from app.project.training_service import link_update
+
+    owner, auth = account()
+    config = save(auth).json()
+    root, old = seeded(owner, config, material)
+    assert confirm(auth, root, old.route.id).status_code == 200
+    candidates = [seeded(owner, config, material) for _ in range(2)]
+    with Session(engine) as session:
+        lock_owner(session, owner)
+        for identity, _ in candidates:
+            link_update(
+                session,
+                session.get(Topic, identity),
+                old.route.id,
+                material[0].repository,
+                old.route.id,
+            )
+        session.commit()
+    barrier = Barrier(2)
+
+    def choose(candidate):
+        identity, value = candidate
+        barrier.wait(timeout=5)
+        return confirm(auth, identity, value.route.id, old.route.id)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        responses = list(pool.map(choose, candidates))
+    assert sorted(response.status_code for response in responses) == [200, 409]
+    winner = candidates[
+        next(i for i, response in enumerate(responses) if response.status_code == 200)
+    ][1].route.id
+    for identity in [root, *(identity for identity, _ in candidates)]:
+        assert public(auth, identity)["active"]["route"]["id"] == str(winner)
+    assert public(auth, root)["current"]["route"]["id"] == str(old.route.id)
+
+
+def test_stopped_route_requires_new_analysis_identity(material):
+    from tests.test_project_training_api import begin
+
+    _, auth = account()
+    config = save(auth).json()
+    body = begin(auth, config, material)
+    path = f"/api/v1/topics/{body['topic_id']}/jobs/{body['request_id']}"
+    stopped = client.post(path + "/stop", headers=auth)
+    assert stopped.status_code == 200, stopped.text
+    assert client.post(path + "/retry", headers=auth).status_code == 409
+    restarted = {**body, "request_id": str(uuid.uuid4())}
+    response = client.post(
+        "/api/v1/project-training/analyze", headers=auth, json=restarted
+    )
+    assert response.status_code == 202, response.text
+    jobs = {job["id"]: job for job in response.json()["topic"]["jobs"]}
+    assert jobs[body["request_id"]]["status"] == "stopped"
+    assert jobs[restarted["request_id"]]["status"] == "queued"
+    assert (
+        client.post(
+            f"/api/v1/topics/{body['topic_id']}/jobs/{restarted['request_id']}/stop",
+            headers=auth,
+        ).status_code
+        == 200
+    )
