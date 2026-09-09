@@ -1,0 +1,58 @@
+{
+  "oauth": {
+    "id": "oauth",
+    "url": "https://www.rfc-editor.org/rfc/rfc6750.txt",
+    "version": "RFC6750 (2012); response-sha256:9dc385cf4ecdd85024e5a95e447ede9230e11700bf35251906b25b37557d604b",
+    "locator": "RFC6750 (2012), §3.1。规范摘要（AI中文改写，待人工核验，非逐字引句）：无效令牌通常返回401；权限范围不足通常返回403。无认证信息时不附详细错误码。只说明Bearer边界，不证明对象归属。",
+    "text": "expired, revoked, malformed\n[…]\nhigher privileges than provided"
+  },
+  "object": {
+    "id": "object",
+    "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/",
+    "version": "OWASP API Security Top10 2023 API1; response-sha256:838060e500f0616879a90bc17077d23f9da72eb8946a53d959a46f8ed5c9249e",
+    "locator": "OWASP API Security Top10 2023 API1, How To Prevent。规范摘要（AI中文改写，待人工核验，非逐字引句）：每个使用客户端标识访问记录的功能都须核验该登录用户能否对目标记录执行该动作；随机ID不能替代授权。",
+    "text": "logged-in user has access to perform the requested action"
+  },
+  "stripe": {
+    "id": "stripe",
+    "url": "https://docs.stripe.com/api/idempotent_requests",
+    "version": "Stripe API; response-sha256:0e75cda4483151c8e3259f16b473e3f0cd9418161cfce833cf7a5bf4316ef3d2",
+    "locator": "Stripe API, Idempotent requests, read snapshot 2026-09-10。规范摘要（AI中文改写，待人工核验，非逐字引句）：同幂等键保存首次已开始执行请求的状态和正文，含500；参数不同会报错。参数校验或并发执行冲突未开始执行时不保存该幂等结果，可重试。键至少24小时后可清理，清理后重用会生成新请求，不能保证永久防重。",
+    "text": "saving the resulting status code and body\n[…]\nexecution of an endpoint begins\n[…]\nafter the original is pruned\n[…]\ncompares incoming parameters"
+  },
+  "constraints": {
+    "id": "constraints",
+    "url": "https://www.postgresql.org/docs/17/ddl-constraints.html",
+    "version": "PostgreSQL17 §5.5.1 and §5.5.3; response-sha256:f5cb96e972b61ae884b4ac4e9a7834f8d3b74703d094ddf6e0ae28570487bb9c",
+    "locator": "PostgreSQL17 §5.5.1 and §5.5.3。规范摘要（AI中文改写，待人工核验，非逐字引句）：唯一约束保护指定列组合；默认NULL互异，NULLS NOT DISTINCT可改变。CHECK为true或NULL都满足，故必填须NOT NULL；跨行限制不能由引用其他行的CHECK持续保证，可按不变量选择UNIQUE、EXCLUDE或外键。",
+    "text": "unique across the whole table\n[…]\ntrue or the null value\n[…]\nnull values are not considered equal\n[…]\nnew or updated row being checked"
+  },
+  "explain": {
+    "id": "explain",
+    "url": "https://www.postgresql.org/docs/17/using-explain.html",
+    "version": "PostgreSQL17 §14.1.2 EXPLAIN ANALYZE; response-sha256:99f0ed28fc7d50c7bee8f51d5bd3107bd3e0e138f04c0aa9dd7ecf127d316e70",
+    "locator": "PostgreSQL17 §14.1.2 EXPLAIN ANALYZE。规范摘要（AI中文改写，待人工核验，非逐字引句）：ANALYZE会实际执行语句并报告实际行数和耗时；普通EXPLAIN的cost是估计单位，不是毫秒。只能基于明确安全环境选择测量，不能把写语句分析当纯只读。",
+    "text": "EXPLAIN actually executes the query\n[…]\ncost estimates are expressed in arbitrary units"
+  },
+  "locks": {
+    "id": "locks",
+    "url": "https://www.postgresql.org/docs/17/explicit-locking.html",
+    "version": "PostgreSQL17 §13.3 Table/row locks and deadlocks; response-sha256:bfac5eecf19fc00675d37adbb11572f76cf724739bba9b5a15e66a46546d580a",
+    "locator": "PostgreSQL17 §13.3 Table/row locks and deadlocks。规范摘要（AI中文改写，待人工核验，非逐字引句）：锁通常持有到事务结束；普通SELECT与行写锁的关系不同于ACCESS EXCLUSIVE。多对象按一致顺序取锁可避免对应循环等待；仍须处理其他死锁和事务重试。",
+    "text": "until the end of the transaction\n[…]\nlocks on multiple objects in a consistent order\n[…]\nOnly an ACCESS EXCLUSIVE lock blocks a SELECT"
+  },
+  "cache": {
+    "id": "cache",
+    "url": "https://www.rfc-editor.org/rfc/rfc9111.txt",
+    "version": "RFC9111 (2022); response-sha256:aeb52adb3279d5f23dae34f68af11bd5cef0a0aff7ffcd014c9ca93c5302cf3e",
+    "locator": "RFC9111 (2022), §3.5/§5.2.2.2/§5.2.2.4/§5.2.2.5。规范摘要（AI中文改写，待人工核验，非逐字引句）：无参数no-cache不禁止存储，但复用必须先成功验证；no-store禁止存储。must-revalidate过期且无法联系源站时不得复用旧响应。带Authorization请求的共享缓存仅在响应显式允许等条件满足时可用，不能把max-age单独当授权，也不能据此忽略业务对象权限。",
+    "text": "forwarding it for validation and receiving a successful response\n[…]\nMUST generate an error response\n[…]\nexplicitly allows shared caching\n[…]\nMUST NOT store any part"
+  },
+  "jobs": {
+    "id": "jobs",
+    "url": "https://www.rabbitmq.com/docs/4.1/confirms",
+    "version": "RabbitMQ4.1; response-sha256:6ff1469118e28b12c310e9a966c31c24c28fff2c16cb9538ef1d405584b8c0b3",
+    "locator": "RabbitMQ4.1, Consumer Acknowledgements and Publisher Confirms。规范摘要（AI中文改写，待人工核验，非逐字引句）：发布确认只覆盖发布者到节点/队列，不证明消费者已处理。手动确认下连接关闭会重排未确认投递；消费者必须处理重投和幂等。已确认后丢失本地处理成果不能期待队列自动恢复；外部副作用另有事务边界。",
+    "text": "entirely orthogonal and unaware of each other\n[…]\nautomatically requeued\n[…]\nimplemented with idempotence in mind"
+  }
+}
