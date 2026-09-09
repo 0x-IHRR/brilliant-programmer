@@ -63,7 +63,7 @@ test("关联补验失响应恢复、只解除原晋升、补验误判再挂回�
   await page.evaluate(() => { document.documentElement.style.fontSize = "200%" })
   await result.getByRole("button", { name: "重新读取Boss结论" }).scrollIntoViewIfNeeded()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await result.screenshot({ path: "test-results/revalidation-200.png" })
+  await page.screenshot({ path: "test-results/revalidation-200.png" })
   await page.evaluate(() => { document.documentElement.style.fontSize = "" })
   page.once("dialog", dialog => dialog.accept())
   await page.getByRole("button", { name: "删除配置及 Key", exact: true }).click()

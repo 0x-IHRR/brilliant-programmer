@@ -246,8 +246,9 @@ def test_real_confirmed_promotion_review_new_same_stage_only_resolves(
         test_training.stop_worker(process)
 
 
+@pytest.mark.parametrize("corrected_pass", [False, True])
 def test_multiple_requirements_do_not_retroactively_promote_old_round(
-    tmp_path, provider, monkeypatch
+    tmp_path, provider, monkeypatch, corrected_pass
 ):
     from app.training.boss_stages import STAGES
     from tests import stage_scenarios
@@ -380,7 +381,21 @@ def test_multiple_requirements_do_not_retroactively_promote_old_round(
             source_text=boss_scenarios.REFERENCE,
         )
         replacement = open_stage(FIRST_STAGE, first_pending)
+        if corrected_pass:
+            provider["grading"] = lambda context: corrected(context)["grading"]
         result = finish(replacement, FIRST_STAGE)
+        if corrected_pass:
+            assert result["decision"]["outcome"] == "evidenced_fail"
+            provider["review"] = lambda context: {
+                "decision": "corrected",
+                "explanation": "原判误读冻结理由",
+                "grading": boss_scenarios.grade(context),
+            }
+            review_start(auth, replacement, config)
+            assert wait_review(auth, replacement)["decision"] == "corrected"
+            result = client.get(
+                f"/api/v1/boss/tasks/{replacement}", headers=auth
+            ).json()
         assert (
             result["launch_level"] == "中级程序员"
             and result["disposition"] == "revalidated"

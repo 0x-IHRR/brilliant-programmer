@@ -245,6 +245,20 @@ def mark_reviewed_promotion(
             ),
             None,
         )
+        if (
+            latest
+            and latest.kind == "required"
+            and latest.id == attempt.revalidation_event_id
+        ):
+            result = decision_for(session, run, evaluation)
+            if result and result.outcome == "independent_pass_candidate":
+                # A corrected interpretation can complete this explicitly accepted
+                # check, but never a newer requirement cycle or a new promotion.
+                append_revalidation(
+                    session, latest.promotion_id, resolved_run_id=run.id
+                )
+                session.add(BossDisposition(run_id=run.id, outcome="revalidated"))
+            return
         if not latest or latest.kind != "resolved" or latest.resolved_run_id != run.id:
             return
         promotion = session.get(BossPromotion, latest.promotion_id)
