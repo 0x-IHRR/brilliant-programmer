@@ -45,7 +45,7 @@
     "id": "http",
     "url": "https://www.rfc-editor.org/rfc/rfc9110.txt",
     "version": "RFC9110 June2022; response-sha256:21c1cdce6ab0e5509b04d84a28000836c7a087cf786efe6f04877ebfff47232a",
-    "locator": "RFC9110 June2022 / §9.2.2 first paragraph PUT list and third paragraph non-idempotent retry exceptions; §15.6.5 504 timely response; §15.6.1 500 unexpected condition. Whitespace-normalized exact fragments; read full cited paragraphs for qualifiers.",
+    "locator": "RFC9110 June2022 / §9.2.2 first paragraph PUT list and third paragraph non-idempotent retry exceptions; §15.6.5 504 timely response; §15.6.1 500 unexpected condition. Whitespace-normalized exact fragments; read full cited paragraphs for qualifiers. 规范摘要（AI中文改写，待人工核验，非逐字引句）：客户端不应自动重试非幂等请求，除非已知该请求实际语义幂等，或能确认原请求未被应用。",
     "text": "PUT, DELETE, and safe request methods\n[…]\nnon- idempotent method unless it has some means\n[…]\ndid not receive a timely response\n[…]\nunexpected condition"
   },
   "tls": {
