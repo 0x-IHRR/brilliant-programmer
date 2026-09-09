@@ -1,3 +1,4 @@
+import json
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -95,14 +96,32 @@ def test_concurrent_same_version_has_one_winner(ready):
 
 
 def test_formal_lineage_blocks_old_editor_without_overwriting_original(ready):
-    _, auth, run_id, config, *_ = ready
+    _, auth, run_id, config, _, control = ready
+    options = json.loads(control.read_text())
+    control.write_text(json.dumps({**options, "before_submission_ok": True}))
     saved = client.put(url(run_id), headers=auth, json=draft()).json()
     original = payload(config)
     assert (
         client.post(submission_url(run_id), headers=auth, json=original).status_code
         == 202
     )
+    deadline = time.monotonic() + 5
+    while not control.with_name(control.name + ".submission_ok_pending").exists():
+        assert time.monotonic() < deadline, "worker did not reach final attempt write"
+        time.sleep(0.02)
     state = wait_submission(auth, run_id)
+    assert state["awarded_points"] == 10
+    assert state["submissions"][0]["attempts"][0]["code"] == "unknown"
+    control.write_text(json.dumps(options))
+    deadline = time.monotonic() + 5
+    final = state
+    while final["submissions"][0]["attempts"][0]["code"] == "unknown":
+        assert time.monotonic() < deadline, "final attempt outcome was not persisted"
+        final = wait_submission(auth, run_id)
+        time.sleep(0.02)
+    assert final["submissions"][0]["attempts"][0]["code"] == "ok"
+    # Compare only after both the immutable result and its attempt outcome commit.
+    state = final
     assert state["awarded_points"] == 10
     assert (
         client.put(url(run_id), headers=auth, json=draft(saved["version"])).status_code
