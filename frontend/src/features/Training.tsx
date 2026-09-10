@@ -6,7 +6,7 @@ import { useRandomPreference } from "./useRandomPreference"
 import { BossStandard, BossProgress } from "./Boss"
 import { Button } from "../components/ui/button"
 
-export function Training({ onLevel }: { onLevel?: (level: string) => void }) {
+export function Training({ onLevel, openRunId = "" }: { onLevel?: (level: string) => void; openRunId?: string }) {
   const alive = useRef(true)
   const ownerSession = useRef(sessionStorage.getItem("token"))
   const current = () => alive.current && sessionStorage.getItem("token") === ownerSession.current
@@ -32,6 +32,12 @@ export function Training({ onLevel }: { onLevel?: (level: string) => void }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState("")
   const [refresh, setRefresh] = useState(0)
+  useEffect(() => {
+    if (openRunId && openRunId !== selectedRef.current) {
+      selectRun(openRunId)
+      setRefresh(n => n + 1)
+    }
+  }, [openRunId])
   const [panel, setPanel] = useState<DraftProgress["step"]>("materials")
   const run = runs.find(item => item.id === selected) ?? runs[0]
   const running = run && ["queued", "running", "stopping"].includes(run.status)
@@ -179,7 +185,7 @@ export function Training({ onLevel }: { onLevel?: (level: string) => void }) {
         <p>{run.case.quality}</p>
         <div className="flex flex-wrap gap-2 md:hidden"><Button variant="outline" onClick={() => setPanel("materials")}>材料</Button><Button variant="outline" onClick={() => setPanel("judgments")}>判断</Button><Button variant="outline" onClick={() => setPanel("coach")}>概念</Button></div>
         <div className="grid gap-4 md:grid-cols-2">
-          <section aria-label="案例材料" className={`${panel === "materials" ? "block" : "hidden"} min-w-0 space-y-3 md:block`}>
+          <section data-training-panel="materials" aria-label="案例材料" className={`${panel === "materials" ? "block" : "hidden"} max-h-[65vh] min-w-0 space-y-3 overflow-y-auto overscroll-contain md:block md:max-h-none md:overflow-visible`}>
             <h4 className="font-semibold">材料与假设</h4>
             {run.case.assumptions.map((item, index) => <p key={index}>{item}</p>)}
             {run.case.evidence.map(item => <div key={item.id} className="space-y-2"><p>{item.label}</p><pre className="whitespace-pre-wrap break-all font-sans">{item.text}</pre>{item.citations.map((citation, index) => <blockquote key={index} className="border-l-2 pl-2">{citation.quote}（{citation.source_id}）</blockquote>)}</div>)}

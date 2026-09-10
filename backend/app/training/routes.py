@@ -25,6 +25,7 @@ from app.training.preference_models import RandomPreference
 from app.training.queue import DSN
 from app.training.recommendations import RULE, Preference, choose
 from app.training.schema import Candidate, PublicCase, Source, public_case
+from app.training.submission_models import Submission
 from app.training.topic_rules import StartSnapshot
 from app.training.worker import generate_training
 
@@ -65,6 +66,13 @@ class TaskPublic(BaseModel):
     return_target: EvidenceKey | None = None
     recommendation_reason: str | None = None
     random_mode: str | None = None
+
+
+class ContinuePublic(BaseModel):
+    run_id: uuid.UUID
+    entry: str
+    title: str
+    active_at: datetime
 
 
 def owned(session: Session, run_id: uuid.UUID, user_id: uuid.UUID) -> TrainingRun:
@@ -401,6 +409,61 @@ def latest(
 
         hidden = hidden_ids(session, user.id, "training")
         return [view(session, run) for run in runs if run.id not in hidden]
+
+
+@router.get("/tasks/continue")
+def continue_task(
+    session: SessionDep, user: VerifiedUser, response: Response
+) -> ContinuePublic | None:
+    """Return the owner's most recently active generated round without a completed answer."""
+    response.headers["Cache-Control"] = "no-store"
+    from app.deletion.service import hidden_ids
+    from app.training.draft_models import TrainingDraft
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user.id) as session:
+        hidden = hidden_ids(session, user.id, "training")
+        runs = session.exec(
+            select(TrainingRun).where(
+                TrainingRun.user_id == user.id,
+                col(TrainingRun.candidate).is_not(None),
+                col(TrainingRun.formal_submitted_at).is_(None),
+            )
+        ).all()
+        available = [run for run in runs if run.id not in hidden]
+        if not available:
+            return None
+        identities = [run.id for run in available]
+        draft_times = dict(
+            session.exec(
+                select(TrainingDraft.run_id, TrainingDraft.saved_at).where(
+                    col(TrainingDraft.run_id).in_(identities)
+                )
+            ).all()
+        )
+        submission_times = dict(
+            session.exec(
+                select(Submission.run_id, func.max(Submission.created_at))
+                .where(col(Submission.run_id).in_(identities))
+                .group_by(col(Submission.run_id))
+            ).all()
+        )
+
+        def activity(run: TrainingRun) -> datetime:
+            return max(
+                run.created_at,
+                draft_times.get(run.id, run.created_at),
+                submission_times.get(run.id) or run.created_at,
+            )
+
+        run = max(available, key=lambda item: (activity(item), item.id))
+        candidate = Candidate.model_validate(run.candidate)
+        return ContinuePublic(
+            run_id=run.id,
+            entry=str(run.selection.get("entry", "random")),
+            title=candidate.title,
+            active_at=activity(run),
+        )
 
 
 @router.get("/tasks/{run_id}")

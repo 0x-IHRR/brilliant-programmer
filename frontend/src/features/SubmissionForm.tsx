@@ -66,7 +66,7 @@ export function SubmissionForm({ runId, caseData, config, panel, onPanel, boss =
         {draft.comparison.submissions.submissions.length > 0 && <Button variant="outline" className={buttonClass} onClick={() => draft.choose(false, true)}>从最新提交记录开始补充</Button>}
       </div>}
     </div>
-    <div className={`${panel === "judgments" ? "block" : "hidden"} md:block space-y-3`}>
+    <div data-training-panel="judgments" className={`${panel === "judgments" ? "block" : "hidden"} max-h-[65vh] space-y-3 overflow-y-auto overscroll-contain md:block md:max-h-none md:overflow-visible`}>
     <p>每个判断和相关理由都是必填；答错仍可完成。可以用白话说不知道原因、还需要看哪份材料。不要粘贴秘密或未授权资料。</p>
     {!completed && <p>草稿保存与交卷分开：停输 1 秒自动保存；离开时尝试保存。未成功保存的末尾输入不保证恢复。保存不评分或发放修为。</p>}
     <Button className={buttonClass} variant="outline" disabled={busy} onClick={() => act(() => SubmissionsService.readSubmissions({ path: { run_id: runId } }))}>重新读取提交结果</Button>
@@ -120,6 +120,6 @@ export function SubmissionForm({ runId, caseData, config, panel, onPanel, boss =
     </form>}
     <Evaluation boss={boss} runId={runId} caseData={caseData} config={config} submitted={completed} onFrozen={setReviewAllowed} />
     </div>
-    <div className={`${panel === "coach" ? "block" : "hidden"} md:block`}><ConceptCoach key={runId} runId={runId} answers={answers} config={config} /></div>
+    <div data-training-panel="coach" className={`${panel === "coach" ? "block" : "hidden"} max-h-[65vh] overflow-y-auto overscroll-contain md:block md:max-h-none md:overflow-visible`}><ConceptCoach key={runId} runId={runId} answers={answers} config={config} /></div>
   </div>
 }

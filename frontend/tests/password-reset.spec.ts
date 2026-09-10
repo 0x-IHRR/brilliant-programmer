@@ -125,6 +125,8 @@ for (const delayedPath of ["/api/v1/capabilities/catalog", "/api/v1/capabilities
         await route.fulfill({ json: { version: null, mode: "recommended", has_record: false } })
       } else if (path === "/api/v1/training/tasks") {
         await route.fulfill({ json: [] })
+      } else if (path === "/api/v1/training/tasks/continue") {
+        await route.fulfill({ json: null })
       } else if (path === "/api/v1/projects" && req.method() === "GET") {
         await route.fulfill({ json: [] })
       } else if (path === "/api/v1/training/access") {
