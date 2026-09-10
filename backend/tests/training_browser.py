@@ -15,7 +15,11 @@ with tempfile.TemporaryDirectory(prefix="training-browser-") as directory:
     supplier = next(fixture)
     supplier["all_kinds"] = True
     supplier["grading"] = lambda context: grading(context, "unclear")
-    supplier["relevance_labels"] = {"午饭准备吃饺子。": "unrelated", "我还是不明白。": "unclear", "仍旧不明白。": "unclear"}
+    supplier["relevance_labels"] = {
+        "午饭准备吃饺子。": "unrelated",
+        "我还是不明白。": "unclear",
+        "仍旧不明白。": "unclear",
+    }
     process = None
     try:
         _, unconfigured_auth = account()
@@ -33,6 +37,11 @@ with tempfile.TemporaryDirectory(prefix="training-browser-") as directory:
         }
         subprocess.run(
             ["bun", "run", "--cwd", "../frontend", "test", "training.spec.ts"],
+            env=environment,
+            check=True,
+        )
+        subprocess.run(
+            ["bun", "run", "--cwd", "../frontend", "test", "personal-review.spec.ts"],
             env=environment,
             check=True,
         )
