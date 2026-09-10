@@ -26,7 +26,7 @@ const areas: { id: Area; label: string }[] = [
   { id: "review", label: "复盘记录" },
   { id: "account", label: "账号与模型" },
 ]
-const button = "h-auto min-h-9 max-w-full whitespace-normal"
+const buttonClass = "h-auto min-h-9 max-w-full whitespace-normal"
 
 function initialArea(): Area {
   const query = new URLSearchParams(location.search)
@@ -59,16 +59,17 @@ function Prologue({ userId }: { userId: string }) {
   return (
     <>
       {available && (
-        <Button className={button} variant="outline" onClick={open}>
+        <Button className={buttonClass} variant="outline" onClick={open}>
           观看重回巅峰序章
         </Button>
       )}
       <dialog
         ref={dialog}
+        aria-labelledby="prologue-title"
         onCancel={close}
         className="m-auto max-w-lg space-y-4 rounded border bg-background p-5 text-foreground backdrop:bg-black/40"
       >
-        <h3 className="text-xl font-semibold">重回巅峰</h3>
+        <h3 id="prologue-title" className="text-xl font-semibold">重回巅峰</h3>
         <p>
           故事里的能力暂时沉寂；你已经完成的练习、证据、修为和等级始终保留。
         </p>
@@ -76,7 +77,7 @@ function Prologue({ userId }: { userId: string }) {
         <p className="motion-reduce:block">
           减少动态效果时，本序章始终使用这组静态文字。
         </p>
-        <Button className={button} ref={skip} onClick={close}>
+        <Button className={buttonClass} ref={skip} onClick={close}>
           跳过并进入首页
         </Button>
       </dialog>
@@ -90,12 +91,12 @@ function Home({
   onContinue,
 }: {
   userId: string
-  go: (area: Area) => void
+  go: (area: Area, target?: string) => void
   onContinue: (id: string) => void
 }) {
   const [state, setState] = useState<"loading" | "ready" | "failed">("loading")
   const [round, setRound] = useState<ContinuePublic | null>(null)
-  const [_attempt, setAttempt] = useState(0)
+  const [attempt, setAttempt] = useState(0)
   useEffect(() => {
     let active = true
     setState("loading")
@@ -112,7 +113,7 @@ function Home({
     return () => {
       active = false
     }
-  }, [])
+  }, [attempt])
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">今天从一个真实行动继续</h2>
@@ -121,7 +122,7 @@ function Home({
         <div role="alert" className="space-y-2">
           <p>最近练习读取失败；没有自动开始随机练习，已有记录不变。</p>
           <Button
-            className={button}
+            className={buttonClass}
             variant="outline"
             onClick={() => setAttempt((n) => n + 1)}
           >
@@ -134,44 +135,44 @@ function Home({
           <div className="space-y-2 rounded border p-4">
             <p>最近未完成：{round.title}</p>
             <p>最近活动：{new Date(round.active_at).toLocaleString()}</p>
-            <Button className={button} onClick={() => onContinue(round.run_id)}>
+            <Button className={buttonClass} onClick={() => onContinue(round.run_id)}>
               继续最近未完成练习
             </Button>
           </div>
         ) : (
           <div className="space-y-2 rounded border p-4">
             <p>尚无未完成练习。</p>
-            <Button className={button} onClick={() => go("training")}>
+            <Button className={buttonClass} onClick={() => go("training")}>
               从随机练习开始
             </Button>
           </div>
         ))}
       <section aria-label="四种训练入口" className="grid gap-3 sm:grid-cols-2">
         <Button
-          className={button}
+          className={buttonClass}
           variant="outline"
-          onClick={() => go("training")}
+          onClick={() => go("training", "random-entry")}
         >
           随机练习
         </Button>
         <Button
-          className={button}
+          className={buttonClass}
           variant="outline"
-          onClick={() => go("routes")}
+          onClick={() => go("routes", "topic-entry")}
         >
           自由主题
         </Button>
         <Button
-          className={button}
+          className={buttonClass}
           variant="outline"
-          onClick={() => go("routes")}
+          onClick={() => go("routes", "jd-entry")}
         >
           JD 定向
         </Button>
         <Button
-          className={button}
+          className={buttonClass}
           variant="outline"
-          onClick={() => go("routes")}
+          onClick={() => go("routes", "project-entry")}
         >
           公开 GitHub 项目
         </Button>
@@ -200,10 +201,10 @@ export function UnifiedWorkspace({
     review: null,
     account: null,
   })
-  function go(next: Area) {
+  function go(next: Area, target?: string) {
     setArea(next)
     requestAnimationFrame(() => {
-      const region = regions.current[next]
+      const region = (target ? document.getElementById(target) : null) ?? regions.current[next]
       region?.focus({ preventScroll: true })
       region?.scrollIntoView()
     })
@@ -220,7 +221,7 @@ export function UnifiedWorkspace({
       >
         {areas.map((item) => (
           <Button
-            className={button}
+            className={buttonClass}
             key={item.id}
             variant={area === item.id ? "default" : "outline"}
             aria-current={area === item.id ? "page" : undefined}
@@ -245,15 +246,15 @@ export function UnifiedWorkspace({
           )}
           {item.id === "routes" && (
             <>
-              <FreeTopic />
-              <JDRoute />
-              <Project />
+              <div id="topic-entry" tabIndex={-1}><FreeTopic /></div>
+              <div id="jd-entry" tabIndex={-1}><JDRoute /></div>
+              <div id="project-entry" tabIndex={-1}><Project /></div>
             </>
           )}
           {item.id === "training" && (
             <>
               <Boss />
-              <Training onLevel={onLevel} openRunId={requestedRun} />
+              <div id="random-entry" tabIndex={-1}><Training onLevel={onLevel} openRunId={requestedRun} /></div>
             </>
           )}
           {item.id === "capabilities" && <CapabilityMap />}

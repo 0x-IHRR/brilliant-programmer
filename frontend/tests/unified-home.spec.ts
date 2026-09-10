@@ -13,7 +13,21 @@ test("六区域首页、首次序章和导航往返保留未保存作答", async
     for (const key of Object.keys(localStorage))
       if (key.startsWith("prologue-seen:")) localStorage.removeItem(key)
   }, process.env.TRAINING_BROWSER_TOKEN)
+  let failHome = true
+  await page.route("**/api/v1/training/tasks/continue", async (route) => {
+    if (failHome)
+      await route.fulfill({ status: 503, json: { detail: "temporary" } })
+    else await route.continue()
+  })
   await page.reload()
+
+  await expect(
+    page.getByText("最近练习读取失败；没有自动开始随机练习，已有记录不变。"),
+  ).toBeVisible()
+  failHome = false
+  await page.getByRole("button", { name: "重新读取首页行动" }).click()
+  await expect(page.getByText(/最近未完成：/)).toBeVisible()
+  await page.unroute("**/api/v1/training/tasks/continue")
 
   const navigation = page.getByRole("navigation", { name: "主要区域" })
   for (const name of [
@@ -34,7 +48,7 @@ test("六区域首页、首次序章和导航往返保留未保存作答", async
   await expect(page.getByText(/最近未完成：/)).toBeVisible()
 
   await page.getByRole("button", { name: "观看重回巅峰序章" }).click()
-  const prologue = page.getByRole("dialog")
+  const prologue = page.getByRole("dialog", { name: "重回巅峰" })
   await expect(prologue).toContainText(
     "已经完成的练习、证据、修为和等级始终保留",
   )
@@ -82,7 +96,29 @@ test("六区域首页、首次序章和导航往返保留未保存作答", async
   await expect(
     training.getByRole("button", { name: "材料", exact: true }),
   ).toBeVisible()
+  const materialPanel = training.locator('[data-training-panel="materials"]')
+  const judgmentPanel = training.locator('[data-training-panel="judgments"]')
+  const coachPanel = training.locator('[data-training-panel="coach"]')
+  const rememberPosition = async (panel: typeof materialPanel) =>
+    panel.evaluate((element) => {
+      const maximum = element.scrollHeight - element.clientHeight
+      if (maximum <= 0) throw new Error("panel must be independently scrollable")
+      element.scrollTop = Math.min(120, maximum)
+      return element.scrollTop
+    })
+
+  await training.getByRole("button", { name: "材料", exact: true }).click()
+  const materialPosition = await rememberPosition(materialPanel)
+  await training.getByRole("button", { name: "判断", exact: true }).click()
+  const judgmentPosition = await rememberPosition(judgmentPanel)
   await training.getByRole("button", { name: "概念", exact: true }).click()
+  const coachPosition = await rememberPosition(coachPanel)
+  await training.getByRole("button", { name: "材料", exact: true }).click()
+  await expect.poll(() => materialPanel.evaluate((element) => element.scrollTop)).toBe(materialPosition)
+  await training.getByRole("button", { name: "判断", exact: true }).click()
+  await expect.poll(() => judgmentPanel.evaluate((element) => element.scrollTop)).toBe(judgmentPosition)
+  await training.getByRole("button", { name: "概念", exact: true }).click()
+  await expect.poll(() => coachPanel.evaluate((element) => element.scrollTop)).toBe(coachPosition)
   await training.getByRole("button", { name: "判断", exact: true }).click()
   await expect(reason).toHaveValue("尚未保存的导航往返输入")
   expect(

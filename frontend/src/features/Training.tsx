@@ -185,7 +185,7 @@ export function Training({ onLevel, openRunId = "" }: { onLevel?: (level: string
         <p>{run.case.quality}</p>
         <div className="flex flex-wrap gap-2 md:hidden"><Button variant="outline" onClick={() => setPanel("materials")}>材料</Button><Button variant="outline" onClick={() => setPanel("judgments")}>判断</Button><Button variant="outline" onClick={() => setPanel("coach")}>概念</Button></div>
         <div className="grid gap-4 md:grid-cols-2">
-          <section aria-label="案例材料" className={`${panel === "materials" ? "block" : "hidden"} min-w-0 space-y-3 md:block`}>
+          <section data-training-panel="materials" aria-label="案例材料" className={`${panel === "materials" ? "block" : "hidden"} max-h-[65vh] min-w-0 space-y-3 overflow-y-auto overscroll-contain md:block md:max-h-none md:overflow-visible`}>
             <h4 className="font-semibold">材料与假设</h4>
             {run.case.assumptions.map((item, index) => <p key={index}>{item}</p>)}
             {run.case.evidence.map(item => <div key={item.id} className="space-y-2"><p>{item.label}</p><pre className="whitespace-pre-wrap break-all font-sans">{item.text}</pre>{item.citations.map((citation, index) => <blockquote key={index} className="border-l-2 pl-2">{citation.quote}（{citation.source_id}）</blockquote>)}</div>)}
