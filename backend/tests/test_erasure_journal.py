@@ -171,6 +171,27 @@ def test_rename_failure_withdraws_registration_and_partial(ledger, monkeypatch):
     assert not list(retention.directory().iterdir())
 
 
+def test_directory_fsync_failure_after_rename_keeps_registered_final(
+    ledger, monkeypatch
+):
+    assert not ledger.exists()
+    journal.initialize()
+
+    def sync_fails(_path):
+        raise OSError('synthetic directory fsync failure')
+
+    monkeypatch.setattr(retention, '_sync_directory', sync_fails)
+    with pytest.raises(OSError, match='synthetic'):
+        retention.store(io.BytesIO(b'committed-and-renamed'))
+    files = list(retention.directory().glob('*.dump'))
+    assert len(files) == 1 and files[0].read_bytes() == b'committed-and-renamed'
+    assert not list(retention.directory().glob('.*.partial'))
+    with journal.connect() as connection:
+        rows = connection.execute('SELECT id FROM backup').fetchall()
+    assert rows == [(files[0].stem,)]
+    assert retention.expire() == 0
+
+
 def test_unknown_backup_file_cannot_be_claimed_expired_or_silently_removed(ledger):
     assert not ledger.exists()
     journal.initialize()

@@ -123,6 +123,9 @@ def store(stream: BinaryIO, now: datetime | None = None) -> uuid.UUID:
             pending.replace(location)
             _sync_directory(root)
         except BaseException:
+            if location.exists():
+                # Rename succeeded: keep the committed row and final for reconciliation.
+                raise
             if registered:
                 try:
                     with journal.connect() as connection:
