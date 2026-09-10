@@ -1,0 +1,4487 @@
+{
+  "origin": "ai_draft",
+  "review_status": "pending_human_review",
+  "cases": [
+    {
+      "id": "api.boundary-1",
+      "family": "api.boundary",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "oauth",
+        "object"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "api.boundary",
+          "difficulty": "基础",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "过期令牌与对象访问",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "Bearer令牌已过期；订单归属尚未读取。",
+            "facts": {
+              "observed_boundary": "Bearer令牌已过期；订单归属尚未读取。"
+            },
+            "citations": [
+              {
+                "source_id": "oauth",
+                "quote": "expired, revoked, malformed"
+              },
+              {
+                "source_id": "object",
+                "quote": "logged-in user has access to perform the requested action"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "拒绝该认证并按无效令牌处理；不能继续访问订单。",
+              "令牌字符串存在就查询并返回订单。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "令牌存在不代表有效；当前已确定过期，先在认证边界拒绝。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：Bearer令牌已过期；订单归属尚未读取。 因此“令牌字符串存在就查询并返回订单。”不成立。",
+            "help_boundary": "指出“拒绝该认证并按无效令牌处理；不能继续访问订单。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "Bearer令牌已过期；订单归属尚未读取。",
+          "expected_evidence": "应核对的冻结观察：Bearer令牌已过期；订单归属尚未读取。",
+          "decision_effect": "拒绝该认证并按无效令牌处理；不能继续访问订单。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "令牌存在不代表有效；当前已确定过期，先在认证边界拒绝。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "令牌存在不代表有效；当前已确定过期，先在认证边界拒绝。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "Bearer令牌已过期；订单归属尚未读取。",
+                    "citation": {
+                      "source_id": "oauth",
+                      "quote": "expired, revoked, malformed"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "Bearer令牌已过期；订单归属尚未读取。"
+                  }
+                ],
+                "rule_quote": "令牌存在不代表有效；当前已确定过期，先在认证边界拒绝。",
+                "counterexample_quote": null,
+                "explanation": "令牌存在不代表有效；当前已确定过期，先在认证边界拒绝。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "令牌存在不代表有效；当前已确定过期，先在认证边界拒绝。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为令牌字符串存在就查询并返回订单。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为令牌字符串存在就查询并返回订单。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "Bearer令牌已过期；订单归属尚未读取。",
+                    "citation": {
+                      "source_id": "oauth",
+                      "quote": "expired, revoked, malformed"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "Bearer令牌已过期；订单归属尚未读取。"
+                  }
+                ],
+                "rule_quote": "令牌存在不代表有效；当前已确定过期，先在认证边界拒绝。",
+                "counterexample_quote": "反例：Bearer令牌已过期；订单归属尚未读取。 因此“令牌字符串存在就查询并返回订单。”不成立。",
+                "explanation": "令牌存在不代表有效；当前已确定过期，先在认证边界拒绝。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：Bearer令牌已过期；订单归属尚未读取。 因此“令牌字符串存在就查询并返回订单。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "api.boundary",
+          "difficulty": "基础",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "过期令牌与对象访问：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "令牌有效且所需scope齐全；订单属于另一个账号，没有共享授权。",
+            "facts": {
+              "observed_boundary": "令牌有效且所需scope齐全；订单属于另一个账号，没有共享授权。"
+            },
+            "citations": [
+              {
+                "source_id": "oauth",
+                "quote": "expired, revoked, malformed"
+              },
+              {
+                "source_id": "object",
+                "quote": "logged-in user has access to perform the requested action"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "在对象授权边界拒绝，不能把认证有效当归属许可。",
+              "令牌字符串存在就查询并返回订单。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新的证据把问题从令牌失效改为对象越权，仍不得返回对象。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：令牌有效且所需scope齐全；订单属于另一个账号，没有共享授权。 因此“令牌字符串存在就查询并返回订单。”不成立。",
+            "help_boundary": "指出“在对象授权边界拒绝，不能把认证有效当归属许可。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "令牌有效且所需scope齐全；订单属于另一个账号，没有共享授权。",
+          "expected_evidence": "应核对的冻结观察：令牌有效且所需scope齐全；订单属于另一个账号，没有共享授权。",
+          "decision_effect": "在对象授权边界拒绝，不能把认证有效当归属许可。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "过期令牌与对象访问（换名版本）",
+      "variation_basis": "由“Bearer令牌已过期；订单归属尚未读取。”变为“令牌有效且所需scope齐全；订单属于另一个账号，没有共享授权。”，故“拒绝该认证并按无效令牌处理；不能继续访问订单。”改为“在对象授权边界拒绝，不能把认证有效当归属许可。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "令牌存在不代表有效；当前已确定过期，先在认证边界拒绝。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "api.boundary-2",
+      "family": "api.boundary",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "oauth"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "api.boundary",
+          "difficulty": "进阶",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "权限范围不是参数格式",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。",
+            "facts": {
+              "observed_boundary": "令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。"
+            },
+            "citations": [
+              {
+                "source_id": "oauth",
+                "quote": "higher privileges than provided"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "在scope授权边界拒绝写入，反馈权限不足。",
+              "参数合法且已登录就允许写入。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "格式正确与身份有效都不能补足缺失的write权限。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。 因此“参数合法且已登录就允许写入。”不成立。",
+            "help_boundary": "指出“在scope授权边界拒绝写入，反馈权限不足。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。",
+          "expected_evidence": "应核对的冻结观察：令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。",
+          "decision_effect": "在scope授权边界拒绝写入，反馈权限不足。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "格式正确与身份有效都不能补足缺失的write权限。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "格式正确与身份有效都不能补足缺失的write权限。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。",
+                    "citation": {
+                      "source_id": "oauth",
+                      "quote": "higher privileges than provided"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。"
+                  }
+                ],
+                "rule_quote": "格式正确与身份有效都不能补足缺失的write权限。",
+                "counterexample_quote": null,
+                "explanation": "格式正确与身份有效都不能补足缺失的write权限。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "格式正确与身份有效都不能补足缺失的write权限。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为参数合法且已登录就允许写入。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为参数合法且已登录就允许写入。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。",
+                    "citation": {
+                      "source_id": "oauth",
+                      "quote": "higher privileges than provided"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。"
+                  }
+                ],
+                "rule_quote": "格式正确与身份有效都不能补足缺失的write权限。",
+                "counterexample_quote": "反例：令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。 因此“参数合法且已登录就允许写入。”不成立。",
+                "explanation": "格式正确与身份有效都不能补足缺失的write权限。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。 因此“参数合法且已登录就允许写入。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "api.boundary",
+          "difficulty": "进阶",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "权限范围不是参数格式：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "令牌含write scope且对象归属合法；数量=-2违反本接口明确正数业务规则。",
+            "facts": {
+              "observed_boundary": "令牌含write scope且对象归属合法；数量=-2违反本接口明确正数业务规则。"
+            },
+            "citations": [
+              {
+                "source_id": "oauth",
+                "quote": "higher privileges than provided"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "权限校验通过后按业务约束拒绝负数量。",
+              "参数合法且已登录就允许写入。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "权限齐全不保证业务有效，改变后的拒绝依据是已冻结的数量规则。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：令牌含write scope且对象归属合法；数量=-2违反本接口明确正数业务规则。 因此“参数合法且已登录就允许写入。”不成立。",
+            "help_boundary": "指出“权限校验通过后按业务约束拒绝负数量。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "令牌含write scope且对象归属合法；数量=-2违反本接口明确正数业务规则。",
+          "expected_evidence": "应核对的冻结观察：令牌含write scope且对象归属合法；数量=-2违反本接口明确正数业务规则。",
+          "decision_effect": "权限校验通过后按业务约束拒绝负数量。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "权限范围不是参数格式（换名版本）",
+      "variation_basis": "由“令牌有效但只有read scope；请求修改订单，字段格式与数量均合法。”变为“令牌含write scope且对象归属合法；数量=-2违反本接口明确正数业务规则。”，故“在scope授权边界拒绝写入，反馈权限不足。”改为“权限校验通过后按业务约束拒绝负数量。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "格式正确与身份有效都不能补足缺失的write权限。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "api.boundary-3",
+      "family": "api.boundary",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "object"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "api.boundary",
+          "difficulty": "综合",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "随机资源ID与批量授权",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。",
+            "facts": {
+              "observed_boundary": "有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。"
+            },
+            "citations": [
+              {
+                "source_id": "object",
+                "quote": "logged-in user has access to perform the requested action"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "核对每个对象的访问权，整批拒绝且不泄露另一个订单。",
+              "ID不可猜且有一个订单属本人，所以整批返回。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "随机标识和部分合法对象都不替代逐对象授权；整批语义由题面明确给定。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。 因此“ID不可猜且有一个订单属本人，所以整批返回。”不成立。",
+            "help_boundary": "指出“核对每个对象的访问权，整批拒绝且不泄露另一个订单。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。",
+          "expected_evidence": "应核对的冻结观察：有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。",
+          "decision_effect": "核对每个对象的访问权，整批拒绝且不泄露另一个订单。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "随机标识和部分合法对象都不替代逐对象授权；整批语义由题面明确给定。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "随机标识和部分合法对象都不替代逐对象授权；整批语义由题面明确给定。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。",
+                    "citation": {
+                      "source_id": "object",
+                      "quote": "logged-in user has access to perform the requested action"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。"
+                  }
+                ],
+                "rule_quote": "随机标识和部分合法对象都不替代逐对象授权；整批语义由题面明确给定。",
+                "counterexample_quote": null,
+                "explanation": "随机标识和部分合法对象都不替代逐对象授权；整批语义由题面明确给定。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "随机标识和部分合法对象都不替代逐对象授权；整批语义由题面明确给定。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为ID不可猜且有一个订单属本人，所以整批返回。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为ID不可猜且有一个订单属本人，所以整批返回。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。",
+                    "citation": {
+                      "source_id": "object",
+                      "quote": "logged-in user has access to perform the requested action"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。"
+                  }
+                ],
+                "rule_quote": "随机标识和部分合法对象都不替代逐对象授权；整批语义由题面明确给定。",
+                "counterexample_quote": "反例：有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。 因此“ID不可猜且有一个订单属本人，所以整批返回。”不成立。",
+                "explanation": "随机标识和部分合法对象都不替代逐对象授权；整批语义由题面明确给定。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。 因此“ID不可猜且有一个订单属本人，所以整批返回。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "api.boundary",
+          "difficulty": "综合",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "随机资源ID与批量授权：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "两个订单均获共享读取授权；其中一个已撤销写权限，请求从读取改为写入。",
+            "facts": {
+              "observed_boundary": "两个订单均获共享读取授权；其中一个已撤销写权限，请求从读取改为写入。"
+            },
+            "citations": [
+              {
+                "source_id": "object",
+                "quote": "logged-in user has access to perform the requested action"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按每对象的写动作权限拒绝该批更新。",
+              "ID不可猜且有一个订单属本人，所以整批返回。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "读取授权不能迁移成写授权，必须用当前动作核对每个对象。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：两个订单均获共享读取授权；其中一个已撤销写权限，请求从读取改为写入。 因此“ID不可猜且有一个订单属本人，所以整批返回。”不成立。",
+            "help_boundary": "指出“按每对象的写动作权限拒绝该批更新。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "两个订单均获共享读取授权；其中一个已撤销写权限，请求从读取改为写入。",
+          "expected_evidence": "应核对的冻结观察：两个订单均获共享读取授权；其中一个已撤销写权限，请求从读取改为写入。",
+          "decision_effect": "按每对象的写动作权限拒绝该批更新。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "随机资源ID与批量授权（换名版本）",
+      "variation_basis": "由“有效令牌请求批量读取两个随机订单ID；一个属本人，另一个属他人；接口契约要求整批授权后才返回。”变为“两个订单均获共享读取授权；其中一个已撤销写权限，请求从读取改为写入。”，故“核对每个对象的访问权，整批拒绝且不泄露另一个订单。”改为“按每对象的写动作权限拒绝该批更新。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "随机标识和部分合法对象都不替代逐对象授权；整批语义由题面明确给定。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "api.idempotency-1",
+      "family": "api.idempotency",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "stripe"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "api.idempotency",
+          "difficulty": "基础",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "断线后的同键请求",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。",
+            "facts": {
+              "observed_boundary": "Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。"
+            },
+            "citations": [
+              {
+                "source_id": "stripe",
+                "quote": "saving the resulting status code and body"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "用原键和相同参数查询式重放，取得保存的结果。",
+              "生成新键重发同一创建请求。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "在给定保留期和参数一致前提下，同键复用原结果；新键会失去该次防重关联。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。 因此“生成新键重发同一创建请求。”不成立。",
+            "help_boundary": "指出“用原键和相同参数查询式重放，取得保存的结果。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。",
+          "expected_evidence": "应核对的冻结观察：Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。",
+          "decision_effect": "用原键和相同参数查询式重放，取得保存的结果。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "在给定保留期和参数一致前提下，同键复用原结果；新键会失去该次防重关联。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "在给定保留期和参数一致前提下，同键复用原结果；新键会失去该次防重关联。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。",
+                    "citation": {
+                      "source_id": "stripe",
+                      "quote": "saving the resulting status code and body"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。"
+                  }
+                ],
+                "rule_quote": "在给定保留期和参数一致前提下，同键复用原结果；新键会失去该次防重关联。",
+                "counterexample_quote": null,
+                "explanation": "在给定保留期和参数一致前提下，同键复用原结果；新键会失去该次防重关联。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "在给定保留期和参数一致前提下，同键复用原结果；新键会失去该次防重关联。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为生成新键重发同一创建请求。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为生成新键重发同一创建请求。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。",
+                    "citation": {
+                      "source_id": "stripe",
+                      "quote": "saving the resulting status code and body"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。"
+                  }
+                ],
+                "rule_quote": "在给定保留期和参数一致前提下，同键复用原结果；新键会失去该次防重关联。",
+                "counterexample_quote": "反例：Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。 因此“生成新键重发同一创建请求。”不成立。",
+                "explanation": "在给定保留期和参数一致前提下，同键复用原结果；新键会失去该次防重关联。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。 因此“生成新键重发同一创建请求。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "api.idempotency",
+          "difficulty": "基础",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "断线后的同键请求：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "原请求已保存500结果，键仍保留，参数相同。",
+            "facts": {
+              "observed_boundary": "原请求已保存500结果，键仍保留，参数相同。"
+            },
+            "citations": [
+              {
+                "source_id": "stripe",
+                "quote": "saving the resulting status code and body"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保留原请求身份并处理该已保存失败，不把换键当安全重试。",
+              "生成新键重发同一创建请求。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "同键也会重放保存的500，未知副作用不能靠新键自动排除。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：原请求已保存500结果，键仍保留，参数相同。 因此“生成新键重发同一创建请求。”不成立。",
+            "help_boundary": "指出“保留原请求身份并处理该已保存失败，不把换键当安全重试。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "原请求已保存500结果，键仍保留，参数相同。",
+          "expected_evidence": "应核对的冻结观察：原请求已保存500结果，键仍保留，参数相同。",
+          "decision_effect": "保留原请求身份并处理该已保存失败，不把换键当安全重试。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "断线后的同键请求（换名版本）",
+      "variation_basis": "由“Stripe POST已开始执行并成功创建对象，但客户端响应丢失；原幂等键和相同参数仍保留且键未清理。”变为“原请求已保存500结果，键仍保留，参数相同。”，故“用原键和相同参数查询式重放，取得保存的结果。”改为“保留原请求身份并处理该已保存失败，不把换键当安全重试。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "在给定保留期和参数一致前提下，同键复用原结果；新键会失去该次防重关联。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "api.idempotency-2",
+      "family": "api.idempotency",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "stripe"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "api.idempotency",
+          "difficulty": "进阶",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "并发冲突是否保存结果",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。",
+            "facts": {
+              "observed_boundary": "同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。"
+            },
+            "citations": [
+              {
+                "source_id": "stripe",
+                "quote": "execution of an endpoint begins"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "等待首请求结算后用同键重试；不能把冲突当成已保存业务结果。",
+              "冲突证明创建失败，立即换键再创建。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "执行前冲突不保存幂等结果，也不证明另一在途请求没有执行。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。 因此“冲突证明创建失败，立即换键再创建。”不成立。",
+            "help_boundary": "指出“等待首请求结算后用同键重试；不能把冲突当成已保存业务结果。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。",
+          "expected_evidence": "应核对的冻结观察：同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。",
+          "decision_effect": "等待首请求结算后用同键重试；不能把冲突当成已保存业务结果。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "执行前冲突不保存幂等结果，也不证明另一在途请求没有执行。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "执行前冲突不保存幂等结果，也不证明另一在途请求没有执行。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。",
+                    "citation": {
+                      "source_id": "stripe",
+                      "quote": "execution of an endpoint begins"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。"
+                  }
+                ],
+                "rule_quote": "执行前冲突不保存幂等结果，也不证明另一在途请求没有执行。",
+                "counterexample_quote": null,
+                "explanation": "执行前冲突不保存幂等结果，也不证明另一在途请求没有执行。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "执行前冲突不保存幂等结果，也不证明另一在途请求没有执行。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为冲突证明创建失败，立即换键再创建。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为冲突证明创建失败，立即换键再创建。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。",
+                    "citation": {
+                      "source_id": "stripe",
+                      "quote": "execution of an endpoint begins"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。"
+                  }
+                ],
+                "rule_quote": "执行前冲突不保存幂等结果，也不证明另一在途请求没有执行。",
+                "counterexample_quote": "反例：同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。 因此“冲突证明创建失败，立即换键再创建。”不成立。",
+                "explanation": "执行前冲突不保存幂等结果，也不证明另一在途请求没有执行。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。 因此“冲突证明创建失败，立即换键再创建。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "api.idempotency",
+          "difficulty": "进阶",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "并发冲突是否保存结果：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "原请求已经成功，重放使用相同键但金额被改动。",
+            "facts": {
+              "observed_boundary": "原请求已经成功，重放使用相同键但金额被改动。"
+            },
+            "citations": [
+              {
+                "source_id": "stripe",
+                "quote": "compares incoming parameters"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保留原成功记录，拒绝把不同参数塞进原幂等身份；新业务需明确新请求。",
+              "冲突证明创建失败，立即换键再创建。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "参数不一致与执行前冲突不同，不能用重试机制改写旧操作含义。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：原请求已经成功，重放使用相同键但金额被改动。 因此“冲突证明创建失败，立即换键再创建。”不成立。",
+            "help_boundary": "指出“保留原成功记录，拒绝把不同参数塞进原幂等身份；新业务需明确新请求。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "原请求已经成功，重放使用相同键但金额被改动。",
+          "expected_evidence": "应核对的冻结观察：原请求已经成功，重放使用相同键但金额被改动。",
+          "decision_effect": "保留原成功记录，拒绝把不同参数塞进原幂等身份；新业务需明确新请求。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "并发冲突是否保存结果（换名版本）",
+      "variation_basis": "由“同键请求仍在执行；第二请求因并发冲突未开始端点执行，参数一致。”变为“原请求已经成功，重放使用相同键但金额被改动。”，故“等待首请求结算后用同键重试；不能把冲突当成已保存业务结果。”改为“保留原成功记录，拒绝把不同参数塞进原幂等身份；新业务需明确新请求。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "执行前冲突不保存幂等结果，也不证明另一在途请求没有执行。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "api.idempotency-3",
+      "family": "api.idempotency",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "stripe"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "api.idempotency",
+          "difficulty": "综合",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "幂等键清理后的恢复",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。",
+            "facts": {
+              "observed_boundary": "原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。"
+            },
+            "citations": [
+              {
+                "source_id": "stripe",
+                "quote": "after the original is pruned"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先按业务订单核对外部结果和持久记录，不能直接复用已清理键认定安全。",
+              "只要字符串相同，48小时后重发也永久只扣一次。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "已清理键的重用会产生新请求；本地pending不证明外部未执行，需先补结果。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。 因此“只要字符串相同，48小时后重发也永久只扣一次。”不成立。",
+            "help_boundary": "指出“先按业务订单核对外部结果和持久记录，不能直接复用已清理键认定安全。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。",
+          "expected_evidence": "应核对的冻结观察：原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。",
+          "decision_effect": "先按业务订单核对外部结果和持久记录，不能直接复用已清理键认定安全。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "已清理键的重用会产生新请求；本地pending不证明外部未执行，需先补结果。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "已清理键的重用会产生新请求；本地pending不证明外部未执行，需先补结果。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。",
+                    "citation": {
+                      "source_id": "stripe",
+                      "quote": "after the original is pruned"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。"
+                  }
+                ],
+                "rule_quote": "已清理键的重用会产生新请求；本地pending不证明外部未执行，需先补结果。",
+                "counterexample_quote": null,
+                "explanation": "已清理键的重用会产生新请求；本地pending不证明外部未执行，需先补结果。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "已清理键的重用会产生新请求；本地pending不证明外部未执行，需先补结果。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为只要字符串相同，48小时后重发也永久只扣一次。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为只要字符串相同，48小时后重发也永久只扣一次。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。",
+                    "citation": {
+                      "source_id": "stripe",
+                      "quote": "after the original is pruned"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。"
+                  }
+                ],
+                "rule_quote": "已清理键的重用会产生新请求；本地pending不证明外部未执行，需先补结果。",
+                "counterexample_quote": "反例：原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。 因此“只要字符串相同，48小时后重发也永久只扣一次。”不成立。",
+                "explanation": "已清理键的重用会产生新请求；本地pending不证明外部未执行，需先补结果。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。 因此“只要字符串相同，48小时后重发也永久只扣一次。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "api.idempotency",
+          "difficulty": "综合",
+          "background_id": "api-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "幂等键清理后的恢复：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "已根据业务订单取得外部明确未执行证明，且本地防重事务已受理一次主动新请求。",
+            "facts": {
+              "observed_boundary": "已根据业务订单取得外部明确未执行证明，且本地防重事务已受理一次主动新请求。"
+            },
+            "citations": [
+              {
+                "source_id": "stripe",
+                "quote": "after the original is pruned"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按新业务请求执行并持久记录其新身份与恢复结果。",
+              "只要字符串相同，48小时后重发也永久只扣一次。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "补齐外部未执行及本地受理证据后可明确新开，不能把该结论用于此前未知状态。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：已根据业务订单取得外部明确未执行证明，且本地防重事务已受理一次主动新请求。 因此“只要字符串相同，48小时后重发也永久只扣一次。”不成立。",
+            "help_boundary": "指出“按新业务请求执行并持久记录其新身份与恢复结果。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "已根据业务订单取得外部明确未执行证明，且本地防重事务已受理一次主动新请求。",
+          "expected_evidence": "应核对的冻结观察：已根据业务订单取得外部明确未执行证明，且本地防重事务已受理一次主动新请求。",
+          "decision_effect": "按新业务请求执行并持久记录其新身份与恢复结果。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "幂等键清理后的恢复（换名版本）",
+      "variation_basis": "由“原支付调用响应未知；48小时后确认幂等键已被清理；订单本地仍pending且没有支付结果核对。”变为“已根据业务订单取得外部明确未执行证明，且本地防重事务已受理一次主动新请求。”，故“先按业务订单核对外部结果和持久记录，不能直接复用已清理键认定安全。”改为“按新业务请求执行并持久记录其新身份与恢复结果。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "已清理键的重用会产生新请求；本地pending不证明外部未执行，需先补结果。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "data.integrity-1",
+      "family": "data.integrity",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "constraints"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "data.integrity",
+          "difficulty": "基础",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "并发预查没有占住唯一名额",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。",
+            "facts": {
+              "observed_boundary": "两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。"
+            },
+            "citations": [
+              {
+                "source_id": "constraints",
+                "quote": "unique across the whole table"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "用订单号唯一约束守住不变量，并处理冲突结果。",
+              "只要两次预查都返回空，两个插入就不会重复。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "预查与写入间存在并发窗口，数据库唯一约束才对最终列组合施加限制。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。 因此“只要两次预查都返回空，两个插入就不会重复。”不成立。",
+            "help_boundary": "指出“用订单号唯一约束守住不变量，并处理冲突结果。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。",
+          "expected_evidence": "应核对的冻结观察：两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。",
+          "decision_effect": "用订单号唯一约束守住不变量，并处理冲突结果。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "预查与写入间存在并发窗口，数据库唯一约束才对最终列组合施加限制。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "预查与写入间存在并发窗口，数据库唯一约束才对最终列组合施加限制。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。",
+                    "citation": {
+                      "source_id": "constraints",
+                      "quote": "unique across the whole table"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。"
+                  }
+                ],
+                "rule_quote": "预查与写入间存在并发窗口，数据库唯一约束才对最终列组合施加限制。",
+                "counterexample_quote": null,
+                "explanation": "预查与写入间存在并发窗口，数据库唯一约束才对最终列组合施加限制。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "预查与写入间存在并发窗口，数据库唯一约束才对最终列组合施加限制。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为只要两次预查都返回空，两个插入就不会重复。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为只要两次预查都返回空，两个插入就不会重复。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。",
+                    "citation": {
+                      "source_id": "constraints",
+                      "quote": "unique across the whole table"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。"
+                  }
+                ],
+                "rule_quote": "预查与写入间存在并发窗口，数据库唯一约束才对最终列组合施加限制。",
+                "counterexample_quote": "反例：两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。 因此“只要两次预查都返回空，两个插入就不会重复。”不成立。",
+                "explanation": "预查与写入间存在并发窗口，数据库唯一约束才对最终列组合施加限制。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。 因此“只要两次预查都返回空，两个插入就不会重复。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "data.integrity",
+          "difficulty": "基础",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "并发预查没有占住唯一名额：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "数据库已有订单号唯一约束；第二次插入被冲突拒绝，第一条已提交。",
+            "facts": {
+              "observed_boundary": "数据库已有订单号唯一约束；第二次插入被冲突拒绝，第一条已提交。"
+            },
+            "citations": [
+              {
+                "source_id": "constraints",
+                "quote": "unique across the whole table"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保留第一条，读取并核对它是否是同一业务，不把冲突改成无约束插入。",
+              "只要两次预查都返回空，两个插入就不会重复。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "改变后的库已拒绝重复，恢复应核对已存身份而非绕开约束。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：数据库已有订单号唯一约束；第二次插入被冲突拒绝，第一条已提交。 因此“只要两次预查都返回空，两个插入就不会重复。”不成立。",
+            "help_boundary": "指出“保留第一条，读取并核对它是否是同一业务，不把冲突改成无约束插入。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "数据库已有订单号唯一约束；第二次插入被冲突拒绝，第一条已提交。",
+          "expected_evidence": "应核对的冻结观察：数据库已有订单号唯一约束；第二次插入被冲突拒绝，第一条已提交。",
+          "decision_effect": "保留第一条，读取并核对它是否是同一业务，不把冲突改成无约束插入。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "并发预查没有占住唯一名额（换名版本）",
+      "variation_basis": "由“两个事务均预查同一非空订单号不存在；尚无唯一约束，两者随后插入。”变为“数据库已有订单号唯一约束；第二次插入被冲突拒绝，第一条已提交。”，故“用订单号唯一约束守住不变量，并处理冲突结果。”改为“保留第一条，读取并核对它是否是同一业务，不把冲突改成无约束插入。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "预查与写入间存在并发窗口，数据库唯一约束才对最终列组合施加限制。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "data.integrity-2",
+      "family": "data.integrity",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "constraints"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "data.integrity",
+          "difficulty": "进阶",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "NULL既影响唯一也影响必填",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。",
+            "facts": {
+              "observed_boundary": "表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。"
+            },
+            "citations": [
+              {
+                "source_id": "constraints",
+                "quote": "true or the null value"
+              },
+              {
+                "source_id": "constraints",
+                "quote": "null values are not considered equal"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "解释默认NULL互异且CHECK遇NULL可满足；按必填需求补NOT NULL等约束。",
+              "唯一加CHECK已保证非空，所以数据库肯定损坏。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "这两类约束不自动实现必填；必须把业务不变量明确写成适当约束。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。 因此“唯一加CHECK已保证非空，所以数据库肯定损坏。”不成立。",
+            "help_boundary": "指出“解释默认NULL互异且CHECK遇NULL可满足；按必填需求补NOT NULL等约束。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。",
+          "expected_evidence": "应核对的冻结观察：表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。",
+          "decision_effect": "解释默认NULL互异且CHECK遇NULL可满足；按必填需求补NOT NULL等约束。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "这两类约束不自动实现必填；必须把业务不变量明确写成适当约束。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "这两类约束不自动实现必填；必须把业务不变量明确写成适当约束。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。",
+                    "citation": {
+                      "source_id": "constraints",
+                      "quote": "true or the null value"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。"
+                  }
+                ],
+                "rule_quote": "这两类约束不自动实现必填；必须把业务不变量明确写成适当约束。",
+                "counterexample_quote": null,
+                "explanation": "这两类约束不自动实现必填；必须把业务不变量明确写成适当约束。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "这两类约束不自动实现必填；必须把业务不变量明确写成适当约束。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为唯一加CHECK已保证非空，所以数据库肯定损坏。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为唯一加CHECK已保证非空，所以数据库肯定损坏。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。",
+                    "citation": {
+                      "source_id": "constraints",
+                      "quote": "true or the null value"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。"
+                  }
+                ],
+                "rule_quote": "这两类约束不自动实现必填；必须把业务不变量明确写成适当约束。",
+                "counterexample_quote": "反例：表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。 因此“唯一加CHECK已保证非空，所以数据库肯定损坏。”不成立。",
+                "explanation": "这两类约束不自动实现必填；必须把业务不变量明确写成适当约束。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。 因此“唯一加CHECK已保证非空，所以数据库肯定损坏。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "data.integrity",
+          "difficulty": "进阶",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "NULL既影响唯一也影响必填：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "code允许空但最多一条空；已使用NULLS NOT DISTINCT，price仍要求必填。",
+            "facts": {
+              "observed_boundary": "code允许空但最多一条空；已使用NULLS NOT DISTINCT，price仍要求必填。"
+            },
+            "citations": [
+              {
+                "source_id": "constraints",
+                "quote": "true or the null value"
+              },
+              {
+                "source_id": "constraints",
+                "quote": "null values are not considered equal"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保留code空值唯一语义，并独立给price补NOT NULL。",
+              "唯一加CHECK已保证非空，所以数据库肯定损坏。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "空值可选与数值必填是两个不同不变量，不能一概禁止所有NULL。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：code允许空但最多一条空；已使用NULLS NOT DISTINCT，price仍要求必填。 因此“唯一加CHECK已保证非空，所以数据库肯定损坏。”不成立。",
+            "help_boundary": "指出“保留code空值唯一语义，并独立给price补NOT NULL。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "code允许空但最多一条空；已使用NULLS NOT DISTINCT，price仍要求必填。",
+          "expected_evidence": "应核对的冻结观察：code允许空但最多一条空；已使用NULLS NOT DISTINCT，price仍要求必填。",
+          "decision_effect": "保留code空值唯一语义，并独立给price补NOT NULL。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "NULL既影响唯一也影响必填（换名版本）",
+      "variation_basis": "由“表有UNIQUE(code)及CHECK(price>0)，没有NOT NULL；第二条code=NULL、price=NULL被接收。”变为“code允许空但最多一条空；已使用NULLS NOT DISTINCT，price仍要求必填。”，故“解释默认NULL互异且CHECK遇NULL可满足；按必填需求补NOT NULL等约束。”改为“保留code空值唯一语义，并独立给price补NOT NULL。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "这两类约束不自动实现必填；必须把业务不变量明确写成适当约束。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "data.integrity-3",
+      "family": "data.integrity",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "constraints"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "data.integrity",
+          "difficulty": "综合",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "跨行规则与恢复一致性",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。",
+            "facts": {
+              "observed_boundary": "应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。"
+            },
+            "citations": [
+              {
+                "source_id": "constraints",
+                "quote": "new or updated row being checked"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "以真正跨行唯一约束表达订单号规则，迁移前先核对并处理已有重复。",
+              "CHECK调用能查其他行，就能永久替代唯一约束。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "PostgreSQL不支持用此类CHECK持续保证跨行规则，迁移仍需处理已有数据。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。 因此“CHECK调用能查其他行，就能永久替代唯一约束。”不成立。",
+            "help_boundary": "指出“以真正跨行唯一约束表达订单号规则，迁移前先核对并处理已有重复。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。",
+          "expected_evidence": "应核对的冻结观察：应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。",
+          "decision_effect": "以真正跨行唯一约束表达订单号规则，迁移前先核对并处理已有重复。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "PostgreSQL不支持用此类CHECK持续保证跨行规则，迁移仍需处理已有数据。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "PostgreSQL不支持用此类CHECK持续保证跨行规则，迁移仍需处理已有数据。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。",
+                    "citation": {
+                      "source_id": "constraints",
+                      "quote": "new or updated row being checked"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。"
+                  }
+                ],
+                "rule_quote": "PostgreSQL不支持用此类CHECK持续保证跨行规则，迁移仍需处理已有数据。",
+                "counterexample_quote": null,
+                "explanation": "PostgreSQL不支持用此类CHECK持续保证跨行规则，迁移仍需处理已有数据。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "PostgreSQL不支持用此类CHECK持续保证跨行规则，迁移仍需处理已有数据。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为CHECK调用能查其他行，就能永久替代唯一约束。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为CHECK调用能查其他行，就能永久替代唯一约束。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。",
+                    "citation": {
+                      "source_id": "constraints",
+                      "quote": "new or updated row being checked"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。"
+                  }
+                ],
+                "rule_quote": "PostgreSQL不支持用此类CHECK持续保证跨行规则，迁移仍需处理已有数据。",
+                "counterexample_quote": "反例：应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。 因此“CHECK调用能查其他行，就能永久替代唯一约束。”不成立。",
+                "explanation": "PostgreSQL不支持用此类CHECK持续保证跨行规则，迁移仍需处理已有数据。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。 因此“CHECK调用能查其他行，就能永久替代唯一约束。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "data.integrity",
+          "difficulty": "综合",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "跨行规则与恢复一致性：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "业务规则改为同资源预订时间不得重叠；订单号唯一无法表达，且边界相接允许。",
+            "facts": {
+              "observed_boundary": "业务规则改为同资源预订时间不得重叠；订单号唯一无法表达，且边界相接允许。"
+            },
+            "citations": [
+              {
+                "source_id": "constraints",
+                "quote": "new or updated row being checked"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按时间区间与资源设计排斥约束或等价串行边界，并明确边界语义后验证。",
+              "CHECK调用能查其他行，就能永久替代唯一约束。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新的不变量是区间重叠而非相等，唯一约束不足；不能照搬原方案。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：业务规则改为同资源预订时间不得重叠；订单号唯一无法表达，且边界相接允许。 因此“CHECK调用能查其他行，就能永久替代唯一约束。”不成立。",
+            "help_boundary": "指出“按时间区间与资源设计排斥约束或等价串行边界，并明确边界语义后验证。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "业务规则改为同资源预订时间不得重叠；订单号唯一无法表达，且边界相接允许。",
+          "expected_evidence": "应核对的冻结观察：业务规则改为同资源预订时间不得重叠；订单号唯一无法表达，且边界相接允许。",
+          "decision_effect": "按时间区间与资源设计排斥约束或等价串行边界，并明确边界语义后验证。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "跨行规则与恢复一致性（换名版本）",
+      "variation_basis": "由“应用把订单号全表不重复写成调用查其他行函数的CHECK；后续别行更新及备份恢复均需保持规则。”变为“业务规则改为同资源预订时间不得重叠；订单号唯一无法表达，且边界相接允许。”，故“以真正跨行唯一约束表达订单号规则，迁移前先核对并处理已有重复。”改为“按时间区间与资源设计排斥约束或等价串行边界，并明确边界语义后验证。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "PostgreSQL不支持用此类CHECK持续保证跨行规则，迁移仍需处理已有数据。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "data.query-1",
+      "family": "data.query",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "explain"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "data.query",
+          "difficulty": "基础",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "执行计划里的数字是什么",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。",
+            "facts": {
+              "observed_boundary": "普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。"
+            },
+            "citations": [
+              {
+                "source_id": "explain",
+                "quote": "cost estimates are expressed in arbitrary units"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "把cost视为估计单位，先在安全环境补实际耗时和行数。",
+              "把10000直接报告为线上耗时10000毫秒。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "估计cost不是实际毫秒，材料不足以确认耗时或瓶颈。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。 因此“把10000直接报告为线上耗时10000毫秒。”不成立。",
+            "help_boundary": "指出“把cost视为估计单位，先在安全环境补实际耗时和行数。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。",
+          "expected_evidence": "应核对的冻结观察：普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。",
+          "decision_effect": "把cost视为估计单位，先在安全环境补实际耗时和行数。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "估计cost不是实际毫秒，材料不足以确认耗时或瓶颈。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "估计cost不是实际毫秒，材料不足以确认耗时或瓶颈。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。",
+                    "citation": {
+                      "source_id": "explain",
+                      "quote": "cost estimates are expressed in arbitrary units"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。"
+                  }
+                ],
+                "rule_quote": "估计cost不是实际毫秒，材料不足以确认耗时或瓶颈。",
+                "counterexample_quote": null,
+                "explanation": "估计cost不是实际毫秒，材料不足以确认耗时或瓶颈。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "估计cost不是实际毫秒，材料不足以确认耗时或瓶颈。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为把10000直接报告为线上耗时10000毫秒。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为把10000直接报告为线上耗时10000毫秒。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。",
+                    "citation": {
+                      "source_id": "explain",
+                      "quote": "cost estimates are expressed in arbitrary units"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。"
+                  }
+                ],
+                "rule_quote": "估计cost不是实际毫秒，材料不足以确认耗时或瓶颈。",
+                "counterexample_quote": "反例：普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。 因此“把10000直接报告为线上耗时10000毫秒。”不成立。",
+                "explanation": "估计cost不是实际毫秒，材料不足以确认耗时或瓶颈。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。 因此“把10000直接报告为线上耗时10000毫秒。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "data.query",
+          "difficulty": "基础",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "执行计划里的数字是什么：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "受控只读EXPLAIN ANALYZE显示actual time=120ms，实际扫描大部分表且无锁等待。",
+            "facts": {
+              "observed_boundary": "受控只读EXPLAIN ANALYZE显示actual time=120ms，实际扫描大部分表且无锁等待。"
+            },
+            "citations": [
+              {
+                "source_id": "explain",
+                "quote": "EXPLAIN actually executes the query"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "报告该测量下的实际时间并结合扫描选择性评估索引，不混为cost。",
+              "把10000直接报告为线上耗时10000毫秒。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "已提供真实受控测量后可以使用实际时间，但不能宣称生产普遍如此。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：受控只读EXPLAIN ANALYZE显示actual time=120ms，实际扫描大部分表且无锁等待。 因此“把10000直接报告为线上耗时10000毫秒。”不成立。",
+            "help_boundary": "指出“报告该测量下的实际时间并结合扫描选择性评估索引，不混为cost。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "受控只读EXPLAIN ANALYZE显示actual time=120ms，实际扫描大部分表且无锁等待。",
+          "expected_evidence": "应核对的冻结观察：受控只读EXPLAIN ANALYZE显示actual time=120ms，实际扫描大部分表且无锁等待。",
+          "decision_effect": "报告该测量下的实际时间并结合扫描选择性评估索引，不混为cost。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "执行计划里的数字是什么（换名版本）",
+      "variation_basis": "由“普通EXPLAIN显示cost=10000；没有ANALYZE实际耗时、扫描行数或等待证据。”变为“受控只读EXPLAIN ANALYZE显示actual time=120ms，实际扫描大部分表且无锁等待。”，故“把cost视为估计单位，先在安全环境补实际耗时和行数。”改为“报告该测量下的实际时间并结合扫描选择性评估索引，不混为cost。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "估计cost不是实际毫秒，材料不足以确认耗时或瓶颈。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "data.query-2",
+      "family": "data.query",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "locks",
+        "explain"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "data.query",
+          "difficulty": "进阶",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "慢请求等待的是谁",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。",
+            "facts": {
+              "observed_boundary": "查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。"
+            },
+            "citations": [
+              {
+                "source_id": "locks",
+                "quote": "Only an ACCESS EXCLUSIVE lock blocks a SELECT"
+              },
+              {
+                "source_id": "explain",
+                "quote": "EXPLAIN actually executes the query"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "核查持锁事务和结束条件，不能先用新索引解释该等待。",
+              "继续加同样索引即可立即消除锁等待。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "锁冲突与扫描成本不同；该锁会阻塞普通SELECT。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。 因此“继续加同样索引即可立即消除锁等待。”不成立。",
+            "help_boundary": "指出“核查持锁事务和结束条件，不能先用新索引解释该等待。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。",
+          "expected_evidence": "应核对的冻结观察：查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。",
+          "decision_effect": "核查持锁事务和结束条件，不能先用新索引解释该等待。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "锁冲突与扫描成本不同；该锁会阻塞普通SELECT。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "锁冲突与扫描成本不同；该锁会阻塞普通SELECT。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。",
+                    "citation": {
+                      "source_id": "locks",
+                      "quote": "Only an ACCESS EXCLUSIVE lock blocks a SELECT"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。"
+                  }
+                ],
+                "rule_quote": "锁冲突与扫描成本不同；该锁会阻塞普通SELECT。",
+                "counterexample_quote": null,
+                "explanation": "锁冲突与扫描成本不同；该锁会阻塞普通SELECT。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "锁冲突与扫描成本不同；该锁会阻塞普通SELECT。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为继续加同样索引即可立即消除锁等待。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为继续加同样索引即可立即消除锁等待。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。",
+                    "citation": {
+                      "source_id": "locks",
+                      "quote": "Only an ACCESS EXCLUSIVE lock blocks a SELECT"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。"
+                  }
+                ],
+                "rule_quote": "锁冲突与扫描成本不同；该锁会阻塞普通SELECT。",
+                "counterexample_quote": "反例：查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。 因此“继续加同样索引即可立即消除锁等待。”不成立。",
+                "explanation": "锁冲突与扫描成本不同；该锁会阻塞普通SELECT。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。 因此“继续加同样索引即可立即消除锁等待。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "data.query",
+          "difficulty": "进阶",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "慢请求等待的是谁：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "阻塞事务已提交；当前没有锁等待，计划显示过滤列无匹配索引且扫描99%无关行。",
+            "facts": {
+              "observed_boundary": "阻塞事务已提交；当前没有锁等待，计划显示过滤列无匹配索引且扫描99%无关行。"
+            },
+            "citations": [
+              {
+                "source_id": "locks",
+                "quote": "Only an ACCESS EXCLUSIVE lock blocks a SELECT"
+              },
+              {
+                "source_id": "explain",
+                "quote": "EXPLAIN actually executes the query"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "转向选择性和执行计划验证，比较索引代价与实际扫描。",
+              "继续加同样索引即可立即消除锁等待。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "等待事实已消失，现有扫描证据支持另一条诊断路径。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：阻塞事务已提交；当前没有锁等待，计划显示过滤列无匹配索引且扫描99%无关行。 因此“继续加同样索引即可立即消除锁等待。”不成立。",
+            "help_boundary": "指出“转向选择性和执行计划验证，比较索引代价与实际扫描。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "阻塞事务已提交；当前没有锁等待，计划显示过滤列无匹配索引且扫描99%无关行。",
+          "expected_evidence": "应核对的冻结观察：阻塞事务已提交；当前没有锁等待，计划显示过滤列无匹配索引且扫描99%无关行。",
+          "decision_effect": "转向选择性和执行计划验证，比较索引代价与实际扫描。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "慢请求等待的是谁（换名版本）",
+      "variation_basis": "由“查询使用匹配索引，执行前一直等待另一事务的ACCESS EXCLUSIVE锁；阻塞事务尚未结束。”变为“阻塞事务已提交；当前没有锁等待，计划显示过滤列无匹配索引且扫描99%无关行。”，故“核查持锁事务和结束条件，不能先用新索引解释该等待。”改为“转向选择性和执行计划验证，比较索引代价与实际扫描。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "锁冲突与扫描成本不同；该锁会阻塞普通SELECT。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "data.query-3",
+      "family": "data.query",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "locks",
+        "explain"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "data.query",
+          "difficulty": "综合",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "两表相反顺序与写分析风险",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。",
+            "facts": {
+              "observed_boundary": "事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。"
+            },
+            "citations": [
+              {
+                "source_id": "locks",
+                "quote": "locks on multiple objects in a consistent order"
+              },
+              {
+                "source_id": "explain",
+                "quote": "EXPLAIN actually executes the query"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "统一对象取锁顺序并处理事务重试；写分析改在可控隔离环境验证。",
+              "添加索引后反向锁顺序必定安全，写ANALYZE也不会真的写。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "一致锁顺序能避免此循环；ANALYZE会实际执行，不能把排查变成未授权写入。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。 因此“添加索引后反向锁顺序必定安全，写ANALYZE也不会真的写。”不成立。",
+            "help_boundary": "指出“统一对象取锁顺序并处理事务重试；写分析改在可控隔离环境验证。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。",
+          "expected_evidence": "应核对的冻结观察：事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。",
+          "decision_effect": "统一对象取锁顺序并处理事务重试；写分析改在可控隔离环境验证。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "一致锁顺序能避免此循环；ANALYZE会实际执行，不能把排查变成未授权写入。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "一致锁顺序能避免此循环；ANALYZE会实际执行，不能把排查变成未授权写入。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。",
+                    "citation": {
+                      "source_id": "locks",
+                      "quote": "locks on multiple objects in a consistent order"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。"
+                  }
+                ],
+                "rule_quote": "一致锁顺序能避免此循环；ANALYZE会实际执行，不能把排查变成未授权写入。",
+                "counterexample_quote": null,
+                "explanation": "一致锁顺序能避免此循环；ANALYZE会实际执行，不能把排查变成未授权写入。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "一致锁顺序能避免此循环；ANALYZE会实际执行，不能把排查变成未授权写入。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为添加索引后反向锁顺序必定安全，写ANALYZE也不会真的写。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为添加索引后反向锁顺序必定安全，写ANALYZE也不会真的写。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。",
+                    "citation": {
+                      "source_id": "locks",
+                      "quote": "locks on multiple objects in a consistent order"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。"
+                  }
+                ],
+                "rule_quote": "一致锁顺序能避免此循环；ANALYZE会实际执行，不能把排查变成未授权写入。",
+                "counterexample_quote": "反例：事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。 因此“添加索引后反向锁顺序必定安全，写ANALYZE也不会真的写。”不成立。",
+                "explanation": "一致锁顺序能避免此循环；ANALYZE会实际执行，不能把排查变成未授权写入。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。 因此“添加索引后反向锁顺序必定安全，写ANALYZE也不会真的写。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "data.query",
+          "difficulty": "综合",
+          "background_id": "data-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "两表相反顺序与写分析风险：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "两事务已按同顺序取锁，无死锁；实际慢因长事务持锁等待远程调用，写分析尚未执行。",
+            "facts": {
+              "observed_boundary": "两事务已按同顺序取锁，无死锁；实际慢因长事务持锁等待远程调用，写分析尚未执行。"
+            },
+            "citations": [
+              {
+                "source_id": "locks",
+                "quote": "locks on multiple objects in a consistent order"
+              },
+              {
+                "source_id": "explain",
+                "quote": "EXPLAIN actually executes the query"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "缩短合法事务持锁区间并核对外部调用边界，在隔离环境验证，不能宣称顺序修复解决所有等待。",
+              "添加索引后反向锁顺序必定安全，写ANALYZE也不会真的写。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "相同顺序不能消除长事务等待，改变后的证据要求核对持锁时间。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：两事务已按同顺序取锁，无死锁；实际慢因长事务持锁等待远程调用，写分析尚未执行。 因此“添加索引后反向锁顺序必定安全，写ANALYZE也不会真的写。”不成立。",
+            "help_boundary": "指出“缩短合法事务持锁区间并核对外部调用边界，在隔离环境验证，不能宣称顺序修复解决所有等待。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "两事务已按同顺序取锁，无死锁；实际慢因长事务持锁等待远程调用，写分析尚未执行。",
+          "expected_evidence": "应核对的冻结观察：两事务已按同顺序取锁，无死锁；实际慢因长事务持锁等待远程调用，写分析尚未执行。",
+          "decision_effect": "缩短合法事务持锁区间并核对外部调用边界，在隔离环境验证，不能宣称顺序修复解决所有等待。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "两表相反顺序与写分析风险（换名版本）",
+      "variation_basis": "由“事务A锁账户再锁订单；B锁订单再锁账户，已形成循环等待；有人建议生产EXPLAIN ANALYZE更新语句排查。”变为“两事务已按同顺序取锁，无死锁；实际慢因长事务持锁等待远程调用，写分析尚未执行。”，故“统一对象取锁顺序并处理事务重试；写分析改在可控隔离环境验证。”改为“缩短合法事务持锁区间并核对外部调用边界，在隔离环境验证，不能宣称顺序修复解决所有等待。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "一致锁顺序能避免此循环；ANALYZE会实际执行，不能把排查变成未授权写入。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "async.cache-1",
+      "family": "async.cache",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "cache"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "async.cache",
+          "difficulty": "基础",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "no-cache并非不能保存",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。",
+            "facts": {
+              "observed_boundary": "响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。"
+            },
+            "citations": [
+              {
+                "source_id": "cache",
+                "quote": "forwarding it for validation and receiving a successful response"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "允许保留副本，但本次复用前必须取得成功验证。",
+              "no-cache表示副本不可存在，或存在就能直接使用。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "no-cache约束复用验证，不能混同no-store或无条件复用。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。 因此“no-cache表示副本不可存在，或存在就能直接使用。”不成立。",
+            "help_boundary": "指出“允许保留副本，但本次复用前必须取得成功验证。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。",
+          "expected_evidence": "应核对的冻结观察：响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。",
+          "decision_effect": "允许保留副本，但本次复用前必须取得成功验证。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "no-cache约束复用验证，不能混同no-store或无条件复用。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "no-cache约束复用验证，不能混同no-store或无条件复用。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。",
+                    "citation": {
+                      "source_id": "cache",
+                      "quote": "forwarding it for validation and receiving a successful response"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。"
+                  }
+                ],
+                "rule_quote": "no-cache约束复用验证，不能混同no-store或无条件复用。",
+                "counterexample_quote": null,
+                "explanation": "no-cache约束复用验证，不能混同no-store或无条件复用。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "no-cache约束复用验证，不能混同no-store或无条件复用。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为no-cache表示副本不可存在，或存在就能直接使用。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为no-cache表示副本不可存在，或存在就能直接使用。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。",
+                    "citation": {
+                      "source_id": "cache",
+                      "quote": "forwarding it for validation and receiving a successful response"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。"
+                  }
+                ],
+                "rule_quote": "no-cache约束复用验证，不能混同no-store或无条件复用。",
+                "counterexample_quote": "反例：响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。 因此“no-cache表示副本不可存在，或存在就能直接使用。”不成立。",
+                "explanation": "no-cache约束复用验证，不能混同no-store或无条件复用。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。 因此“no-cache表示副本不可存在，或存在就能直接使用。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "async.cache",
+          "difficulty": "基础",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "no-cache并非不能保存：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "响应改为no-store，尚未写入缓存。",
+            "facts": {
+              "observed_boundary": "响应改为no-store，尚未写入缓存。"
+            },
+            "citations": [
+              {
+                "source_id": "cache",
+                "quote": "MUST NOT store any part"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "不存储该响应，也不把它作为后续缓存命中。",
+              "no-cache表示副本不可存在，或存在就能直接使用。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "改变后的指令禁止存储，不能继续沿用仅重验证策略。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：响应改为no-store，尚未写入缓存。 因此“no-cache表示副本不可存在，或存在就能直接使用。”不成立。",
+            "help_boundary": "指出“不存储该响应，也不把它作为后续缓存命中。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "响应改为no-store，尚未写入缓存。",
+          "expected_evidence": "应核对的冻结观察：响应改为no-store，尚未写入缓存。",
+          "decision_effect": "不存储该响应，也不把它作为后续缓存命中。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "no-cache并非不能保存（换名版本）",
+      "variation_basis": "由“响应带无参数no-cache；缓存已有副本但本次尚未向源站验证。”变为“响应改为no-store，尚未写入缓存。”，故“允许保留副本，但本次复用前必须取得成功验证。”改为“不存储该响应，也不把它作为后续缓存命中。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "no-cache约束复用验证，不能混同no-store或无条件复用。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "async.cache-2",
+      "family": "async.cache",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "cache"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "async.cache",
+          "difficulty": "进阶",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "离线时的过期价格",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。",
+            "facts": {
+              "observed_boundary": "响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。"
+            },
+            "citations": [
+              {
+                "source_id": "cache",
+                "quote": "MUST generate an error response"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "返回明确不可取得有效响应的错误，不复用该过期值冒新价格。",
+              "断网自动忽略must-revalidate，用旧价继续确认交易。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "must-revalidate在断网时也必须遵守，源站不可达不能成为绕过条件。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。 因此“断网自动忽略must-revalidate，用旧价继续确认交易。”不成立。",
+            "help_boundary": "指出“返回明确不可取得有效响应的错误，不复用该过期值冒新价格。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。",
+          "expected_evidence": "应核对的冻结观察：响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。",
+          "decision_effect": "返回明确不可取得有效响应的错误，不复用该过期值冒新价格。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "must-revalidate在断网时也必须遵守，源站不可达不能成为绕过条件。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "must-revalidate在断网时也必须遵守，源站不可达不能成为绕过条件。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。",
+                    "citation": {
+                      "source_id": "cache",
+                      "quote": "MUST generate an error response"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。"
+                  }
+                ],
+                "rule_quote": "must-revalidate在断网时也必须遵守，源站不可达不能成为绕过条件。",
+                "counterexample_quote": null,
+                "explanation": "must-revalidate在断网时也必须遵守，源站不可达不能成为绕过条件。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "must-revalidate在断网时也必须遵守，源站不可达不能成为绕过条件。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为断网自动忽略must-revalidate，用旧价继续确认交易。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为断网自动忽略must-revalidate，用旧价继续确认交易。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。",
+                    "citation": {
+                      "source_id": "cache",
+                      "quote": "MUST generate an error response"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。"
+                  }
+                ],
+                "rule_quote": "must-revalidate在断网时也必须遵守，源站不可达不能成为绕过条件。",
+                "counterexample_quote": "反例：响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。 因此“断网自动忽略must-revalidate，用旧价继续确认交易。”不成立。",
+                "explanation": "must-revalidate在断网时也必须遵守，源站不可达不能成为绕过条件。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。 因此“断网自动忽略must-revalidate，用旧价继续确认交易。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "async.cache",
+          "difficulty": "进阶",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "离线时的过期价格：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "源站恢复并成功验证当前副本仍有效；权限与缓存键均匹配。",
+            "facts": {
+              "observed_boundary": "源站恢复并成功验证当前副本仍有效；权限与缓存键均匹配。"
+            },
+            "citations": [
+              {
+                "source_id": "cache",
+                "quote": "MUST generate an error response"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按成功验证后的有效副本响应，并保留此次验证事实。",
+              "断网自动忽略must-revalidate，用旧价继续确认交易。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新证据补齐验证条件，不能继续把已成功验证状态当作离线未知。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：源站恢复并成功验证当前副本仍有效；权限与缓存键均匹配。 因此“断网自动忽略must-revalidate，用旧价继续确认交易。”不成立。",
+            "help_boundary": "指出“按成功验证后的有效副本响应，并保留此次验证事实。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "源站恢复并成功验证当前副本仍有效；权限与缓存键均匹配。",
+          "expected_evidence": "应核对的冻结观察：源站恢复并成功验证当前副本仍有效；权限与缓存键均匹配。",
+          "decision_effect": "按成功验证后的有效副本响应，并保留此次验证事实。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "离线时的过期价格（换名版本）",
+      "variation_basis": "由“响应已过期且有must-revalidate；源站不可达，没有任何新验证成功证据。”变为“源站恢复并成功验证当前副本仍有效；权限与缓存键均匹配。”，故“返回明确不可取得有效响应的错误，不复用该过期值冒新价格。”改为“按成功验证后的有效副本响应，并保留此次验证事实。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "must-revalidate在断网时也必须遵守，源站不可达不能成为绕过条件。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "async.cache-3",
+      "family": "async.cache",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "cache"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "async.cache",
+          "difficulty": "综合",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "带身份请求能否共享缓存",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。",
+            "facts": {
+              "observed_boundary": "带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。"
+            },
+            "citations": [
+              {
+                "source_id": "cache",
+                "quote": "explicitly allows shared caching"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "不据max-age单独允许共享复用，保留身份与业务权限边界。",
+              "新鲜度足够就能忽略Authorization把响应给任意账号。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "共享缓存还需显式允许等条件；新鲜度不能代替授权。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。 因此“新鲜度足够就能忽略Authorization把响应给任意账号。”不成立。",
+            "help_boundary": "指出“不据max-age单独允许共享复用，保留身份与业务权限边界。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。",
+          "expected_evidence": "应核对的冻结观察：带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。",
+          "decision_effect": "不据max-age单独允许共享复用，保留身份与业务权限边界。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "共享缓存还需显式允许等条件；新鲜度不能代替授权。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "共享缓存还需显式允许等条件；新鲜度不能代替授权。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。",
+                    "citation": {
+                      "source_id": "cache",
+                      "quote": "explicitly allows shared caching"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。"
+                  }
+                ],
+                "rule_quote": "共享缓存还需显式允许等条件；新鲜度不能代替授权。",
+                "counterexample_quote": null,
+                "explanation": "共享缓存还需显式允许等条件；新鲜度不能代替授权。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "共享缓存还需显式允许等条件；新鲜度不能代替授权。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为新鲜度足够就能忽略Authorization把响应给任意账号。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为新鲜度足够就能忽略Authorization把响应给任意账号。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。",
+                    "citation": {
+                      "source_id": "cache",
+                      "quote": "explicitly allows shared caching"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。"
+                  }
+                ],
+                "rule_quote": "共享缓存还需显式允许等条件；新鲜度不能代替授权。",
+                "counterexample_quote": "反例：带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。 因此“新鲜度足够就能忽略Authorization把响应给任意账号。”不成立。",
+                "explanation": "共享缓存还需显式允许等条件；新鲜度不能代替授权。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。 因此“新鲜度足够就能忽略Authorization把响应给任意账号。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "async.cache",
+          "difficulty": "综合",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "带身份请求能否共享缓存：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "源站明确public且内容是各账号相同的公开汇总；缓存键Vary匹配、仍新鲜，业务确认允许公开。",
+            "facts": {
+              "observed_boundary": "源站明确public且内容是各账号相同的公开汇总；缓存键Vary匹配、仍新鲜，业务确认允许公开。"
+            },
+            "citations": [
+              {
+                "source_id": "cache",
+                "quote": "explicitly allows shared caching"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "在这些冻结条件下可共享该公开汇总，不能外推私人详情。",
+              "新鲜度足够就能忽略Authorization把响应给任意账号。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "明确缓存许可与公开内容证据改变可复用结论，权限范围仍限此汇总。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：源站明确public且内容是各账号相同的公开汇总；缓存键Vary匹配、仍新鲜，业务确认允许公开。 因此“新鲜度足够就能忽略Authorization把响应给任意账号。”不成立。",
+            "help_boundary": "指出“在这些冻结条件下可共享该公开汇总，不能外推私人详情。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "源站明确public且内容是各账号相同的公开汇总；缓存键Vary匹配、仍新鲜，业务确认允许公开。",
+          "expected_evidence": "应核对的冻结观察：源站明确public且内容是各账号相同的公开汇总；缓存键Vary匹配、仍新鲜，业务确认允许公开。",
+          "decision_effect": "在这些冻结条件下可共享该公开汇总，不能外推私人详情。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "带身份请求能否共享缓存（换名版本）",
+      "variation_basis": "由“带Authorization的请求得到仅max-age=60的响应；共享缓存拟把它供其他请求复用，无public/s-maxage/must-revalidate等显式许可。”变为“源站明确public且内容是各账号相同的公开汇总；缓存键Vary匹配、仍新鲜，业务确认允许公开。”，故“不据max-age单独允许共享复用，保留身份与业务权限边界。”改为“在这些冻结条件下可共享该公开汇总，不能外推私人详情。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "共享缓存还需显式允许等条件；新鲜度不能代替授权。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "async.jobs-1",
+      "family": "async.jobs",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "jobs"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "async.jobs",
+          "difficulty": "基础",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "发布确认不是处理完成",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。",
+            "facts": {
+              "observed_boundary": "发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。"
+            },
+            "citations": [
+              {
+                "source_id": "jobs",
+                "quote": "entirely orthogonal and unaware of each other"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "只记录消息获发布确认，等待消费者处理与业务结果。",
+              "收到发布确认就把订单标记已完成。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "发布确认和消费确认独立，前者不证明业务处理结束。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。 因此“收到发布确认就把订单标记已完成。”不成立。",
+            "help_boundary": "指出“只记录消息获发布确认，等待消费者处理与业务结果。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。",
+          "expected_evidence": "应核对的冻结观察：发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。",
+          "decision_effect": "只记录消息获发布确认，等待消费者处理与业务结果。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "发布确认和消费确认独立，前者不证明业务处理结束。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "发布确认和消费确认独立，前者不证明业务处理结束。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。",
+                    "citation": {
+                      "source_id": "jobs",
+                      "quote": "entirely orthogonal and unaware of each other"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。"
+                  }
+                ],
+                "rule_quote": "发布确认和消费确认独立，前者不证明业务处理结束。",
+                "counterexample_quote": null,
+                "explanation": "发布确认和消费确认独立，前者不证明业务处理结束。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "发布确认和消费确认独立，前者不证明业务处理结束。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为收到发布确认就把订单标记已完成。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为收到发布确认就把订单标记已完成。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。",
+                    "citation": {
+                      "source_id": "jobs",
+                      "quote": "entirely orthogonal and unaware of each other"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。"
+                  }
+                ],
+                "rule_quote": "发布确认和消费确认独立，前者不证明业务处理结束。",
+                "counterexample_quote": "反例：发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。 因此“收到发布确认就把订单标记已完成。”不成立。",
+                "explanation": "发布确认和消费确认独立，前者不证明业务处理结束。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。 因此“收到发布确认就把订单标记已完成。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "async.jobs",
+          "difficulty": "基础",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "发布确认不是处理完成：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "消费者已提交业务结果并发送手动确认，业务记录可核对。",
+            "facts": {
+              "observed_boundary": "消费者已提交业务结果并发送手动确认，业务记录可核对。"
+            },
+            "citations": [
+              {
+                "source_id": "jobs",
+                "quote": "entirely orthogonal and unaware of each other"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "依据已提交业务记录展示完成，确认只作投递生命周期证据。",
+              "收到发布确认就把订单标记已完成。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新增业务提交事实才支撑完成，不能把之前的发布确认追认成处理成功。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：消费者已提交业务结果并发送手动确认，业务记录可核对。 因此“收到发布确认就把订单标记已完成。”不成立。",
+            "help_boundary": "指出“依据已提交业务记录展示完成，确认只作投递生命周期证据。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "消费者已提交业务结果并发送手动确认，业务记录可核对。",
+          "expected_evidence": "应核对的冻结观察：消费者已提交业务结果并发送手动确认，业务记录可核对。",
+          "decision_effect": "依据已提交业务记录展示完成，确认只作投递生命周期证据。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "发布确认不是处理完成（换名版本）",
+      "variation_basis": "由“发布者收到publisher confirm；消费者尚未领取消息，没有业务提交记录。”变为“消费者已提交业务结果并发送手动确认，业务记录可核对。”，故“只记录消息获发布确认，等待消费者处理与业务结果。”改为“依据已提交业务记录展示完成，确认只作投递生命周期证据。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "发布确认和消费确认独立，前者不证明业务处理结束。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "async.jobs-2",
+      "family": "async.jobs",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "jobs"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "async.jobs",
+          "difficulty": "进阶",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "提交后未确认的重投",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。",
+            "facts": {
+              "observed_boundary": "消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。"
+            },
+            "citations": [
+              {
+                "source_id": "jobs",
+                "quote": "automatically requeued"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按持久业务身份核对并抑制重复效果，再按当前投递确认。",
+              "未ack说明业务没写入，重新累加一次。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "未确认投递可重排；业务提交与消息确认不是同一事实。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。 因此“未ack说明业务没写入，重新累加一次。”不成立。",
+            "help_boundary": "指出“按持久业务身份核对并抑制重复效果，再按当前投递确认。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。",
+          "expected_evidence": "应核对的冻结观察：消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。",
+          "decision_effect": "按持久业务身份核对并抑制重复效果，再按当前投递确认。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "未确认投递可重排；业务提交与消息确认不是同一事实。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "未确认投递可重排；业务提交与消息确认不是同一事实。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。",
+                    "citation": {
+                      "source_id": "jobs",
+                      "quote": "automatically requeued"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。"
+                  }
+                ],
+                "rule_quote": "未确认投递可重排；业务提交与消息确认不是同一事实。",
+                "counterexample_quote": null,
+                "explanation": "未确认投递可重排；业务提交与消息确认不是同一事实。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "未确认投递可重排；业务提交与消息确认不是同一事实。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为未ack说明业务没写入，重新累加一次。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为未ack说明业务没写入，重新累加一次。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。",
+                    "citation": {
+                      "source_id": "jobs",
+                      "quote": "automatically requeued"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。"
+                  }
+                ],
+                "rule_quote": "未确认投递可重排；业务提交与消息确认不是同一事实。",
+                "counterexample_quote": "反例：消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。 因此“未ack说明业务没写入，重新累加一次。”不成立。",
+                "explanation": "未确认投递可重排；业务提交与消息确认不是同一事实。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。 因此“未ack说明业务没写入，重新累加一次。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "async.jobs",
+          "difficulty": "进阶",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "提交后未确认的重投：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "旧消费者在写入前断开且库内确定没有该业务身份；新投递已获唯一受理。",
+            "facts": {
+              "observed_boundary": "旧消费者在写入前断开且库内确定没有该业务身份；新投递已获唯一受理。"
+            },
+            "citations": [
+              {
+                "source_id": "jobs",
+                "quote": "automatically requeued"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "执行一次业务写入并持久记录，完成后确认。",
+              "未ack说明业务没写入，重新累加一次。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "确认缺失相同但实际业务提交证据不同，因此不能一律跳过重投。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：旧消费者在写入前断开且库内确定没有该业务身份；新投递已获唯一受理。 因此“未ack说明业务没写入，重新累加一次。”不成立。",
+            "help_boundary": "指出“执行一次业务写入并持久记录，完成后确认。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "旧消费者在写入前断开且库内确定没有该业务身份；新投递已获唯一受理。",
+          "expected_evidence": "应核对的冻结观察：旧消费者在写入前断开且库内确定没有该业务身份；新投递已获唯一受理。",
+          "decision_effect": "执行一次业务写入并持久记录，完成后确认。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "提交后未确认的重投（换名版本）",
+      "variation_basis": "由“消费者完成数据库写入后连接断开，尚未发送手动ack；同业务任务再次投递。”变为“旧消费者在写入前断开且库内确定没有该业务身份；新投递已获唯一受理。”，故“按持久业务身份核对并抑制重复效果，再按当前投递确认。”改为“执行一次业务写入并持久记录，完成后确认。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "未确认投递可重排；业务提交与消息确认不是同一事实。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "async.jobs-3",
+      "family": "async.jobs",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "jobs"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "async.jobs",
+          "difficulty": "综合",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "外部效果未知与确认丢失",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。",
+            "facts": {
+              "observed_boundary": "消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。"
+            },
+            "citations": [
+              {
+                "source_id": "jobs",
+                "quote": "implemented with idempotence in mind"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保持未知状态，用持久业务身份核对外部结果并防重复，再决定补偿或确认。",
+              "回滚本地事务已自动撤销外部计费，可以直接再次扣费。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "队列重投需幂等，外部效果不能由本地事务推断，未知时必须补证。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。 因此“回滚本地事务已自动撤销外部计费，可以直接再次扣费。”不成立。",
+            "help_boundary": "指出“保持未知状态，用持久业务身份核对外部结果并防重复，再决定补偿或确认。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。",
+          "expected_evidence": "应核对的冻结观察：消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。",
+          "decision_effect": "保持未知状态，用持久业务身份核对外部结果并防重复，再决定补偿或确认。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "队列重投需幂等，外部效果不能由本地事务推断，未知时必须补证。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "队列重投需幂等，外部效果不能由本地事务推断，未知时必须补证。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。",
+                    "citation": {
+                      "source_id": "jobs",
+                      "quote": "implemented with idempotence in mind"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。"
+                  }
+                ],
+                "rule_quote": "队列重投需幂等，外部效果不能由本地事务推断，未知时必须补证。",
+                "counterexample_quote": null,
+                "explanation": "队列重投需幂等，外部效果不能由本地事务推断，未知时必须补证。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "队列重投需幂等，外部效果不能由本地事务推断，未知时必须补证。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为回滚本地事务已自动撤销外部计费，可以直接再次扣费。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为回滚本地事务已自动撤销外部计费，可以直接再次扣费。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。",
+                    "citation": {
+                      "source_id": "jobs",
+                      "quote": "implemented with idempotence in mind"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。"
+                  }
+                ],
+                "rule_quote": "队列重投需幂等，外部效果不能由本地事务推断，未知时必须补证。",
+                "counterexample_quote": "反例：消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。 因此“回滚本地事务已自动撤销外部计费，可以直接再次扣费。”不成立。",
+                "explanation": "队列重投需幂等，外部效果不能由本地事务推断，未知时必须补证。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。 因此“回滚本地事务已自动撤销外部计费，可以直接再次扣费。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "async.jobs",
+          "difficulty": "综合",
+          "background_id": "async-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "外部效果未知与确认丢失：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有日志、时间、业务状态均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察给定背景与本题明确主能力；未提供的权限、外部提交或性能事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "外部查询明确已扣费，本地仍pending且同业务任务重投。",
+            "facts": {
+              "observed_boundary": "外部查询明确已扣费，本地仍pending且同业务任务重投。"
+            },
+            "citations": [
+              {
+                "source_id": "jobs",
+                "quote": "implemented with idempotence in mind"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "把已核对外部结果恢复进本地同业务记录，避免再次扣费，再确认消息。",
+              "回滚本地事务已自动撤销外部计费，可以直接再次扣费。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "外部结果已从未知变确定，恢复应补本地记录而非再次执行外部效果。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：外部查询明确已扣费，本地仍pending且同业务任务重投。 因此“回滚本地事务已自动撤销外部计费，可以直接再次扣费。”不成立。",
+            "help_boundary": "指出“把已核对外部结果恢复进本地同业务记录，避免再次扣费，再确认消息。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "外部查询明确已扣费，本地仍pending且同业务任务重投。",
+          "expected_evidence": "应核对的冻结观察：外部查询明确已扣费，本地仍pending且同业务任务重投。",
+          "decision_effect": "把已核对外部结果恢复进本地同业务记录，避免再次扣费，再确认消息。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "外部效果未知与确认丢失（换名版本）",
+      "variation_basis": "由“消费者调用外部计费后响应丢失，库内仍pending，消息未ack且会重投；外部没有参与本地事务。”变为“外部查询明确已扣费，本地仍pending且同业务任务重投。”，故“保持未知状态，用持久业务身份核对外部结果并防重复，再决定补偿或确认。”改为“把已核对外部结果恢复进本地同业务记录，避免再次扣费，再确认消息。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "队列重投需幂等，外部效果不能由本地事务推断，未知时必须补证。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    }
+  ]
+}
