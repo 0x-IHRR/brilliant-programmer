@@ -50,8 +50,10 @@ def replay() -> None:
     for entry in entries:
         purge(entry.user_id)
     with Session(engine) as session:
-        state = session.get(JournalState, 1) or JournalState(identity=identity)
-        state.sequence = entries[-1].sequence if entries else 0
+        state = session.exec(select(JournalState).where(JournalState.id == 1).with_for_update().execution_options(populate_existing=True)).one_or_none() or JournalState(identity=identity)
+        # A confirmation may have durably applied the next contiguous entry
+        # after this replay read its snapshot. Never regress that applied prefix.
+        state.sequence = max(state.sequence, entries[-1].sequence if entries else 0)
         session.add(state)
         session.commit()
 

@@ -4,6 +4,7 @@ Run from backend with the dedicated synthetic database/Compose configured.
 Keeps the isolated databases and dump for review; volume cleanup is coordinator-owned.
 """
 import io
+import json
 import os
 import secrets
 import subprocess
@@ -14,6 +15,7 @@ from pathlib import Path
 
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlmodel import Session
@@ -23,13 +25,26 @@ from app.account_erasure.models import JournalState
 from app.account_erasure.service import require_ready
 from app.core.config import settings
 from app.core.db import engine
-from app.core.security import get_password_hash
+from app.core.security import create_access_token, get_password_hash
 from app.core.verification import token_hash
 from app.main import app
-from app.models import User
+from app.model_config.models import ModelConfig
+from app.model_config.service import decrypt, encrypt
+from app.models import LoginSession, User
+from app.training.draft_models import TrainingDraft
 from app.training.models import TrainingRun
 from app.training.schema import Candidate
 from tests.test_guided import frozen
+
+
+def snapshot(session, owner):
+    result = {}
+    for table in ('user', 'model_config', 'loginsession', 'training_run', 'training_draft'):
+        where = 't.id=:owner' if table == 'user' else 't.user_id=:owner'
+        if table == 'training_draft':
+            where = 't.run_id IN (SELECT id FROM training_run WHERE user_id=:owner)'
+        result[table] = session.execute(text(f'SELECT row_to_json(t)::text FROM "{table}" t WHERE {where} ORDER BY row_to_json(t)::text'), {'owner':owner}).scalars().all()
+    return result
 
 
 def child(mode: str, owner: uuid.UUID, other: uuid.UUID) -> None:
@@ -37,13 +52,27 @@ def child(mode: str, owner: uuid.UUID, other: uuid.UUID) -> None:
         candidate, sources = frozen.__wrapped__()
         with Session(engine) as session:
             for identity in (owner, other):
-                session.add(User(id=identity, email=f'{identity}@synthetic.invalid', hashed_password=get_password_hash('synthetic-local-only')))
+                session.add(User(id=identity, email=f'{identity}@synthetic.invalid', hashed_password=get_password_hash('synthetic-local-only'), email_verified=True))
             session.commit()
             for identity in (owner, other):
-                session.add(TrainingRun(user_id=identity, config_version=uuid.uuid4(), destination='https://synthetic.invalid/v1', model_id='synthetic', selection={}, target={}, sources=[s.model_dump(mode='json') for s in sources], candidate=candidate.model_dump(mode='json'), status='completed', code='ok'))
+                config = ModelConfig(user_id=identity, service_url='https://synthetic.invalid/v1', model_id='synthetic', encrypted_key=b'', key_version=settings.MODEL_ACTIVE_KEY_VERSION)
+                config.encrypted_key = encrypt(config, SecretStr('fake-backup-key-only'))
+                session.add(config)
+                run = TrainingRun(user_id=identity, config_version=config.version, destination=config.service_url, model_id='synthetic', selection={'entry':'random'}, target=candidate.target.model_dump(mode='json'), sources=[s.model_dump(mode='json') for s in sources], candidate=candidate.model_dump(mode='json'), status='completed', code='ok')
+                session.add(run)
+                session.flush()
+                session.add(LoginSession(user_id=identity, expires_at=datetime.now(UTC) + timedelta(days=1)))
+                session.add(TrainingDraft(run_id=run.id, version=uuid.uuid4(), request_id=uuid.uuid4(), saved_at=datetime.now(UTC), progress={'answers':[{'judgment_id':candidate.judgments[0].id, 'value':None, 'reason':'synthetic private unfinished draft'}], 'step':'judgments', 'based_on_submission_id':None}))
             session.commit()
+            preserved = snapshot(session, other)
+        target = journal.path().parent / 'other-state.json'
+        with os.fdopen(os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'w') as output:
+            json.dump(preserved, output, sort_keys=True)
         return
     with Session(engine) as session:
+        for identity in (owner, other):
+            assert all(snapshot(session, identity).values())
+            assert decrypt(session.get(ModelConfig, identity)).get_secret_value() == 'fake-backup-key-only'
         assert session.get(JournalState, 1) is None  # Real old backup had no binding.
         try:
             require_ready(session)
@@ -56,15 +85,23 @@ def child(mode: str, owner: uuid.UUID, other: uuid.UUID) -> None:
     with Session(engine) as session:
         require_ready(session)
         assert session.get(User, owner) is None
+        assert all(not rows for rows in snapshot(session, owner).values())
+        assert snapshot(session, other) == json.loads((journal.path().parent / 'other-state.json').read_text())
         assert session.get(User, other) is not None
         assert session.execute(text('SELECT count(*) FROM training_run WHERE user_id=:owner'), {'owner': owner}).scalar_one() == 0
         remaining = session.execute(text('SELECT candidate FROM training_run WHERE user_id=:owner'), {'owner': other}).scalar_one()
         Candidate.model_validate(remaining)
     operations.audit_deadlines()
+    with Session(engine) as session:
+        existing_session = session.execute(text('SELECT id FROM loginsession WHERE user_id=:owner'), {'owner':other}).scalar_one()
+        run_id = session.execute(text('SELECT id FROM training_run WHERE user_id=:owner'), {'owner':other}).scalar_one()
+    auth = {'Authorization': 'Bearer ' + create_access_token(other, timedelta(minutes=5), existing_session)}
     _, entries = journal.read()
     request = next(e.request_id for e in entries if e.user_id == owner)
     secret = os.environ['BP32_RECEIPT_KEY']
     with TestClient(app, client=(f'restore-{owner}', 50000)) as client:
+        readable = client.get(f'/api/v1/training/tasks/{run_id}', headers=auth)
+        assert readable.status_code == 200 and readable.json()['case']
         status = client.post(f'/api/v1/account-erasure/{request}/status', json={'receipt_key': secret})
         assert status.status_code == 200 and status.json()['completed_at']
         repeated = client.post(f'/api/v1/account-erasure/{request}/confirm', json={'receipt_key': secret, 'confirmation':'注销本账号并永久删除全部私有资料'})

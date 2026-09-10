@@ -326,3 +326,114 @@ def test_record_erasure_empty_quality_report_does_not_block_account_erasure(clie
     with Session(engine) as session:
         assert session.get(User, owner) is None
         assert session.get(QualityReport, report.artifact_id) is None
+
+
+def test_replay_snapshot_cannot_regress_a_new_contiguous_confirmation(client, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    from app.account_erasure import operations
+    from app.account_erasure.models import JournalState
+    from app.account_erasure.service import require_ready
+
+    anchor, anchor_auth = account()
+    accepted(client, prepared(client, anchor_auth))
+    purge(anchor)
+    _, auth = account()
+    p = prepared(client, auth)
+    paused, release = Event(), Event()
+    original = operations.purge
+    first = True
+
+    def pause_once(identity):
+        nonlocal first
+        if first:
+            first = False
+            paused.set()
+            assert release.wait(5)
+        original(identity)
+
+    monkeypatch.setattr(operations, 'purge', pause_once)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        replay = pool.submit(operations.replay)
+        try:
+            assert paused.wait(5)
+            accepted(client, p)
+            with Session(engine) as session:
+                newest = session.get(JournalState, 1).sequence
+            release.set()
+            replay.result(timeout=5)
+            with Session(engine) as session:
+                assert session.get(JournalState, 1).sequence == newest
+                require_ready(session)
+        finally:
+            release.set()
+            replay.result(timeout=5)
+            operations.replay()
+
+
+def test_independent_worker_erases_queued_account_without_outbound_and_restart_is_safe(client, tmp_path):
+    import time
+
+    from app.model_config.models import ModelConfig
+    from tests.test_model_config import save
+    from tests.test_training import provider as provider_fixture
+    from tests.test_training import start_worker, stop_worker
+
+    fixture = provider_fixture.__wrapped__(tmp_path)
+    provider = next(fixture)
+    process = None
+    try:
+        owner, auth = account()
+        config = save(auth, service_url=provider['url']).json()
+        queued = client.post('/api/v1/training/random', headers=auth, json={'disclosure_accepted': True, 'expected_config_version': config['version']})
+        assert queued.status_code == 202, queued.text
+        run = queued.json()['id']
+        p = prepared(client, auth)
+        accepted(client, p)
+        process, _ = start_worker(tmp_path, provider, run)
+        deadline = time.monotonic() + 15
+        while True:
+            with Session(engine) as session:
+                completed = session.get(AccountErasure, owner).completed_at
+            if completed:
+                break
+            assert time.monotonic() < deadline
+            time.sleep(.05)
+        stop_worker(process)
+        process = None
+        with Session(engine) as session:
+            assert session.get(User, owner) is None
+            assert session.get(ModelConfig, owner) is None
+            assert session.execute(text("SELECT count(*) FROM procrastinate_jobs WHERE args->>'run_id'=:id"), {'id':run}).scalar_one() == 0
+        assert provider['requests'] == []
+        # A restarted actual worker may consume the minimal duplicate erase job;
+        # no deleted run or credential is recreated and the receipt stays usable.
+        import procrastinate
+
+        from app.account_erasure.worker import erase_account
+        from app.training.queue import DSN
+
+        app_queue = procrastinate.App(connector=procrastinate.SyncPsycopgConnector(conninfo=DSN))
+        task = app_queue.task(name='account.erase')(erase_account.func)
+        with Session(engine) as session:
+            job = task.configure(connection=session.connection().connection.driver_connection).defer(user_id=str(owner))
+            session.commit()
+        process, _ = start_worker(tmp_path, provider, run)
+        deadline = time.monotonic() + 15
+        while True:
+            with Session(engine) as session:
+                job_status = session.execute(text('SELECT status FROM procrastinate_jobs WHERE id=:id'), {'id':job}).scalar_one()
+            if job_status == 'succeeded':
+                break
+            assert time.monotonic() < deadline
+            assert job_status != 'failed'
+            time.sleep(.05)
+        result = client.post(f"/api/v1/account-erasure/{p['request_id']}/status", json={'receipt_key':p['receipt_key']})
+        assert result.status_code == 200 and result.json()['completed_at']
+        assert provider['requests'] == []
+    finally:
+        if process:
+            stop_worker(process)
+        provider['release'].set()
+        fixture.close()
