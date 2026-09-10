@@ -17,12 +17,16 @@ from app.models import User
 
 
 def lock_owner(session: Session, user_id: uuid.UUID) -> User:
+    from app.account_erasure.service import require_account
+
+    require_account(user_id)
     user = session.exec(
         select(User)
         .where(User.id == user_id)
         .with_for_update()
         .execution_options(populate_existing=True)
     ).one_or_none()
+    require_account(user_id)
     if not user or not user.is_active or not user.email_verified:
         raise HTTPException(403, "账号不可用或邮箱尚未验证")
     return user
@@ -80,6 +84,9 @@ def current_for_result(
     Caller already owns its task row (and the established User lock where used).
     Revocation locks ONLY this config row and commits before ever waiting for User.
     """
+    from app.account_erasure.service import result_permission
+
+    result_permission(session, user_id)
     config = session.exec(
         select(ModelConfig)
         .where(ModelConfig.user_id == user_id)

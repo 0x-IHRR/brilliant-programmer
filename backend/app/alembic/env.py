@@ -19,6 +19,7 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
+from app.account_erasure import models as account_erasure_models  # noqa: F401
 from app.deletion import models as deletion_models  # noqa: F401
 from app.quality import models as quality_models  # noqa: F401
 from app.capabilities import evidence_models  # noqa: F401

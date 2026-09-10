@@ -100,8 +100,9 @@ def record_attempt(
     identity: uuid.UUID, code: str, counts: dict[str, int | None]
 ) -> None:
     with Session(engine) as session:
-        attempt = session.get(SubmissionAttempt, identity)
-        assert attempt
+        attempt = session.get(SubmissionAttempt, identity, with_for_update=True)
+        if attempt is None:
+            return  # Account erasure already removed this attempt.
         attempt.code = code
         for name in ("prompt_tokens", "completion_tokens", "total_tokens"):
             setattr(attempt, name, counts.get(name))

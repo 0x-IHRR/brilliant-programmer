@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlmodel import Session, col, select
 
+from app.account_erasure.worker import erase_account  # noqa: F401
 from app.capabilities.catalog import CATALOG, EvidenceKey
 from app.core.db import engine
 from app.model_config.connection import BACKOFF_SECONDS, CancelledCall, ProbeError
@@ -167,8 +168,9 @@ def record_attempt(
     attempt_id: uuid.UUID, code: str, counts: dict[str, int | None]
 ) -> None:
     with Session(engine) as session:
-        attempt = session.get(TrainingAttempt, attempt_id)
-        assert attempt
+        attempt = session.get(TrainingAttempt, attempt_id, with_for_update=True)
+        if attempt is None:
+            return  # Account erasure already removed this attempt.
         attempt.code = code
         for name in ("prompt_tokens", "completion_tokens", "total_tokens"):
             setattr(attempt, name, counts.get(name))
@@ -443,6 +445,9 @@ async def generate_training(run_id: str) -> None:
 async def recover(timestamp: int = 0) -> None:
     del timestamp
 
+    from app.account_erasure.operations import replay
+
+    await asyncio.to_thread(replay)
     await asyncio.to_thread(recover_reviews)
     await asyncio.to_thread(reconcile_topics)
     await asyncio.to_thread(reconcile_stops)

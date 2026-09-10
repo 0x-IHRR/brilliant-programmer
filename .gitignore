@@ -10,3 +10,5 @@ frontend/openapi.json
 frontend/playwright-report/
 frontend/test-results/
 *.tsbuildinfo
+
+.private/

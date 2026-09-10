@@ -1,9 +1,12 @@
+from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.routing import APIRoute
+from starlette.concurrency import run_in_threadpool
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
@@ -14,8 +17,17 @@ def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
 
 
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    from app.account_erasure.operations import replay
+
+    await run_in_threadpool(replay)
+    yield
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
+    lifespan=lifespan,
     openapi_url="/api/v1/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
 )
@@ -26,6 +38,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(api_router, prefix="/api/v1")
+
+@app.middleware("http")
+async def restored_database_guard(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    # Also catches replacing the database underneath a still-running API process.
+    # Receipt endpoints disclose only the already authorized operation's status.
+    if not request.url.path.startswith("/api/v1/account-erasure/"):
+        def check() -> None:
+            from sqlmodel import Session
+
+            from app.account_erasure.service import require_ready
+            from app.core.db import engine
+
+            with Session(engine) as session:
+                require_ready(session)
+        from fastapi import HTTPException
+
+        try:
+            await run_in_threadpool(check)
+        except HTTPException as error:
+            return JSONResponse(status_code=error.status_code, content={"detail": error.detail})
+    return await call_next(request)
+
 
 
 @app.exception_handler(RequestValidationError)
@@ -42,6 +76,8 @@ async def safe_validation_error(
             status_code=422,
             content={"detail": "配置格式不正确，请检查地址、模型 ID 和 Key"},
         )
+    if request.url.path.startswith("/api/v1/account-erasure"):
+        return JSONResponse(status_code=422, content={"detail": "请检查当前密码、注销回执与最终确认；未执行注销"})
     if request.url.path.startswith("/api/v1/records"):
         return JSONResponse(status_code=422, content={"detail": "请检查记录范围、当前密码和最终删除确认；未执行删除"})
     if request.url.path.startswith("/api/v1/topics"):
