@@ -93,6 +93,9 @@ class PublicBackend(httpcore.AnyIOBackend):
         local_address: str | None = None,
         socket_options: Iterable[SocketOption] | None = None,
     ) -> httpcore.AsyncNetworkStream:
+        from app.account_erasure.outbound import check
+
+        check()
         try:
             answers = await asyncio.get_running_loop().getaddrinfo(
                 host, port, type=socket.SOCK_STREAM
@@ -106,6 +109,7 @@ class PublicBackend(httpcore.AnyIOBackend):
             )
         # Numeric IP only: no second hostname resolution can rebind this connection.
         # ponytail: first valid address only; add bounded multi-address fallback if needed.
+        check()
         stream = await super().connect_tcp(
             addresses[0], port, timeout, local_address, socket_options
         )
@@ -231,6 +235,9 @@ async def request_raw(
     service_url: str, key: str, payload: bytes | None, listing: bool = False
 ) -> tuple[bytes, str, dict[str, int | None]]:
     """Shared server-only transport; callers own fixed probe or training context."""
+    from app.account_erasure.outbound import check
+
+    check()
     base = validate_service_url(service_url)
     raw = bytearray()
     content_type = ""

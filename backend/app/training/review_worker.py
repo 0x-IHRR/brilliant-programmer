@@ -107,8 +107,9 @@ def claim(identity: uuid.UUID, job_id: int | None) -> ReviewAttempt | None:
 
 def record(identity: uuid.UUID, code: str, counts: dict[str, int | None]) -> None:
     with Session(engine) as session:
-        item = session.get(ReviewAttempt, identity)
-        assert item
+        item = session.get(ReviewAttempt, identity, with_for_update=True)
+        if item is None:
+            return  # Account erasure already removed this attempt.
         item.code = code
         for name in ("prompt_tokens", "completion_tokens", "total_tokens"):
             # A late parse/storage/stop error must not erase already received usage.

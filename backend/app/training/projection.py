@@ -33,6 +33,10 @@ def read_snapshot(user_id: uuid.UUID | None = None) -> Iterator[Session]:
                 isolation_level="REPEATABLE READ", postgresql_readonly=True
             )
             with Session(connection) as session:
+                if user_id is not None:
+                    from app.account_erasure.service import require_account
+
+                    require_account(user_id)
                 yield session
         finally:
             if locked:

@@ -37,6 +37,10 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
         )
     except jwt.InvalidTokenError, ValidationError:
         raise HTTPException(401, "请重新登录")
+    from app.account_erasure.service import require_account, require_ready
+
+    require_ready(session)
+    require_account(payload.sub)
     login_session = session.get(LoginSession, payload.jti)
     if (
         not login_session

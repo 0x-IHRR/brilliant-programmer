@@ -54,6 +54,16 @@ DUMMY_HASH = get_password_hash(secrets.token_urlsafe(32))
 def login(
     session: SessionDep, form: Annotated[OAuth2PasswordRequestForm, Depends()]
 ) -> Token:
+    from app.account_erasure.service import (
+        require_account,
+        require_ready,
+        result_permission,
+    )
+
+    require_ready(session)
+    initial = session.exec(select(User).where(User.email == form.username.lower())).first()
+    if initial:
+        require_account(initial.id)
     # Password verification and session creation serialize with password reset.
     user = session.exec(
         select(User).where(User.email == form.username.lower()).with_for_update()
@@ -64,6 +74,7 @@ def login(
     )
     if not user or not valid or not user.is_active:
         raise HTTPException(401, "邮箱或密码错误")
+    result_permission(session, user.id)
     expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     login_session = LoginSession(
         user_id=user.id, expires_at=datetime.now(UTC) + expires
@@ -198,6 +209,9 @@ def verify_email(
         .with_for_update()
         .execution_options(populate_existing=True)
     ).one()
+    from app.account_erasure.service import result_permission
+
+    result_permission(session, user.id)
     row = session.get(EmailVerification, user.id)
     if (
         not row
@@ -226,9 +240,13 @@ def reset_password(body: PasswordResetRequest, session: SessionDep) -> dict[str,
     user_id = session.exec(select(PasswordReset.user_id).where(PasswordReset.token_hash == digest)).first()
     if not user_id:
         raise HTTPException(400, "重置链接无效、过期或已使用，请重新申请")
+    from app.account_erasure.service import require_account, result_permission
+
+    require_account(user_id)
     # Same lock as login/resend; refresh after waiting to observe any winning reset.
     user = session.exec(select(User).where(User.id == user_id).with_for_update()
         .execution_options(populate_existing=True)).one()
+    result_permission(session, user_id)
     row = session.get(PasswordReset, user_id, populate_existing=True)
     if (not user.is_active or not user.email_verified or not row
         or row.email != user.email or row.expires_at <= datetime.now(UTC)

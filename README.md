@@ -12,6 +12,8 @@ python3 scripts/init_local.py
 docker compose -p bp-local up -d --wait
 uv sync --all-packages --locked
 uv run --directory backend alembic upgrade head
+# 仅全新空库：明确建立独立删除日志；已有库或恢复不得执行此初始化。
+uv run --directory backend python -m app.account_erasure.operations initialize-empty
 uv run --directory backend python -m app.initial_data
 bun install --frozen-lockfile
 bun run --cwd frontend build
@@ -477,3 +479,12 @@ Boss 入口展示每条原晋升及有序复核／解除历史；用户选择一
 ## 永久删除资料与记录（#31）
 
 “我的记录与资料管理”区分归档与永久删除。永久删除须当前密码重新认证、预览具体关联对象与影响，再明确最终确认；范围变化会要求重新预览。删除本人正文与依赖副本，保留无正文标记、已发修为、等级及已开放权。被删证据不可用，不判成新的能力失败；已见历史缺失会阻止后续陌生性检验，普通练习仍可继续。共享公共附件只在没有有效引用时清除，不能伤及其他账号。边界及进行中的验收见 [永久删除记录](docs/permanent-deletion-validation.md)。
+
+
+### 注销账号与独立删除重放（#32）
+
+账号注销与删除单份资料分开：重新认证、查看全账号影响并最终明确确认后，先持久化不可撤销意图，登录与旧 JWT、新模型许可立即拒绝；成功响应前排空原调用许可。随后同一后台队列物理清除账号、加密 Key、会话、验证/重置凭据、草稿、学习与成长档案。仅保留无原文的账号 UUID、请求编号、不可逆回执摘要、受理/完成时点及恢复水位；不沿用 #31 保留活跃账号奖励/等级档案的语义。其他账号仍引用的共享质量附件保留。能力回执可以在账号已清除、未登录页面查询，既不恢复旧 JWT，也不允许按任意用户编号注销。
+
+独立 SQLite 日志由 `ACCOUNT_ERASURE_JOURNAL` 指定（默认 `../.private/account-deletions.sqlite3`），权限0600，不能随 PostgreSQL 旧备份一起回滚。新空库显式执行 `initialize-empty`；可信既有在线库首次升级才由运营者明确执行 `adopt-live`。恢复必须保有原独立日志，先迁移再运行 `python -m app.account_erasure.operations replay`；API 与生产 worker 启动也先重放，缺失或不匹配日志、未应用完整连续前缀均拒绝开放，不能把旧库缺少元数据当新安装。原备份之后受理的注销仍按日志重放，原能力回执不依赖备份内存在预览行。
+
+`python -m app.account_erasure.operations audit` 检查受理后24小时内的实际在线清除，保留期工具仅管理其明确登记的本地受控 dump；30天退出时保留独立无原文日志。持续运行、外部备份清单与不可变存储/备份恢复的运营演练由 #33 接续。本票受控数据与时钟验证不代表生产24小时/30天保障已经部署。完整恢复可复跑 `python -m tests.account_erasure_restore`（专属合成 PostgreSQL 容器，CI显式提供容器ID），真实0028 pg_dump/restore、加密Key/会话/草稿与另一账号逐字段比较、生产worker缺日志拒绝/先重放、原能力回执及受控dump到期均有实际断言。

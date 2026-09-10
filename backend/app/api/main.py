@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.account_erasure.routes import router as account_erasure_router
 from app.api.routes.accounts import router
 from app.capabilities.routes import router as capabilities_router
 from app.deletion.routes import router as records_router
@@ -55,3 +56,6 @@ api_router.include_router(jds_router)
 
 
 api_router.include_router(project_training_router)
+
+
+api_router.include_router(account_erasure_router)

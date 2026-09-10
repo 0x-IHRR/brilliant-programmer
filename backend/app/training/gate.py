@@ -15,6 +15,13 @@ from app.model_config.service import decrypt, lock_owner
 
 
 def revoked(user_id: uuid.UUID, version: uuid.UUID | None) -> bool:
+    from app.account_erasure.service import denied
+
+    try:
+        if denied(user_id):
+            return True
+    except HTTPException:
+        return True
     with Session(engine) as session:
         config = session.get(ModelConfig, user_id)
         return (config.version if config else None) != version or bool(
@@ -25,6 +32,9 @@ def revoked(user_id: uuid.UUID, version: uuid.UUID | None) -> bool:
 def acquire(
     session: Session, user_id: uuid.UUID, version: uuid.UUID | None
 ) -> ModelConfig | None:
+    from app.account_erasure.service import require_ready
+
+    require_ready(session)
     lock_owner(session, user_id)
     config = session.get(ModelConfig, user_id, populate_existing=True)
     if (config.version if config else None) != version or (config and config.revoked):
@@ -43,6 +53,9 @@ async def call_permission(
     )
     watcher: asyncio.Task[None] | None = None
     caller = asyncio.current_task()
+    from app.account_erasure.outbound import owner
+
+    owner_token = owner.set(user_id)
     failure: BaseException | None = None
 
     async def watch() -> None:
@@ -55,6 +68,11 @@ async def call_permission(
 
     try:
         config = await asyncio.shield(acquisition)
+        # The synchronous acquire may have finished before its awaiter resumes.
+        # Recheck durable account intent before exposing this permission to HTTP.
+        from app.account_erasure.service import require_account
+
+        require_account(user_id)
         watcher = asyncio.create_task(watch())
         yield config
     except BaseException as error:
@@ -79,6 +97,7 @@ async def call_permission(
                 await asyncio.shield(cleanup)
             except asyncio.CancelledError as error:
                 interrupted = error
+        owner.reset(owner_token)
         cleanup.result()  # Cleanup failures must remain visible.
         if interrupted is not None and failure is None:
             # A successful body does not swallow a cancellation during cleanup.

@@ -9,6 +9,7 @@ import { client } from "./client/client.gen"
 import { Button } from "./components/ui/button"
 import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
+import { AccountErasure } from "./features/AccountErasure"
 import { PasswordReset } from "./features/PasswordReset"
 import { ModelConfig } from "./features/ModelConfig"
 import "./index.css"
@@ -59,9 +60,11 @@ function App() {
   const [invitations, setInvitations] = useState<InvitationPublic[]>([])
   const [offset, setOffset] = useState(0)
   const loadInvites = useCallback(async (next: number) => {
+    const token = sessionStorage.getItem("token")
     const { data } = await AccountsService.invitations({
       query: { offset: next },
     })
+    if (sessionStorage.getItem("token") !== token) return
     setInvitations(data)
     setOffset(next)
   }, [])
@@ -69,6 +72,7 @@ function App() {
     const token = sessionStorage.getItem("token")
     if (!token) return
     const { data } = await AccountsService.me()
+    if (sessionStorage.getItem("token") !== token) return
     setUser(data)
     if (data.is_superuser) await loadInvites(0)
   }, [loadInvites])
@@ -132,6 +136,13 @@ function App() {
         {message}
       </p>
       <PasswordReset onReset={resetSession} />
+      <AccountErasure userId={user?.id ?? null} onAccepted={token => {
+        const current = sessionStorage.getItem("token")
+        if (current && current !== token) return
+        resetSession("注销已受理，账号私有页面与旧会话已清除；请通过回执核对资料清除进度。")
+        setVerificationToken("")
+        history.replaceState(null, "", location.pathname)
+      }} />
       {verificationToken && <p>已读取验证链接，请登录对应邮箱账号后确认验证。</p>}
       {!user ? (
         <>
@@ -200,7 +211,9 @@ function App() {
               : "邮箱未验证，暂不能进入训练。请查看验证邮件或重发。"}
           </p>
           {verificationToken && <Button disabled={busy} onClick={() => action(async () => {
+            const token = sessionStorage.getItem("token")
             const { data } = await AccountsService.verifyEmail({ body: { token: verificationToken } })
+            if (sessionStorage.getItem("token") !== token) return
             setUser(data)
             setVerificationToken("")
             setMessage("邮箱验证成功。训练不会自动启动。")

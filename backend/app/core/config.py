@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file="../.env", extra="ignore", hide_input_in_errors=True)
     MODEL_ENCRYPTION_KEYS: dict[str, SecretStr] = Field(default_factory=dict)
     MODEL_ACTIVE_KEY_VERSION: str = "v1"
+    ACCOUNT_ERASURE_JOURNAL: str = "../.private/account-deletions.sqlite3"
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "我是天才程序员"
     SECRET_KEY: str = Field(min_length=32)

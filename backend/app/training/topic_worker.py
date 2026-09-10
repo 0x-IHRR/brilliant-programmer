@@ -84,8 +84,9 @@ def claim(identity: uuid.UUID, job_id: int | None) -> uuid.UUID | None:
 
 def record(identity: uuid.UUID, code: str, counts: dict[str, int | None]) -> None:
     with Session(engine) as session:
-        attempt = session.get(TopicAttempt, identity)
-        assert attempt
+        attempt = session.get(TopicAttempt, identity, with_for_update=True)
+        if attempt is None:
+            return  # Account erasure already removed this attempt.
         attempt.code = code
         for key, value in counts.items():
             setattr(attempt, key, value)

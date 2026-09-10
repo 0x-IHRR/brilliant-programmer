@@ -657,6 +657,16 @@ export type ConfirmRequest = {
 };
 
 /**
+ * Confirmation
+ */
+export type Confirmation = {
+    /**
+     * Confirmation
+     */
+    confirmation: '注销本账号并永久删除全部私有资料';
+};
+
+/**
  * ConfirmationReceipt
  */
 export type ConfirmationReceipt = {
@@ -1836,6 +1846,16 @@ export type Opinion = {
 };
 
 /**
+ * Password
+ */
+export type Password = {
+    /**
+     * Password
+     */
+    password: string;
+};
+
+/**
  * PasswordResetEmail
  */
 export type PasswordResetEmail = {
@@ -1924,6 +1944,50 @@ export type PreferenceUpdate = {
      * Mode
      */
     mode: 'recommended' | '基础' | '进阶' | '综合';
+};
+
+/**
+ * Preview
+ */
+export type Preview = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Accepted At
+     */
+    accepted_at: string | null;
+    /**
+     * Completed At
+     */
+    completed_at: string | null;
+    /**
+     * Online Deadline
+     */
+    online_deadline: string | null;
+    /**
+     * Backup Deadline
+     */
+    backup_deadline: string | null;
+    /**
+     * Receipt Key
+     */
+    receipt_key: string;
+    /**
+     * Expires At
+     */
+    expires_at: string;
+    /**
+     * Records
+     */
+    records: {
+        [key: string]: number;
+    };
+    /**
+     * Consequences
+     */
+    consequences: Array<string>;
 };
 
 /**
@@ -2373,6 +2437,16 @@ export type ReasonClaim = {
      * Interpreted Fact Value
      */
     interpreted_fact_value: string;
+};
+
+/**
+ * ReceiptKey
+ */
+export type ReceiptKey = {
+    /**
+     * Receipt Key
+     */
+    receipt_key: string;
 };
 
 /**
@@ -2951,6 +3025,32 @@ export type StartSnapshot = {
      * Catalog Version
      */
     catalog_version: string;
+};
+
+/**
+ * Status
+ */
+export type Status = {
+    /**
+     * Request Id
+     */
+    request_id: string;
+    /**
+     * Accepted At
+     */
+    accepted_at: string | null;
+    /**
+     * Completed At
+     */
+    completed_at: string | null;
+    /**
+     * Online Deadline
+     */
+    online_deadline: string | null;
+    /**
+     * Backup Deadline
+     */
+    backup_deadline: string | null;
 };
 
 /**
@@ -3599,6 +3699,20 @@ export type WorkedAnswer = {
      * Counterexample
      */
     counterexample: string;
+};
+
+/**
+ * Confirmation
+ */
+export type ConfirmationWritable = {
+    /**
+     * Receipt Key
+     */
+    receipt_key: string;
+    /**
+     * Confirmation
+     */
+    confirmation: '注销本账号并永久删除全部私有资料';
 };
 
 /**
@@ -6224,6 +6338,91 @@ export type projecttrainingAnalyzeRouteResponses = {
 };
 
 export type projecttrainingAnalyzeRouteResponse = projecttrainingAnalyzeRouteResponses[keyof projecttrainingAnalyzeRouteResponses];
+
+export type accountErasurePreviewData = {
+    body: Password;
+    path?: never;
+    query?: never;
+    url: '/api/v1/account-erasure/preview';
+};
+
+export type accountErasurePreviewErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type accountErasurePreviewError = accountErasurePreviewErrors[keyof accountErasurePreviewErrors];
+
+export type accountErasurePreviewResponses = {
+    /**
+     * Successful Response
+     */
+    200: Preview;
+};
+
+export type accountErasurePreviewResponse = accountErasurePreviewResponses[keyof accountErasurePreviewResponses];
+
+export type accountErasureConfirmData = {
+    body: ConfirmationWritable;
+    path: {
+        /**
+         * Request Id
+         */
+        request_id: string;
+    };
+    query?: never;
+    url: '/api/v1/account-erasure/{request_id}/confirm';
+};
+
+export type accountErasureConfirmErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type accountErasureConfirmError = accountErasureConfirmErrors[keyof accountErasureConfirmErrors];
+
+export type accountErasureConfirmResponses = {
+    /**
+     * Successful Response
+     */
+    202: Status;
+};
+
+export type accountErasureConfirmResponse = accountErasureConfirmResponses[keyof accountErasureConfirmResponses];
+
+export type accountErasureStatusData = {
+    body: ReceiptKey;
+    path: {
+        /**
+         * Request Id
+         */
+        request_id: string;
+    };
+    query?: never;
+    url: '/api/v1/account-erasure/{request_id}/status';
+};
+
+export type accountErasureStatusErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type accountErasureStatusError = accountErasureStatusErrors[keyof accountErasureStatusErrors];
+
+export type accountErasureStatusResponses = {
+    /**
+     * Successful Response
+     */
+    200: Status;
+};
+
+export type accountErasureStatusResponse = accountErasureStatusResponses[keyof accountErasureStatusResponses];
 
 export type healthHealthData = {
     body?: never;

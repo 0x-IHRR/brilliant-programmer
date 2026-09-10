@@ -118,6 +118,9 @@ def start_probe(
     model_id: str,
 ) -> uuid.UUID:
     with Session(engine) as session:
+        from app.model_config.service import lock_owner
+
+        lock_owner(session, user_id)
         item = ProbeAttempt(
             user_id=user_id,
             operation_id=operation_id,
@@ -133,8 +136,9 @@ def start_probe(
 
 def record_probe(identity: uuid.UUID, code: str, counts: dict[str, int | None]) -> None:
     with Session(engine) as session:
-        item = session.get(ProbeAttempt, identity)
-        assert item
+        item = session.get(ProbeAttempt, identity, with_for_update=True)
+        if item is None:
+            return  # Account purge removes usage too; late recording must not recreate it.
         item.code = code
         for field, value in counts.items():
             setattr(item, field, value)
