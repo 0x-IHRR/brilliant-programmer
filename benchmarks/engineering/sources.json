@@ -1,0 +1,51 @@
+{
+  "nasa": {
+    "id": "nasa",
+    "url": "https://www.nasa.gov/reference/appendix-c-how-to-write-a-good-requirement/",
+    "version": "NASA Systems Engineering Handbook Appendix C, C.2–C.4; snapshot 2026-09-10; response-sha256:35cd14f4a4f7b5bd6db7b4133f0eaee4c975da5ba33b2f61626254f1c1815468",
+    "locator": "NASA Systems Engineering Handbook Appendix C, C.2–C.4; snapshot 2026-09-10。规范摘要（AI中文改写，待人工核验，非逐字引句）：需求应明确主体、所需结果、量化范围与异常响应，避免含糊词。WHAT/HOW区别用于避免无依据指定实现，不排除已确认的设计约束；假设须确认且需求应可验证、可追溯。",
+    "text": "state the problem not the solution\n[…]\nAre the requirements clear and unambiguous?\n[…]\nAre there error detection, reporting, handling, and recovery requirements?"
+  },
+  "scrum": {
+    "id": "scrum",
+    "url": "https://scrumguides.org/scrum-guide.html",
+    "version": "Scrum Guide November 2020, The Sprint / Sprint Goal / Definition of Done; response-sha256:64aade688c3f2bceb1051268310e1cdcf503ac424e052a07414f60cabea8bcc0",
+    "locator": "Scrum Guide November 2020, The Sprint / Sprint Goal / Definition of Done。规范摘要（AI中文改写，待人工核验，非逐字引句）：范围可以随学习与Product Owner协商，但不损害Sprint Goal或降低质量。目标过时可由Product Owner取消Sprint；时间压力不使未达Definition of Done的工作变成完成。此框架只适用于题目声明采用Scrum的团队。",
+    "text": "Quality does not decrease\n[…]\nwithout affecting the Sprint Goal\n[…]\nif the Sprint Goal becomes obsolete"
+  },
+  "domain": {
+    "id": "domain",
+    "url": "https://learn.microsoft.com/en-us/azure/architecture/microservices/model/domain-analysis",
+    "version": "Microsoft Azure Architecture Center, Domain analysis / bounded contexts; snapshot 2026-09-10; response-sha256:bd02ca5aea722599b07afcba12453a05330555a63c57a1197eb60ffb175cb17b",
+    "locator": "Microsoft Azure Architecture Center, Domain analysis / bounded contexts; snapshot 2026-09-10。规范摘要（AI中文改写，待人工核验，非逐字引句）：按业务职责而非技术层机械拆分；同一词在不同限界上下文可能有不同含义。用共同变化、状态归属和接口约束检查内聚/耦合；没有机械算法保证正确划界，也不要求每个上下文立即独立部署。",
+    "text": "Design microservices around business capabilities\n[…]\nsame word (like account ) has different meanings\n[…]\nwithout updating other services at the same time"
+  },
+  "strangler": {
+    "id": "strangler",
+    "url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/strangler-fig",
+    "version": "Microsoft Azure Architecture Center, Strangler Fig / Issues and considerations / When to use; snapshot 2026-09-10; response-sha256:e06f64b415f808e81e356a76d8caf41fb92728cb747ef4b42f3aac5617a90792",
+    "locator": "Microsoft Azure Architecture Center, Strangler Fig / Issues and considerations / When to use; snapshot 2026-09-10。规范摘要（AI中文改写，待人工核验，非逐字引句）：渐进迁移依赖可拦截路由与新旧共存；要处理共同数据/依赖的兼容，不以切流量假定旧写入已停止。门面自身可能成为单点或瓶颈；不能拦截请求时此模式可能不适用。渐进方案需比较临时成本及迁移风险，不承诺自动零停机。",
+    "text": "both systems can access these resources\n[…]\nsingle point of failure\n[…]\nsystem can't be intercepted\n[…]\ntranslates requests between the two systems"
+  },
+  "review": {
+    "id": "review",
+    "url": "https://google.github.io/eng-practices/review/reviewer/looking-for.html",
+    "version": "Google Engineering Practices, What to look for / Tests / Context; snapshot 2026-09-10; response-sha256:5946a2fa713dbafed9a2846e187be7705e3f3240c2b925f13d45530791c0e4af",
+    "locator": "Google Engineering Practices, What to look for / Tests / Context; snapshot 2026-09-10。规范摘要（AI中文改写，待人工核验，非逐字引句）：按变更风险核真实代码及上下文，测试应能在对应缺陷存在时失败；测试本身也需审查。局部差异、摘要或绿色数量不能替代真实调用、需求和边界验证；范围合理不要求为每次小改重测全世界。",
+    "text": "Will the tests actually fail when the code is broken?\n[…]\nlook at the whole file"
+  },
+  "copilot": {
+    "id": "copilot",
+    "url": "https://docs.github.com/en/copilot/concepts/agents/code-review",
+    "version": "GitHub Docs, About GitHub Copilot code review / Validating Copilot code reviews; snapshot 2026-09-10; response-sha256:0a7e85bef65c8a875edf074384235befff3eeb888299ff2fa5b9bea70ecbc286",
+    "locator": "GitHub Docs, About GitHub Copilot code review / Validating Copilot code reviews; snapshot 2026-09-10。规范摘要（AI中文改写，待人工核验，非逐字引句）：Copilot可能漏报或误报，需核验反馈并辅以人工审查。AI意见仅为检查线索，不以两份AI赞同冒充人类签核或实际验证；具体缺陷是否成立应看真实代码与证据。",
+    "text": "not guaranteed to spot all problems or issues\n[…]\nSupplement Copilot's feedback with a human review."
+  },
+  "postmortem": {
+    "id": "postmortem",
+    "url": "https://sre.google/sre-book/postmortem-culture/",
+    "version": "Google SRE book (2016), Postmortem Culture / Google’s Postmortem Philosophy; response-sha256:885916e3c46dfb2cf3a506435f9df60ca1bf3e491e521725705f7202ac12eb49",
+    "locator": "Google SRE book (2016), Postmortem Culture / Google’s Postmortem Philosophy。规范摘要（AI中文改写，待人工核验，非逐字引句）：复盘记录影响、缓解、原因及预防跟进，区分已观测事实与待证假设；无责复盘关注系统贡献因素，不归咎个人。文档形成及修复动作完成不自动证明复发风险已消除，后续需检查措施是否有效。",
+    "text": "its impact, the actions taken to mitigate or resolve it\n[…]\nidentifying the contributing causes\n[…]\nfollow-up actions to prevent the incident from recurring"
+  }
+}

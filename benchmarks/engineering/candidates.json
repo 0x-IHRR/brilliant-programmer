@@ -1,0 +1,4461 @@
+{
+  "origin": "ai_draft",
+  "review_status": "pending_human_review",
+  "cases": [
+    {
+      "id": "requirements.acceptance-1",
+      "family": "requirements.acceptance",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "nasa"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "requirements.acceptance",
+          "difficulty": "基础",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "保存成功的含糊验收",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。",
+            "facts": {
+              "observed_boundary": "运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。"
+            },
+            "citations": [
+              {
+                "source_id": "nasa",
+                "quote": "Are the requirements clear and unambiguous?"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "补明确参与者、触发、重登后读取及失败保输入规则，再评审验收。",
+              "按钮显示绿色即可宣布所有保存要求完成。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "外观无法代替持久结果，需把正常和异常行为写成可观察要求。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。 因此“按钮显示绿色即可宣布所有保存要求完成。”不成立。",
+            "help_boundary": "指出“补明确参与者、触发、重登后读取及失败保输入规则，再评审验收。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。",
+          "expected_evidence": "应核对的冻结观察：运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。",
+          "decision_effect": "补明确参与者、触发、重登后读取及失败保输入规则，再评审验收。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "外观无法代替持久结果，需把正常和异常行为写成可观察要求。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "外观无法代替持久结果，需把正常和异常行为写成可观察要求。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。",
+                    "citation": {
+                      "source_id": "nasa",
+                      "quote": "Are the requirements clear and unambiguous?"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。"
+                  }
+                ],
+                "rule_quote": "外观无法代替持久结果，需把正常和异常行为写成可观察要求。",
+                "counterexample_quote": null,
+                "explanation": "外观无法代替持久结果，需把正常和异常行为写成可观察要求。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "外观无法代替持久结果，需把正常和异常行为写成可观察要求。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为按钮显示绿色即可宣布所有保存要求完成。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为按钮显示绿色即可宣布所有保存要求完成。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。",
+                    "citation": {
+                      "source_id": "nasa",
+                      "quote": "Are the requirements clear and unambiguous?"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。"
+                  }
+                ],
+                "rule_quote": "外观无法代替持久结果，需把正常和异常行为写成可观察要求。",
+                "counterexample_quote": "反例：运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。 因此“按钮显示绿色即可宣布所有保存要求完成。”不成立。",
+                "explanation": "外观无法代替持久结果，需把正常和异常行为写成可观察要求。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。 因此“按钮显示绿色即可宣布所有保存要求完成。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "requirements.acceptance",
+          "difficulty": "基础",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "保存成功的含糊验收：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "保存成功与失败保输入已明确；新增断网时响应丢失，服务端是否已保存未知且禁止重复创建。",
+            "facts": {
+              "observed_boundary": "保存成功与失败保输入已明确；新增断网时响应丢失，服务端是否已保存未知且禁止重复创建。"
+            },
+            "citations": [
+              {
+                "source_id": "nasa",
+                "quote": "Are there error detection, reporting, handling, and recovery requirements?"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保原验收，补失响应后查询原请求结果及重试防重契约。",
+              "按钮显示绿色即可宣布所有保存要求完成。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新不确定窗口不由原成功/失败二分覆盖，应单独规定恢复行为。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：保存成功与失败保输入已明确；新增断网时响应丢失，服务端是否已保存未知且禁止重复创建。 因此“按钮显示绿色即可宣布所有保存要求完成。”不成立。",
+            "help_boundary": "指出“保原验收，补失响应后查询原请求结果及重试防重契约。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "保存成功与失败保输入已明确；新增断网时响应丢失，服务端是否已保存未知且禁止重复创建。",
+          "expected_evidence": "应核对的冻结观察：保存成功与失败保输入已明确；新增断网时响应丢失，服务端是否已保存未知且禁止重复创建。",
+          "decision_effect": "保原验收，补失响应后查询原请求结果及重试防重契约。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "保存成功的含糊验收（换名版本）",
+      "variation_basis": "由“运营人员点击保存后需要下次登录仍看到配置；需求只写“保存体验友好”，尚未约定失败响应和输入保留。”变为“保存成功与失败保输入已明确；新增断网时响应丢失，服务端是否已保存未知且禁止重复创建。”，故“补明确参与者、触发、重登后读取及失败保输入规则，再评审验收。”改为“保原验收，补失响应后查询原请求结果及重试防重契约。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "外观无法代替持久结果，需把正常和异常行为写成可观察要求。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "requirements.acceptance-2",
+      "family": "requirements.acceptance",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "nasa"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "requirements.acceptance",
+          "difficulty": "进阶",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "状态转移缺少失败边界",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。",
+            "facts": {
+              "observed_boundary": "买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。"
+            },
+            "citations": [
+              {
+                "source_id": "nasa",
+                "quote": "Are there error detection, reporting, handling, and recovery requirements?"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "补回调身份、失响应查询和允许发货条件，并明确重复消息不重复动作。",
+              "收到任意付款按钮点击就改已付并发货。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "支付意图不是付款事实，异常与重放必须服从不可重复发货的冻结约束。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。 因此“收到任意付款按钮点击就改已付并发货。”不成立。",
+            "help_boundary": "指出“补回调身份、失响应查询和允许发货条件，并明确重复消息不重复动作。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。",
+          "expected_evidence": "应核对的冻结观察：买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。",
+          "decision_effect": "补回调身份、失响应查询和允许发货条件，并明确重复消息不重复动作。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "支付意图不是付款事实，异常与重放必须服从不可重复发货的冻结约束。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "支付意图不是付款事实，异常与重放必须服从不可重复发货的冻结约束。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。",
+                    "citation": {
+                      "source_id": "nasa",
+                      "quote": "Are there error detection, reporting, handling, and recovery requirements?"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。"
+                  }
+                ],
+                "rule_quote": "支付意图不是付款事实，异常与重放必须服从不可重复发货的冻结约束。",
+                "counterexample_quote": null,
+                "explanation": "支付意图不是付款事实，异常与重放必须服从不可重复发货的冻结约束。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "支付意图不是付款事实，异常与重放必须服从不可重复发货的冻结约束。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为收到任意付款按钮点击就改已付并发货。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为收到任意付款按钮点击就改已付并发货。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。",
+                    "citation": {
+                      "source_id": "nasa",
+                      "quote": "Are there error detection, reporting, handling, and recovery requirements?"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。"
+                  }
+                ],
+                "rule_quote": "支付意图不是付款事实，异常与重放必须服从不可重复发货的冻结约束。",
+                "counterexample_quote": "反例：买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。 因此“收到任意付款按钮点击就改已付并发货。”不成立。",
+                "explanation": "支付意图不是付款事实，异常与重放必须服从不可重复发货的冻结约束。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。 因此“收到任意付款按钮点击就改已付并发货。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "requirements.acceptance",
+          "difficulty": "进阶",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "状态转移缺少失败边界：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "已核同订单重复回调无重复发货；新规则允许发货前退款，退款成功消息与发货请求可并发。",
+            "facts": {
+              "observed_boundary": "已核同订单重复回调无重复发货；新规则允许发货前退款，退款成功消息与发货请求可并发。"
+            },
+            "citations": [
+              {
+                "source_id": "nasa",
+                "quote": "Are there error detection, reporting, handling, and recovery requirements?"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已证防重，补退款与发货互斥条件及冲突时可观察结果。",
+              "收到任意付款按钮点击就改已付并发货。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新竞争是业务状态互斥问题，原消息防重不覆盖退款后的合法动作。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：已核同订单重复回调无重复发货；新规则允许发货前退款，退款成功消息与发货请求可并发。 因此“收到任意付款按钮点击就改已付并发货。”不成立。",
+            "help_boundary": "指出“保已证防重，补退款与发货互斥条件及冲突时可观察结果。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "已核同订单重复回调无重复发货；新规则允许发货前退款，退款成功消息与发货请求可并发。",
+          "expected_evidence": "应核对的冻结观察：已核同订单重复回调无重复发货；新规则允许发货前退款，退款成功消息与发货请求可并发。",
+          "decision_effect": "保已证防重，补退款与发货互斥条件及冲突时可观察结果。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "状态转移缺少失败边界（换名版本）",
+      "variation_basis": "由“买家付款成功才发货；当前要求只列待付和已付，未说明支付响应丢失与重复回调，且同订单不得重复发货。”变为“已核同订单重复回调无重复发货；新规则允许发货前退款，退款成功消息与发货请求可并发。”，故“补回调身份、失响应查询和允许发货条件，并明确重复消息不重复动作。”改为“保已证防重，补退款与发货互斥条件及冲突时可观察结果。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "支付意图不是付款事实，异常与重放必须服从不可重复发货的冻结约束。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "requirements.acceptance-3",
+      "family": "requirements.acceptance",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "nasa"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "requirements.acceptance",
+          "difficulty": "综合",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "跨渠道会员资格冲突",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。",
+            "facts": {
+              "observed_boundary": "网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。"
+            },
+            "citations": [
+              {
+                "source_id": "nasa",
+                "quote": "Are the requirements clear and unambiguous?"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "列明取消/恢复/扣费的生效顺序与时区、补偿和验收样例，未澄清前不宣布一致。",
+              "只测试网页取消提示就认定所有渠道收费一致。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "跨渠道冲突需显式时间及异常规则，界面提示不能决定后台合法计费。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。 因此“只测试网页取消提示就认定所有渠道收费一致。”不成立。",
+            "help_boundary": "指出“列明取消/恢复/扣费的生效顺序与时区、补偿和验收样例，未澄清前不宣布一致。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。",
+          "expected_evidence": "应核对的冻结观察：网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。",
+          "decision_effect": "列明取消/恢复/扣费的生效顺序与时区、补偿和验收样例，未澄清前不宣布一致。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "跨渠道冲突需显式时间及异常规则，界面提示不能决定后台合法计费。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "跨渠道冲突需显式时间及异常规则，界面提示不能决定后台合法计费。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。",
+                    "citation": {
+                      "source_id": "nasa",
+                      "quote": "Are the requirements clear and unambiguous?"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。"
+                  }
+                ],
+                "rule_quote": "跨渠道冲突需显式时间及异常规则，界面提示不能决定后台合法计费。",
+                "counterexample_quote": null,
+                "explanation": "跨渠道冲突需显式时间及异常规则，界面提示不能决定后台合法计费。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "跨渠道冲突需显式时间及异常规则，界面提示不能决定后台合法计费。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为只测试网页取消提示就认定所有渠道收费一致。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为只测试网页取消提示就认定所有渠道收费一致。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。",
+                    "citation": {
+                      "source_id": "nasa",
+                      "quote": "Are the requirements clear and unambiguous?"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。"
+                  }
+                ],
+                "rule_quote": "跨渠道冲突需显式时间及异常规则，界面提示不能决定后台合法计费。",
+                "counterexample_quote": "反例：网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。 因此“只测试网页取消提示就认定所有渠道收费一致。”不成立。",
+                "explanation": "跨渠道冲突需显式时间及异常规则，界面提示不能决定后台合法计费。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。 因此“只测试网页取消提示就认定所有渠道收费一致。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "requirements.acceptance",
+          "difficulty": "综合",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "跨渠道会员资格冲突：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "双方已确认服务器序号顺序和当日规则，回放扣费一致；新增离线代理可能重复提交旧恢复请求。",
+            "facts": {
+              "observed_boundary": "双方已确认服务器序号顺序和当日规则，回放扣费一致；新增离线代理可能重复提交旧恢复请求。"
+            },
+            "citations": [
+              {
+                "source_id": "nasa",
+                "quote": "Are there error detection, reporting, handling, and recovery requirements?"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已确认规则，增加旧请求身份及幂等/过时拒绝验收，不重开已决时区。",
+              "只测试网页取消提示就认定所有渠道收费一致。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "规则明确后新入口带来重放边界，不能仅重复旧渠道测试。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：双方已确认服务器序号顺序和当日规则，回放扣费一致；新增离线代理可能重复提交旧恢复请求。 因此“只测试网页取消提示就认定所有渠道收费一致。”不成立。",
+            "help_boundary": "指出“保已确认规则，增加旧请求身份及幂等/过时拒绝验收，不重开已决时区。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "双方已确认服务器序号顺序和当日规则，回放扣费一致；新增离线代理可能重复提交旧恢复请求。",
+          "expected_evidence": "应核对的冻结观察：双方已确认服务器序号顺序和当日规则，回放扣费一致；新增离线代理可能重复提交旧恢复请求。",
+          "decision_effect": "保已确认规则，增加旧请求身份及幂等/过时拒绝验收，不重开已决时区。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "跨渠道会员资格冲突（换名版本）",
+      "variation_basis": "由“网页承诺取消后立即停费，批处理仍按月初快照扣费；客服允许当日恢复，时区和生效序号未约定，不能默默多收费。”变为“双方已确认服务器序号顺序和当日规则，回放扣费一致；新增离线代理可能重复提交旧恢复请求。”，故“列明取消/恢复/扣费的生效顺序与时区、补偿和验收样例，未澄清前不宣布一致。”改为“保已确认规则，增加旧请求身份及幂等/过时拒绝验收，不重开已决时区。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "跨渠道冲突需显式时间及异常规则，界面提示不能决定后台合法计费。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "requirements.tradeoff-1",
+      "family": "requirements.tradeoff",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "scrum"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "requirements.tradeoff",
+          "difficulty": "基础",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "日期固定不等于可降低质量",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。",
+            "facts": {
+              "observed_boundary": "采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。"
+            },
+            "citations": [
+              {
+                "source_id": "scrum",
+                "quote": "Quality does not decrease"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "与Product Owner按目标协商配色范围，保付款安全质量和完成定义。",
+              "为同时交付配色和付款删掉失败保单要求并仍称完成。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "可调整范围不意味着降低既定质量，选择需服从受益目标和容量约束。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。 因此“为同时交付配色和付款删掉失败保单要求并仍称完成。”不成立。",
+            "help_boundary": "指出“与Product Owner按目标协商配色范围，保付款安全质量和完成定义。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。",
+          "expected_evidence": "应核对的冻结观察：采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。",
+          "decision_effect": "与Product Owner按目标协商配色范围，保付款安全质量和完成定义。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "可调整范围不意味着降低既定质量，选择需服从受益目标和容量约束。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "可调整范围不意味着降低既定质量，选择需服从受益目标和容量约束。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。",
+                    "citation": {
+                      "source_id": "scrum",
+                      "quote": "Quality does not decrease"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。"
+                  }
+                ],
+                "rule_quote": "可调整范围不意味着降低既定质量，选择需服从受益目标和容量约束。",
+                "counterexample_quote": null,
+                "explanation": "可调整范围不意味着降低既定质量，选择需服从受益目标和容量约束。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "可调整范围不意味着降低既定质量，选择需服从受益目标和容量约束。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为为同时交付配色和付款删掉失败保单要求并仍称完成。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为为同时交付配色和付款删掉失败保单要求并仍称完成。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。",
+                    "citation": {
+                      "source_id": "scrum",
+                      "quote": "Quality does not decrease"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。"
+                  }
+                ],
+                "rule_quote": "可调整范围不意味着降低既定质量，选择需服从受益目标和容量约束。",
+                "counterexample_quote": "反例：采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。 因此“为同时交付配色和付款删掉失败保单要求并仍称完成。”不成立。",
+                "explanation": "可调整范围不意味着降低既定质量，选择需服从受益目标和容量约束。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。 因此“为同时交付配色和付款删掉失败保单要求并仍称完成。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "requirements.tradeoff",
+          "difficulty": "基础",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "日期固定不等于可降低质量：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "付款质量已满足，配色是低成本必要无障碍修复且不影响目标，容量充足。",
+            "facts": {
+              "observed_boundary": "付款质量已满足，配色是低成本必要无障碍修复且不影响目标，容量充足。"
+            },
+            "citations": [
+              {
+                "source_id": "scrum",
+                "quote": "without affecting the Sprint Goal"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "纳入已核可承受修复并保验收，不机械拒绝所有Sprint内变化。",
+              "为同时交付配色和付款删掉失败保单要求并仍称完成。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "风险与容量变化后可调整范围，固定目标不代表工作清单完全不能变。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：付款质量已满足，配色是低成本必要无障碍修复且不影响目标，容量充足。 因此“为同时交付配色和付款删掉失败保单要求并仍称完成。”不成立。",
+            "help_boundary": "指出“纳入已核可承受修复并保验收，不机械拒绝所有Sprint内变化。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "付款质量已满足，配色是低成本必要无障碍修复且不影响目标，容量充足。",
+          "expected_evidence": "应核对的冻结观察：付款质量已满足，配色是低成本必要无障碍修复且不影响目标，容量充足。",
+          "decision_effect": "纳入已核可承受修复并保验收，不机械拒绝所有Sprint内变化。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "日期固定不等于可降低质量（换名版本）",
+      "variation_basis": "由“采用Scrum；本Sprint目标是可靠付款，已约定付款失败不得丢订单；配色需求新增但容量只够一项。”变为“付款质量已满足，配色是低成本必要无障碍修复且不影响目标，容量充足。”，故“与Product Owner按目标协商配色范围，保付款安全质量和完成定义。”改为“纳入已核可承受修复并保验收，不机械拒绝所有Sprint内变化。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "可调整范围不意味着降低既定质量，选择需服从受益目标和容量约束。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "requirements.tradeoff-2",
+      "family": "requirements.tradeoff",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "nasa"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "requirements.tradeoff",
+          "difficulty": "进阶",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "用户目标与实现偏好",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。",
+            "facts": {
+              "observed_boundary": "业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。"
+            },
+            "citations": [
+              {
+                "source_id": "nasa",
+                "quote": "state the problem not the solution"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先明确用户结果和约束，比较最小测量/优化与拆分成本，不承诺未知收益。",
+              "十个服务数量达到就说明等待问题解决。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "实现数量不是用户结果，尚无证据说明拆分能改善真正瓶颈。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。 因此“十个服务数量达到就说明等待问题解决。”不成立。",
+            "help_boundary": "指出“先明确用户结果和约束，比较最小测量/优化与拆分成本，不承诺未知收益。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。",
+          "expected_evidence": "应核对的冻结观察：业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。",
+          "decision_effect": "先明确用户结果和约束，比较最小测量/优化与拆分成本，不承诺未知收益。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "实现数量不是用户结果，尚无证据说明拆分能改善真正瓶颈。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "实现数量不是用户结果，尚无证据说明拆分能改善真正瓶颈。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。",
+                    "citation": {
+                      "source_id": "nasa",
+                      "quote": "state the problem not the solution"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。"
+                  }
+                ],
+                "rule_quote": "实现数量不是用户结果，尚无证据说明拆分能改善真正瓶颈。",
+                "counterexample_quote": null,
+                "explanation": "实现数量不是用户结果，尚无证据说明拆分能改善真正瓶颈。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "实现数量不是用户结果，尚无证据说明拆分能改善真正瓶颈。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为十个服务数量达到就说明等待问题解决。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为十个服务数量达到就说明等待问题解决。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。",
+                    "citation": {
+                      "source_id": "nasa",
+                      "quote": "state the problem not the solution"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。"
+                  }
+                ],
+                "rule_quote": "实现数量不是用户结果，尚无证据说明拆分能改善真正瓶颈。",
+                "counterexample_quote": "反例：业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。 因此“十个服务数量达到就说明等待问题解决。”不成立。",
+                "explanation": "实现数量不是用户结果，尚无证据说明拆分能改善真正瓶颈。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。 因此“十个服务数量达到就说明等待问题解决。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "requirements.tradeoff",
+          "difficulty": "进阶",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "用户目标与实现偏好：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "已证等待主要来自可缓存的只读查询；约定允许30秒旧数据，但余额查询必须实时。",
+            "facts": {
+              "observed_boundary": "已证等待主要来自可缓存的只读查询；约定允许30秒旧数据，但余额查询必须实时。"
+            },
+            "citations": [
+              {
+                "source_id": "nasa",
+                "quote": "state the problem not the solution"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按一致性边界比较只缓存允许陈旧部分的成本与收益，保余额实时验收。",
+              "十个服务数量达到就说明等待问题解决。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "实际等待与容忍度已知后可以做受约束取舍，不能把局部容忍推广到余额。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：已证等待主要来自可缓存的只读查询；约定允许30秒旧数据，但余额查询必须实时。 因此“十个服务数量达到就说明等待问题解决。”不成立。",
+            "help_boundary": "指出“按一致性边界比较只缓存允许陈旧部分的成本与收益，保余额实时验收。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "已证等待主要来自可缓存的只读查询；约定允许30秒旧数据，但余额查询必须实时。",
+          "expected_evidence": "应核对的冻结观察：已证等待主要来自可缓存的只读查询；约定允许30秒旧数据，但余额查询必须实时。",
+          "decision_effect": "按一致性边界比较只缓存允许陈旧部分的成本与收益，保余额实时验收。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "用户目标与实现偏好（换名版本）",
+      "variation_basis": "由“业务要将高峰查询等待降到可接受范围；提案直接要求拆十个服务，无等待分解、成本预算或验收阈值。”变为“已证等待主要来自可缓存的只读查询；约定允许30秒旧数据，但余额查询必须实时。”，故“先明确用户结果和约束，比较最小测量/优化与拆分成本，不承诺未知收益。”改为“按一致性边界比较只缓存允许陈旧部分的成本与收益，保余额实时验收。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "实现数量不是用户结果，尚无证据说明拆分能改善真正瓶颈。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "requirements.tradeoff-3",
+      "family": "requirements.tradeoff",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "scrum"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "requirements.tradeoff",
+          "difficulty": "综合",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "原目标过时与继续投入",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。",
+            "facts": {
+              "observed_boundary": "采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。"
+            },
+            "citations": [
+              {
+                "source_id": "scrum",
+                "quote": "if the Sprint Goal becomes obsolete"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "向Product Owner呈现目标过时证据及替代成本，由其决定是否取消并重新规划。",
+              "只因已投入两周就继续到原截止日并宣布实现了有效目标。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "已发生投入不恢复目标价值，Scrum允许由Product Owner在目标过时后取消。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。 因此“只因已投入两周就继续到原截止日并宣布实现了有效目标。”不成立。",
+            "help_boundary": "指出“向Product Owner呈现目标过时证据及替代成本，由其决定是否取消并重新规划。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。",
+          "expected_evidence": "应核对的冻结观察：采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。",
+          "decision_effect": "向Product Owner呈现目标过时证据及替代成本，由其决定是否取消并重新规划。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "已发生投入不恢复目标价值，Scrum允许由Product Owner在目标过时后取消。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "已发生投入不恢复目标价值，Scrum允许由Product Owner在目标过时后取消。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。",
+                    "citation": {
+                      "source_id": "scrum",
+                      "quote": "if the Sprint Goal becomes obsolete"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。"
+                  }
+                ],
+                "rule_quote": "已发生投入不恢复目标价值，Scrum允许由Product Owner在目标过时后取消。",
+                "counterexample_quote": null,
+                "explanation": "已发生投入不恢复目标价值，Scrum允许由Product Owner在目标过时后取消。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "已发生投入不恢复目标价值，Scrum允许由Product Owner在目标过时后取消。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为只因已投入两周就继续到原截止日并宣布实现了有效目标。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为只因已投入两周就继续到原截止日并宣布实现了有效目标。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。",
+                    "citation": {
+                      "source_id": "scrum",
+                      "quote": "if the Sprint Goal becomes obsolete"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。"
+                  }
+                ],
+                "rule_quote": "已发生投入不恢复目标价值，Scrum允许由Product Owner在目标过时后取消。",
+                "counterexample_quote": "反例：采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。 因此“只因已投入两周就继续到原截止日并宣布实现了有效目标。”不成立。",
+                "explanation": "已发生投入不恢复目标价值，Scrum允许由Product Owner在目标过时后取消。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。 因此“只因已投入两周就继续到原截止日并宣布实现了有效目标。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "requirements.tradeoff",
+          "difficulty": "综合",
+          "background_id": "requirements-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "原目标过时与继续投入：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "渠道确认继续有效且用户价值不变，只是估算不足；删非必要范围可保目标和质量。",
+            "facts": {
+              "observed_boundary": "渠道确认继续有效且用户价值不变，只是估算不足；删非必要范围可保目标和质量。"
+            },
+            "citations": [
+              {
+                "source_id": "scrum",
+                "quote": "without affecting the Sprint Goal"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "协商缩小范围保持目标和质量，不把一次估算偏差当成目标过时。",
+              "只因已投入两周就继续到原截止日并宣布实现了有效目标。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "目标仍有效时调整工作范围与取消目标不同，需按变化后的证据选择。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：渠道确认继续有效且用户价值不变，只是估算不足；删非必要范围可保目标和质量。 因此“只因已投入两周就继续到原截止日并宣布实现了有效目标。”不成立。",
+            "help_boundary": "指出“协商缩小范围保持目标和质量，不把一次估算偏差当成目标过时。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "渠道确认继续有效且用户价值不变，只是估算不足；删非必要范围可保目标和质量。",
+          "expected_evidence": "应核对的冻结观察：渠道确认继续有效且用户价值不变，只是估算不足；删非必要范围可保目标和质量。",
+          "decision_effect": "协商缩小范围保持目标和质量，不把一次估算偏差当成目标过时。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "原目标过时与继续投入（换名版本）",
+      "variation_basis": "由“采用Scrum；Sprint目标是接入渠道A，但合同确认A将停止服务，目标已失商业意义；剩余三天且有沉没投入。”变为“渠道确认继续有效且用户价值不变，只是估算不足；删非必要范围可保目标和质量。”，故“向Product Owner呈现目标过时证据及替代成本，由其决定是否取消并重新规划。”改为“协商缩小范围保持目标和质量，不把一次估算偏差当成目标过时。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "已发生投入不恢复目标价值，Scrum允许由Product Owner在目标过时后取消。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "architecture.responsibility-1",
+      "family": "architecture.responsibility",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "domain"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "architecture.responsibility",
+          "difficulty": "基础",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "按文件夹还是业务职责拆分",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。",
+            "facts": {
+              "observed_boundary": "订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。"
+            },
+            "citations": [
+              {
+                "source_id": "domain",
+                "quote": "Design microservices around business capabilities"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先保订单职责内聚，识别实际变化边界，不因三层文件夹就拆三个远程服务。",
+              "每个技术层各一服务就自动低耦合。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "共同业务变化跨三服务仍强耦合，部署数量不能代替职责边界。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。 因此“每个技术层各一服务就自动低耦合。”不成立。",
+            "help_boundary": "指出“先保订单职责内聚，识别实际变化边界，不因三层文件夹就拆三个远程服务。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。",
+          "expected_evidence": "应核对的冻结观察：订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。",
+          "decision_effect": "先保订单职责内聚，识别实际变化边界，不因三层文件夹就拆三个远程服务。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "共同业务变化跨三服务仍强耦合，部署数量不能代替职责边界。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "共同业务变化跨三服务仍强耦合，部署数量不能代替职责边界。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。",
+                    "citation": {
+                      "source_id": "domain",
+                      "quote": "Design microservices around business capabilities"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。"
+                  }
+                ],
+                "rule_quote": "共同业务变化跨三服务仍强耦合，部署数量不能代替职责边界。",
+                "counterexample_quote": null,
+                "explanation": "共同业务变化跨三服务仍强耦合，部署数量不能代替职责边界。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "共同业务变化跨三服务仍强耦合，部署数量不能代替职责边界。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为每个技术层各一服务就自动低耦合。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为每个技术层各一服务就自动低耦合。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。",
+                    "citation": {
+                      "source_id": "domain",
+                      "quote": "Design microservices around business capabilities"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。"
+                  }
+                ],
+                "rule_quote": "共同业务变化跨三服务仍强耦合，部署数量不能代替职责边界。",
+                "counterexample_quote": "反例：订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。 因此“每个技术层各一服务就自动低耦合。”不成立。",
+                "explanation": "共同业务变化跨三服务仍强耦合，部署数量不能代替职责边界。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。 因此“每个技术层各一服务就自动低耦合。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "architecture.responsibility",
+          "difficulty": "基础",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "按文件夹还是业务职责拆分：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "通知策略由独立团队频繁调整，只读已提交订单事件且不拥有订单状态，可延迟。",
+            "facts": {
+              "observed_boundary": "通知策略由独立团队频繁调整，只读已提交订单事件且不拥有订单状态，可延迟。"
+            },
+            "citations": [
+              {
+                "source_id": "domain",
+                "quote": "without updating other services at the same time"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "评估把通知作为独立职责，冻结事件及失败隔离契约再决定部署。",
+              "每个技术层各一服务就自动低耦合。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "独立变化与状态归属支持新边界，但仍需验证接口和运行成本。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：通知策略由独立团队频繁调整，只读已提交订单事件且不拥有订单状态，可延迟。 因此“每个技术层各一服务就自动低耦合。”不成立。",
+            "help_boundary": "指出“评估把通知作为独立职责，冻结事件及失败隔离契约再决定部署。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "通知策略由独立团队频繁调整，只读已提交订单事件且不拥有订单状态，可延迟。",
+          "expected_evidence": "应核对的冻结观察：通知策略由独立团队频繁调整，只读已提交订单事件且不拥有订单状态，可延迟。",
+          "decision_effect": "评估把通知作为独立职责，冻结事件及失败隔离契约再决定部署。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "按文件夹还是业务职责拆分（换名版本）",
+      "variation_basis": "由“订单Controller/Service/DAO每次规则变化都一起改且共享订单状态；拟按三技术层拆成远程服务，没有独立业务需求。”变为“通知策略由独立团队频繁调整，只读已提交订单事件且不拥有订单状态，可延迟。”，故“先保订单职责内聚，识别实际变化边界，不因三层文件夹就拆三个远程服务。”改为“评估把通知作为独立职责，冻结事件及失败隔离契约再决定部署。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "共同业务变化跨三服务仍强耦合，部署数量不能代替职责边界。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "architecture.responsibility-2",
+      "family": "architecture.responsibility",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "domain"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "architecture.responsibility",
+          "difficulty": "进阶",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "同名账户不是同一模型",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。",
+            "facts": {
+              "observed_boundary": "登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。"
+            },
+            "citations": [
+              {
+                "source_id": "domain",
+                "quote": "same word (like account ) has different meanings"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "分别明确两个语境的词义、所有权与接口，避免把封禁直接等同财务结清。",
+              "字段同名足以证明状态规则可以完全共享。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "同一词在不同业务语境可有不同含义，直接共享可写状态会混淆不变量。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。 因此“字段同名足以证明状态规则可以完全共享。”不成立。",
+            "help_boundary": "指出“分别明确两个语境的词义、所有权与接口，避免把封禁直接等同财务结清。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。",
+          "expected_evidence": "应核对的冻结观察：登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。",
+          "decision_effect": "分别明确两个语境的词义、所有权与接口，避免把封禁直接等同财务结清。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "同一词在不同业务语境可有不同含义，直接共享可写状态会混淆不变量。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "同一词在不同业务语境可有不同含义，直接共享可写状态会混淆不变量。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。",
+                    "citation": {
+                      "source_id": "domain",
+                      "quote": "same word (like account ) has different meanings"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。"
+                  }
+                ],
+                "rule_quote": "同一词在不同业务语境可有不同含义，直接共享可写状态会混淆不变量。",
+                "counterexample_quote": null,
+                "explanation": "同一词在不同业务语境可有不同含义，直接共享可写状态会混淆不变量。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "同一词在不同业务语境可有不同含义，直接共享可写状态会混淆不变量。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为字段同名足以证明状态规则可以完全共享。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为字段同名足以证明状态规则可以完全共享。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。",
+                    "citation": {
+                      "source_id": "domain",
+                      "quote": "same word (like account ) has different meanings"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。"
+                  }
+                ],
+                "rule_quote": "同一词在不同业务语境可有不同含义，直接共享可写状态会混淆不变量。",
+                "counterexample_quote": "反例：登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。 因此“字段同名足以证明状态规则可以完全共享。”不成立。",
+                "explanation": "同一词在不同业务语境可有不同含义，直接共享可写状态会混淆不变量。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。 因此“字段同名足以证明状态规则可以完全共享。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "architecture.responsibility",
+          "difficulty": "进阶",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "同名账户不是同一模型：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "业务确认两模块其实管理同一订阅合同与同一状态机，总是共同发布，所谓独立规则不存在。",
+            "facts": {
+              "observed_boundary": "业务确认两模块其实管理同一订阅合同与同一状态机，总是共同发布，所谓独立规则不存在。"
+            },
+            "citations": [
+              {
+                "source_id": "domain",
+                "quote": "without updating other services at the same time"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先统一已确认的合同模型，别凭团队命名强拆两个相同状态所有者。",
+              "字段同名足以证明状态规则可以完全共享。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新证据表明语义与变化一致，不能把上下文划分口号代替领域核对。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：业务确认两模块其实管理同一订阅合同与同一状态机，总是共同发布，所谓独立规则不存在。 因此“字段同名足以证明状态规则可以完全共享。”不成立。",
+            "help_boundary": "指出“先统一已确认的合同模型，别凭团队命名强拆两个相同状态所有者。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "业务确认两模块其实管理同一订阅合同与同一状态机，总是共同发布，所谓独立规则不存在。",
+          "expected_evidence": "应核对的冻结观察：业务确认两模块其实管理同一订阅合同与同一状态机，总是共同发布，所谓独立规则不存在。",
+          "decision_effect": "先统一已确认的合同模型，别凭团队命名强拆两个相同状态所有者。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "同名账户不是同一模型（换名版本）",
+      "variation_basis": "由“登录账户保存凭据与封禁状态，财务账户保存借贷与结算规则；同叫account就拟共用可写表和状态字段。”变为“业务确认两模块其实管理同一订阅合同与同一状态机，总是共同发布，所谓独立规则不存在。”，故“分别明确两个语境的词义、所有权与接口，避免把封禁直接等同财务结清。”改为“先统一已确认的合同模型，别凭团队命名强拆两个相同状态所有者。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "同一词在不同业务语境可有不同含义，直接共享可写状态会混淆不变量。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "architecture.responsibility-3",
+      "family": "architecture.responsibility",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "domain"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "architecture.responsibility",
+          "difficulty": "综合",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "订单履约与结算的同步耦合",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。",
+            "facts": {
+              "observed_boundary": "履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。"
+            },
+            "citations": [
+              {
+                "source_id": "domain",
+                "quote": "without updating other services at the same time"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "沿真实调用和状态所有权梳理不变量，先定义各自提交及协调失败规则再划界。",
+              "把三个模块搬到三台机器即可消除共同发布与部分成功。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "物理拆分不解除语义与写入耦合，跨边界协议必须支持真实业务一致性。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。 因此“把三个模块搬到三台机器即可消除共同发布与部分成功。”不成立。",
+            "help_boundary": "指出“沿真实调用和状态所有权梳理不变量，先定义各自提交及协调失败规则再划界。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。",
+          "expected_evidence": "应核对的冻结观察：履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。",
+          "decision_effect": "沿真实调用和状态所有权梳理不变量，先定义各自提交及协调失败规则再划界。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "物理拆分不解除语义与写入耦合，跨边界协议必须支持真实业务一致性。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "物理拆分不解除语义与写入耦合，跨边界协议必须支持真实业务一致性。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。",
+                    "citation": {
+                      "source_id": "domain",
+                      "quote": "without updating other services at the same time"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。"
+                  }
+                ],
+                "rule_quote": "物理拆分不解除语义与写入耦合，跨边界协议必须支持真实业务一致性。",
+                "counterexample_quote": null,
+                "explanation": "物理拆分不解除语义与写入耦合，跨边界协议必须支持真实业务一致性。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "物理拆分不解除语义与写入耦合，跨边界协议必须支持真实业务一致性。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为把三个模块搬到三台机器即可消除共同发布与部分成功。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为把三个模块搬到三台机器即可消除共同发布与部分成功。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。",
+                    "citation": {
+                      "source_id": "domain",
+                      "quote": "without updating other services at the same time"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。"
+                  }
+                ],
+                "rule_quote": "物理拆分不解除语义与写入耦合，跨边界协议必须支持真实业务一致性。",
+                "counterexample_quote": "反例：履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。 因此“把三个模块搬到三台机器即可消除共同发布与部分成功。”不成立。",
+                "explanation": "物理拆分不解除语义与写入耦合，跨边界协议必须支持真实业务一致性。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。 因此“把三个模块搬到三台机器即可消除共同发布与部分成功。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "architecture.responsibility",
+          "difficulty": "综合",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "订单履约与结算的同步耦合：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "共同写入已移除；履约事件有版本且结算可延迟，但消费者仍依赖提供方内部字段名。",
+            "facts": {
+              "observed_boundary": "共同写入已移除；履约事件有版本且结算可延迟，但消费者仍依赖提供方内部字段名。"
+            },
+            "citations": [
+              {
+                "source_id": "domain",
+                "quote": "without updating other services at the same time"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已隔离写入，补稳定事件契约和兼容验证，针对剩余字段耦合改进。",
+              "把三个模块搬到三台机器即可消除共同发布与部分成功。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "已有状态边界有效不等于接口耦合消失，应针对剩余共同变化修正。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：共同写入已移除；履约事件有版本且结算可延迟，但消费者仍依赖提供方内部字段名。 因此“把三个模块搬到三台机器即可消除共同发布与部分成功。”不成立。",
+            "help_boundary": "指出“保已隔离写入，补稳定事件契约和兼容验证，针对剩余字段耦合改进。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "共同写入已移除；履约事件有版本且结算可延迟，但消费者仍依赖提供方内部字段名。",
+          "expected_evidence": "应核对的冻结观察：共同写入已移除；履约事件有版本且结算可延迟，但消费者仍依赖提供方内部字段名。",
+          "decision_effect": "保已隔离写入，补稳定事件契约和兼容验证，针对剩余字段耦合改进。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "订单履约与结算的同步耦合（换名版本）",
+      "variation_basis": "由“履约与结算各有独立规则，但一方每次变更要求另两模块同步发布；订单关闭直接写三方状态，部分写成功会不一致。”变为“共同写入已移除；履约事件有版本且结算可延迟，但消费者仍依赖提供方内部字段名。”，故“沿真实调用和状态所有权梳理不变量，先定义各自提交及协调失败规则再划界。”改为“保已隔离写入，补稳定事件契约和兼容验证，针对剩余字段耦合改进。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "物理拆分不解除语义与写入耦合，跨边界协议必须支持真实业务一致性。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "architecture.evolution-1",
+      "family": "architecture.evolution",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "strangler"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "architecture.evolution",
+          "difficulty": "基础",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "新旧入口同时在线",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。",
+            "facts": {
+              "observed_boundary": "旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。"
+            },
+            "citations": [
+              {
+                "source_id": "strangler",
+                "quote": "both systems can access these resources"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "用可控门面逐步切只读路径并验证回退，保旧写入入口。",
+              "先删旧服务再验证新只读路径，以为数据自然兼容。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "渐进切换依赖新旧共存和资源兼容，旧职责未迁移时不能提前删除。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。 因此“先删旧服务再验证新只读路径，以为数据自然兼容。”不成立。",
+            "help_boundary": "指出“用可控门面逐步切只读路径并验证回退，保旧写入入口。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。",
+          "expected_evidence": "应核对的冻结观察：旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。",
+          "decision_effect": "用可控门面逐步切只读路径并验证回退，保旧写入入口。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "渐进切换依赖新旧共存和资源兼容，旧职责未迁移时不能提前删除。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "渐进切换依赖新旧共存和资源兼容，旧职责未迁移时不能提前删除。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。",
+                    "citation": {
+                      "source_id": "strangler",
+                      "quote": "both systems can access these resources"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。"
+                  }
+                ],
+                "rule_quote": "渐进切换依赖新旧共存和资源兼容，旧职责未迁移时不能提前删除。",
+                "counterexample_quote": null,
+                "explanation": "渐进切换依赖新旧共存和资源兼容，旧职责未迁移时不能提前删除。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "渐进切换依赖新旧共存和资源兼容，旧职责未迁移时不能提前删除。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为先删旧服务再验证新只读路径，以为数据自然兼容。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为先删旧服务再验证新只读路径，以为数据自然兼容。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。",
+                    "citation": {
+                      "source_id": "strangler",
+                      "quote": "both systems can access these resources"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。"
+                  }
+                ],
+                "rule_quote": "渐进切换依赖新旧共存和资源兼容，旧职责未迁移时不能提前删除。",
+                "counterexample_quote": "反例：旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。 因此“先删旧服务再验证新只读路径，以为数据自然兼容。”不成立。",
+                "explanation": "渐进切换依赖新旧共存和资源兼容，旧职责未迁移时不能提前删除。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。 因此“先删旧服务再验证新只读路径，以为数据自然兼容。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "architecture.evolution",
+          "difficulty": "基础",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "新旧入口同时在线：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "客户端直连硬编码且无法拦截，旧源代码不可修改；原门面切流方案无法落地。",
+            "facts": {
+              "observed_boundary": "客户端直连硬编码且无法拦截，旧源代码不可修改；原门面切流方案无法落地。"
+            },
+            "citations": [
+              {
+                "source_id": "strangler",
+                "quote": "system can't be intercepted"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "明确现有渐进路由方案不适用，先评估客户端升级等可控迁移条件。",
+              "先删旧服务再验证新只读路径，以为数据自然兼容。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "拦截条件不存在时不能假装门面已控制流量，需要可执行替代方案。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：客户端直连硬编码且无法拦截，旧源代码不可修改；原门面切流方案无法落地。 因此“先删旧服务再验证新只读路径，以为数据自然兼容。”不成立。",
+            "help_boundary": "指出“明确现有渐进路由方案不适用，先评估客户端升级等可控迁移条件。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "客户端直连硬编码且无法拦截，旧源代码不可修改；原门面切流方案无法落地。",
+          "expected_evidence": "应核对的冻结观察：客户端直连硬编码且无法拦截，旧源代码不可修改；原门面切流方案无法落地。",
+          "decision_effect": "明确现有渐进路由方案不适用，先评估客户端升级等可控迁移条件。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "新旧入口同时在线（换名版本）",
+      "variation_basis": "由“旧订单服务需持续可用；可以按路径拦截，计划只迁移只读查询，写入仍由旧服务负责且新读兼容旧格式。”变为“客户端直连硬编码且无法拦截，旧源代码不可修改；原门面切流方案无法落地。”，故“用可控门面逐步切只读路径并验证回退，保旧写入入口。”改为“明确现有渐进路由方案不适用，先评估客户端升级等可控迁移条件。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "渐进切换依赖新旧共存和资源兼容，旧职责未迁移时不能提前删除。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "architecture.evolution-2",
+      "family": "architecture.evolution",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "strangler"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "architecture.evolution",
+          "difficulty": "进阶",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "切流量不能停止旧写入",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。",
+            "facts": {
+              "observed_boundary": "新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。"
+            },
+            "citations": [
+              {
+                "source_id": "strangler",
+                "quote": "both systems can access these resources"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先设计共存读写兼容和转换验证，等旧写者退役证据齐全后再移除旧表示。",
+              "HTTP已全切新服务就可立刻破坏旧字段且无需回退检查。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "后台写者仍存活，入口流量并不能证明共同数据的旧依赖已消失。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。 因此“HTTP已全切新服务就可立刻破坏旧字段且无需回退检查。”不成立。",
+            "help_boundary": "指出“先设计共存读写兼容和转换验证，等旧写者退役证据齐全后再移除旧表示。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。",
+          "expected_evidence": "应核对的冻结观察：新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。",
+          "decision_effect": "先设计共存读写兼容和转换验证，等旧写者退役证据齐全后再移除旧表示。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "后台写者仍存活，入口流量并不能证明共同数据的旧依赖已消失。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "后台写者仍存活，入口流量并不能证明共同数据的旧依赖已消失。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。",
+                    "citation": {
+                      "source_id": "strangler",
+                      "quote": "both systems can access these resources"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。"
+                  }
+                ],
+                "rule_quote": "后台写者仍存活，入口流量并不能证明共同数据的旧依赖已消失。",
+                "counterexample_quote": null,
+                "explanation": "后台写者仍存活，入口流量并不能证明共同数据的旧依赖已消失。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "后台写者仍存活，入口流量并不能证明共同数据的旧依赖已消失。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为HTTP已全切新服务就可立刻破坏旧字段且无需回退检查。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为HTTP已全切新服务就可立刻破坏旧字段且无需回退检查。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。",
+                    "citation": {
+                      "source_id": "strangler",
+                      "quote": "both systems can access these resources"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。"
+                  }
+                ],
+                "rule_quote": "后台写者仍存活，入口流量并不能证明共同数据的旧依赖已消失。",
+                "counterexample_quote": "反例：新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。 因此“HTTP已全切新服务就可立刻破坏旧字段且无需回退检查。”不成立。",
+                "explanation": "后台写者仍存活，入口流量并不能证明共同数据的旧依赖已消失。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。 因此“HTTP已全切新服务就可立刻破坏旧字段且无需回退检查。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "architecture.evolution",
+          "difficulty": "进阶",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "切流量不能停止旧写入：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "旧写者全部停用且排空已确认，兼容读和备份验证完成；剩余旧字段只为过期客户端提供读适配。",
+            "facts": {
+              "observed_boundary": "旧写者全部停用且排空已确认，兼容读和备份验证完成；剩余旧字段只为过期客户端提供读适配。"
+            },
+            "citations": [
+              {
+                "source_id": "strangler",
+                "quote": "both systems can access these resources"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "评估保适配器的期限与成本，按已确认客户端迁移计划逐步移除。",
+              "HTTP已全切新服务就可立刻破坏旧字段且无需回退检查。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "移除风险已收窄到明确读依赖，可基于证据推进而非无限保所有旧写逻辑。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：旧写者全部停用且排空已确认，兼容读和备份验证完成；剩余旧字段只为过期客户端提供读适配。 因此“HTTP已全切新服务就可立刻破坏旧字段且无需回退检查。”不成立。",
+            "help_boundary": "指出“评估保适配器的期限与成本，按已确认客户端迁移计划逐步移除。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "旧写者全部停用且排空已确认，兼容读和备份验证完成；剩余旧字段只为过期客户端提供读适配。",
+          "expected_evidence": "应核对的冻结观察：旧写者全部停用且排空已确认，兼容读和备份验证完成；剩余旧字段只为过期客户端提供读适配。",
+          "decision_effect": "评估保适配器的期限与成本，按已确认客户端迁移计划逐步移除。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "切流量不能停止旧写入（换名版本）",
+      "variation_basis": "由“新旧服务共存，新版想立即把amount整数分改成浮点元；旧后台任务仍写整数分，回退需读旧数据。”变为“旧写者全部停用且排空已确认，兼容读和备份验证完成；剩余旧字段只为过期客户端提供读适配。”，故“先设计共存读写兼容和转换验证，等旧写者退役证据齐全后再移除旧表示。”改为“评估保适配器的期限与成本，按已确认客户端迁移计划逐步移除。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "后台写者仍存活，入口流量并不能证明共同数据的旧依赖已消失。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "architecture.evolution-3",
+      "family": "architecture.evolution",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "strangler"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "architecture.evolution",
+          "difficulty": "综合",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "门面成了单点",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。",
+            "facts": {
+              "observed_boundary": "新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。"
+            },
+            "citations": [
+              {
+                "source_id": "strangler",
+                "quote": "single point of failure"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "比较门面冗余/降级与适配职责分离，验证故障范围及新旧调用，不能只扩业务实例。",
+              "新业务已有三副本就证明整个迁移入口无单点。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "共同入口失效会跨越新旧业务，内部副本数不能证明入口可用。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。 因此“新业务已有三副本就证明整个迁移入口无单点。”不成立。",
+            "help_boundary": "指出“比较门面冗余/降级与适配职责分离，验证故障范围及新旧调用，不能只扩业务实例。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。",
+          "expected_evidence": "应核对的冻结观察：新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。",
+          "decision_effect": "比较门面冗余/降级与适配职责分离，验证故障范围及新旧调用，不能只扩业务实例。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "共同入口失效会跨越新旧业务，内部副本数不能证明入口可用。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "共同入口失效会跨越新旧业务，内部副本数不能证明入口可用。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。",
+                    "citation": {
+                      "source_id": "strangler",
+                      "quote": "single point of failure"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。"
+                  }
+                ],
+                "rule_quote": "共同入口失效会跨越新旧业务，内部副本数不能证明入口可用。",
+                "counterexample_quote": null,
+                "explanation": "共同入口失效会跨越新旧业务，内部副本数不能证明入口可用。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "共同入口失效会跨越新旧业务，内部副本数不能证明入口可用。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为新业务已有三副本就证明整个迁移入口无单点。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为新业务已有三副本就证明整个迁移入口无单点。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。",
+                    "citation": {
+                      "source_id": "strangler",
+                      "quote": "single point of failure"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。"
+                  }
+                ],
+                "rule_quote": "共同入口失效会跨越新旧业务，内部副本数不能证明入口可用。",
+                "counterexample_quote": "反例：新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。 因此“新业务已有三副本就证明整个迁移入口无单点。”不成立。",
+                "explanation": "共同入口失效会跨越新旧业务，内部副本数不能证明入口可用。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。 因此“新业务已有三副本就证明整个迁移入口无单点。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "architecture.evolution",
+          "difficulty": "综合",
+          "background_id": "architecture-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "门面成了单点：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "入口冗余切换已验证，但旧系统的取消语义被直接映射为新系统永久删除，隔离重放显示误删。",
+            "facts": {
+              "observed_boundary": "入口冗余切换已验证，但旧系统的取消语义被直接映射为新系统永久删除，隔离重放显示误删。"
+            },
+            "citations": [
+              {
+                "source_id": "strangler",
+                "quote": "translates requests between the two systems"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已证入口冗余，修语义适配与恢复验证后再切该功能，不把误删当容量问题。",
+              "新业务已有三副本就证明整个迁移入口无单点。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "可用性单点修好后仍需核跨系统含义，新的数据风险要求不同修复。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：入口冗余切换已验证，但旧系统的取消语义被直接映射为新系统永久删除，隔离重放显示误删。 因此“新业务已有三副本就证明整个迁移入口无单点。”不成立。",
+            "help_boundary": "指出“保已证入口冗余，修语义适配与恢复验证后再切该功能，不把误删当容量问题。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "入口冗余切换已验证，但旧系统的取消语义被直接映射为新系统永久删除，隔离重放显示误删。",
+          "expected_evidence": "应核对的冻结观察：入口冗余切换已验证，但旧系统的取消语义被直接映射为新系统永久删除，隔离重放显示误删。",
+          "decision_effect": "保已证入口冗余，修语义适配与恢复验证后再切该功能，不把误删当容量问题。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "门面成了单点（换名版本）",
+      "variation_basis": "由“新旧业务都经唯一门面实例；实例故障时两边均不可达，内部服务健康；跨系统语义转换也在该实例。”变为“入口冗余切换已验证，但旧系统的取消语义被直接映射为新系统永久删除，隔离重放显示误删。”，故“比较门面冗余/降级与适配职责分离，验证故障范围及新旧调用，不能只扩业务实例。”改为“保已证入口冗余，修语义适配与恢复验证后再切该功能，不把误删当容量问题。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "共同入口失效会跨越新旧业务，内部副本数不能证明入口可用。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "team.review-1",
+      "family": "team.review",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "review"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "team.review",
+          "difficulty": "基础",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "AI说安全但没看差异",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。",
+            "facts": {
+              "observed_boundary": "AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。"
+            },
+            "citations": [
+              {
+                "source_id": "review",
+                "quote": "look at the whole file"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "追踪API调用与权限差异，构造跨账号拒绝测试，不能按总结批准。",
+              "AI总结和截图都说正常就不看服务端差异。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "摘要遗漏可达权限变更，审查应覆盖实际差异与系统上下文。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。 因此“AI总结和截图都说正常就不看服务端差异。”不成立。",
+            "help_boundary": "指出“追踪API调用与权限差异，构造跨账号拒绝测试，不能按总结批准。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。",
+          "expected_evidence": "应核对的冻结观察：AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。",
+          "decision_effect": "追踪API调用与权限差异，构造跨账号拒绝测试，不能按总结批准。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "摘要遗漏可达权限变更，审查应覆盖实际差异与系统上下文。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "摘要遗漏可达权限变更，审查应覆盖实际差异与系统上下文。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。",
+                    "citation": {
+                      "source_id": "review",
+                      "quote": "look at the whole file"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。"
+                  }
+                ],
+                "rule_quote": "摘要遗漏可达权限变更，审查应覆盖实际差异与系统上下文。",
+                "counterexample_quote": null,
+                "explanation": "摘要遗漏可达权限变更，审查应覆盖实际差异与系统上下文。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "摘要遗漏可达权限变更，审查应覆盖实际差异与系统上下文。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为AI总结和截图都说正常就不看服务端差异。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为AI总结和截图都说正常就不看服务端差异。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。",
+                    "citation": {
+                      "source_id": "review",
+                      "quote": "look at the whole file"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。"
+                  }
+                ],
+                "rule_quote": "摘要遗漏可达权限变更，审查应覆盖实际差异与系统上下文。",
+                "counterexample_quote": "反例：AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。 因此“AI总结和截图都说正常就不看服务端差异。”不成立。",
+                "explanation": "摘要遗漏可达权限变更，审查应覆盖实际差异与系统上下文。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。 因此“AI总结和截图都说正常就不看服务端差异。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "team.review",
+          "difficulty": "基础",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "AI说安全但没看差异：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "diff已证明owner条件未变且跨账号拒绝通过；按钮键盘事件重复提交同请求，现测试只覆盖鼠标。",
+            "facts": {
+              "observed_boundary": "diff已证明owner条件未变且跨账号拒绝通过；按钮键盘事件重复提交同请求，现测试只覆盖鼠标。"
+            },
+            "citations": [
+              {
+                "source_id": "review",
+                "quote": "Will the tests actually fail when the code is broken?"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已核权限结论，增加键盘重复提交的真实回归，不再凭摘要泛称安全。",
+              "AI总结和截图都说正常就不看服务端差异。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新可达路径与既有鼠标测试不同，应针对实际证据扩大检查。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：diff已证明owner条件未变且跨账号拒绝通过；按钮键盘事件重复提交同请求，现测试只覆盖鼠标。 因此“AI总结和截图都说正常就不看服务端差异。”不成立。",
+            "help_boundary": "指出“保已核权限结论，增加键盘重复提交的真实回归，不再凭摘要泛称安全。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "diff已证明owner条件未变且跨账号拒绝通过；按钮键盘事件重复提交同请求，现测试只覆盖鼠标。",
+          "expected_evidence": "应核对的冻结观察：diff已证明owner条件未变且跨账号拒绝通过；按钮键盘事件重复提交同请求，现测试只覆盖鼠标。",
+          "decision_effect": "保已核权限结论，增加键盘重复提交的真实回归，不再凭摘要泛称安全。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "AI说安全但没看差异（换名版本）",
+      "variation_basis": "由“AI总结称只改按钮；真实diff还移除了保存API的owner条件，只有截图测试，没有跨账号检查。”变为“diff已证明owner条件未变且跨账号拒绝通过；按钮键盘事件重复提交同请求，现测试只覆盖鼠标。”，故“追踪API调用与权限差异，构造跨账号拒绝测试，不能按总结批准。”改为“保已核权限结论，增加键盘重复提交的真实回归，不再凭摘要泛称安全。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "摘要遗漏可达权限变更，审查应覆盖实际差异与系统上下文。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "team.review-2",
+      "family": "team.review",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "review"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "team.review",
+          "difficulty": "进阶",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "绿色测试不一定拦回归",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。",
+            "facts": {
+              "observed_boundary": "修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。"
+            },
+            "citations": [
+              {
+                "source_id": "review",
+                "quote": "Will the tests actually fail when the code is broken?"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "先让旧缺陷确定出现并使同一核心断言失败，再核新修复通过。",
+              "只增加运行次数和绿色数量即可证明测试覆盖该竞态。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "不能在旧错误下失败的测试未证明防回归，应核真实时序与断言。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。 因此“只增加运行次数和绿色数量即可证明测试覆盖该竞态。”不成立。",
+            "help_boundary": "指出“先让旧缺陷确定出现并使同一核心断言失败，再核新修复通过。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。",
+          "expected_evidence": "应核对的冻结观察：修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。",
+          "decision_effect": "先让旧缺陷确定出现并使同一核心断言失败，再核新修复通过。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "不能在旧错误下失败的测试未证明防回归，应核真实时序与断言。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "不能在旧错误下失败的测试未证明防回归，应核真实时序与断言。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。",
+                    "citation": {
+                      "source_id": "review",
+                      "quote": "Will the tests actually fail when the code is broken?"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。"
+                  }
+                ],
+                "rule_quote": "不能在旧错误下失败的测试未证明防回归，应核真实时序与断言。",
+                "counterexample_quote": null,
+                "explanation": "不能在旧错误下失败的测试未证明防回归，应核真实时序与断言。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "不能在旧错误下失败的测试未证明防回归，应核真实时序与断言。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为只增加运行次数和绿色数量即可证明测试覆盖该竞态。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为只增加运行次数和绿色数量即可证明测试覆盖该竞态。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。",
+                    "citation": {
+                      "source_id": "review",
+                      "quote": "Will the tests actually fail when the code is broken?"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。"
+                  }
+                ],
+                "rule_quote": "不能在旧错误下失败的测试未证明防回归，应核真实时序与断言。",
+                "counterexample_quote": "反例：修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。 因此“只增加运行次数和绿色数量即可证明测试覆盖该竞态。”不成立。",
+                "explanation": "不能在旧错误下失败的测试未证明防回归，应核真实时序与断言。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。 因此“只增加运行次数和绿色数量即可证明测试覆盖该竞态。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "team.review",
+          "difficulty": "进阶",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "绿色测试不一定拦回归：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "旧代码已确定失败、新代码通过；新增错误分支未保用户输入，原竞态测试不执行该分支。",
+            "facts": {
+              "observed_boundary": "旧代码已确定失败、新代码通过；新增错误分支未保用户输入，原竞态测试不执行该分支。"
+            },
+            "citations": [
+              {
+                "source_id": "review",
+                "quote": "Will the tests actually fail when the code is broken?"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保竞态证据，另按失败恢复契约覆盖新增分支，不篡改原断言。",
+              "只增加运行次数和绿色数量即可证明测试覆盖该竞态。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "一条充分测试不能外推其他可达路径，审查需要对应风险证据。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：旧代码已确定失败、新代码通过；新增错误分支未保用户输入，原竞态测试不执行该分支。 因此“只增加运行次数和绿色数量即可证明测试覆盖该竞态。”不成立。",
+            "help_boundary": "指出“保竞态证据，另按失败恢复契约覆盖新增分支，不篡改原断言。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "旧代码已确定失败、新代码通过；新增错误分支未保用户输入，原竞态测试不执行该分支。",
+          "expected_evidence": "应核对的冻结观察：旧代码已确定失败、新代码通过；新增错误分支未保用户输入，原竞态测试不执行该分支。",
+          "decision_effect": "保竞态证据，另按失败恢复契约覆盖新增分支，不篡改原断言。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "绿色测试不一定拦回归（换名版本）",
+      "variation_basis": "由“修复竞态的测试断言最终值，但旧代码在故障屏障下也通过；作者以100%绿称竞态已验收。”变为“旧代码已确定失败、新代码通过；新增错误分支未保用户输入，原竞态测试不执行该分支。”，故“先让旧缺陷确定出现并使同一核心断言失败，再核新修复通过。”改为“保竞态证据，另按失败恢复契约覆盖新增分支，不篡改原断言。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "不能在旧错误下失败的测试未证明防回归，应核真实时序与断言。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "team.review-3",
+      "family": "team.review",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "copilot",
+        "review"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "team.review",
+          "difficulty": "综合",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "两份AI赞同不等于人工核验",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。",
+            "facts": {
+              "observed_boundary": "两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。"
+            },
+            "citations": [
+              {
+                "source_id": "copilot",
+                "quote": "not guaranteed to spot all problems or issues"
+              },
+              {
+                "source_id": "review",
+                "quote": "look at the whole file"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "核实际脚本与旧数据路径，补恢复边界验证并请求人工审查，不把AI一致当签核。",
+              "两份AI赞同可以填人工批准并省略数据验证。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "AI可漏报或误判，真实数据迁移必须用实际差异和测试核查。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。 因此“两份AI赞同可以填人工批准并省略数据验证。”不成立。",
+            "help_boundary": "指出“核实际脚本与旧数据路径，补恢复边界验证并请求人工审查，不把AI一致当签核。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。",
+          "expected_evidence": "应核对的冻结观察：两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。",
+          "decision_effect": "核实际脚本与旧数据路径，补恢复边界验证并请求人工审查，不把AI一致当签核。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "AI可漏报或误判，真实数据迁移必须用实际差异和测试核查。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "AI可漏报或误判，真实数据迁移必须用实际差异和测试核查。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。",
+                    "citation": {
+                      "source_id": "copilot",
+                      "quote": "not guaranteed to spot all problems or issues"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。"
+                  }
+                ],
+                "rule_quote": "AI可漏报或误判，真实数据迁移必须用实际差异和测试核查。",
+                "counterexample_quote": null,
+                "explanation": "AI可漏报或误判，真实数据迁移必须用实际差异和测试核查。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "AI可漏报或误判，真实数据迁移必须用实际差异和测试核查。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为两份AI赞同可以填人工批准并省略数据验证。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为两份AI赞同可以填人工批准并省略数据验证。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。",
+                    "citation": {
+                      "source_id": "copilot",
+                      "quote": "not guaranteed to spot all problems or issues"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。"
+                  }
+                ],
+                "rule_quote": "AI可漏报或误判，真实数据迁移必须用实际差异和测试核查。",
+                "counterexample_quote": "反例：两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。 因此“两份AI赞同可以填人工批准并省略数据验证。”不成立。",
+                "explanation": "AI可漏报或误判，真实数据迁移必须用实际差异和测试核查。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。 因此“两份AI赞同可以填人工批准并省略数据验证。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "team.review",
+          "difficulty": "综合",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "两份AI赞同不等于人工核验：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "人工已核本版本迁移且旧数据验证通过；后续提交改了转换规则，只有先前AI评论和旧报告。",
+            "facts": {
+              "observed_boundary": "人工已核本版本迁移且旧数据验证通过；后续提交改了转换规则，只有先前AI评论和旧报告。"
+            },
+            "citations": [
+              {
+                "source_id": "copilot",
+                "quote": "Supplement Copilot's feedback with a human review."
+              },
+              {
+                "source_id": "review",
+                "quote": "look at the whole file"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保旧版本证据，对新差异及受影响恢复路径重新核验，不沿用旧签核覆盖新代码。",
+              "两份AI赞同可以填人工批准并省略数据验证。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "审查证据绑定真实版本，新增变更不能由先前评论自动验证。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：人工已核本版本迁移且旧数据验证通过；后续提交改了转换规则，只有先前AI评论和旧报告。 因此“两份AI赞同可以填人工批准并省略数据验证。”不成立。",
+            "help_boundary": "指出“保旧版本证据，对新差异及受影响恢复路径重新核验，不沿用旧签核覆盖新代码。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "人工已核本版本迁移且旧数据验证通过；后续提交改了转换规则，只有先前AI评论和旧报告。",
+          "expected_evidence": "应核对的冻结观察：人工已核本版本迁移且旧数据验证通过；后续提交改了转换规则，只有先前AI评论和旧报告。",
+          "decision_effect": "保旧版本证据，对新差异及受影响恢复路径重新核验，不沿用旧签核覆盖新代码。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "两份AI赞同不等于人工核验（换名版本）",
+      "variation_basis": "由“两次Copilot意见一致称迁移安全，未打开实际迁移脚本；脚本可能覆盖旧字段且无旧数据恢复演练。”变为“人工已核本版本迁移且旧数据验证通过；后续提交改了转换规则，只有先前AI评论和旧报告。”，故“核实际脚本与旧数据路径，补恢复边界验证并请求人工审查，不把AI一致当签核。”改为“保旧版本证据，对新差异及受影响恢复路径重新核验，不沿用旧签核覆盖新代码。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "AI可漏报或误判，真实数据迁移必须用实际差异和测试核查。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "team.handoff-1",
+      "family": "team.handoff",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "postmortem"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "team.handoff",
+          "difficulty": "基础",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "交接只有一句修好了",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。",
+            "facts": {
+              "observed_boundary": "事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。"
+            },
+            "citations": [
+              {
+                "source_id": "postmortem",
+                "quote": "its impact, the actions taken to mitigate or resolve it"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "记录当前版本、已观察影响、缓解动作和待核积压，给可执行下一步。",
+              "把修好了转发出去即可证明事故根因与恢复都完成。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "可恢复交接需要事实与动作，缓解不等于全部恢复或原因已证实。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。 因此“把修好了转发出去即可证明事故根因与恢复都完成。”不成立。",
+            "help_boundary": "指出“记录当前版本、已观察影响、缓解动作和待核积压，给可执行下一步。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。",
+          "expected_evidence": "应核对的冻结观察：事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。",
+          "decision_effect": "记录当前版本、已观察影响、缓解动作和待核积压，给可执行下一步。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "可恢复交接需要事实与动作，缓解不等于全部恢复或原因已证实。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "可恢复交接需要事实与动作，缓解不等于全部恢复或原因已证实。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。",
+                    "citation": {
+                      "source_id": "postmortem",
+                      "quote": "its impact, the actions taken to mitigate or resolve it"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。"
+                  }
+                ],
+                "rule_quote": "可恢复交接需要事实与动作，缓解不等于全部恢复或原因已证实。",
+                "counterexample_quote": null,
+                "explanation": "可恢复交接需要事实与动作，缓解不等于全部恢复或原因已证实。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "可恢复交接需要事实与动作，缓解不等于全部恢复或原因已证实。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为把修好了转发出去即可证明事故根因与恢复都完成。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为把修好了转发出去即可证明事故根因与恢复都完成。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。",
+                    "citation": {
+                      "source_id": "postmortem",
+                      "quote": "its impact, the actions taken to mitigate or resolve it"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。"
+                  }
+                ],
+                "rule_quote": "可恢复交接需要事实与动作，缓解不等于全部恢复或原因已证实。",
+                "counterexample_quote": "反例：事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。 因此“把修好了转发出去即可证明事故根因与恢复都完成。”不成立。",
+                "explanation": "可恢复交接需要事实与动作，缓解不等于全部恢复或原因已证实。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。 因此“把修好了转发出去即可证明事故根因与恢复都完成。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "team.handoff",
+          "difficulty": "基础",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "交接只有一句修好了：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "版本与影响已写明，积压排空也确认；但预防措施未实施且原因仍有两种假设。",
+            "facts": {
+              "observed_boundary": "版本与影响已写明，积压排空也确认；但预防措施未实施且原因仍有两种假设。"
+            },
+            "citations": [
+              {
+                "source_id": "postmortem",
+                "quote": "follow-up actions to prevent the incident from recurring"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已完成恢复，明确待证原因与预防跟进，不把未实施措施标已验证。",
+              "把修好了转发出去即可证明事故根因与恢复都完成。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "新材料支持恢复但不足以证明复发预防，状态应分开记录。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：版本与影响已写明，积压排空也确认；但预防措施未实施且原因仍有两种假设。 因此“把修好了转发出去即可证明事故根因与恢复都完成。”不成立。",
+            "help_boundary": "指出“保已完成恢复，明确待证原因与预防跟进，不把未实施措施标已验证。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "版本与影响已写明，积压排空也确认；但预防措施未实施且原因仍有两种假设。",
+          "expected_evidence": "应核对的冻结观察：版本与影响已写明，积压排空也确认；但预防措施未实施且原因仍有两种假设。",
+          "decision_effect": "保已完成恢复，明确待证原因与预防跟进，不把未实施措施标已验证。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "交接只有一句修好了（换名版本）",
+      "variation_basis": "由“事故刚缓解；交接只写“修好了”，无当前版本、影响范围和验证结果，接班者不知是否还有写入积压。”变为“版本与影响已写明，积压排空也确认；但预防措施未实施且原因仍有两种假设。”，故“记录当前版本、已观察影响、缓解动作和待核积压，给可执行下一步。”改为“保已完成恢复，明确待证原因与预防跟进，不把未实施措施标已验证。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "可恢复交接需要事实与动作，缓解不等于全部恢复或原因已证实。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "team.handoff-2",
+      "family": "team.handoff",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "postmortem"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "team.handoff",
+          "difficulty": "进阶",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "把时间相关当原因",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。",
+            "facts": {
+              "observed_boundary": "事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。"
+            },
+            "citations": [
+              {
+                "source_id": "postmortem",
+                "quote": "identifying the contributing causes"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保时间线，分别核发布与外依赖假设，记录贡献因素而不归咎个人。",
+              "回退后恢复就足以证明某个人是唯一根因。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "先后关系不足以排除其他原因，无责复盘应查系统贡献因素。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。 因此“回退后恢复就足以证明某个人是唯一根因。”不成立。",
+            "help_boundary": "指出“保时间线，分别核发布与外依赖假设，记录贡献因素而不归咎个人。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。",
+          "expected_evidence": "应核对的冻结观察：事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。",
+          "decision_effect": "保时间线，分别核发布与外依赖假设，记录贡献因素而不归咎个人。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "先后关系不足以排除其他原因，无责复盘应查系统贡献因素。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "先后关系不足以排除其他原因，无责复盘应查系统贡献因素。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。",
+                    "citation": {
+                      "source_id": "postmortem",
+                      "quote": "identifying the contributing causes"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。"
+                  }
+                ],
+                "rule_quote": "先后关系不足以排除其他原因，无责复盘应查系统贡献因素。",
+                "counterexample_quote": null,
+                "explanation": "先后关系不足以排除其他原因，无责复盘应查系统贡献因素。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "先后关系不足以排除其他原因，无责复盘应查系统贡献因素。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为回退后恢复就足以证明某个人是唯一根因。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为回退后恢复就足以证明某个人是唯一根因。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。",
+                    "citation": {
+                      "source_id": "postmortem",
+                      "quote": "identifying the contributing causes"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。"
+                  }
+                ],
+                "rule_quote": "先后关系不足以排除其他原因，无责复盘应查系统贡献因素。",
+                "counterexample_quote": "反例：事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。 因此“回退后恢复就足以证明某个人是唯一根因。”不成立。",
+                "explanation": "先后关系不足以排除其他原因，无责复盘应查系统贡献因素。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。 因此“回退后恢复就足以证明某个人是唯一根因。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "team.handoff",
+          "difficulty": "进阶",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "把时间相关当原因：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "重放已确认配置差异触发故障；记录仍只要求当事人下次小心，没有预防检查或验证。",
+            "facts": {
+              "observed_boundary": "重放已确认配置差异触发故障；记录仍只要求当事人下次小心，没有预防检查或验证。"
+            },
+            "citations": [
+              {
+                "source_id": "postmortem",
+                "quote": "follow-up actions to prevent the incident from recurring"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "保已证原因，安排可检查的配置保护与有效性验证，而非仅提醒个人。",
+              "回退后恢复就足以证明某个人是唯一根因。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "原因明确后应形成系统预防动作，不能用个人承诺替代验证。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：重放已确认配置差异触发故障；记录仍只要求当事人下次小心，没有预防检查或验证。 因此“回退后恢复就足以证明某个人是唯一根因。”不成立。",
+            "help_boundary": "指出“保已证原因，安排可检查的配置保护与有效性验证，而非仅提醒个人。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "重放已确认配置差异触发故障；记录仍只要求当事人下次小心，没有预防检查或验证。",
+          "expected_evidence": "应核对的冻结观察：重放已确认配置差异触发故障；记录仍只要求当事人下次小心，没有预防检查或验证。",
+          "decision_effect": "保已证原因，安排可检查的配置保护与有效性验证，而非仅提醒个人。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "把时间相关当原因（换名版本）",
+      "variation_basis": "由“事故发生在发布后，复盘直接写工程师粗心导致；没有请求轨迹与配置差异，回退后恢复但仍可能是外依赖同期恢复。”变为“重放已确认配置差异触发故障；记录仍只要求当事人下次小心，没有预防检查或验证。”，故“保时间线，分别核发布与外依赖假设，记录贡献因素而不归咎个人。”改为“保已证原因，安排可检查的配置保护与有效性验证，而非仅提醒个人。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "先后关系不足以排除其他原因，无责复盘应查系统贡献因素。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    },
+    {
+      "id": "team.handoff-3",
+      "family": "team.handoff",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "postmortem"
+      ],
+      "candidate": {
+        "target": {
+          "capability_id": "team.handoff",
+          "difficulty": "综合",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "多团队恢复记录冲突",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。",
+            "facts": {
+              "observed_boundary": "支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。"
+            },
+            "citations": [
+              {
+                "source_id": "postmortem",
+                "quote": "its impact, the actions taken to mitigate or resolve it"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "按统一时间与业务身份核对各自影响、回放和剩余风险，保冲突记录待证。",
+              "选最早恢复时间删掉另一团队记录就能证明无损。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "跨团队局部恢复不能直接合成全局无损，需要一致的可追溯影响与动作证据。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。 因此“选最早恢复时间删掉另一团队记录就能证明无损。”不成立。",
+            "help_boundary": "指出“按统一时间与业务身份核对各自影响、回放和剩余风险，保冲突记录待证。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。",
+          "expected_evidence": "应核对的冻结观察：支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。",
+          "decision_effect": "按统一时间与业务身份核对各自影响、回放和剩余风险，保冲突记录待证。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 0,
+            "reason": "跨团队局部恢复不能直接合成全局无损，需要一致的可追溯影响与动作证据。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "跨团队局部恢复不能直接合成全局无损，需要一致的可追溯影响与动作证据。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。",
+                    "citation": {
+                      "source_id": "postmortem",
+                      "quote": "its impact, the actions taken to mitigate or resolve it"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。"
+                  }
+                ],
+                "rule_quote": "跨团队局部恢复不能直接合成全局无损，需要一致的可追溯影响与动作证据。",
+                "counterexample_quote": null,
+                "explanation": "跨团队局部恢复不能直接合成全局无损，需要一致的可追溯影响与动作证据。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "跨团队局部恢复不能直接合成全局无损，需要一致的可追溯影响与动作证据。"
+        },
+        {
+          "origin": "ai_draft",
+          "review_status": "pending_human_review",
+          "answer": {
+            "judgment_id": "j1",
+            "value": 1,
+            "reason": "我认为选最早恢复时间删掉另一团队记录就能证明无损。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "j1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "我认为选最早恢复时间删掉另一团队记录就能证明无损。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "e1",
+                    "fact": "observed_boundary",
+                    "value": "支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。",
+                    "citation": {
+                      "source_id": "postmortem",
+                      "quote": "its impact, the actions taken to mitigate or resolve it"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。"
+                  }
+                ],
+                "rule_quote": "跨团队局部恢复不能直接合成全局无损，需要一致的可追溯影响与动作证据。",
+                "counterexample_quote": "反例：支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。 因此“选最早恢复时间删掉另一团队记录就能证明无损。”不成立。",
+                "explanation": "跨团队局部恢复不能直接合成全局无损，需要一致的可追溯影响与动作证据。",
+                "gap": "原答行动与冻结观察支持的边界不符。"
+              }
+            ]
+          },
+          "label_basis": "反例：支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。 因此“选最早恢复时间删掉另一团队记录就能证明无损。”不成立。"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "team.handoff",
+          "difficulty": "综合",
+          "background_id": "team-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "多团队恢复记录冲突：条件变化",
+        "task": "根据冻结材料选择可支持的下一步，说明依据与不可推断的边界。",
+        "assumptions": [
+          "所有业务状态、日志、角色权限及验证结果均为合成教学假设，不是官方来源的运行观测。",
+          "仅考察本题明确主能力；未提供的性能、授权和外部执行事实不能自行补造。"
+        ],
+        "evidence": [
+          {
+            "id": "e1",
+            "label": "教学材料",
+            "text": "统一记录已核只剩10个订单待人工授权补偿；防重修复已部署但未测试迟到重放。",
+            "facts": {
+              "observed_boundary": "统一记录已核只剩10个订单待人工授权补偿；防重修复已部署但未测试迟到重放。"
+            },
+            "citations": [
+              {
+                "source_id": "postmortem",
+                "quote": "follow-up actions to prevent the incident from recurring"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "j1",
+            "kind": "choice",
+            "prompt": "哪项行动和理由符合当前材料？",
+            "options": [
+              "明确剩余补偿和授权状态，保已核范围，新增迟到重放验证后再称措施有效。",
+              "选最早恢复时间删掉另一团队记录就能证明无损。"
+            ],
+            "evidence_ids": [
+              "e1"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "j1",
+            "acceptable_options": [
+              0
+            ],
+            "reasoning": "对账缩小了未知范围，部署事实仍不证明预防动作在剩余路径有效。",
+            "evidence_ids": [
+              "e1"
+            ],
+            "counterexample": "反例：统一记录已核只剩10个订单待人工授权补偿；防重修复已部署但未测试迟到重放。 因此“选最早恢复时间删掉另一团队记录就能证明无损。”不成立。",
+            "help_boundary": "指出“明确剩余补偿和授权状态，保已核范围，新增迟到重放验证后再称措施有效。”或解释本题关键因果关系属于方向帮助。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "统一记录已核只剩10个订单待人工授权补偿；防重修复已部署但未测试迟到重放。",
+          "expected_evidence": "应核对的冻结观察：统一记录已核只剩10个订单待人工授权补偿；防重修复已部署但未测试迟到重放。",
+          "decision_effect": "明确剩余补偿和授权状态，保已核范围，新增迟到重放验证后再称措施有效。"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "cosmetic_title": "多团队恢复记录冲突（换名版本）",
+      "variation_basis": "由“支付团队写10:05全恢复，队列团队10:15仍回放旧失败订单；没有统一订单范围与时区，交接宣称无损。”变为“统一记录已核只剩10个订单待人工授权补偿；防重修复已部署但未测试迟到重放。”，故“按统一时间与业务身份核对各自影响、回放和剩余风险，保冲突记录待证。”改为“明确剩余补偿和授权状态，保已核范围，新增迟到重放验证后再称措施有效。”。",
+      "help": {
+        "neutral": "判断是你选择的下一步，理由是你用来支持它的材料；可用白话表达。",
+        "directional": "跨团队局部恢复不能直接合成全局无损，需要一致的可追溯影响与动作证据。",
+        "uncertain": "当前材料外的真实实现尚不明确，需要核对适用边界。"
+      }
+    }
+  ]
+}
