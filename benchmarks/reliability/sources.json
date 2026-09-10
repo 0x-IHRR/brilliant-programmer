@@ -1,0 +1,65 @@
+{
+  "playwright": {
+    "id": "playwright",
+    "url": "https://playwright.dev/docs/best-practices",
+    "version": "Playwright best practices; response-sha256:40566088678afc665d5f604ec0f38239337f3112e6bde76e77189ee17ca3f108",
+    "locator": "Playwright best practices, snapshot 2026-09-10。规范摘要（AI中文改写，待人工核验，非逐字引句）：测试关注用户可观察行为及明确契约，不以内部函数或样式名替代验收；测试数据/会话隔离。网页断言等待所需条件，不用一次即时查询证明异步结果。真实服务持久性仍须按本题契约另验。",
+    "text": "avoid relying on implementation details\n[…]\nEach test should be completely isolated from another test\n[…]\nwait and retry if needed"
+  },
+  "pitfalls": {
+    "id": "pitfalls",
+    "url": "https://scikit-learn.org/1.7/common_pitfalls.html",
+    "version": "scikit-learn1.7.2 Common pitfalls §11.2; response-sha256:d565b1ef30e88ce406c27d28a02bc5a61af28cd65f2c6959676dbfb3509f807b",
+    "locator": "scikit-learn1.7.2 Common pitfalls §11.2。规范摘要（AI中文改写，待人工核验，非逐字引句）：测试集不用于模型选择；先划分再拟合预处理，只在训练集学习变换并同样应用于测试集。一次分数不能证明其他分布有效。",
+    "text": "Test data should never be used to make choices about the model\n[…]\nsplit the data into train and test subsets first"
+  },
+  "cross": {
+    "id": "cross",
+    "url": "https://scikit-learn.org/1.7/modules/cross_validation.html",
+    "version": "scikit-learn1.7.2 Cross validation §3.1.2; response-sha256:a3dfd7d11c008eebad9f56bc0f68605554e769d8147a7cf23f1a15df95ca0643",
+    "locator": "scikit-learn1.7.2 Cross validation §3.1.2。规范摘要（AI中文改写，待人工核验，非逐字引句）：同主体多样本宜按组隔离；时间依赖过程宜用时间序列感知切分。普通随机切分不自动满足组/时间独立性；选择须服从目标部署分布。",
+    "text": "same subject is never in both testing and training\n[…]\ntime-series aware cross-validation scheme"
+  },
+  "monitoring": {
+    "id": "monitoring",
+    "url": "https://sre.google/sre-book/monitoring-distributed-systems/",
+    "version": "Google SRE book; response-sha256:ea5268bca492024a399730734132c7513b4412b10098a207f2e3090eeae1a6fe",
+    "locator": "Google SRE book, Monitoring Distributed Systems (2016)。规范摘要（AI中文改写，待人工核验，非逐字引句）：延迟/流量/错误/饱和度应联合观察；成功与失败延迟分开，否则快速错误可能压低均值。尾延迟可提示饱和，但不能仅凭一个指标证明根因。",
+    "text": "latency, traffic, errors, and saturation\n[…]\ndistinguish between the latency of successful requests\n[…]\n99th percentile response time"
+  },
+  "overload": {
+    "id": "overload",
+    "url": "https://sre.google/sre-book/handling-overload/",
+    "version": "Google SRE book; response-sha256:8ca912a82390e7f61e8bbae7baab3a74489f5068d71dee1ff24aed99375e0373",
+    "locator": "Google SRE book, Handling Overload (2016)。规范摘要（AI中文改写，待人工核验，非逐字引句）：只接受容量能处理的工作并明确拒绝其余；积压无限增长会耗尽资源。重试也消耗容量，需请求级/客户端级预算，不能多层无限放大。关键性分级要以真实业务损害决定，书中数字是实例而非本题硬阈值。",
+    "text": "only accept that load as capacity frees up\n[…]\nper-client retry budget\n[…]\nhow critical we consider that request"
+  },
+  "compose": {
+    "id": "compose",
+    "url": "https://docs.docker.com/compose/how-tos/environment-variables/envvars-precedence/",
+    "version": "Docker Compose environment precedence; response-sha256:df570bba23523f10d1023d7167ba410f78d21645cb4098c5954b8ec9b6917438",
+    "locator": "Docker Compose environment precedence, snapshot 2026-09-10。规范摘要（AI中文改写，待人工核验，非逐字引句）：同变量优先级依次涉及run命令显式值、environment/env_file中由shell或环境文件插值的值、environment字面值、env_file、镜像ENV。宿主环境不会无映射地自动成为容器变量；应核真实部署输入及运行实例。",
+    "text": "highest to lowest\n[…]\nSet using just the environment attribute\n[…]\nSet in a container image in the ENV directive"
+  },
+  "probes": {
+    "id": "probes",
+    "url": "https://v1-34.docs.kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+    "version": "Kubernetes1.34 liveness/readiness/startup probes; response-sha256:4c36479fa0d2e3c7cc26910a4bbf1632241b3e9ce0eb6e962cd8f51f13a954fb",
+    "locator": "Kubernetes1.34 liveness/readiness/startup probes。规范摘要（AI中文改写，待人工核验，非逐字引句）：readiness判断可否接流量，失败时从Service后端移除；liveness用于判断重启。startup成功前不会开始后两类探针延迟。进程存活、启动完成和可服务不是同一状态。",
+    "text": "ready to start accepting traffic\n[…]\nliveness probes to know when to restart a container\n[…]\nuntil the startup probe has succeeded"
+  },
+  "pitr": {
+    "id": "pitr",
+    "url": "https://www.postgresql.org/docs/17/continuous-archiving.html",
+    "version": "PostgreSQL17 §25.3 continuous archiving/PITR; response-sha256:84ca17012c72f25c8b371649b6f57cb2fe9af07851fdfba003f8c80a00de4ffc",
+    "locator": "PostgreSQL17 §25.3 continuous archiving/PITR。规范摘要（AI中文改写，待人工核验，非逐字引句）：PITR需要覆盖基础备份起点起的连续WAL；目标必须晚于该基础备份结束。数据WAL不恢复手动配置文件变化。恢复点选择需核数据损失窗口、时间线及隔离恢复结果，不能凭备份存在宣称恢复成功。",
+    "text": "continuous sequence of archived WAL files\n[…]\nafter the ending time of the base backup\n[…]\nwill not restore changes made to configuration files"
+  },
+  "deployment": {
+    "id": "deployment",
+    "url": "https://v1-34.docs.kubernetes.io/docs/concepts/workloads/controllers/deployment/",
+    "version": "Kubernetes1.34 Deployments; response-sha256:c5a65a50279595dab5791b5abab2e515570e9755e799922273b55f87ba0d6ed8",
+    "locator": "Kubernetes1.34 Deployments, Rolling Back a Deployment。规范摘要（AI中文改写，待人工核验，非逐字引句）：Deployment回退只恢复Pod模板版本，不逆转数据库写入或手动配置变化；数据损坏需要独立核对恢复方案。",
+    "text": "only the Deployment's Pod template part is rolled back"
+  }
+}
