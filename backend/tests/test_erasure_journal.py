@@ -102,6 +102,30 @@ def test_registration_failure_removes_published_backup(ledger, monkeypatch):
     assert not list(retention.directory().iterdir())
 
 
+def test_partial_directory_entry_is_synced_before_registration(ledger, monkeypatch):
+    assert not ledger.exists()
+    journal.initialize()
+    connect = journal.connect
+    calls = 0
+
+    def counted_connect():
+        nonlocal calls
+        calls += 1
+        return connect()
+
+    def sync_fails(_path):
+        raise OSError('synthetic partial directory fsync failure')
+
+    monkeypatch.setattr(journal, 'connect', counted_connect)
+    monkeypatch.setattr(retention, '_sync_directory', sync_fails)
+    with pytest.raises(OSError, match='synthetic'):
+        retention.store(io.BytesIO(b'complete-but-not-directory-durable'))
+    assert calls == 1
+    with connect() as connection:
+        assert connection.execute('SELECT count(*) FROM backup').fetchone()[0] == 0
+    assert not list(retention.directory().iterdir())
+
+
 def test_store_and_expire_serialize_without_touching_live_partial(ledger):
     assert not ledger.exists()
     journal.initialize()
@@ -177,10 +201,17 @@ def test_directory_fsync_failure_after_rename_keeps_registered_final(
     assert not ledger.exists()
     journal.initialize()
 
-    def sync_fails(_path):
-        raise OSError('synthetic directory fsync failure')
+    sync = retention._sync_directory
+    calls = 0
 
-    monkeypatch.setattr(retention, '_sync_directory', sync_fails)
+    def second_sync_fails(path):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OSError('synthetic directory fsync failure')
+        sync(path)
+
+    monkeypatch.setattr(retention, '_sync_directory', second_sync_fails)
     with pytest.raises(OSError, match='synthetic'):
         retention.store(io.BytesIO(b'committed-and-renamed'))
     files = list(retention.directory().glob('*.dump'))
@@ -190,6 +221,111 @@ def test_directory_fsync_failure_after_rename_keeps_registered_final(
         rows = connection.execute('SELECT id FROM backup').fetchall()
     assert rows == [(files[0].stem,)]
     assert retention.expire() == 0
+
+
+def test_expire_recovers_registered_tombstone_after_rename_fsync_failure(
+    ledger, monkeypatch
+):
+    assert not ledger.exists()
+    journal.initialize()
+    now = datetime(2026, 1, 1, tzinfo=UTC)
+    stored = retention.store(io.BytesIO(b'expired'), now)
+    sync = retention._sync_directory
+
+    def sync_fails(_path):
+        raise OSError('synthetic tombstone directory fsync failure')
+
+    monkeypatch.setattr(retention, '_sync_directory', sync_fails)
+    with pytest.raises(OSError, match='synthetic'):
+        retention.expire(now + timedelta(days=30))
+    root = retention.directory()
+    assert not (root / f'{stored}.dump').exists()
+    assert (root / f'.{stored}.deleting').read_bytes() == b'expired'
+    with journal.connect() as connection:
+        assert connection.execute('SELECT id FROM backup').fetchall() == [
+            (str(stored),)
+        ]
+    monkeypatch.setattr(retention, '_sync_directory', sync)
+    assert retention.expire(now + timedelta(days=30)) == 0
+    assert not list(root.iterdir())
+
+
+def test_expire_recovers_registered_tombstone_after_row_delete_failure(ledger):
+    assert not ledger.exists()
+    journal.initialize()
+    now = datetime(2026, 1, 1, tzinfo=UTC)
+    stored = retention.store(io.BytesIO(b'expired'), now)
+    with journal.connect() as connection:
+        connection.execute(
+            "CREATE TRIGGER backup_delete_fails BEFORE DELETE ON backup "
+            "BEGIN SELECT RAISE(ABORT, 'synthetic row delete failure'); END"
+        )
+        connection.commit()
+    with pytest.raises(sqlite3.IntegrityError, match='synthetic'):
+        retention.expire(now + timedelta(days=30))
+    tombstone = retention.directory() / f'.{stored}.deleting'
+    assert tombstone.read_bytes() == b'expired'
+    with journal.connect() as connection:
+        assert connection.execute('SELECT id FROM backup').fetchall() == [
+            (str(stored),)
+        ]
+        connection.execute('DROP TRIGGER backup_delete_fails')
+        connection.commit()
+    assert retention.expire(now + timedelta(days=30)) == 0
+    assert not list(retention.directory().iterdir())
+
+
+def test_expire_removes_unregistered_tombstone_after_unlink_failure(
+    ledger, monkeypatch
+):
+    assert not ledger.exists()
+    journal.initialize()
+    now = datetime(2026, 1, 1, tzinfo=UTC)
+    stored = retention.store(io.BytesIO(b'expired'), now)
+    unlink = Path.unlink
+
+    def tombstone_unlink_fails(path, *args, **kwargs):
+        if path.name.endswith('.deleting'):
+            raise OSError('synthetic tombstone unlink failure')
+        return unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, 'unlink', tombstone_unlink_fails)
+    with pytest.raises(OSError, match='synthetic'):
+        retention.expire(now + timedelta(days=30))
+    tombstone = retention.directory() / f'.{stored}.deleting'
+    assert tombstone.read_bytes() == b'expired'
+    with journal.connect() as connection:
+        assert connection.execute('SELECT id FROM backup').fetchall() == []
+    monkeypatch.setattr(Path, 'unlink', unlink)
+    assert retention.expire(now + timedelta(days=30)) == 0
+    assert not list(retention.directory().iterdir())
+
+
+def test_expire_is_reconciled_after_tombstone_unlink_fsync_failure(
+    ledger, monkeypatch
+):
+    assert not ledger.exists()
+    journal.initialize()
+    now = datetime(2026, 1, 1, tzinfo=UTC)
+    retention.store(io.BytesIO(b'expired'), now)
+    sync = retention._sync_directory
+    calls = 0
+
+    def second_sync_fails(path):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OSError('synthetic post-unlink fsync failure')
+        sync(path)
+
+    monkeypatch.setattr(retention, '_sync_directory', second_sync_fails)
+    with pytest.raises(OSError, match='synthetic'):
+        retention.expire(now + timedelta(days=30))
+    assert not list(retention.directory().iterdir())
+    with journal.connect() as connection:
+        assert connection.execute('SELECT id FROM backup').fetchall() == []
+    monkeypatch.setattr(retention, '_sync_directory', sync)
+    assert retention.expire(now + timedelta(days=30)) == 0
 
 
 def test_unknown_backup_file_cannot_be_claimed_expired_or_silently_removed(ledger):

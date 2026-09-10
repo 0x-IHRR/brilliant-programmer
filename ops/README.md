@@ -19,7 +19,7 @@ API 诊断端口 `18138` 与 HTTPS 入口 `18443` 都使用相同 TLS，不提�
 
 ## 备份、轮换与留存
 
-每天由主机调度下列一条命令。`pg_dump` 由固定 PostgreSQL 镜像执行，先用 `pg_restore --list` 验证；operator 在跨进程状态锁内 fsync 唯一 partial、提交 SQLite 登记，再原子 rename。commit 前中断的未登记 partial 满 1 天清理，commit 后 rename 前中断由下次存储或留存入口恢复；未知 final 继续失败关闭。独立删除日志从不进入 PostgreSQL dump。
+每天由主机调度下列一条命令。`pg_dump` 由固定 PostgreSQL 镜像执行，先用 `pg_restore --list` 验证；operator 在跨进程状态锁内依次 fsync 唯一 partial、fsync 备份目录、提交 SQLite 登记，再原子 rename 并再次 fsync 目录。commit 前中断的未登记 partial 满 1 天清理，commit 后 rename 前中断由下次存储或留存入口恢复。到期删除先把 final 原子改名为 tombstone 并 fsync 目录，再删除登记，最后删除 tombstone 并 fsync 目录；入口会继续完成已登记或未登记的 tombstone。未知 final 继续失败关闭。独立删除日志从不进入 PostgreSQL dump。
 
 ```sh
 python3 ops/backup.py
