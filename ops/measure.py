@@ -14,6 +14,7 @@ import urllib.request
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from statistics import median
 from typing import cast
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -72,7 +73,7 @@ def summary(samples: list[float]) -> dict[str, float | int]:
     ordered = sorted(samples)
     return {
         "samples": len(samples),
-        "median_ms": round(ordered[len(ordered) // 2], 2),
+        "median_ms": round(median(samples), 2),
         "p95_ms": round(ordered[math.ceil(len(ordered) * 0.95) - 1], 2),
         "max_ms": round(ordered[-1], 2),
     }

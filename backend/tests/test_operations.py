@@ -21,6 +21,7 @@ def operations_module(name):
 
 
 backup = operations_module("backup")
+measure = operations_module("measure")
 prepare = operations_module("prepare")
 
 
@@ -111,7 +112,6 @@ def test_backup_propagates_dump_and_validation_failures(tmp_path, monkeypatch):
         backup.main()
     assert len(calls) == 1 and "pg_dump" in calls[0]
     assert not list(transient.iterdir())
-
     calls.clear()
 
     def validation_fails(arguments, **kwargs):
@@ -127,3 +127,7 @@ def test_backup_propagates_dump_and_validation_failures(tmp_path, monkeypatch):
     assert len(calls) == 2 and "pg_restore" in calls[1]
     assert not any("store-backup" in command for command in calls)
     assert not list(transient.iterdir())
+
+
+def test_measurement_uses_true_even_sample_median():
+    assert measure.summary([1.0, 2.0, 3.0, 100.0])["median_ms"] == 2.5

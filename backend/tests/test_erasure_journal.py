@@ -1,9 +1,12 @@
 """No database: real local journal durability and controlled retention clock."""
 import io
+import os
 import sqlite3
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from threading import Event
 
 import pytest
 
@@ -78,11 +81,101 @@ def test_empty_or_interrupted_backup_is_never_published(ledger):
     assert not list(retention.directory().iterdir())
 
 
+def test_registration_failure_removes_published_backup(ledger, monkeypatch):
+    assert not ledger.exists()
+    journal.initialize()
+    connect = journal.connect
+    calls = 0
+
+    def registration_fails():
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            assert list(retention.directory().glob('.*.partial'))
+            assert not list(retention.directory().glob('*.dump'))
+            raise sqlite3.OperationalError('synthetic registration failure')
+        return connect()
+
+    monkeypatch.setattr(journal, 'connect', registration_fails)
+    with pytest.raises(sqlite3.OperationalError, match='synthetic'):
+        retention.store(io.BytesIO(b'complete-but-unregistered'))
+    assert not list(retention.directory().iterdir())
+
+
+def test_store_and_expire_serialize_without_touching_live_partial(ledger):
+    assert not ledger.exists()
+    journal.initialize()
+    entered, release = Event(), Event()
+
+    class BlockingStream(io.BytesIO):
+        def read(self, size=-1):
+            entered.set()
+            assert release.wait(5)
+            return super().read(size)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        stored = pool.submit(retention.store, BlockingStream(b'concurrent-backup'))
+        assert entered.wait(5)
+        expired = pool.submit(retention.expire)
+        assert not expired.done()
+        release.set()
+        identity = stored.result(timeout=5)
+        assert expired.result(timeout=5) == 0
+    assert (retention.directory() / f'{identity}.dump').is_file()
+
+
+def test_sigkill_partial_recovery_on_each_commit_side(ledger):
+    assert not ledger.exists()
+    journal.initialize()
+    root = retention.directory()
+    root.mkdir()
+    now = datetime.now(UTC)
+
+    before_commit = root / f'.{uuid.uuid4()}.partial'
+    before_commit.write_bytes(b'interrupted-before-journal-commit')
+    assert retention.expire(now) == 0
+    assert before_commit.exists()
+    old = (now - retention.PARTIAL_RECOVERY_AFTER).timestamp()
+    os.utime(before_commit, (old, old))
+    assert retention.expire(now) == 0
+    assert not before_commit.exists()
+
+    after_commit = uuid.uuid4()
+    pending = root / f'.{after_commit}.partial'
+    pending.write_bytes(b'fsynced-before-rename')
+    with journal.connect() as connection:
+        with connection:
+            connection.execute(
+                'INSERT INTO backup VALUES (?,?)', (str(after_commit), now.isoformat())
+            )
+    assert retention.expire(now) == 0
+    assert not pending.exists()
+    assert (root / f'{after_commit}.dump').read_bytes() == b'fsynced-before-rename'
+
+
+def test_rename_failure_withdraws_registration_and_partial(ledger, monkeypatch):
+    assert not ledger.exists()
+    journal.initialize()
+    replace = Path.replace
+
+    def rename_fails(path, target):
+        if path.name.endswith('.partial'):
+            raise OSError('synthetic rename failure')
+        return replace(path, target)
+
+    monkeypatch.setattr(Path, 'replace', rename_fails)
+    with pytest.raises(OSError, match='synthetic'):
+        retention.store(io.BytesIO(b'complete-before-rename'))
+    with journal.connect() as connection:
+        assert connection.execute('SELECT count(*) FROM backup').fetchone()[0] == 0
+    assert not list(retention.directory().iterdir())
+
+
 def test_unknown_backup_file_cannot_be_claimed_expired_or_silently_removed(ledger):
     assert not ledger.exists()
     journal.initialize()
     retention.directory().mkdir()
-    unknown = retention.directory() / 'unregistered.dump'
+    unknown = retention.directory() / f'{uuid.uuid4()}.dump'
     unknown.write_bytes(b'synthetic')
     with pytest.raises(RuntimeError, match='未登记'):
         retention.expire()
