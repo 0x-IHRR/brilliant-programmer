@@ -110,6 +110,12 @@ def checkpoint(
     if missing:
         result = result.model_copy(update={"missing": result.missing + [missing]})
     with Session(engine) as session:
+        owner_id = session.exec(
+            select(ProjectRun.user_id).where(ProjectRun.id == identity)
+        ).one()
+        # Acquisition yields outside call_credential. Match erasure's User ->
+        # source lock order so its final scope comparison cannot miss new text.
+        lock_owner(session, owner_id)
         run = session.exec(
             select(ProjectRun).where(ProjectRun.id == identity).with_for_update()
         ).one()

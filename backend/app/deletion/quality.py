@@ -1,5 +1,6 @@
 """Owner report copies with shared byte storage; SHA identifies bytes, not owners."""
 
+import hashlib
 import json
 import uuid
 from typing import Any
@@ -9,8 +10,19 @@ from sqlmodel import Session, col, select
 
 from app.deletion.scope import Scope, references
 from app.quality.models import QualityEvidence, QualityReport
-from app.quality.rules import Report
+from app.quality.rules import Binding, Report
 from app.training.schema import Candidate
+
+
+def binding_digest(binding: Binding) -> str:
+    # Configuration UUID and owner are part of the identity. No secret/source
+    # payload or semantic claim; remains usable after application key rotation.
+    return hashlib.sha256(
+        b"erased-quality-binding-v1\0"
+        + json.dumps(
+            binding.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
+        ).encode()
+    ).hexdigest()
 
 
 def hashes(raw: dict[str, Any]) -> set[str]:

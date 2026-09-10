@@ -48,21 +48,28 @@ export function Records() {
       const url = new URL(location.href); url.searchParams.set("deletion_receipt", data.id); history.replaceState(null, "", url)
     })
   }
+  function completed(data: DeletionPublic) {
+    // Completion is an account fact, not a response for the currently selected
+    // row. A -> B must not discard A's accepted permanent deletion result.
+    if (!data.completed_at || !alive.current || owner.current !== sessionStorage.getItem("token")) return
+    const cleared = `deletion-cleared:${data.id}`
+    if (sessionStorage.getItem(cleared) === "1") return
+    try { sessionStorage.setItem(cleared, "1") } catch { /* Reload still clears private projections if storage is full. */ }
+    location.assign(`/?deletion_receipt=${encodeURIComponent(data.id)}`)
+  }
   async function checkReceipt() {
     if (!receiptId) return
     await act(async attempt => {
       const { data } = await RecordsService.deletionReceipt({ path: { identity: receiptId } })
+      completed(data)
       if (current(attempt)) { setReceipt(data); if (data.completed_at) { setPreview(null); setConfirmed(false) } }
     })
   }
   async function remove() {
     if (!preview || !confirmed || !record || preview.target_id !== record.id || preview.kind !== record.kind) return
-    await act(async attempt => {
+    await act(async () => {
       const { data } = await RecordsService.confirmDeletion({ path: { identity: preview.id }, body: { confirmation: "永久删除所列资料及副本" } })
-      if (current(attempt) && data.completed_at) {
-        // Clear this page's previously loaded private projections after success.
-        location.assign(`/?deletion_receipt=${encodeURIComponent(data.id)}`)
-      }
+      completed(data)
     })
   }
   async function archive() {

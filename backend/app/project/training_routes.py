@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlmodel import Session, col, select
 
 from app.api.deps import SessionDep
+from app.deletion.models import ErasedObject
 from app.deletion.service import hidden_ids
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
@@ -66,6 +67,9 @@ def view(session: Session, topic: Topic) -> ProjectTrainingPublic:
     value = _public(session, topic)
     for identity in family_topics(session, topic):
         if identity == topic.id:
+            continue
+        erased = session.get(ErasedObject, (topic.user_id, "topic", identity))
+        if erased is not None:
             continue
         previous_topic = session.get(Topic, identity)
         assert previous_topic and previous_topic.user_id == topic.user_id

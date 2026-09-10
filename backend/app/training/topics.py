@@ -90,8 +90,7 @@ def public(_session: Session, item: Topic) -> TopicPublic:
     # All mutation callers commit before projecting; terminal/duplicate paths
     # have no pending writes. Do not release their locks or wait for model gates.
     with read_snapshot(item.user_id) as snapshot:
-        current = snapshot.get(Topic, item.id)
-        assert current is not None
+        current = owned(snapshot, item.id, item.user_id)
         return _public(snapshot, current)
 
 

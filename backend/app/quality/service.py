@@ -13,6 +13,16 @@ from app.training.models import TrainingRun
 from app.training.schema import Source
 
 
+def same_binding(session: Session, row: QualityReport, binding: Binding) -> bool:
+    if row.report:
+        return Report.model_validate_json(json.dumps(row.report)).binding == binding
+    from app.deletion.models import ErasedObject
+    from app.deletion.quality import binding_digest
+
+    marker = session.get(ErasedObject, (binding.user_id, "quality", row.id))
+    return bool(marker and marker.binding_digest == binding_digest(binding))
+
+
 def latest(session: Session, binding: Binding) -> QualityReport | None:
     # Prefer the exact configuration/rule. Other configurations only explain why
     # a previously seen report does not apply; they cannot mask an exact failure.
@@ -22,12 +32,7 @@ def latest(session: Session, binding: Binding) -> QualityReport | None:
         .order_by(col(QualityReport.sequence).desc())
     ).all()
     for row in rows:
-        if not row.report:
-            return row
-        if (
-            Report.model_validate_json(__import__("json").dumps(row.report)).binding
-            == binding
-        ):
+        if same_binding(session, row, binding):
             return row
     return rows[0] if rows else None
 

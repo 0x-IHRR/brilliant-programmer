@@ -56,6 +56,7 @@ def upgrade():
         sa.Column("object_id", sa.Uuid(), primary_key=True),
         sa.Column("request_id", sa.Uuid(), sa.ForeignKey("deletion_request.id"), nullable=False),
         sa.Column("seen", sa.Boolean(), nullable=False),
+        sa.Column("binding_digest", sa.String()),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False))
     op.create_table("erased_row",
         sa.Column("table_name", sa.String(), primary_key=True),

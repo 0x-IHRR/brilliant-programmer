@@ -13,6 +13,7 @@ from app.training.models import TrainingRun
 from tests.test_accounts import client
 from tests.test_guided import frozen as frozen_case
 from tests.test_model_config import account
+from tests.test_project_training_rules import material as material
 
 frozen = frozen_case
 
@@ -465,15 +466,33 @@ def test_read_projection_and_erase_use_ordered_snapshots():
         assert snapshot.get(TrainingRun, run).selection == {}
 
 
-def test_reader_waits_for_delete_before_establishing_its_rr_snapshot(monkeypatch):
+@pytest.mark.parametrize("kind", ["training", "topic"])
+def test_reader_waits_for_delete_before_establishing_its_rr_snapshot(monkeypatch, kind):
     import threading
     from concurrent.futures import ThreadPoolExecutor
 
     from app.deletion import service
 
     owner, auth = account()
-    run = create_run(owner)
-    receipt = uuid.UUID(request_preview(auth, run).json()["id"])
+    if kind == "topic":
+        from tests.test_topics import seed_route
+
+        run = uuid.UUID(seed_route(owner)[0])
+        endpoint = f"/api/v1/topics/{run}"
+    else:
+        run = create_run(owner)
+        endpoint = f"/api/v1/training/tasks/{run}"
+    preview = client.post(
+        URL + "/deletions/preview",
+        headers=auth,
+        json={
+            "kind": kind,
+            "target_id": str(run),
+            "password": "local-test-password-only",
+        },
+    )
+    assert preview.status_code == 200, preview.text
+    receipt = uuid.UUID(preview.json()["id"])
     entered, release = threading.Event(), threading.Event()
     original_collect = service.collect
     name = "bp31-delete-first-" + uuid.uuid4().hex
@@ -508,9 +527,7 @@ def test_reader_waits_for_delete_before_establishing_its_rr_snapshot(monkeypatch
             deleting = pool.submit(delete)
             try:
                 assert entered.wait(5)
-                reading = pool.submit(
-                    client.get, f"/api/v1/training/tasks/{run}", headers=auth
-                )
+                reading = pool.submit(client.get, endpoint, headers=auth)
                 wait_for_advisory_waiter(name)
             finally:
                 release.set()
@@ -817,3 +834,279 @@ def test_mid_erase_failure_rolls_back_markers_and_content_then_same_receipt_retr
         endpoint, headers=auth, json={"confirmation": "永久删除所列资料及副本"}
     )
     assert response.status_code == 200, response.text
+
+
+@pytest.mark.parametrize("same", [False, True])
+def test_deleted_quality_binding_cannot_mask_other_failure_or_revive_old_pass(
+    tmp_path, same
+):
+    import hashlib
+    import json
+
+    from fastapi import HTTPException
+
+    from app.deletion.models import ErasedObject
+    from app.quality.import_report import load
+    from app.quality.import_report import save as import_report
+    from app.quality.models import QualityReport
+    from app.quality.service import require_start, status
+    from app.training.submission_models import Submission
+    from tests.test_model_config import save
+    from tests.test_quality_api import publish, report_for
+    from tests.test_quality_import import bundle
+
+    owner, auth = account()
+    config = save(auth).json()
+    old, _ = report_for(owner, config, failed=not same)
+    publish(old)
+    second_config = (
+        config
+        if same
+        else {**config, "version": str(uuid.uuid4()), "model_id": "other-binding"}
+    )
+    path, digest, report, files = bundle(tmp_path, owner, second_config)
+    report, _, files = load(path, digest, tmp_path)
+    report = report.model_copy(update={"supersedes": old.artifact_id if same else None})
+    with Session(engine) as session:
+        import_report(
+            session,
+            report,
+            hashlib.sha256(report.model_dump_json().encode()).hexdigest(),
+            files,
+        )
+        session.commit()
+    # Only this report references this exact accepted original identity. The
+    # different binding's report is unrelated and must remain applicable.
+    raw = json.loads(files[report.samples[0].answer_sha256])
+    original = raw["original"]
+    run = create_run(owner)
+    with Session(engine) as session:
+        session.add(
+            Submission(
+                id=uuid.UUID(original["id"]),
+                run_id=run,
+                sequence=1,
+                config_version=uuid.UUID(second_config["version"]),
+                destination=second_config["service_url"],
+                model_id=second_config["model_id"],
+                input_hash=uuid.uuid4().hex,
+                answers=original["answers"],
+                status="completed",
+            )
+        )
+        session.commit()
+    preview = request_preview(auth, run).json()
+    assert preview["objects"]["quality"] == [str(report.artifact_id)]
+    response = client.post(
+        URL + f"/deletions/{preview['id']}/confirm",
+        headers=auth,
+        json={"confirmation": "永久删除所列资料及副本"},
+    )
+    assert response.status_code == 200, response.text
+    with Session(engine) as session:
+        state, chosen = status(session, old.binding, None)
+        assert state == ("unverified" if same else "failed")
+        assert chosen.id == (report.artifact_id if same else old.artifact_id)
+        assert session.get(QualityReport, old.artifact_id).report == old.model_dump(
+            mode="json"
+        )
+        marker = session.get(ErasedObject, (owner, "quality", report.artifact_id))
+        assert len(marker.binding_digest) == 64
+        if not same:
+            with pytest.raises(HTTPException) as error:
+                require_start(session, old.binding, None)
+            assert error.value.status_code == 409
+    if same:
+        retest, _ = report_for(owner, config, supersedes=old.artifact_id)
+        with pytest.raises(ValueError, match="predecessor"):
+            publish(retest)
+        retest = retest.model_copy(update={"supersedes": report.artifact_id})
+        publish(retest)
+        with Session(engine) as session:
+            state, latest = status(session, old.binding, None)
+            assert latest.id == retest.artifact_id
+            assert state == "unverified"  # No sources supplied for applicability.
+
+
+@pytest.mark.parametrize("active_deleted", [False, True])
+def test_deleted_project_family_member_keeps_valid_sibling_readable(
+    material, active_deleted
+):
+    from app.project.training_service import link_update
+    from app.training.topic_models import Topic
+    from tests.test_model_config import save
+    from tests.test_project_updates import confirm, seeded
+
+    owner, auth = account()
+    config = save(auth).json()
+    a, first = seeded(owner, config, material)
+    assert confirm(auth, a, first.route.id).status_code == 200
+    b, second = seeded(owner, config, material)
+    with Session(engine) as session:
+        link_update(
+            session,
+            session.get(Topic, b),
+            first.route.id,
+            second.repository,
+            first.route.id,
+        )
+        session.commit()
+    if not active_deleted:
+        assert confirm(auth, b, second.route.id, first.route.id).status_code == 200
+    before = client.get(f"/api/v1/project-training/{b}", headers=auth)
+    assert before.status_code == 200, before.text
+    preview = client.post(
+        URL + "/deletions/preview",
+        headers=auth,
+        json={
+            "kind": "topic",
+            "target_id": str(a),
+            "password": "local-test-password-only",
+        },
+    )
+    assert preview.status_code == 200, preview.text
+    erased = client.post(
+        URL + f"/deletions/{preview.json()['id']}/confirm",
+        headers=auth,
+        json={"confirmation": "永久删除所列资料及副本"},
+    )
+    assert erased.status_code == 200, erased.text
+    assert client.get(f"/api/v1/project-training/{a}", headers=auth).status_code == 410
+    after = client.get(f"/api/v1/project-training/{b}", headers=auth)
+    assert after.status_code == 200, after.text
+    assert after.json()["current"] == before.json()["current"]
+    assert after.json()["active"] == (
+        None if active_deleted else before.json()["active"]
+    )
+    listed = client.get("/api/v1/project-training", headers=auth)
+    assert listed.status_code == 200, listed.text
+    assert str(b) in listed.text and str(a) not in [
+        item["topic"]["id"] for item in listed.json()
+    ]
+
+
+@pytest.mark.parametrize("kind", ["topic", "jd"])
+def test_valid_source_deletion_keeps_other_source_get_and_list(kind):
+    from tests.test_jds import seeded
+    from tests.test_model_config import save
+    from tests.test_topics import seed_route
+
+    owner, auth = account()
+    config = save(auth).json()
+    identities = []
+    for _ in range(2):
+        if kind == "topic":
+            identity = seed_route(owner)[0]
+        else:
+            identity, document = seeded(auth, config)
+            selected = client.post(
+                f"/api/v1/jds/{identity}/select",
+                headers=auth,
+                json={"document_id": document, "role_index": 0},
+            )
+            assert selected.status_code == 200, selected.text
+        identities.append(identity)
+    a, b = identities
+    path = "/api/v1/topics" if kind == "topic" else "/api/v1/jds"
+    before = client.get(f"{path}/{b}", headers=auth)
+    assert before.status_code == 200, before.text
+    preview = client.post(
+        URL + "/deletions/preview",
+        headers=auth,
+        json={"kind": "topic", "target_id": a, "password": "local-test-password-only"},
+    )
+    assert preview.status_code == 200, preview.text
+    result = client.post(
+        URL + f"/deletions/{preview.json()['id']}/confirm",
+        headers=auth,
+        json={"confirmation": "永久删除所列资料及副本"},
+    )
+    assert result.status_code == 200, result.text
+    assert client.get(f"{path}/{a}", headers=auth).status_code == 410
+    after = client.get(f"{path}/{b}", headers=auth)
+    assert after.status_code == 200, after.text
+    assert after.json() == before.json()
+    listed = client.get(path, headers=auth)
+    assert listed.status_code == 200, listed.text
+    assert b in listed.text and a not in listed.text
+
+
+@pytest.mark.parametrize("delete_first", [False, True])
+def test_source_checkpoint_serializes_final_scope_and_cannot_restore(
+    material, monkeypatch, delete_first
+):
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    from app.deletion import service
+    from app.project import worker
+    from app.project.models import ProjectRun
+    from tests.test_model_config import save
+    from tests.test_project_updates import source
+
+    owner, auth = account()
+    config = save(auth).json()
+    identity = source(owner, config, material)
+    snapshot = material[0]
+    changed = snapshot.model_copy(update={"requests": snapshot.requests + 1})
+    preview = client.post(
+        URL + "/deletions/preview",
+        headers=auth,
+        json={
+            "kind": "project",
+            "target_id": str(identity),
+            "password": "local-test-password-only",
+        },
+    )
+    assert preview.status_code == 200, preview.text
+    receipt = uuid.UUID(preview.json()["id"])
+    if not delete_first:
+        worker.checkpoint(identity, changed)
+        rejected = client.post(
+            URL + f"/deletions/{receipt}/confirm",
+            headers=auth,
+            json={"confirmation": "永久删除所列资料及副本"},
+        )
+        assert rejected.status_code == 409, rejected.text
+        with Session(engine) as session:
+            assert session.get(ProjectRun, identity).snapshot == changed.model_dump(
+                mode="json"
+            )
+        return
+    held, release, waiting = threading.Event(), threading.Event(), threading.Event()
+    original_collect, original_owner = service.collect, worker.lock_owner
+
+    def collect(session, *args):
+        result = original_collect(session, *args)
+        held.set()
+        assert release.wait(10)
+        return result
+
+    def owner_lock(session, user_id):
+        waiting.set()
+        return original_owner(session, user_id)
+
+    monkeypatch.setattr(service, "collect", collect)
+    monkeypatch.setattr(worker, "lock_owner", owner_lock)
+
+    def deleting():
+        with Session(engine) as session:
+            return service.erase(session, owner, receipt).completed_at
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        delete = pool.submit(deleting)
+        try:
+            assert held.wait(5)
+            checkpoint = pool.submit(worker.checkpoint, identity, changed)
+            assert waiting.wait(5)
+            assert not checkpoint.done()
+        finally:
+            release.set()
+        assert delete.result(timeout=8)
+        checkpoint.result(timeout=8)
+    with Session(engine) as session:
+        run = session.get(ProjectRun, identity)
+        assert run.status == "deleted" and run.snapshot is None
+    worker.checkpoint(identity, changed)
+    with Session(engine) as session:
+        assert session.get(ProjectRun, identity).snapshot is None

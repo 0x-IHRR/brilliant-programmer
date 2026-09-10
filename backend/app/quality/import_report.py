@@ -182,15 +182,10 @@ def save(
         .where(QualityReport.user_id == report.binding.user_id)
         .order_by(col(QualityReport.sequence).desc())
     ).all()
+    from app.quality.service import same_binding
+
     predecessor = next(
-        (
-            r
-            for r in rows
-            if r.report
-            and Report.model_validate_json(json.dumps(r.report)).binding
-            == report.binding
-        ),
-        None,
+        (r for r in rows if same_binding(session, r, report.binding)), None
     )
     if report.supersedes != (predecessor.id if predecessor else None):
         raise ValueError("retest predecessor changed; review the current artifact")

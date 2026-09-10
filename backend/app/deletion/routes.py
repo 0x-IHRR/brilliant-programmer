@@ -16,6 +16,7 @@ from app.deletion.service import erase, preview
 from app.model_config.service import lock_owner
 from app.models import User
 from app.project.models import ProjectRun
+from app.quality.models import QualityReport
 from app.training.draft_schema import JsonUUID
 from app.training.models import TrainingRun
 from app.training.schema import Strict
@@ -71,8 +72,8 @@ def describe(request: DeletionRequest, scope: Scope) -> PreviewPublic:
     attachments = {
         sha
         for (table, _), patch in scope.patches.items()
-        if table == "quality_report" and patch.row.model_dump()["report"]
-        for sha in hashes(patch.row.model_dump()["report"])
+        if table == "quality_report" and cast(QualityReport, patch.row).report
+        for sha in hashes(cast(QualityReport, patch.row).report)
     }
     return PreviewPublic(
         **request.model_dump(),

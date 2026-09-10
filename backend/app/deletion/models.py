@@ -32,6 +32,8 @@ class ErasedObject(SQLModel, table=True):
     request_id: uuid.UUID = Field(foreign_key="deletion_request.id")
     # Seen is an exposure fact, not a hash-based claim of semantic familiarity.
     seen: bool = False
+    # Exact configuration/rule identity only; no source or answer text.
+    binding_digest: str | None = None
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         sa_column=Column(DateTime(timezone=True), nullable=False),

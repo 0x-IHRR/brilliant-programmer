@@ -2,8 +2,10 @@
 
 import hashlib
 import hmac
+import json
 import uuid
 from datetime import UTC, datetime, timedelta
+from typing import cast
 
 from fastapi import HTTPException
 from sqlmodel import Session, select
@@ -13,6 +15,7 @@ from app.core.security import verify_password
 from app.deletion.models import DeletionRequest, ErasedObject, ErasedRow
 from app.deletion.scope import Kind, Scope, collect
 from app.model_config.service import lock_owner
+from app.quality.models import QualityReport
 
 
 def authentication_digest(hashed_password: str) -> str:
@@ -81,6 +84,9 @@ def erase(session: Session, user_id: uuid.UUID, identity: uuid.UUID) -> Deletion
     scope = collect(session, user_id, request.kind, request.target_id)  # type: ignore[arg-type]
     if not hmac.compare_digest(scope.digest(), request.scope_digest):
         raise HTTPException(409, "资料或关联范围已变化，尚未删除；请重新预览并确认")
+    from app.deletion.quality import binding_digest
+    from app.quality.rules import Report
+
     for kind, identities in scope.roots.items():
         for object_id in sorted(identities):
             if not session.get(ErasedObject, (user_id, kind, object_id)):
@@ -91,6 +97,20 @@ def erase(session: Session, user_id: uuid.UUID, identity: uuid.UUID) -> Deletion
                         object_id=object_id,
                         request_id=request.id,
                         seen=object_id in scope.seen,
+                        binding_digest=binding_digest(
+                            Report.model_validate_json(
+                                json.dumps(
+                                    cast(
+                                        QualityReport,
+                                        scope.patches[
+                                            ("quality_report", str(object_id))
+                                        ].row,
+                                    ).report
+                                )
+                            ).binding
+                        )
+                        if kind == "quality"
+                        else None,
                     )
                 )
     for run_id in sorted(scope.dependent_runs):
@@ -117,8 +137,8 @@ def erase(session: Session, user_id: uuid.UUID, identity: uuid.UUID) -> Deletion
 
     blobs = set()
     for (table, _), patch in scope.patches.items():
-        if table == "quality_report" and patch.row.model_dump()["report"]:
-            blobs.update(hashes(patch.row.model_dump()["report"]))
+        if table == "quality_report" and cast(QualityReport, patch.row).report:
+            blobs.update(hashes(cast(QualityReport, patch.row).report))
     from app.deletion.models import ErasedAttachment
 
     lock_hashes(session, blobs)
