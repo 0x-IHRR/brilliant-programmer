@@ -692,6 +692,28 @@ export type ConfirmedShortfall = {
 };
 
 /**
+ * ContinuePublic
+ */
+export type ContinuePublic = {
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Entry
+     */
+    entry: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Active At
+     */
+    active_at: string;
+};
+
+/**
  * DeletionPublic
  */
 export type DeletionPublic = {
@@ -4733,6 +4755,24 @@ export type trainingLatestResponses = {
 };
 
 export type trainingLatestResponse = trainingLatestResponses[keyof trainingLatestResponses];
+
+export type trainingContinueTaskData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/training/tasks/continue';
+};
+
+export type trainingContinueTaskResponses = {
+    /**
+     * Response Training-Continue Task
+     *
+     * Successful Response
+     */
+    200: ContinuePublic | null;
+};
+
+export type trainingContinueTaskResponse = trainingContinueTaskResponses[keyof trainingContinueTaskResponses];
 
 export type trainingReadData = {
     body?: never;

@@ -6,7 +6,7 @@ import { useRandomPreference } from "./useRandomPreference"
 import { BossStandard, BossProgress } from "./Boss"
 import { Button } from "../components/ui/button"
 
-export function Training({ onLevel }: { onLevel?: (level: string) => void }) {
+export function Training({ onLevel, openRunId = "" }: { onLevel?: (level: string) => void; openRunId?: string }) {
   const alive = useRef(true)
   const ownerSession = useRef(sessionStorage.getItem("token"))
   const current = () => alive.current && sessionStorage.getItem("token") === ownerSession.current
@@ -32,6 +32,12 @@ export function Training({ onLevel }: { onLevel?: (level: string) => void }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState("")
   const [refresh, setRefresh] = useState(0)
+  useEffect(() => {
+    if (openRunId && openRunId !== selectedRef.current) {
+      selectRun(openRunId)
+      setRefresh(n => n + 1)
+    }
+  }, [openRunId])
   const [panel, setPanel] = useState<DraftProgress["step"]>("materials")
   const run = runs.find(item => item.id === selected) ?? runs[0]
   const running = run && ["queued", "running", "stopping"].includes(run.status)

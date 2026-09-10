@@ -13,14 +13,7 @@ import { AccountErasure } from "./features/AccountErasure"
 import { PasswordReset } from "./features/PasswordReset"
 import { ModelConfig } from "./features/ModelConfig"
 import "./index.css"
-import { FreeTopic } from "./features/FreeTopic"
-import { JDRoute } from "./features/JDRoute"
-import { Training } from "./features/Training"
-import { PersonalReview } from "./features/PersonalReview"
-import { Records } from "./features/Records"
-import { Project } from "./features/Project"
-import { Boss } from "./features/Boss"
-import { CapabilityMap } from "./features/CapabilityMap"
+import { UnifiedWorkspace } from "./features/UnifiedWorkspace"
 
 client.setConfig({ auth: () => sessionStorage.getItem("token") ?? undefined })
 
@@ -131,7 +124,7 @@ function App() {
     })
   }
   return (
-    <main className="mx-auto max-w-xl p-6 space-y-6 break-words">
+    <main className="mx-auto max-w-7xl p-4 sm:p-6 space-y-6 break-words">
       <h1 className="text-2xl font-bold">我是天才程序员</h1>
       <p role="status" className="break-words">
         {message}
@@ -247,15 +240,7 @@ function App() {
           >
             退出登录
           </Button>
-          {user.email_verified && <Boss key={`boss:${user.id}`} />}
-          {user.email_verified && <FreeTopic key={`topic:${user.id}`} />}
-          {user.email_verified && <JDRoute key={`jd:${user.id}`} />}
-          {user.email_verified && <Training key={`training:${user.id}`} onLevel={reflectLevel} />}
-          {user.email_verified && <Project key={`project:${user.id}`} />}
-          {user.email_verified && <PersonalReview key={`personalreview:${user.id}`} />}
-          {user.email_verified && <Records key={`records:${user.id}`} />}
-          {user.email_verified && <CapabilityMap key={`capabilitymap:${user.id}`} />}
-          {user.email_verified && <ModelConfig key={`modelconfig:${user.id}`} action={action} busy={busy} />}
+          {user.email_verified && <UnifiedWorkspace key={`workspace:${user.id}`} userId={user.id} onLevel={reflectLevel} account={<div className="space-y-6"><ModelConfig action={action} busy={busy} /><p>账号注销和恢复回执位于页面顶部；训练、模型配置和账号权限彼此独立。</p></div>} />}
           {user.is_superuser && (
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">邀请管理</h2>
