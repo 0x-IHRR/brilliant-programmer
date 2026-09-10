@@ -98,6 +98,16 @@ def child(mode: str, owner: uuid.UUID, other: uuid.UUID) -> None:
     with Session(engine) as session:
         assert session.get(User, owner) is not None
         assert session.execute(text("SELECT count(*) FROM procrastinate_jobs WHERE task_name='training.generate' AND status='todo'")).scalar_one() == 1
+    import procrastinate
+
+    from app.account_erasure.worker import erase_account
+    from app.training.queue import DSN
+
+    actual_queue = procrastinate.App(connector=procrastinate.SyncPsycopgConnector(conninfo=DSN))
+    sentinel = actual_queue.task(name='account.erase')(erase_account.func)
+    with Session(engine) as session:
+        sentinel_id = sentinel.configure(connection=session.connection().connection.driver_connection).defer(user_id=str(owner))
+        session.commit()
     with (journal.path().parent / 'production-worker.log').open('a') as output:
         worker = subprocess.Popen([sys.executable, '-m', 'app.training.worker'], stdout=output, stderr=output)
     try:
@@ -105,7 +115,8 @@ def child(mode: str, owner: uuid.UUID, other: uuid.UUID) -> None:
         while True:
             with Session(engine) as session:
                 gone = session.get(User, owner) is None
-            if gone:
+                consumed = session.execute(text('SELECT status FROM procrastinate_jobs WHERE id=:id'), {'id':sentinel_id}).scalar_one()
+            if gone and consumed == 'succeeded':
                 break
             assert worker.poll() is None
             assert time.monotonic() < deadline

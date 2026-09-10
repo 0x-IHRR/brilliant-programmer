@@ -27,16 +27,18 @@ for (const [index, mode] of ["lost-response", "other-account"].entries()) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await page.screenshot({ path: `test-results/account-${mode}-200.png` })
     await page.evaluate(() => { document.documentElement.style.fontSize = "" })
-    let received!: () => void, release!: () => void
+    const capA = await page.evaluate(() => JSON.parse(sessionStorage.getItem("account-erasure-receipt")!))
+    let received!: () => void, release!: () => void, finished!: () => void
     const committed = new Promise<void>(resolve => { received = resolve })
     const held = new Promise<void>(resolve => { release = resolve })
+    const delivered = new Promise<void>(resolve => { finished = resolve })
     await page.route("**/account-erasure/*/confirm", async route => {
       const response = await route.fetch()
       expect(response.status()).toBe(202)
       expect((await response.json()).accepted_at).toBeTruthy()
       received()
       if (mode === "lost-response") await route.abort("failed")
-      else { await held; await route.fulfill({ response }) }
+      else { await held; await route.fulfill({ response }); finished() }
     })
     await final.focus()
     await page.keyboard.press("Enter")
@@ -60,9 +62,12 @@ for (const [index, mode] of ["lost-response", "other-account"].entries()) {
       expect(tokenB).toBeTruthy()
       expect(tokenB).not.toBe(item.token)
       release()
+      await delivered
+      await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())))
       await expect(page.getByText(item.email, { exact: false }).first()).toBeVisible()
       expect(await page.evaluate(() => sessionStorage.getItem("token"))).toBe(tokenB)
-      await expect(erasure).not.toContainText(item.owner)
+      await expect(erasure).not.toContainText(capA.request)
+      await expect(erasure.getByRole("button", { name: "读取实际注销回执" })).toHaveCount(0)
     }
     const capability = await page.evaluate(() => JSON.parse(sessionStorage.getItem("account-erasure-receipt")!))
     await expect.poll(async () => {
@@ -130,6 +135,7 @@ for (const extra of extras) {
     await expect.poll(() => page.evaluate(() => sessionStorage.getItem("token"))).toBeNull()
     release()
     await delivered
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())))
     await expect(page.getByRole("button", { name: "登录", exact: true })).toBeVisible()
     await expect(page.getByRole("button", { name: "退出登录", exact: true })).toHaveCount(0)
     await expect.poll(() => page.evaluate(() => sessionStorage.getItem("token"))).toBeNull()

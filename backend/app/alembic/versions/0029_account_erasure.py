@@ -87,7 +87,7 @@ def upgrade():
     DECLARE owner_id uuid;
     BEGIN
       IF TG_OP='DELETE' THEN
-        IF TG_TABLE_NAME='user' AND NOT account_delete_allowed(TG_TABLE_NAME,to_jsonb(OLD)) THEN RAISE EXCEPTION 'account deletion needs confirmation'; END IF;
+        IF (TG_TABLE_NAME='user' OR EXISTS(SELECT 1 FROM account_erasure_permit)) AND NOT account_delete_allowed(TG_TABLE_NAME,to_jsonb(OLD)) THEN RAISE EXCEPTION 'account deletion needs confirmation'; END IF;
         RETURN OLD;
       END IF;
       IF TG_OP='UPDATE' AND TG_TABLE_NAME IN ('training_attempt','project_attempt','submission_attempt','evaluation_attempt','concept_attempt','review_attempt','topic_attempt','probe_attempt') AND (to_jsonb(NEW)-ARRAY['code','prompt_tokens','completion_tokens','total_tokens']) = (to_jsonb(OLD)-ARRAY['code','prompt_tokens','completion_tokens','total_tokens']) THEN RETURN NEW; END IF;

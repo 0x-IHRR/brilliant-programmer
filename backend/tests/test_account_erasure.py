@@ -437,3 +437,106 @@ def test_independent_worker_erases_queued_account_without_outbound_and_restart_i
             stop_worker(process)
         provider['release'].set()
         fixture.close()
+
+
+def test_account_erasure_preserves_shared_quality_bytes_until_last_live_owner(client, tmp_path):
+    import hashlib
+
+    from app.quality.import_report import load
+    from app.quality.import_report import save as import_report
+    from app.quality.models import QualityEvidence, QualityReport
+    from tests.test_model_config import save
+    from tests.test_quality_import import bundle
+
+    owner, auth = account()
+    other, other_auth = account()
+    config = save(auth).json()
+    path, digest, _, _ = bundle(tmp_path, owner, config)
+    report, digest, files = load(path, digest, tmp_path)
+    foreign = report.model_copy(update={'artifact_id':uuid.uuid4(), 'binding':report.binding.model_copy(update={'user_id':other})})
+    with Session(engine) as session:
+        import_report(session, report, digest, files)
+        session.commit()
+        import_report(session, foreign, hashlib.sha256(foreign.model_dump_json().encode()).hexdigest(), files)
+        session.commit()
+    accepted(client, prepared(client, auth))
+    purge(owner)
+    with Session(engine) as session:
+        assert session.get(QualityReport, report.artifact_id) is None
+        assert session.get(QualityReport, foreign.artifact_id).report == __import__('json').loads(foreign.model_dump_json())
+        for sha, content in files.items():
+            assert session.get(QualityEvidence, sha).content == content
+    accepted(client, prepared(client, other_auth))
+    purge(other)
+    with Session(engine) as session:
+        assert session.get(QualityReport, foreign.artifact_id) is None
+        assert all(session.get(QualityEvidence, sha) is None for sha in files)
+
+
+def test_exact_account_permits_reject_foreign_row_and_mixed_delete_rolls_back(client):
+    import json
+
+    from app.training.models import TrainingRun
+
+    owner, auth = account()
+    other, _ = account()
+    own_run, other_run = create_run(owner), create_run(other)
+    p = prepared(client, auth)
+    accepted(client, p)
+    with Session(engine) as session:
+        params = {'owner':owner, 'request':uuid.UUID(p['request_id']), 'key':json.dumps([str(other_run)])}
+        with pytest.raises(DBAPIError):
+            session.execute(text("INSERT INTO account_erasure_permit VALUES (:owner,'training_run',:key,:request)"), params)
+        session.rollback()
+        session.execute(text("INSERT INTO account_erasure_permit VALUES (:owner,'training_run',:key,:request)"), params | {'key':json.dumps([str(own_run)])})
+        with pytest.raises(DBAPIError):
+            session.execute(text('DELETE FROM training_run WHERE id IN (:a,:b)'), {'a':own_run,'b':other_run})
+        session.rollback()
+        assert session.get(TrainingRun, own_run) is not None
+        assert session.get(TrainingRun, other_run) is not None
+        assert session.execute(text('SELECT count(*) FROM account_erasure_permit WHERE user_id=:id'),{'id':owner}).scalar_one() == 0
+    purge(owner)
+    with Session(engine) as session:
+        assert session.get(TrainingRun, own_run) is None
+        assert session.get(TrainingRun, other_run) is not None
+
+
+def test_real_boss_review_revalidation_cycle_is_physically_erased(client, tmp_path, monkeypatch):
+    from app.account_erasure.inventory import TABLES
+    from tests import test_boss_revalidation
+    from tests.test_training import provider as provider_fixture
+
+    captured = []
+    original_account = test_boss_revalidation.account
+
+    def capture_account():
+        result = original_account()
+        captured.append(result)
+        return result
+
+    monkeypatch.setattr(test_boss_revalidation, 'account', capture_account)
+    source = provider_fixture.__wrapped__(tmp_path)
+    supplier = next(source)
+    try:
+        test_boss_revalidation.test_real_confirmed_promotion_review_new_same_stage_only_resolves(tmp_path, supplier)
+    finally:
+        source.close()
+    assert len(captured) == 2
+    owner, auth = captured[0]
+    other, _ = captured[1]
+    with Session(engine) as session:
+        before = {
+            table: session.execute(text(f'SELECT account_row_key(:table,to_jsonb(t)) FROM "{table}" t WHERE account_row_owner(:table,to_jsonb(t))=:owner'), {'table':table, 'owner':owner}).scalars().all()
+            for table in TABLES
+        }
+        assert before['boss_revalidation'] and before['boss_promotion'] and before['score_review']
+        assert len(before['boss_attempt']) >= 2
+        foreign = session.get(User, other).model_dump()
+    accepted(client, prepared(client, auth))
+    purge(owner)
+    with Session(engine) as session:
+        for table, keys in before.items():
+            if keys:
+                assert session.execute(text(f'SELECT count(*) FROM "{table}" t WHERE account_row_key(:table,to_jsonb(t))=ANY(:keys)'), {'table':table, 'keys':list(keys)}).scalar_one() == 0, table
+        assert session.get(User, other).model_dump() == foreign
+    (tmp_path / 'erased-table-counts.json').write_text(__import__('json').dumps({table:len(keys) for table, keys in before.items() if keys}))
