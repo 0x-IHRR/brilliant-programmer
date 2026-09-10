@@ -17,6 +17,7 @@ class Entry(NamedTuple):
     user_id: uuid.UUID
     request_id: uuid.UUID
     accepted_at: datetime
+    receipt_hash: str
 
 
 def path() -> Path:
@@ -37,7 +38,8 @@ def initialize() -> str:
                 sequence INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id TEXT UNIQUE NOT NULL,
                 request_id TEXT UNIQUE NOT NULL,
-                accepted_at TEXT NOT NULL
+                accepted_at TEXT NOT NULL,
+                receipt_hash TEXT NOT NULL
             );
             CREATE TRIGGER no_delete BEFORE DELETE ON deletion
                 BEGIN SELECT RAISE(ABORT, 'deletion journal is append-only'); END;
@@ -69,30 +71,30 @@ def read() -> tuple[str, list[Entry]]:
         if identity is None:
             raise RuntimeError("独立删除日志缺少身份；禁止自动初始化")
         rows = connection.execute(
-            "SELECT sequence,user_id,request_id,accepted_at FROM deletion ORDER BY sequence"
+            "SELECT sequence,user_id,request_id,accepted_at,receipt_hash FROM deletion ORDER BY sequence"
         ).fetchall()
         return identity[0], [
-            Entry(n, uuid.UUID(u), uuid.UUID(r), datetime.fromisoformat(t))
-            for n, u, r, t in rows
+            Entry(n, uuid.UUID(u), uuid.UUID(r), datetime.fromisoformat(t), h)
+            for n, u, r, t, h in rows
         ]
 
 
-def append(user_id: uuid.UUID, request_id: uuid.UUID, accepted_at: datetime) -> Entry:
+def append(user_id: uuid.UUID, request_id: uuid.UUID, accepted_at: datetime, receipt_hash: str = "") -> Entry:
     with connect() as connection:
         with connection:
             connection.execute(
-                "INSERT INTO deletion(user_id,request_id,accepted_at) VALUES (?,?,?) "
+                "INSERT INTO deletion(user_id,request_id,accepted_at,receipt_hash) VALUES (?,?,?,?) "
                 "ON CONFLICT(user_id) DO NOTHING",
-                (str(user_id), str(request_id), accepted_at.astimezone(UTC).isoformat()),
+                (str(user_id), str(request_id), accepted_at.astimezone(UTC).isoformat(), receipt_hash),
             )
         row = connection.execute(
-            "SELECT sequence,user_id,request_id,accepted_at FROM deletion WHERE user_id=?",
+            "SELECT sequence,user_id,request_id,accepted_at,receipt_hash FROM deletion WHERE user_id=?",
             (str(user_id),),
         ).fetchone()
         assert row
-        if row[2] != str(request_id):
+        if row[2] != str(request_id) or row[4] != receipt_hash:
             raise ValueError("该账号已有另一项不可撤销的注销决定")
-        return Entry(row[0], user_id, request_id, datetime.fromisoformat(row[3]))
+        return Entry(row[0], user_id, request_id, datetime.fromisoformat(row[3]), row[4])
 
 
 def contains(user_id: uuid.UUID) -> bool:

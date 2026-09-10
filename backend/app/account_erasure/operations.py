@@ -40,8 +40,10 @@ def replay() -> None:
             if item and item.accepted_at and item.request_id != entry.request_id:
                 raise RuntimeError("注销身份冲突，禁止开放访问")
             if not item:
-                item = AccountErasure(user_id=entry.user_id, request_id=entry.request_id, authentication_digest="", receipt_hash="", expires_at=entry.accepted_at)
+                item = AccountErasure(user_id=entry.user_id, request_id=entry.request_id, authentication_digest="", receipt_hash=entry.receipt_hash, expires_at=entry.accepted_at)
             item.request_id = entry.request_id
+            if entry.receipt_hash:
+                item.receipt_hash = entry.receipt_hash
             item.accepted_at = entry.accepted_at
             session.add(item)
         session.commit()

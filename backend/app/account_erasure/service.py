@@ -100,13 +100,15 @@ def confirm(session: Session, request_id: uuid.UUID, secret: str) -> AccountEras
     user = session.get(User, item.user_id, populate_existing=True)
     if not user or item.expires_at <= datetime.now(UTC) or authentication_digest(user.hashed_password) != item.authentication_digest:
         raise HTTPException(409, "重新认证已失效，请重新预览注销")
-    # SQLite commit is durable before PostgreSQL intent/queue commit. A crash in
-    # between fails closed and replay uses the independent entry, not old backup.
-    entry = journal.append(item.user_id, item.request_id, datetime.now(UTC))
-    item.accepted_at = entry.accepted_at
+    # Serialize append against the exact applied prefix. Another confirmation
+    # cannot jump over a durable entry whose PostgreSQL transaction crashed.
     state = session.exec(select(JournalState).where(JournalState.id == 1).with_for_update().execution_options(populate_existing=True)).one_or_none()
     if not state:
         raise HTTPException(503, "独立删除日志尚未绑定")
+    require_ready(session)
+    # SQLite commit is durable before PostgreSQL intent/queue commit.
+    entry = journal.append(item.user_id, item.request_id, datetime.now(UTC), item.receipt_hash)
+    item.accepted_at = entry.accepted_at
     state.sequence = max(state.sequence, entry.sequence)
     from app.account_erasure.worker import erase_account
 
@@ -145,7 +147,7 @@ def purge(user_id: uuid.UUID) -> None:
         if not item.accepted_at:
             raise RuntimeError("Replay must install confirmed intent first")
         reports = session.exec(select(QualityReport).where(QualityReport.user_id == user_id)).all()
-        blobs = {sha for r in reports for sha in hashes(r.report)}
+        blobs = {sha for r in reports if r.report for sha in hashes(r.report)}
         lock_hashes(session, blobs)
         params = {"owner": user_id, "request": item.request_id}
         # Capture permits while every parent still exists; later FK deletion order

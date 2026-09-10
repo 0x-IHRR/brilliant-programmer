@@ -265,3 +265,64 @@ def test_online_deadline_reports_actual_pending_without_claiming_completion(clie
     finally:
         purge(owner)
     audit_deadlines(accepted_at + timedelta(days=2))
+
+
+def test_second_account_confirmation_cannot_skip_unapplied_journal_entry(client):
+    from datetime import UTC, datetime
+
+    from app.account_erasure import journal, operations
+    from app.account_erasure.models import JournalState
+
+    a, auth_a = account()
+    b, auth_b = account()
+    pa, pb = prepared(client, auth_a), prepared(client, auth_b)
+    with Session(engine) as session:
+        prior = session.get(JournalState, 1).sequence
+    journal.append(a, uuid.UUID(pa['request_id']), datetime.now(UTC))
+    try:
+        response = client.post(f"/api/v1/account-erasure/{pb['request_id']}/confirm", json={'receipt_key': pb['receipt_key'], 'confirmation':'注销本账号并永久删除全部私有资料'})
+        assert response.status_code == 503
+        with Session(engine) as session:
+            assert session.get(JournalState, 1).sequence == prior
+            assert session.get(AccountErasure, b).accepted_at is None
+        assert not journal.contains(b)
+        assert client.get('/api/v1/users/me', headers=auth_b).status_code == 503
+    finally:
+        operations.replay()
+    assert client.get('/api/v1/users/me', headers=auth_b).status_code == 200
+
+
+def test_record_erasure_empty_quality_report_does_not_block_account_erasure(client, tmp_path):
+    from app.account_erasure import operations
+    from app.quality.import_report import load
+    from app.quality.import_report import save as import_report
+    from app.quality.models import QualityReport
+    from app.training.models import TrainingRun
+    from tests.test_model_config import save
+    from tests.test_quality_import import bundle
+
+    owner, auth = account()
+    config = save(auth).json()
+    path, digest, _, _ = bundle(tmp_path, owner, config)
+    report, digest, files = load(path, digest, tmp_path)
+    with Session(engine) as session:
+        import_report(session, report, digest, files)
+        session.commit()
+    run = create_run(owner)
+    with Session(engine) as session:
+        row = session.get(TrainingRun, run)
+        row.sources = [{'text': files[report.cases[0].sources[0].text_sha256].decode()}]
+        session.add(row)
+        session.commit()
+    preview = client.post('/api/v1/records/deletions/preview', headers=auth, json={'kind':'training', 'target_id':str(run), 'password':'local-test-password-only'})
+    assert preview.status_code == 200, preview.text
+    response = client.post(f"/api/v1/records/deletions/{preview.json()['id']}/confirm", headers=auth, json={'confirmation':'永久删除所列资料及副本'})
+    assert response.status_code == 200, response.text
+    with Session(engine) as session:
+        assert session.get(QualityReport, report.artifact_id).report == {}
+    accepted(client, prepared(client, auth))
+    operations.replay()
+    operations.replay()
+    with Session(engine) as session:
+        assert session.get(User, owner) is None
+        assert session.get(QualityReport, report.artifact_id) is None
