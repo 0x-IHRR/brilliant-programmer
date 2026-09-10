@@ -55,6 +55,14 @@ export type AnalyzeProject = {
      */
     expected_version?: string | null;
     /**
+     * Previous Version Id
+     */
+    previous_version_id?: string | null;
+    /**
+     * Expected Active Version
+     */
+    expected_active_version?: string | null;
+    /**
      * Expected Config Version
      */
     expected_config_version: string;
@@ -604,6 +612,20 @@ export type ConfirmHelp = {
      * Accepted
      */
     accepted: boolean;
+};
+
+/**
+ * ConfirmRequest
+ */
+export type ConfirmRequest = {
+    /**
+     * Expected Version
+     */
+    expected_version: string;
+    /**
+     * Expected Active Version
+     */
+    expected_active_version?: string | null;
 };
 
 /**
@@ -2012,6 +2034,16 @@ export type ProjectTrainingPublic = {
      */
     project_run_id: string;
     current: ProjectRoute | null;
+    active: ProjectRoute | null;
+    /**
+     * Active Topic Id
+     */
+    active_topic_id: string | null;
+    /**
+     * Family Id
+     */
+    family_id: string;
+    source_repository: Repository;
     /**
      * Semantic Reliability
      */
@@ -3370,16 +3402,6 @@ export type VersionReceipt = {
      * Generation
      */
     generation: string;
-};
-
-/**
- * VersionRequest
- */
-export type VersionRequest = {
-    /**
-     * Expected Version
-     */
-    expected_version: string;
 };
 
 /**
@@ -5506,7 +5528,7 @@ export type topicsEditTopicResponses = {
 export type topicsEditTopicResponse = topicsEditTopicResponses[keyof topicsEditTopicResponses];
 
 export type topicsConfirmTopicData = {
-    body: VersionRequest;
+    body: ConfirmRequest;
     path: {
         /**
          * Topic Id

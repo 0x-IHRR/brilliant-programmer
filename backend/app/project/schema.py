@@ -19,6 +19,23 @@ class Repository(Strict):
     end_line: int | None = Field(default=None, ge=1)
 
 
+def same_scope(left: Repository, right: Repository) -> bool:
+    """A repository name alone cannot authorize reuse of another file/range."""
+    return (
+        left.owner.lower(),
+        left.name.lower(),
+        left.focus,
+        left.start_line,
+        left.end_line,
+    ) == (
+        right.owner.lower(),
+        right.name.lower(),
+        right.focus,
+        right.start_line,
+        right.end_line,
+    )
+
+
 class FileEntry(Strict):
     path: str
     sha: Sha

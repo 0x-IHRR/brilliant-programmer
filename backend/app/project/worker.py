@@ -26,7 +26,13 @@ from app.project.acquisition import acquire
 from app.project.analysis import syntax_map
 from app.project.github import MAX_REQUESTS, SECRET, GitHub
 from app.project.models import ProjectAttempt, ProjectRun
-from app.project.schema import MapCandidate, ProjectMap, Snapshot, validate_map
+from app.project.schema import (
+    MapCandidate,
+    ProjectMap,
+    Snapshot,
+    same_scope,
+    validate_map,
+)
 from app.training.gate import call_credential
 from app.training.generation import extract_content
 from app.training.queue import queue
@@ -127,7 +133,7 @@ def pin(identity: uuid.UUID, snapshot: Snapshot) -> bool:
         repository = snapshot.repository
         run.repository_key = (repository.owner + "/" + repository.name).lower()
         run.commit = repository.commit
-        previous = session.exec(
+        candidates = session.exec(
             select(ProjectRun)
             .where(
                 ProjectRun.user_id == run.user_id,
@@ -138,7 +144,18 @@ def pin(identity: uuid.UUID, snapshot: Snapshot) -> bool:
                 col(ProjectRun.status).in_(TERMINAL),
             )
             .order_by(col(ProjectRun.created_at).desc())
-        ).first()
+        ).all()
+        previous = next(
+            (
+                item
+                for item in candidates
+                if item.snapshot
+                and same_scope(
+                    Snapshot.model_validate(item.snapshot).repository, repository
+                )
+            ),
+            None,
+        )
         if previous and not run.reanalyze:
             run.reused_from_id = previous.id
             run.snapshot, run.project_map = previous.snapshot, previous.project_map

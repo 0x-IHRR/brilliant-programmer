@@ -4,14 +4,20 @@ import json
 import uuid
 
 from fastapi import HTTPException
-from sqlmodel import Session
+from sqlmodel import Session, select
 
-from app.project.schema import ProjectMap, Snapshot
-from app.project.training_models import ProjectInput, ProjectTopic, ProjectVersion
+from app.project.schema import ProjectMap, Repository, Snapshot, same_scope
+from app.project.training_models import (
+    ProjectInput,
+    ProjectRouteFamily,
+    ProjectRouteUpdate,
+    ProjectTopic,
+    ProjectVersion,
+)
 from app.project.training_rules import ModuleGoal, ProjectRoute, propose
 from app.training.schema import Strict, Text
 from app.training.topic_analysis import Inspection
-from app.training.topic_models import Topic, TopicJob
+from app.training.topic_models import Topic, TopicJob, TopicVersion
 from app.training.topic_rules import Goal, Version
 from app.training.topic_service import save_version
 
@@ -63,14 +69,21 @@ def accept(session: Session, topic: Topic, item: TopicJob, raw: str) -> None:
         if item.stage == "analyze"
         else ModuleAnalysis.model_validate_json(json.dumps(item.candidate))
     )
+    previous = route(session, topic, item.expected_version)
+    if previous is None and source.previous_version_id:
+        old_version = session.get(TopicVersion, source.previous_version_id)
+        assert old_version
+        old_topic = session.get(Topic, old_version.topic_id)
+        assert old_topic and old_topic.user_id == topic.user_id
+        previous = route(session, old_topic, old_version.id)
     value = propose(
         source.project_run_id,
         Snapshot.model_validate(source.snapshot),
         ProjectMap.model_validate(source.project_map),
         analysis.goals,
         key="",
-        previous=route(session, topic, item.expected_version),
-        expected_version=item.expected_version,
+        previous=previous,
+        expected_version=previous.route.id if previous else None,
     )
     value = value.model_copy(
         update={"route": value.route.model_copy(update={"message": analysis.message})}
@@ -133,3 +146,94 @@ def analysis_context(source: ProjectInput) -> dict[str, object]:
         ],
         "missing": mapped.missing,
     }
+
+
+def family(session: Session, topic: Topic) -> ProjectRouteFamily | None:
+    update = session.get(ProjectRouteUpdate, topic.id)
+    return session.get(ProjectRouteFamily, update.root_topic_id if update else topic.id)
+
+
+def family_topics(session: Session, topic: Topic) -> list[uuid.UUID]:
+    group = family(session, topic)
+    if not group:
+        return [topic.id]
+    return [
+        group.root_topic_id,
+        *session.exec(
+            select(ProjectRouteUpdate.topic_id).where(
+                ProjectRouteUpdate.root_topic_id == group.root_topic_id
+            )
+        ).all(),
+    ]
+
+
+def active_route(
+    session: Session, topic: Topic
+) -> tuple[uuid.UUID, ProjectRoute] | None:
+    group = family(session, topic)
+    identity = group.active_version_id if group else topic.active_id
+    if identity is None:
+        return None
+    version_row = session.get(TopicVersion, identity)
+    assert version_row
+    owner = session.get(Topic, version_row.topic_id)
+    assert owner and owner.user_id == topic.user_id
+    value = route(session, owner, identity)
+    assert value
+    return owner.id, value
+
+
+def link_update(
+    session: Session,
+    topic: Topic,
+    previous_id: uuid.UUID,
+    repository: Repository,
+    expected_active: uuid.UUID | None,
+) -> None:
+    row = session.get(TopicVersion, previous_id)
+    previous_topic = session.get(Topic, row.topic_id) if row else None
+    if not previous_topic or previous_topic.user_id != topic.user_id:
+        raise HTTPException(404, "前路线版本不存在")
+    previous = route(session, previous_topic, previous_id)
+    if not previous or not same_scope(previous.repository, repository):
+        raise HTTPException(409, "前路线不属于同一仓库与完整读取范围")
+    group = family(session, previous_topic)
+    active = group.active_version_id if group else previous_topic.active_id
+    if (
+        previous_topic.active_id != previous_id
+        or active != previous_id
+        or expected_active != active
+    ):
+        raise HTTPException(409, "前路线须为仍生效的已确认版本；请重读，旧当前路线保留")
+    if not group:
+        group = ProjectRouteFamily(
+            root_topic_id=previous_topic.id, active_version_id=active
+        )
+        session.add(group)
+        session.flush()
+    session.add(
+        ProjectRouteUpdate(
+            topic_id=topic.id,
+            root_topic_id=group.root_topic_id,
+            previous_version_id=previous_id,
+        )
+    )
+
+
+def activate(
+    session: Session,
+    topic: Topic,
+    version_id: uuid.UUID,
+    expected_active: uuid.UUID | None,
+) -> None:
+    """User lock serializes confirmations across updated, immutable Topic records."""
+    group = family(session, topic)
+    active = group.active_version_id if group else topic.active_id
+    if active == version_id and topic.active_id == version_id:
+        return
+    if expected_active != active:
+        raise HTTPException(409, "当前项目路线已变化；请重读比较，未替换已确认路线")
+    if not group:
+        group = ProjectRouteFamily(root_topic_id=topic.id)
+    group.active_version_id = version_id
+    session.add(group)
