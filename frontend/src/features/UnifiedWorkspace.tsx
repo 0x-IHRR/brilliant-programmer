@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from "react"
+import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { type ContinuePublic, TrainingService } from "../client"
 import { Button } from "../components/ui/button"
 import { Boss } from "./Boss"
@@ -194,7 +194,7 @@ export function UnifiedWorkspace({
 }) {
   const [area, setArea] = useState<Area>(initialArea)
   const [requestedRun, setRequestedRun] = useState("")
-  const focusFrame = useRef(0)
+  const [focusRequest, setFocusRequest] = useState<{ area: Area; target?: string; sequence: number } | null>(null)
   const regions = useRef<Record<Area, HTMLElement | null>>({
     home: null,
     routes: null,
@@ -203,15 +203,15 @@ export function UnifiedWorkspace({
     review: null,
     account: null,
   })
-  useEffect(() => () => cancelAnimationFrame(focusFrame.current), [])
+  useLayoutEffect(() => {
+    if (!focusRequest) return
+    const region = (focusRequest.target ? document.getElementById(focusRequest.target) : null) ?? regions.current[focusRequest.area]
+    region?.focus({ preventScroll: true })
+    region?.scrollIntoView()
+  }, [focusRequest])
   function go(next: Area, target?: string) {
     setArea(next)
-    cancelAnimationFrame(focusFrame.current)
-    focusFrame.current = requestAnimationFrame(() => {
-      const region = (target ? document.getElementById(target) : null) ?? regions.current[next]
-      region?.focus({ preventScroll: true })
-      region?.scrollIntoView()
-    })
+    setFocusRequest((current) => ({ area: next, target, sequence: (current?.sequence ?? 0) + 1 }))
   }
   function continueRun(id: string) {
     setRequestedRun(id)
