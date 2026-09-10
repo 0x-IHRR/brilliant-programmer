@@ -45,6 +45,19 @@ test("六区域首页、首次序章和导航往返保留未保存作答", async
   const entries = page.getByRole("region", { name: "四种训练入口" })
   for (const name of ["随机练习", "自由主题", "JD 定向", "公开 GitHub 项目"])
     await expect(entries.getByRole("button", { name })).toBeVisible()
+  for (const [name, target] of [
+    ["随机练习", "random-entry"],
+    ["自由主题", "topic-entry"],
+    ["JD 定向", "jd-entry"],
+    ["公开 GitHub 项目", "project-entry"],
+  ] as const) {
+    await entries.getByRole("button", { name, exact: true }).focus()
+    await page.keyboard.press("Enter")
+    const destination = page.locator(`#${target}`)
+    await expect(destination).toBeFocused()
+    expect(await destination.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe("none")
+    await navigation.getByRole("button", { name: "首页", exact: true }).click()
+  }
   await expect(page.getByText(/最近未完成：/)).toBeVisible()
 
   await page.getByRole("button", { name: "观看重回巅峰序章" }).click()

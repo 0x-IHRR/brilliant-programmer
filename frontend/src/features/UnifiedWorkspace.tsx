@@ -27,6 +27,7 @@ const areas: { id: Area; label: string }[] = [
   { id: "account", label: "账号与模型" },
 ]
 const buttonClass = "h-auto min-h-9 max-w-full whitespace-normal"
+const entryTargetClass = "focus-visible:outline-2 focus-visible:outline-offset-2"
 
 function initialArea(): Area {
   const query = new URLSearchParams(location.search)
@@ -246,15 +247,15 @@ export function UnifiedWorkspace({
           )}
           {item.id === "routes" && (
             <>
-              <div id="topic-entry" tabIndex={-1}><FreeTopic /></div>
-              <div id="jd-entry" tabIndex={-1}><JDRoute /></div>
-              <div id="project-entry" tabIndex={-1}><Project /></div>
+              <div id="topic-entry" role="group" aria-label="自由主题入口" className={entryTargetClass} tabIndex={-1}><FreeTopic /></div>
+              <div id="jd-entry" role="group" aria-label="JD 定向入口" className={entryTargetClass} tabIndex={-1}><JDRoute /></div>
+              <div id="project-entry" role="group" aria-label="公开 GitHub 项目入口" className={entryTargetClass} tabIndex={-1}><Project /></div>
             </>
           )}
           {item.id === "training" && (
             <>
               <Boss />
-              <div id="random-entry" tabIndex={-1}><Training onLevel={onLevel} openRunId={requestedRun} /></div>
+              <div id="random-entry" role="group" aria-label="随机练习入口" className={entryTargetClass} tabIndex={-1}><Training onLevel={onLevel} openRunId={requestedRun} /></div>
             </>
           )}
           {item.id === "capabilities" && <CapabilityMap />}
