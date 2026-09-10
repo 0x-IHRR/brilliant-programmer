@@ -39,7 +39,10 @@ def require_account(user_id: uuid.UUID) -> None:
 
 
 def require_ready(session: Session) -> None:
+    from app.operations.state import require_open
+
     try:
+        require_open()
         identity, sequence = journal.head()
         state = session.get(JournalState, 1, populate_existing=True)
         if not state or state.identity != identity or state.sequence != sequence:
