@@ -772,6 +772,28 @@ export type DraftAnswer = {
 };
 
 /**
+ * DraftHistory
+ */
+export type DraftHistory = {
+    /**
+     * Help Id
+     */
+    help_id: string | null;
+    /**
+     * Versions
+     */
+    versions: Array<DraftSnapshot>;
+    /**
+     * Current
+     */
+    current: string | null;
+    /**
+     * Unresolved
+     */
+    unresolved: Array<string>;
+};
+
+/**
  * DraftProgress
  */
 export type DraftProgress = {
@@ -1813,6 +1835,20 @@ export type Node = {
 };
 
 /**
+ * ObjectMark
+ */
+export type ObjectMark = {
+    /**
+     * Kind
+     */
+    kind: string;
+    /**
+     * Object Id
+     */
+    object_id: string;
+};
+
+/**
  * Observation
  */
 export type Observation = {
@@ -1877,6 +1913,73 @@ export type PasswordResetRequest = {
      * Password
      */
     password: string;
+};
+
+/**
+ * PersonalReview
+ */
+export type PersonalReview = {
+    /**
+     * Format Version
+     */
+    format_version?: string;
+    /**
+     * Read At
+     */
+    read_at: string;
+    /**
+     * User Id
+     */
+    user_id: string;
+    /**
+     * Level
+     */
+    level: string;
+    /**
+     * Total Points
+     */
+    total_points: number;
+    /**
+     * Rounds
+     */
+    rounds: Array<RoundHistory>;
+    /**
+     * Topics
+     */
+    topics: Array<TopicPublic>;
+    /**
+     * Jds
+     */
+    jds: Array<JDPublic>;
+    /**
+     * Project Routes
+     */
+    project_routes: Array<ProjectTrainingPublic>;
+    /**
+     * Projects
+     */
+    projects: Array<ProjectPublic>;
+    evidence: EvidenceMap;
+    /**
+     * Rewards
+     */
+    rewards: Array<RewardHistory>;
+    /**
+     * Promotions
+     */
+    promotions: Array<PromotionHistory>;
+    /**
+     * Revalidations
+     */
+    revalidations: Array<RevalidationPublic>;
+    /**
+     * Archived
+     */
+    archived: Array<ObjectMark>;
+    /**
+     * Deleted
+     */
+    deleted: Array<ObjectMark>;
 };
 
 /**
@@ -2238,6 +2341,40 @@ export type ProjectTrainingPublic = {
      * Semantic Reliability
      */
     semantic_reliability?: string;
+};
+
+/**
+ * PromotionHistory
+ */
+export type PromotionHistory = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Original Id
+     */
+    original_id: string;
+    /**
+     * Stage Version
+     */
+    stage_version: string;
+    /**
+     * From Level
+     */
+    from_level: string;
+    /**
+     * To Level
+     */
+    to_level: string;
+    /**
+     * Created At
+     */
+    created_at: string;
 };
 
 /**
@@ -2781,6 +2918,32 @@ export type ReviewStart = {
 };
 
 /**
+ * RewardHistory
+ */
+export type RewardHistory = {
+    /**
+     * Kind
+     */
+    kind: 'completion' | 'review_difference';
+    /**
+     * Run Id
+     */
+    run_id: string;
+    /**
+     * Points
+     */
+    points: number;
+    /**
+     * Rule Version
+     */
+    rule_version: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+};
+
+/**
  * Role
  */
 export type Role = {
@@ -2793,6 +2956,46 @@ export type Role = {
      * Requirements
      */
     requirements: Array<Requirement>;
+};
+
+/**
+ * RoundHistory
+ */
+export type RoundHistory = {
+    /**
+     * Entry
+     */
+    entry: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Archived
+     */
+    archived: boolean;
+    task: TaskPublic;
+    submissions: SubmissionState;
+    evaluation: EvaluationPublic | null;
+    review: ReviewPublic | null;
+    /**
+     * Help
+     */
+    help: Array<HelpPublic>;
+    /**
+     * Practice Submissions
+     */
+    practice_submissions: {
+        [key: string]: SubmissionState;
+    };
+    /**
+     * Drafts
+     */
+    drafts: Array<DraftHistory>;
+    /**
+     * Practices
+     */
+    practices: Array<PracticeState>;
 };
 
 /**
@@ -3780,6 +3983,38 @@ export type ProbeInputWritable = {
      */
     disclosure_accepted: boolean;
 };
+
+export type personalreviewReadPersonalReviewData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/personal-review';
+};
+
+export type personalreviewReadPersonalReviewResponses = {
+    /**
+     * Successful Response
+     */
+    200: PersonalReview;
+};
+
+export type personalreviewReadPersonalReviewResponse = personalreviewReadPersonalReviewResponses[keyof personalreviewReadPersonalReviewResponses];
+
+export type personalreviewExportPersonalReviewData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/personal-review/export';
+};
+
+export type personalreviewExportPersonalReviewResponses = {
+    /**
+     * Successful Response
+     */
+    200: PersonalReview;
+};
+
+export type personalreviewExportPersonalReviewResponse = personalreviewExportPersonalReviewResponses[keyof personalreviewExportPersonalReviewResponses];
 
 export type recordsRecordsData = {
     body?: never;
