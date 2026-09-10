@@ -200,7 +200,7 @@ def practice_history(
     return result
 
 
-def project(session: Session, user_id: uuid.UUID) -> PersonalReview:
+def build_personal_review(session: Session, user_id: uuid.UUID) -> PersonalReview:
     # Ponytail: retain the existing personal-history projection, including its
     # cumulative evidence comparisons. No cache, truncation, or expiry; measure
     # actual history size/latency before adding an incremental representation.
@@ -318,7 +318,7 @@ def project(session: Session, user_id: uuid.UUID) -> PersonalReview:
 def read_personal_review(user: VerifiedUser, response: Response) -> PersonalReview:
     response.headers["Cache-Control"] = "no-store"
     with read_snapshot(user.id) as session:
-        return project(session, user.id)
+        return build_personal_review(session, user.id)
 
 
 @router.get("/export", response_model=PersonalReview)
@@ -326,7 +326,7 @@ def export_personal_review(user: VerifiedUser) -> Response:
     # Build and serialize under the SAME snapshot/erasure guard, no nested read
     # wrappers or streaming queries after the snapshot has closed.
     with read_snapshot(user.id) as session:
-        payload = project(session, user.id).model_dump_json(indent=2)
+        payload = build_personal_review(session, user.id).model_dump_json(indent=2)
         return Response(
             payload,
             media_type="application/json",
