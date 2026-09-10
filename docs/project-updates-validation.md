@@ -20,4 +20,6 @@
 
 最新专项组合 19 passed（18.37s）；随后仅将停止用例终态断言改成按 captured request ID 查询，而非列表位置，保原消费者 15 秒、总 3 次调用与已知用量断言。完整原答流程再验证了跨新读取身份完成衔接、重排保完成、修改重点不冒旧完成与原轮唯一 10 点。
 
-新增浏览器完整脚本最终 1 passed（1.6s）：先前多路线 select 在 320px 实测宽 361px 导致横溢，局部宽度限制后原断言通过；键盘确认、跨设备读取当前指针、320px/200% 均通过。截图 `/tmp/bp-issue-24-artifacts/project-updates-320.png` 和 `project-updates-200.png`。原生选择框宽度修复不更改服务端行为。前端 7 unit、ruff、backend strict mypy 116、build、diff check 通过。
+新增浏览器完整脚本最终 1 passed（1.6s）：先前多路线 select 在 320px 实测宽 361px 导致横溢，局部宽度限制后原断言通过；键盘确认、独立 API 重读当前指针、320px/200% 均通过。截图 `/tmp/bp-issue-24-artifacts/project-updates-320.png` 和 `project-updates-200.png`。原生选择框宽度修复不更改服务端行为。前端 7 unit、ruff、backend strict mypy 116、build、diff check 通过。
+
+真正 commit A→B 的新增专项已编写：受控 GitHub 两次实际读取，B 的 commit/tree/blob/源码片段变化；两阶段独立 worker/TLS 生成路线并显式确认，逐字段比较旧 TrainingRun、Evaluation（包含原 inputs/sources/result）、Submission 和唯一奖励。此用例尚待本地原 full 结束后独占运行，最终 CI 也会执行；不预记通过。
