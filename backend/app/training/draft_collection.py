@@ -65,12 +65,16 @@ def key(run_id: uuid.UUID, help_id: uuid.UUID | None) -> str:
 
 
 def lock_run(session: Session, run_id: uuid.UUID) -> TrainingRun:
-    return session.exec(
+    run = session.exec(
         select(TrainingRun)
         .where(TrainingRun.id == run_id)
         .with_for_update()
         .execution_options(populate_existing=True)
     ).one()
+    from app.deletion.service import require_available
+
+    require_available(session, run.user_id, "training", run.id)
+    return run
 
 
 def view(state: DraftVersions) -> CollectionView:

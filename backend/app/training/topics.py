@@ -9,6 +9,7 @@ from sqlmodel import Session, col, select
 from app.api.deps import SessionDep
 from app.capabilities.catalog import CATALOG
 from app.capabilities.unlocks import open_unit
+from app.deletion.service import hidden_ids
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.project.training_models import ProjectTopic
@@ -88,7 +89,7 @@ class TopicPublic(BaseModel):
 def public(_session: Session, item: Topic) -> TopicPublic:
     # All mutation callers commit before projecting; terminal/duplicate paths
     # have no pending writes. Do not release their locks or wait for model gates.
-    with read_snapshot() as snapshot:
+    with read_snapshot(item.user_id) as snapshot:
         current = snapshot.get(Topic, item.id)
         assert current is not None
         return _public(snapshot, current)
@@ -143,7 +144,7 @@ def list_topics(
     user: VerifiedUser, _session: SessionDep, response: Response
 ) -> list[TopicPublic]:
     response.headers["Cache-Control"] = "no-store"
-    with read_snapshot() as snapshot:
+    with read_snapshot(user.id) as snapshot:
         return [
             _public(snapshot, item)
             for item in snapshot.exec(
@@ -155,6 +156,7 @@ def list_topics(
                 )
                 .order_by(col(Topic.created_at).desc())
             ).all()
+            if item.id not in hidden_ids(snapshot, user.id, "topic")
         ]
 
 

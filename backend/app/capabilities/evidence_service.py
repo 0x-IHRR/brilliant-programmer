@@ -40,7 +40,7 @@ from app.training.submission_models import Submission
 
 
 def read_evidence(session: Session, user_id: uuid.UUID) -> EvidenceMap:
-    records = []
+    records: list[Evidence] = []
     orders = session.exec(
         select(OriginalOrder)
         .where(OriginalOrder.user_id == user_id)
@@ -142,6 +142,12 @@ def read_evidence(session: Session, user_id: uuid.UUID) -> EvidenceMap:
             original_quality and original_quality.status == "failed"
         ):
             outcome, qualified, facet_eligible = "quality_failed", False, False
+        from app.deletion.service import unavailable
+
+        erased = unavailable(session, user_id, run.id)
+        if erased:
+            outcome, qualified, facet_eligible = "evidence_unavailable", False, False
+            digest, judgments = None, []
         record = Evidence(
             grading_quality=cast(QualityStatus, quality.status)
             if quality
@@ -166,6 +172,12 @@ def read_evidence(session: Session, user_id: uuid.UUID) -> EvidenceMap:
             judgment_ids=judgments,
         )
         stage = stage_for(session, run.id)
+        if stage and erased:
+            records.extend(
+                record.model_copy(update={"kind": "boss", "target": mandatory.target})
+                for mandatory in stage.mandatory
+            )
+            continue
         if stage and observation and (qualified or (review and facet_eligible)):
             try:
                 assert work and work.novelty

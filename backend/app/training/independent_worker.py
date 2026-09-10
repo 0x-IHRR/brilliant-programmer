@@ -609,6 +609,12 @@ async def process(identity: uuid.UUID) -> None:
             )
             return
         except ValueError as error:
+            if str(error) == "deleted_seen_history_unavailable":
+                await stop_with(
+                    "deleted_seen_history_unavailable",
+                    "已见资料已永久删除，无法核验完整陌生历史；未发起新比较。可继续普通练习。",
+                )
+                return
             if attempt:
                 await asyncio.to_thread(
                     record_attempt, attempt.id, "invalid_candidate", counts

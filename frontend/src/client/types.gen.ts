@@ -143,6 +143,24 @@ export type AnswerQuote = {
 };
 
 /**
+ * ArchiveRequest
+ */
+export type ArchiveRequest = {
+    /**
+     * Kind
+     */
+    kind: 'training' | 'topic' | 'project';
+    /**
+     * Target Id
+     */
+    target_id: string;
+    /**
+     * Archived
+     */
+    archived: boolean;
+};
+
+/**
  * Attempt
  */
 export type Attempt = {
@@ -601,6 +619,16 @@ export type ConceptContent = {
 };
 
 /**
+ * ConfirmDeletion
+ */
+export type ConfirmDeletion = {
+    /**
+     * Confirmation
+     */
+    confirmation: '永久删除所列资料及副本';
+};
+
+/**
  * ConfirmHelp
  */
 export type ConfirmHelp = {
@@ -651,6 +679,32 @@ export type ConfirmedShortfall = {
      * Gap
      */
     gap: string;
+};
+
+/**
+ * DeletionPublic
+ */
+export type DeletionPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Kind
+     */
+    kind: string;
+    /**
+     * Target Id
+     */
+    target_id: string;
+    /**
+     * Completed At
+     */
+    completed_at: string | null;
+    /**
+     * Expires At
+     */
+    expires_at: string;
 };
 
 /**
@@ -1873,6 +1927,78 @@ export type PreferenceUpdate = {
 };
 
 /**
+ * PreviewPublic
+ */
+export type PreviewPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Kind
+     */
+    kind: string;
+    /**
+     * Target Id
+     */
+    target_id: string;
+    /**
+     * Completed At
+     */
+    completed_at: string | null;
+    /**
+     * Expires At
+     */
+    expires_at: string;
+    /**
+     * Objects
+     */
+    objects: {
+        [key: string]: Array<string>;
+    };
+    /**
+     * Comparison Only Runs
+     */
+    comparison_only_runs: Array<string>;
+    /**
+     * Private Rows
+     */
+    private_rows: {
+        [key: string]: number;
+    };
+    /**
+     * Project Current Pointers Cleared
+     */
+    project_current_pointers_cleared: Array<string>;
+    /**
+     * Shared Attachment Candidates
+     */
+    shared_attachment_candidates: number;
+    /**
+     * Affects Seen History
+     */
+    affects_seen_history: boolean;
+    /**
+     * Consequences
+     */
+    consequences: Array<string>;
+};
+
+/**
+ * PreviewRequest
+ */
+export type PreviewRequest = {
+    /**
+     * Kind
+     */
+    kind: 'training' | 'topic' | 'project';
+    /**
+     * Target Id
+     */
+    target_id: string;
+};
+
+/**
  * ProbeInput
  */
 export type ProbeInput = {
@@ -2247,6 +2373,36 @@ export type ReasonClaim = {
      * Interpreted Fact Value
      */
     interpreted_fact_value: string;
+};
+
+/**
+ * Record
+ */
+export type Record = {
+    /**
+     * Kind
+     */
+    kind: 'training' | 'topic' | 'project';
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Label
+     */
+    label: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Archived
+     */
+    archived: boolean;
+    /**
+     * Deleted
+     */
+    deleted: boolean;
 };
 
 /**
@@ -3472,6 +3628,24 @@ export type ModelConfigSaveWritable = {
 };
 
 /**
+ * PreviewRequest
+ */
+export type PreviewRequestWritable = {
+    /**
+     * Kind
+     */
+    kind: 'training' | 'topic' | 'project';
+    /**
+     * Target Id
+     */
+    target_id: string;
+    /**
+     * Password
+     */
+    password: string;
+};
+
+/**
  * ProbeInput
  */
 export type ProbeInputWritable = {
@@ -3492,6 +3666,134 @@ export type ProbeInputWritable = {
      */
     disclosure_accepted: boolean;
 };
+
+export type recordsRecordsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/records';
+};
+
+export type recordsRecordsResponses = {
+    /**
+     * Response Records-Records
+     *
+     * Successful Response
+     */
+    200: Array<Record>;
+};
+
+export type recordsRecordsResponse = recordsRecordsResponses[keyof recordsRecordsResponses];
+
+export type recordsDeletionPreviewData = {
+    body: PreviewRequestWritable;
+    path?: never;
+    query?: never;
+    url: '/api/v1/records/deletions/preview';
+};
+
+export type recordsDeletionPreviewErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type recordsDeletionPreviewError = recordsDeletionPreviewErrors[keyof recordsDeletionPreviewErrors];
+
+export type recordsDeletionPreviewResponses = {
+    /**
+     * Successful Response
+     */
+    200: PreviewPublic;
+};
+
+export type recordsDeletionPreviewResponse = recordsDeletionPreviewResponses[keyof recordsDeletionPreviewResponses];
+
+export type recordsConfirmDeletionData = {
+    body: ConfirmDeletion;
+    path: {
+        /**
+         * Identity
+         */
+        identity: string;
+    };
+    query?: never;
+    url: '/api/v1/records/deletions/{identity}/confirm';
+};
+
+export type recordsConfirmDeletionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type recordsConfirmDeletionError = recordsConfirmDeletionErrors[keyof recordsConfirmDeletionErrors];
+
+export type recordsConfirmDeletionResponses = {
+    /**
+     * Successful Response
+     */
+    200: DeletionPublic;
+};
+
+export type recordsConfirmDeletionResponse = recordsConfirmDeletionResponses[keyof recordsConfirmDeletionResponses];
+
+export type recordsDeletionReceiptData = {
+    body?: never;
+    path: {
+        /**
+         * Identity
+         */
+        identity: string;
+    };
+    query?: never;
+    url: '/api/v1/records/deletions/{identity}';
+};
+
+export type recordsDeletionReceiptErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type recordsDeletionReceiptError = recordsDeletionReceiptErrors[keyof recordsDeletionReceiptErrors];
+
+export type recordsDeletionReceiptResponses = {
+    /**
+     * Successful Response
+     */
+    200: DeletionPublic;
+};
+
+export type recordsDeletionReceiptResponse = recordsDeletionReceiptResponses[keyof recordsDeletionReceiptResponses];
+
+export type recordsArchiveData = {
+    body: ArchiveRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/records/archive';
+};
+
+export type recordsArchiveErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type recordsArchiveError = recordsArchiveErrors[keyof recordsArchiveErrors];
+
+export type recordsArchiveResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type recordsArchiveResponse = recordsArchiveResponses[keyof recordsArchiveResponses];
 
 export type accountsLoginData = {
     body: Body_accounts_login;

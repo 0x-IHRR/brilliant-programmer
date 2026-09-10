@@ -22,6 +22,8 @@ def latest(session: Session, binding: Binding) -> QualityReport | None:
         .order_by(col(QualityReport.sequence).desc())
     ).all()
     for row in rows:
+        if not row.report:
+            return row
         if (
             Report.model_validate_json(__import__("json").dumps(row.report)).binding
             == binding
@@ -35,7 +37,11 @@ def status(
 ) -> tuple[QualityStatus, QualityReport | None]:
 
     row = latest(session, binding)
-    report = Report.model_validate_json(json.dumps(row.report)) if row else None
+    report = (
+        Report.model_validate_json(json.dumps(row.report))
+        if row and row.report
+        else None
+    )
     return applicability(report, binding, sources), row
 
 

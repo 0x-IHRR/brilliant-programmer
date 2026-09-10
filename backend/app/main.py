@@ -42,6 +42,8 @@ async def safe_validation_error(
             status_code=422,
             content={"detail": "配置格式不正确，请检查地址、模型 ID 和 Key"},
         )
+    if request.url.path.startswith("/api/v1/records"):
+        return JSONResponse(status_code=422, content={"detail": "请检查记录范围、当前密码和最终删除确认；未执行删除"})
     if request.url.path.startswith("/api/v1/topics"):
         return JSONResponse(status_code=422, content={"detail": "主题或版本格式不正确；输入保留，请检查本次操作"})
     if request.url.path.startswith("/api/v1/jds"):

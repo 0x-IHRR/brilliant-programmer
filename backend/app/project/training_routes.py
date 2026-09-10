@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlmodel import Session, col, select
 
 from app.api.deps import SessionDep
+from app.deletion.service import hidden_ids
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.project.models import ProjectRun
@@ -85,14 +86,14 @@ def view(session: Session, topic: Topic) -> ProjectTrainingPublic:
 
 
 def public(identity: uuid.UUID, user_id: uuid.UUID) -> ProjectTrainingPublic:
-    with read_snapshot() as session:
+    with read_snapshot(user_id) as session:
         return view(session, owned(session, identity, user_id))
 
 
 @router.get("")
 def list_routes(user: VerifiedUser, response: Response) -> list[ProjectTrainingPublic]:
     response.headers["Cache-Control"] = "no-store"
-    with read_snapshot() as session:
+    with read_snapshot(user.id) as session:
         return [
             view(session, item)
             for item in session.exec(
@@ -101,6 +102,7 @@ def list_routes(user: VerifiedUser, response: Response) -> list[ProjectTrainingP
                 .where(Topic.user_id == user.id)
                 .order_by(col(Topic.created_at).desc())
             ).all()
+            if item.id not in hidden_ids(session, user.id, "topic")
         ]
 
 

@@ -206,15 +206,18 @@ def list_help(
     run_id: uuid.UUID, session: SessionDep, user: VerifiedUser, response: Response
 ) -> list[HelpPublic]:
     response.headers["Cache-Control"] = "no-store"
-    owned(session, run_id, user.id)
-    return [
-        view(session, item)
-        for item in session.exec(
-            select(ConceptHelp)
-            .where(ConceptHelp.run_id == run_id)
-            .order_by(col(ConceptHelp.created_sequence))
-        ).all()
-    ]
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user.id) as session:
+        owned(session, run_id, user.id)
+        return [
+            view(session, item)
+            for item in session.exec(
+                select(ConceptHelp)
+                .where(ConceptHelp.run_id == run_id)
+                .order_by(col(ConceptHelp.created_sequence))
+            ).all()
+        ]
 
 
 @router.post("/tasks/{run_id}/help", status_code=202)

@@ -15,6 +15,7 @@ import "./index.css"
 import { FreeTopic } from "./features/FreeTopic"
 import { JDRoute } from "./features/JDRoute"
 import { Training } from "./features/Training"
+import { Records } from "./features/Records"
 import { Project } from "./features/Project"
 import { Boss } from "./features/Boss"
 import { CapabilityMap } from "./features/CapabilityMap"
@@ -237,6 +238,7 @@ function App() {
           {user.email_verified && <JDRoute key={`jd:${user.id}`} />}
           {user.email_verified && <Training key={`training:${user.id}`} onLevel={reflectLevel} />}
           {user.email_verified && <Project key={`project:${user.id}`} />}
+          {user.email_verified && <Records key={`records:${user.id}`} />}
           {user.email_verified && <CapabilityMap key={`capabilitymap:${user.id}`} />}
           {user.email_verified && <ModelConfig key={`modelconfig:${user.id}`} action={action} busy={busy} />}
           {user.is_superuser && (

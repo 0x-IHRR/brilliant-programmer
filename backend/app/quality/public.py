@@ -28,7 +28,7 @@ def describe(session: Session, binding: Binding) -> QualityPublic:
     from app.quality.service import latest
 
     row = latest(session, binding)
-    if not row:
+    if not row or not row.report:
         return QualityPublic(
             status="unverified", evaluation_rule=binding.evaluation_rule
         )

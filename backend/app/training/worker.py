@@ -30,7 +30,7 @@ from app.training.submission_worker import (  # noqa: F401
 )
 from app.training.topic_worker import reconcile_topics
 
-TERMINAL = {"completed", "failed", "stopped"}
+TERMINAL = {"completed", "failed", "stopped", "deleted"}
 
 
 def finish_stop(run_id: uuid.UUID, job_id: int | None) -> None:
@@ -193,6 +193,8 @@ def accept_candidate(run_id: uuid.UUID, raw: str, key: str) -> bool:
         run = session.exec(
             select(TrainingRun).where(TrainingRun.id == run_id).with_for_update()
         ).one()
+        if run.status == "deleted":
+            return False
         if run.candidate:
             return True
         current_for_result(session, run.user_id, run.config_version)

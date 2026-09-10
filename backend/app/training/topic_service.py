@@ -19,6 +19,9 @@ def owned(
     item = session.exec(query).one_or_none()
     if not item:
         raise HTTPException(404, "主题记录不存在")
+    from app.deletion.service import require_available
+
+    require_available(session, user_id, "topic", identity)
     return item
 
 

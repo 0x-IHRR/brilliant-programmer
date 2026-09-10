@@ -88,9 +88,24 @@ async def observed_process(*args):
         return await original_process(*args)
     finally:
         accept_caller.reset(token)
+        if json.loads(control.read_text()).get("observe_process_finish"):
+            Path(str(control) + ".process_finished").touch()
 
 
 worker.process = observed_process
+original_training_credential = worker.call_credential
+
+
+@asynccontextmanager
+async def training_credential(*args):
+    while json.loads(control.read_text()).get("before_training_credential"):
+        Path(str(control) + ".training_credential_waiting").touch()
+        await asyncio.sleep(0.02)
+    async with original_training_credential(*args) as credential:
+        yield credential
+
+
+worker.call_credential = training_credential
 original_accept = worker.accept_candidate
 
 
