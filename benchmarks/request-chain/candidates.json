@@ -1,0 +1,4688 @@
+{
+  "version": "request-chain-draft-v0.1",
+  "origin": "ai_draft",
+  "review_status": "pending_human_review",
+  "cases": [
+    {
+      "id": "systems.cost-1",
+      "family": "systems.cost",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "queue"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "单个对象或链路边界，依据直接观察选择行动。",
+      "candidate": {
+        "target": {
+          "capability_id": "systems.cost",
+          "difficulty": "基础",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "队首移除为何变慢",
+        "task": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。",
+            "facts": {
+              "observed_boundary": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。"
+            },
+            "citations": [
+              {
+                "source_id": "queue",
+                "quote": "all of the other elements have to be shifted by one"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.cost-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "先比较每次移动元素数，并考虑双端队列",
+              "只增加线程即可消除移动代价"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.cost-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "相同规模，改为只从列表末尾移除；给定实现不移动其余元素。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。",
+          "expected_evidence": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。",
+          "decision_effect": "先比较每次移动元素数，并考虑双端队列"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "systems.cost-1-acceptable",
+          "answer": {
+            "judgment_id": "judge-systems.cost-1",
+            "value": 0,
+            "reason": "列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.cost-1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。",
+                    "citation": {
+                      "source_id": "queue",
+                      "quote": "all of the other elements have to be shifted by one"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。"
+                  }
+                ],
+                "rule_quote": "列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。",
+                "counterexample_quote": null,
+                "explanation": "列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "systems.cost-1-negative",
+          "answer": {
+            "judgment_id": "judge-systems.cost-1",
+            "value": 1,
+            "reason": "线程数决定每次移除移动多少元素。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.cost-1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "线程数决定每次移除移动多少元素。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。",
+                    "citation": {
+                      "source_id": "queue",
+                      "quote": "all of the other elements have to be shifted by one"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。"
+                  }
+                ],
+                "rule_quote": "列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。",
+                "counterexample_quote": "相同规模，改为只从列表末尾移除；给定实现不移动其余元素。",
+                "explanation": "该答案把题面不支持的结论当作事实。列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "systems.cost",
+          "difficulty": "基础",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "队首移除为何变慢：条件变化",
+        "task": "相同规模，改为只从列表末尾移除；给定实现不移动其余元素。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "相同规模，改为只从列表末尾移除；给定实现不移动其余元素。",
+            "facts": {
+              "observed_boundary": "相同规模，改为只从列表末尾移除；给定实现不移动其余元素。"
+            },
+            "citations": [
+              {
+                "source_id": "queue",
+                "quote": "all of the other elements have to be shifted by one"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.cost-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "不再以队首移动解释；测量其余耗时",
+              "只增加线程即可消除移动代价"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.cost-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "关键操作已变为末尾移除，原先队首搬移原因不成立；需新观测定位。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "教学伪代码：队列用顺序列表；每次移除第0项都移动其余元素。队长由100增至10000；每批移除次数相同。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "相同规模，改为只从列表末尾移除；给定实现不移动其余元素。",
+          "expected_evidence": "相同规模，改为只从列表末尾移除；给定实现不移动其余元素。",
+          "decision_effect": "不再以队首移动解释；测量其余耗时"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "关键操作已变为末尾移除，原先队首搬移原因不成立；需新观测定位。",
+      "cosmetic_variant": {
+        "title": "队首移除为何变慢（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "列表队首移除会移动后续元素；队长增加会放大这部分工作。双端队列适合两端操作，但此处未证明全程序必然更快。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "systems.cost-2",
+      "family": "systems.cost",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "queue"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "至少两个时序或约束同时成立，区分表面成功与实际证据。",
+      "candidate": {
+        "target": {
+          "capability_id": "systems.cost",
+          "difficulty": "进阶",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "快队列仍会积压",
+        "task": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。",
+            "facts": {
+              "observed_boundary": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。"
+            },
+            "citations": [
+              {
+                "source_id": "queue",
+                "quote": "fast appends and pops from both ends"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.cost-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "队列净增60000项；约58.6MiB，不把快速出队当容量保证",
+              "双端队列出队快，所以60秒后内存不会增长"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.cost-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "保持每项1KiB与60秒，改为进入1000项/秒、移出能力2000项/秒，空队列时等待。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。",
+          "expected_evidence": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。",
+          "decision_effect": "队列净增60000项；约58.6MiB，不把快速出队当容量保证"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "systems.cost-2-acceptable",
+          "answer": {
+            "judgment_id": "judge-systems.cost-2",
+            "value": 0,
+            "reason": "净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.cost-2",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。",
+                    "citation": {
+                      "source_id": "queue",
+                      "quote": "fast appends and pops from both ends"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。"
+                  }
+                ],
+                "rule_quote": "净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。",
+                "counterexample_quote": null,
+                "explanation": "净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "systems.cost-2-negative",
+          "answer": {
+            "judgment_id": "judge-systems.cost-2",
+            "value": 1,
+            "reason": "换容器后生产消费差额自动消失。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.cost-2",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "换容器后生产消费差额自动消失。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。",
+                    "citation": {
+                      "source_id": "queue",
+                      "quote": "fast appends and pops from both ends"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。"
+                  }
+                ],
+                "rule_quote": "净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。",
+                "counterexample_quote": "保持每项1KiB与60秒，改为进入1000项/秒、移出能力2000项/秒，空队列时等待。",
+                "explanation": "该答案把题面不支持的结论当作事实。净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "systems.cost",
+          "difficulty": "进阶",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "快队列仍会积压：条件变化",
+        "task": "保持每项1KiB与60秒，改为进入1000项/秒、移出能力2000项/秒，空队列时等待。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "保持每项1KiB与60秒，改为进入1000项/秒、移出能力2000项/秒，空队列时等待。",
+            "facts": {
+              "observed_boundary": "保持每项1KiB与60秒，改为进入1000项/秒、移出能力2000项/秒，空队列时等待。"
+            },
+            "citations": [
+              {
+                "source_id": "queue",
+                "quote": "fast appends and pops from both ends"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.cost-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "不预测持续净积压；仍测量瞬时峰值",
+              "双端队列出队快，所以60秒后内存不会增长"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.cost-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "消费能力已高于进入率，原持续净增条件消失；排队峰值仍依到达波动而定。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "双端队列每秒进入2000项、移出1000项，持续60秒；每项固定占1KiB，忽略容器开销；初始为空。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "保持每项1KiB与60秒，改为进入1000项/秒、移出能力2000项/秒，空队列时等待。",
+          "expected_evidence": "保持每项1KiB与60秒，改为进入1000项/秒、移出能力2000项/秒，空队列时等待。",
+          "decision_effect": "不预测持续净积压；仍测量瞬时峰值"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "消费能力已高于进入率，原持续净增条件消失；排队峰值仍依到达波动而定。",
+      "cosmetic_variant": {
+        "title": "快队列仍会积压（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "净增率1000项每秒，60秒为60000KiB；两端操作快不改变生产快于消费造成的积压，应限制积压或提高消费并实测。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "systems.cost-3",
+      "family": "systems.cost",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "queue"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "在资源、归属、安全或恢复约束下作联合判断，解释不能保证的范围并提出验证。",
+      "candidate": {
+        "target": {
+          "capability_id": "systems.cost",
+          "difficulty": "综合",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "容器优化与容量上限",
+        "task": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。",
+            "facts": {
+              "observed_boundary": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。"
+            },
+            "citations": [
+              {
+                "source_id": "queue",
+                "quote": "all of the other elements have to be shifted by one"
+              },
+              {
+                "source_id": "queue",
+                "quote": "fast appends and pops from both ends"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.cost-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "同时处理搬移和容量：限制在途或分批持久化，验证峰值及完整性",
+              "直接换双端队列就同时解决内存超限和积压"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.cost-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "保持1000万项，但明确上游可等待且在内存中最多同时保留10000项，其余已在外部持久化；预算仍512MiB。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。",
+          "expected_evidence": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。",
+          "decision_effect": "同时处理搬移和容量：限制在途或分批持久化，验证峰值及完整性"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "systems.cost-3-acceptable",
+          "answer": {
+            "judgment_id": "judge-systems.cost-3",
+            "value": 0,
+            "reason": "仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.cost-3",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。",
+                    "citation": {
+                      "source_id": "queue",
+                      "quote": "all of the other elements have to be shifted by one"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。"
+                  }
+                ],
+                "rule_quote": "仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。",
+                "counterexample_quote": null,
+                "explanation": "仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "systems.cost-3-negative",
+          "answer": {
+            "judgment_id": "judge-systems.cost-3",
+            "value": 1,
+            "reason": "出队更快等于所有数据不用占内存。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.cost-3",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "出队更快等于所有数据不用占内存。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。",
+                    "citation": {
+                      "source_id": "queue",
+                      "quote": "all of the other elements have to be shifted by one"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。"
+                  }
+                ],
+                "rule_quote": "仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。",
+                "counterexample_quote": "保持1000万项，但明确上游可等待且在内存中最多同时保留10000项，其余已在外部持久化；预算仍512MiB。",
+                "explanation": "该答案把题面不支持的结论当作事实。仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "systems.cost",
+          "difficulty": "综合",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "容器优化与容量上限：条件变化",
+        "task": "保持1000万项，但明确上游可等待且在内存中最多同时保留10000项，其余已在外部持久化；预算仍512MiB。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "保持1000万项，但明确上游可等待且在内存中最多同时保留10000项，其余已在外部持久化；预算仍512MiB。",
+            "facts": {
+              "observed_boundary": "保持1000万项，但明确上游可等待且在内存中最多同时保留10000项，其余已在外部持久化；预算仍512MiB。"
+            },
+            "citations": [
+              {
+                "source_id": "queue",
+                "quote": "all of the other elements have to be shifted by one"
+              },
+              {
+                "source_id": "queue",
+                "quote": "fast appends and pops from both ends"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.cost-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "按10000项计算在途载荷并验证队列峰值与持久化完整性",
+              "直接换双端队列就同时解决内存超限和积压"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.cost-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "现在同时保留量受控，仅载荷640000字节；不能再按1000万同时驻留断定必超限，仍应测容器与处理开销。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "教学测量：需同时保留1000万项，每项64字节；可用内存512MiB；列表和双端队列都必须保留全部项。每批从头消费，禁止静默丢项。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "保持1000万项，但明确上游可等待且在内存中最多同时保留10000项，其余已在外部持久化；预算仍512MiB。",
+          "expected_evidence": "保持1000万项，但明确上游可等待且在内存中最多同时保留10000项，其余已在外部持久化；预算仍512MiB。",
+          "decision_effect": "按10000项计算在途载荷并验证队列峰值与持久化完整性"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "现在同时保留量受控，仅载荷640000字节；不能再按1000万同时驻留断定必超限，仍应测容器与处理开销。",
+      "cosmetic_variant": {
+        "title": "容器优化与容量上限（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "仅有效载荷640000000字节已超过512MiB，换双端队列不能让全部数据装下。需在不丢项约束下控制在途，再测内存和首尾操作代价。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "systems.execution-1",
+      "family": "systems.execution",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "thread"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "单个对象或链路边界，依据直接观察选择行动。",
+      "candidate": {
+        "target": {
+          "capability_id": "systems.execution",
+          "difficulty": "基础",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "线程名不同并不隔离内存",
+        "task": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。",
+            "facts": {
+              "observed_boundary": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。"
+            },
+            "citations": [
+              {
+                "source_id": "thread",
+                "quote": "sharing memory space"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.execution-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "B可见共享列表新增标记",
+              "B一定看不到，因为每个线程有独立进程内存"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.execution-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "两个线程各引用独立创建的列表；A只追加自己的列表，B只读取自己的列表。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。",
+          "expected_evidence": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。",
+          "decision_effect": "B可见共享列表新增标记"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "systems.execution-1-acceptable",
+          "answer": {
+            "judgment_id": "judge-systems.execution-1",
+            "value": 0,
+            "reason": "题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.execution-1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。",
+                    "citation": {
+                      "source_id": "thread",
+                      "quote": "sharing memory space"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。"
+                  }
+                ],
+                "rule_quote": "题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。",
+                "counterexample_quote": null,
+                "explanation": "题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "systems.execution-1-negative",
+          "answer": {
+            "judgment_id": "judge-systems.execution-1",
+            "value": 1,
+            "reason": "两个线程名字不同，所以对象必然互不影响。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.execution-1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "两个线程名字不同，所以对象必然互不影响。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。",
+                    "citation": {
+                      "source_id": "thread",
+                      "quote": "sharing memory space"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。"
+                  }
+                ],
+                "rule_quote": "题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。",
+                "counterexample_quote": "两个线程各引用独立创建的列表；A只追加自己的列表，B只读取自己的列表。",
+                "explanation": "该答案把题面不支持的结论当作事实。题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "systems.execution",
+          "difficulty": "基础",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "线程名不同并不隔离内存：条件变化",
+        "task": "两个线程各引用独立创建的列表；A只追加自己的列表，B只读取自己的列表。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "两个线程各引用独立创建的列表；A只追加自己的列表，B只读取自己的列表。",
+            "facts": {
+              "observed_boundary": "两个线程各引用独立创建的列表；A只追加自己的列表，B只读取自己的列表。"
+            },
+            "citations": [
+              {
+                "source_id": "thread",
+                "quote": "sharing memory space"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.execution-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "B的独立列表不因A的追加而变化",
+              "B一定看不到，因为每个线程有独立进程内存"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.execution-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "实际对象归属已改变；共享进程地址空间不意味着两个独立列表是同一对象。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "同一进程的两个线程引用同一个列表。线程A追加一个标记后发信号；线程B收到信号后读取该列表；没有其他写者。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "两个线程各引用独立创建的列表；A只追加自己的列表，B只读取自己的列表。",
+          "expected_evidence": "两个线程各引用独立创建的列表；A只追加自己的列表，B只读取自己的列表。",
+          "decision_effect": "B的独立列表不因A的追加而变化"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "实际对象归属已改变；共享进程地址空间不意味着两个独立列表是同一对象。",
+      "cosmetic_variant": {
+        "title": "线程名不同并不隔离内存（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "题面已给出同一对象和先写后读的同步顺序。线程共享进程内存，线程名不同不构成对象隔离。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "systems.execution-2",
+      "family": "systems.execution",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "thread"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "至少两个时序或约束同时成立，区分表面成功与实际证据。",
+      "candidate": {
+        "target": {
+          "capability_id": "systems.execution",
+          "difficulty": "进阶",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "锁住一半仍丢更新",
+        "task": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。",
+            "facts": {
+              "observed_boundary": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。"
+            },
+            "citations": [
+              {
+                "source_id": "thread",
+                "quote": "subsequent attempts to acquire it block"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.execution-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "把整个读改写放进同一临界区，并验证并发最终值",
+              "保留锁外读取，只加更多线程"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.execution-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "读取、加1和写回都在同一锁内完成；两个线程各执行一次，初值0，无其他写者。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。",
+          "expected_evidence": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。",
+          "decision_effect": "把整个读改写放进同一临界区，并验证并发最终值"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "systems.execution-2-acceptable",
+          "answer": {
+            "judgment_id": "judge-systems.execution-2",
+            "value": 0,
+            "reason": "锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.execution-2",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。",
+                    "citation": {
+                      "source_id": "thread",
+                      "quote": "subsequent attempts to acquire it block"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。"
+                  }
+                ],
+                "rule_quote": "锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。",
+                "counterexample_quote": null,
+                "explanation": "锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "systems.execution-2-negative",
+          "answer": {
+            "judgment_id": "judge-systems.execution-2",
+            "value": 1,
+            "reason": "写入有锁就保证所有此前读取都是最新。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.execution-2",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "写入有锁就保证所有此前读取都是最新。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。",
+                    "citation": {
+                      "source_id": "thread",
+                      "quote": "subsequent attempts to acquire it block"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。"
+                  }
+                ],
+                "rule_quote": "锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。",
+                "counterexample_quote": "读取、加1和写回都在同一锁内完成；两个线程各执行一次，初值0，无其他写者。",
+                "explanation": "该答案把题面不支持的结论当作事实。锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "systems.execution",
+          "difficulty": "进阶",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "锁住一半仍丢更新：条件变化",
+        "task": "读取、加1和写回都在同一锁内完成；两个线程各执行一次，初值0，无其他写者。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "读取、加1和写回都在同一锁内完成；两个线程各执行一次，初值0，无其他写者。",
+            "facts": {
+              "observed_boundary": "读取、加1和写回都在同一锁内完成；两个线程各执行一次，初值0，无其他写者。"
+            },
+            "citations": [
+              {
+                "source_id": "thread",
+                "quote": "subsequent attempts to acquire it block"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.execution-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "在给定模型下最终应为2；用并发屏障复验",
+              "保留锁外读取，只加更多线程"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.execution-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "读取也受同一锁保护，后进入者读取前次写回的1，消除了丢更新时序。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "教学时序：共享计数初始0。A和B都在锁外读到0，再各自在同一锁内写回读值加1；最终为1。读与写是分开的动作。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "读取、加1和写回都在同一锁内完成；两个线程各执行一次，初值0，无其他写者。",
+          "expected_evidence": "读取、加1和写回都在同一锁内完成；两个线程各执行一次，初值0，无其他写者。",
+          "decision_effect": "在给定模型下最终应为2；用并发屏障复验"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "读取也受同一锁保护，后进入者读取前次写回的1，消除了丢更新时序。",
+      "cosmetic_variant": {
+        "title": "锁住一半仍丢更新（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "锁仅串行化写入，两个线程已拿到相同旧值。不能由单次写互斥推出整个读改写原子。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "systems.execution-3",
+      "family": "systems.execution",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "thread"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "在资源、归属、安全或恢复约束下作联合判断，解释不能保证的范围并提出验证。",
+      "candidate": {
+        "target": {
+          "capability_id": "systems.execution",
+          "difficulty": "综合",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "进程退出前的后台写入",
+        "task": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。",
+            "facts": {
+              "observed_boundary": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。"
+            },
+            "citations": [
+              {
+                "source_id": "thread",
+                "quote": "Daemon threads are abruptly stopped at shutdown."
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.execution-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "保留未确认状态；采用持久接收或受控非daemon收尾并验证断电边界",
+              "主线程响应成功就证明后台数据已持久化"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.execution-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "主线程只在持久存储提交成功回执后响应，后台daemon仅生成可重建索引；题面已核对提交记录。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。",
+          "expected_evidence": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。",
+          "decision_effect": "保留未确认状态；采用持久接收或受控非daemon收尾并验证断电边界"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "systems.execution-3-acceptable",
+          "answer": {
+            "judgment_id": "judge-systems.execution-3",
+            "value": 0,
+            "reason": "daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.execution-3",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。",
+                    "citation": {
+                      "source_id": "thread",
+                      "quote": "Daemon threads are abruptly stopped at shutdown."
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。"
+                  }
+                ],
+                "rule_quote": "daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。",
+                "counterexample_quote": null,
+                "explanation": "daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "systems.execution-3-negative",
+          "answer": {
+            "judgment_id": "judge-systems.execution-3",
+            "value": 1,
+            "reason": "daemon线程一定会在进程退出前写完所有任务。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-systems.execution-3",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "daemon线程一定会在进程退出前写完所有任务。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。",
+                    "citation": {
+                      "source_id": "thread",
+                      "quote": "Daemon threads are abruptly stopped at shutdown."
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。"
+                  }
+                ],
+                "rule_quote": "daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。",
+                "counterexample_quote": "主线程只在持久存储提交成功回执后响应，后台daemon仅生成可重建索引；题面已核对提交记录。",
+                "explanation": "该答案把题面不支持的结论当作事实。daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "systems.execution",
+          "difficulty": "综合",
+          "background_id": "systems-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "进程退出前的后台写入：条件变化",
+        "task": "主线程只在持久存储提交成功回执后响应，后台daemon仅生成可重建索引；题面已核对提交记录。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "主线程只在持久存储提交成功回执后响应，后台daemon仅生成可重建索引；题面已核对提交记录。",
+            "facts": {
+              "observed_boundary": "主线程只在持久存储提交成功回执后响应，后台daemon仅生成可重建索引；题面已核对提交记录。"
+            },
+            "citations": [
+              {
+                "source_id": "thread",
+                "quote": "Daemon threads are abruptly stopped at shutdown."
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-systems.execution-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "保留已持久任务，另检查索引可重建性",
+              "主线程响应成功就证明后台数据已持久化"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-systems.execution-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "持久任务已有提交证据，daemon停止只影响派生索引；不应撤销已核实的持久成果。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "主线程收到任务后仅放进内存队列即响应已接收。后台daemon线程尚未落盘，进程随主线程结束；无持久队列、无落盘回执。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "主线程只在持久存储提交成功回执后响应，后台daemon仅生成可重建索引；题面已核对提交记录。",
+          "expected_evidence": "主线程只在持久存储提交成功回执后响应，后台daemon仅生成可重建索引；题面已核对提交记录。",
+          "decision_effect": "保留已持久任务，另检查索引可重建性"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "持久任务已有提交证据，daemon停止只影响派生索引；不应撤销已核实的持久成果。",
+      "cosmetic_variant": {
+        "title": "进程退出前的后台写入（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "daemon线程关闭时可能被直接停止；已接收不是已持久。非daemon加等待可改善正常退出，但也不能单独保证断电不丢。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "frontend.state-1",
+      "family": "frontend.state",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "dom"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "单个对象或链路边界，依据直接观察选择行动。",
+      "candidate": {
+        "target": {
+          "capability_id": "frontend.state",
+          "difficulty": "基础",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "旧搜索回包覆盖新词",
+        "task": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。",
+            "facts": {
+              "observed_boundary": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。"
+            },
+            "citations": [
+              {
+                "source_id": "dom",
+                "quote": "Though promises do not have a built-in aborting mechanism"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.state-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "回包写入前比较请求身份，拒绝A覆盖乙",
+              "谁最后返回就用谁，不看当前输入"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.state-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "用户仍输入甲，仅存在请求A；返回时身份仍与当前输入匹配，无本地新编辑。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。",
+          "expected_evidence": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。",
+          "decision_effect": "回包写入前比较请求身份，拒绝A覆盖乙"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "frontend.state-1-acceptable",
+          "answer": {
+            "judgment_id": "judge-frontend.state-1",
+            "value": 0,
+            "reason": "请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.state-1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。",
+                    "citation": {
+                      "source_id": "dom",
+                      "quote": "Though promises do not have a built-in aborting mechanism"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。"
+                  }
+                ],
+                "rule_quote": "请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。",
+                "counterexample_quote": null,
+                "explanation": "请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "frontend.state-1-negative",
+          "answer": {
+            "judgment_id": "judge-frontend.state-1",
+            "value": 1,
+            "reason": "最后收到的回包天然属于最新输入。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.state-1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "最后收到的回包天然属于最新输入。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。",
+                    "citation": {
+                      "source_id": "dom",
+                      "quote": "Though promises do not have a built-in aborting mechanism"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。"
+                  }
+                ],
+                "rule_quote": "请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。",
+                "counterexample_quote": "用户仍输入甲，仅存在请求A；返回时身份仍与当前输入匹配，无本地新编辑。",
+                "explanation": "该答案把题面不支持的结论当作事实。请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "frontend.state",
+          "difficulty": "基础",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "旧搜索回包覆盖新词：条件变化",
+        "task": "用户仍输入甲，仅存在请求A；返回时身份仍与当前输入匹配，无本地新编辑。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "用户仍输入甲，仅存在请求A；返回时身份仍与当前输入匹配，无本地新编辑。",
+            "facts": {
+              "observed_boundary": "用户仍输入甲，仅存在请求A；返回时身份仍与当前输入匹配，无本地新编辑。"
+            },
+            "citations": [
+              {
+                "source_id": "dom",
+                "quote": "Though promises do not have a built-in aborting mechanism"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.state-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "可以接纳A结果，并保留身份检查",
+              "谁最后返回就用谁，不看当前输入"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.state-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "原先过时条件不存在；一律拒绝晚到回包也会丢掉当前合法结果。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "给定页面规则：每次回包直接写结果。输入甲发请求A，再输入乙发B；B先返回乙，A后返回甲；当前输入仍乙。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "用户仍输入甲，仅存在请求A；返回时身份仍与当前输入匹配，无本地新编辑。",
+          "expected_evidence": "用户仍输入甲，仅存在请求A；返回时身份仍与当前输入匹配，无本地新编辑。",
+          "decision_effect": "可以接纳A结果，并保留身份检查"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "原先过时条件不存在；一律拒绝晚到回包也会丢掉当前合法结果。",
+      "cosmetic_variant": {
+        "title": "旧搜索回包覆盖新词（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "请求A已不对应当前输入，给定直接写入规则会产生过时结果。取消信号不是既有回调写入的身份校验。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "frontend.state-2",
+      "family": "frontend.state",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "dom"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "至少两个时序或约束同时成立，区分表面成功与实际证据。",
+      "candidate": {
+        "target": {
+          "capability_id": "frontend.state",
+          "difficulty": "进阶",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "取消之后已排队的回调",
+        "task": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。",
+            "facts": {
+              "observed_boundary": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。"
+            },
+            "citations": [
+              {
+                "source_id": "dom",
+                "quote": "Though promises do not have a built-in aborting mechanism"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.state-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "取消与结果身份检查同时做，旧A回调不能写B",
+              "只调用abort即可删除所有已排队回调"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.state-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "适配器将A回调移出应用队列，并给出队列为空的确认；B仍有身份守卫。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。",
+          "expected_evidence": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。",
+          "decision_effect": "取消与结果身份检查同时做，旧A回调不能写B"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "frontend.state-2-acceptable",
+          "answer": {
+            "judgment_id": "judge-frontend.state-2",
+            "value": 0,
+            "reason": "题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.state-2",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。",
+                    "citation": {
+                      "source_id": "dom",
+                      "quote": "Though promises do not have a built-in aborting mechanism"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。"
+                  }
+                ],
+                "rule_quote": "题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。",
+                "counterexample_quote": null,
+                "explanation": "题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "frontend.state-2-negative",
+          "answer": {
+            "judgment_id": "judge-frontend.state-2",
+            "value": 1,
+            "reason": "所有Promise都有内建撤销已完成回调的能力。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.state-2",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "所有Promise都有内建撤销已完成回调的能力。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。",
+                    "citation": {
+                      "source_id": "dom",
+                      "quote": "Though promises do not have a built-in aborting mechanism"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。"
+                  }
+                ],
+                "rule_quote": "题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。",
+                "counterexample_quote": "适配器将A回调移出应用队列，并给出队列为空的确认；B仍有身份守卫。",
+                "explanation": "该答案把题面不支持的结论当作事实。题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "frontend.state",
+          "difficulty": "进阶",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "取消之后已排队的回调：条件变化",
+        "task": "适配器将A回调移出应用队列，并给出队列为空的确认；B仍有身份守卫。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "适配器将A回调移出应用队列，并给出队列为空的确认；B仍有身份守卫。",
+            "facts": {
+              "observed_boundary": "适配器将A回调移出应用队列，并给出队列为空的确认；B仍有身份守卫。"
+            },
+            "citations": [
+              {
+                "source_id": "dom",
+                "quote": "Though promises do not have a built-in aborting mechanism"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.state-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "按已确认取消事实处理A，继续接纳B当前结果",
+              "只调用abort即可删除所有已排队回调"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.state-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "现在有实际移除确认，不能再声称A回调一定执行；B身份守卫仍有必要处理其他竞争。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "给定适配器：请求A的成功回调已入应用队列；用户切换B后调用abort。适配器不会撤销已排队回调，回调仍会直接set结果。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "适配器将A回调移出应用队列，并给出队列为空的确认；B仍有身份守卫。",
+          "expected_evidence": "适配器将A回调移出应用队列，并给出队列为空的确认；B仍有身份守卫。",
+          "decision_effect": "按已确认取消事实处理A，继续接纳B当前结果"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "现在有实际移除确认，不能再声称A回调一定执行；B身份守卫仍有必要处理其他竞争。",
+      "cosmetic_variant": {
+        "title": "取消之后已排队的回调（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "题面明确取消不会移除已排队回调；DOM的abort机制需要API配合，不能推断任意应用回调自动消失。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "frontend.state-3",
+      "family": "frontend.state",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "dom"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "在资源、归属、安全或恢复约束下作联合判断，解释不能保证的范围并提出验证。",
+      "candidate": {
+        "target": {
+          "capability_id": "frontend.state",
+          "difficulty": "综合",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "同一搜索词跨账号返回",
+        "task": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。",
+            "facts": {
+              "observed_boundary": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。"
+            },
+            "citations": [
+              {
+                "source_id": "dom",
+                "quote": "Though promises do not have a built-in aborting mechanism"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.state-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "把账号会话与请求代次纳入结果归属，禁止甲回包写乙缓存",
+              "搜索词一致即可将甲响应给乙"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.state-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "甲请求已结束；乙的新请求和响应均绑定乙会话及当前请求代次，缓存按账号隔离，无旧回调。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。",
+          "expected_evidence": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。",
+          "decision_effect": "把账号会话与请求代次纳入结果归属，禁止甲回包写乙缓存"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "frontend.state-3-acceptable",
+          "answer": {
+            "judgment_id": "judge-frontend.state-3",
+            "value": 0,
+            "reason": "相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.state-3",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。",
+                    "citation": {
+                      "source_id": "dom",
+                      "quote": "Though promises do not have a built-in aborting mechanism"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。"
+                  }
+                ],
+                "rule_quote": "相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。",
+                "counterexample_quote": null,
+                "explanation": "相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "frontend.state-3-negative",
+          "answer": {
+            "judgment_id": "judge-frontend.state-3",
+            "value": 1,
+            "reason": "相同输入意味着不同账号可共用私有结果。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.state-3",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "相同输入意味着不同账号可共用私有结果。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。",
+                    "citation": {
+                      "source_id": "dom",
+                      "quote": "Though promises do not have a built-in aborting mechanism"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。"
+                  }
+                ],
+                "rule_quote": "相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。",
+                "counterexample_quote": "甲请求已结束；乙的新请求和响应均绑定乙会话及当前请求代次，缓存按账号隔离，无旧回调。",
+                "explanation": "该答案把题面不支持的结论当作事实。相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "frontend.state",
+          "difficulty": "综合",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "同一搜索词跨账号返回：条件变化",
+        "task": "甲请求已结束；乙的新请求和响应均绑定乙会话及当前请求代次，缓存按账号隔离，无旧回调。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "甲请求已结束；乙的新请求和响应均绑定乙会话及当前请求代次，缓存按账号隔离，无旧回调。",
+            "facts": {
+              "observed_boundary": "甲请求已结束；乙的新请求和响应均绑定乙会话及当前请求代次，缓存按账号隔离，无旧回调。"
+            },
+            "citations": [
+              {
+                "source_id": "dom",
+                "quote": "Though promises do not have a built-in aborting mechanism"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.state-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "接纳乙当前响应，并验证跨账号缓存隔离",
+              "搜索词一致即可将甲响应给乙"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.state-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "真实归属已一致且隔离存在，不必因搜索词曾出现就拒绝所有乙结果。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "账号甲发搜索X后退出，账号乙登录也搜索X；甲的旧响应迟到。缓存键只有搜索词，组件未换实例，写入只核搜索词一致。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "甲请求已结束；乙的新请求和响应均绑定乙会话及当前请求代次，缓存按账号隔离，无旧回调。",
+          "expected_evidence": "甲请求已结束；乙的新请求和响应均绑定乙会话及当前请求代次，缓存按账号隔离，无旧回调。",
+          "decision_effect": "接纳乙当前响应，并验证跨账号缓存隔离"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "真实归属已一致且隔离存在，不必因搜索词曾出现就拒绝所有乙结果。",
+      "cosmetic_variant": {
+        "title": "同一搜索词跨账号返回（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "相同搜索词不等同相同授权主体；给定缓存和回调规则可跨会话污染。需要清理与归属守卫，不能声称abort擦除了所有旧数据。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "frontend.accessibility-1",
+      "family": "frontend.accessibility",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "keyboard"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "单个对象或链路边界，依据直接观察选择行动。",
+      "candidate": {
+        "target": {
+          "capability_id": "frontend.accessibility",
+          "difficulty": "基础",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "只能鼠标点的提交",
+        "task": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。",
+            "facts": {
+              "observed_boundary": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。"
+            },
+            "citations": [
+              {
+                "source_id": "keyboard",
+                "quote": "All functionality of the content is operable through a keyboard interface"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.accessibility-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "确认键盘提交被阻断，改用可键盘操作控件并实测",
+              "鼠标能点即可证明所有用户能提交"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.accessibility-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "提交改为原生button，Tab能聚焦，Enter和Space实测均完成一次提交；其他条件不变。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。",
+          "expected_evidence": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。",
+          "decision_effect": "确认键盘提交被阻断，改用可键盘操作控件并实测"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "frontend.accessibility-1-acceptable",
+          "answer": {
+            "judgment_id": "judge-frontend.accessibility-1",
+            "value": 0,
+            "reason": "提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.accessibility-1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。",
+                    "citation": {
+                      "source_id": "keyboard",
+                      "quote": "All functionality of the content is operable through a keyboard interface"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。"
+                  }
+                ],
+                "rule_quote": "提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。",
+                "counterexample_quote": null,
+                "explanation": "提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "frontend.accessibility-1-negative",
+          "answer": {
+            "judgment_id": "judge-frontend.accessibility-1",
+            "value": 1,
+            "reason": "鼠标点击通过等同键盘路径已验证。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.accessibility-1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "鼠标点击通过等同键盘路径已验证。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。",
+                    "citation": {
+                      "source_id": "keyboard",
+                      "quote": "All functionality of the content is operable through a keyboard interface"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。"
+                  }
+                ],
+                "rule_quote": "提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。",
+                "counterexample_quote": "提交改为原生button，Tab能聚焦，Enter和Space实测均完成一次提交；其他条件不变。",
+                "explanation": "该答案把题面不支持的结论当作事实。提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "frontend.accessibility",
+          "difficulty": "基础",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "只能鼠标点的提交：条件变化",
+        "task": "提交改为原生button，Tab能聚焦，Enter和Space实测均完成一次提交；其他条件不变。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "提交改为原生button，Tab能聚焦，Enter和Space实测均完成一次提交；其他条件不变。",
+            "facts": {
+              "observed_boundary": "提交改为原生button，Tab能聚焦，Enter和Space实测均完成一次提交；其他条件不变。"
+            },
+            "citations": [
+              {
+                "source_id": "keyboard",
+                "quote": "All functionality of the content is operable through a keyboard interface"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.accessibility-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "确认本次键盘提交路径通过，但不宣称全站无障碍合格",
+              "鼠标能点即可证明所有用户能提交"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.accessibility-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "关键阻断已有实际聚焦与激活证据消除，局部通过不外推所有标准。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "给定DOM教学记录：提交是无tabindex且无键盘事件的普通div；鼠标可点。Tab遍历完整页面未聚焦该元素，无替代提交入口。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "提交改为原生button，Tab能聚焦，Enter和Space实测均完成一次提交；其他条件不变。",
+          "expected_evidence": "提交改为原生button，Tab能聚焦，Enter和Space实测均完成一次提交；其他条件不变。",
+          "decision_effect": "确认本次键盘提交路径通过，但不宣称全站无障碍合格"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "关键阻断已有实际聚焦与激活证据消除，局部通过不外推所有标准。",
+      "cosmetic_variant": {
+        "title": "只能鼠标点的提交（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "提交不属于依赖运动路径的例外，当前唯一入口无法经键盘到达。应验证聚焦及激活，而不只看颜色。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "frontend.accessibility-2",
+      "family": "frontend.accessibility",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "errors"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "至少两个时序或约束同时成立，区分表面成功与实际证据。",
+      "candidate": {
+        "target": {
+          "capability_id": "frontend.accessibility",
+          "difficulty": "进阶",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "红边框没有错误说明",
+        "task": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。",
+            "facts": {
+              "observed_boundary": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。"
+            },
+            "citations": [
+              {
+                "source_id": "errors",
+                "quote": "the item that is in error is identified and the error is described to the user in text."
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.accessibility-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "增加与邮编关联的明确文字错误说明，保输入并复测",
+              "只把红色调深，无需文字说明"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.accessibility-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "输入旁出现关联的文字“邮编不能为空”，辅助技术可读出关联；已有值保留，键盘可达。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。",
+          "expected_evidence": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。",
+          "decision_effect": "增加与邮编关联的明确文字错误说明，保输入并复测"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "frontend.accessibility-2-acceptable",
+          "answer": {
+            "judgment_id": "judge-frontend.accessibility-2",
+            "value": 0,
+            "reason": "键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.accessibility-2",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。",
+                    "citation": {
+                      "source_id": "errors",
+                      "quote": "the item that is in error is identified and the error is described to the user in text."
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。"
+                  }
+                ],
+                "rule_quote": "键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。",
+                "counterexample_quote": null,
+                "explanation": "键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "frontend.accessibility-2-negative",
+          "answer": {
+            "judgment_id": "judge-frontend.accessibility-2",
+            "value": 1,
+            "reason": "颜色明显就等同已经说明哪个字段为什么错误。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.accessibility-2",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "颜色明显就等同已经说明哪个字段为什么错误。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。",
+                    "citation": {
+                      "source_id": "errors",
+                      "quote": "the item that is in error is identified and the error is described to the user in text."
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。"
+                  }
+                ],
+                "rule_quote": "键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。",
+                "counterexample_quote": "输入旁出现关联的文字“邮编不能为空”，辅助技术可读出关联；已有值保留，键盘可达。",
+                "explanation": "该答案把题面不支持的结论当作事实。键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "frontend.accessibility",
+          "difficulty": "进阶",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "红边框没有错误说明：条件变化",
+        "task": "输入旁出现关联的文字“邮编不能为空”，辅助技术可读出关联；已有值保留，键盘可达。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "输入旁出现关联的文字“邮编不能为空”，辅助技术可读出关联；已有值保留，键盘可达。",
+            "facts": {
+              "observed_boundary": "输入旁出现关联的文字“邮编不能为空”，辅助技术可读出关联；已有值保留，键盘可达。"
+            },
+            "citations": [
+              {
+                "source_id": "errors",
+                "quote": "the item that is in error is identified and the error is described to the user in text."
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.accessibility-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "确认该空值错误可识别，另测其他校验分支",
+              "只把红色调深，无需文字说明"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.accessibility-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "所缺文字和关联已有明确证据，不能把未测的其他错误分支也判通过。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "表单自动检测到邮编为空，提交被拒；仅输入框边框变红，没有文字提示，既有label只写邮编。已提供键盘焦点路径。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "输入旁出现关联的文字“邮编不能为空”，辅助技术可读出关联；已有值保留，键盘可达。",
+          "expected_evidence": "输入旁出现关联的文字“邮编不能为空”，辅助技术可读出关联；已有值保留，键盘可达。",
+          "decision_effect": "确认该空值错误可识别，另测其他校验分支"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "所缺文字和关联已有明确证据，不能把未测的其他错误分支也判通过。",
+      "cosmetic_variant": {
+        "title": "红边框没有错误说明（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "键盘可达不证明错误可理解；自动发现的错误需要识别字段并用文字说明。只有颜色未提供这一信息。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "frontend.accessibility-3",
+      "family": "frontend.accessibility",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "reflow",
+        "keyboard"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "在资源、归属、安全或恢复约束下作联合判断，解释不能保证的范围并提出验证。",
+      "candidate": {
+        "target": {
+          "capability_id": "frontend.accessibility",
+          "difficulty": "综合",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "放大后入口被固定层遮挡",
+        "task": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。",
+            "facts": {
+              "observed_boundary": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。"
+            },
+            "citations": [
+              {
+                "source_id": "reflow",
+                "quote": "without requiring scrolling in two dimensions"
+              },
+              {
+                "source_id": "keyboard",
+                "quote": "All functionality of the content is operable through a keyboard interface"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.accessibility-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "修复重排及固定层遮挡，保文字缩放并复测键盘提交",
+              "要求用户缩小字号，桌面通过即可"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.accessibility-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "同表单在320CSS像素重排，无横向裁剪；固定层让出空间，键盘聚焦可见且可提交；长错误文本也已复测。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。",
+          "expected_evidence": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。",
+          "decision_effect": "修复重排及固定层遮挡，保文字缩放并复测键盘提交"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "frontend.accessibility-3-acceptable",
+          "answer": {
+            "judgment_id": "judge-frontend.accessibility-3",
+            "value": 0,
+            "reason": "仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.accessibility-3",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。",
+                    "citation": {
+                      "source_id": "reflow",
+                      "quote": "without requiring scrolling in two dimensions"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。"
+                  }
+                ],
+                "rule_quote": "仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。",
+                "counterexample_quote": null,
+                "explanation": "仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "frontend.accessibility-3-negative",
+          "answer": {
+            "judgment_id": "judge-frontend.accessibility-3",
+            "value": 1,
+            "reason": "320CSS像素的普通表单可以无条件丢失操作入口。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-frontend.accessibility-3",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "320CSS像素的普通表单可以无条件丢失操作入口。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。",
+                    "citation": {
+                      "source_id": "reflow",
+                      "quote": "without requiring scrolling in two dimensions"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。"
+                  }
+                ],
+                "rule_quote": "仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。",
+                "counterexample_quote": "同表单在320CSS像素重排，无横向裁剪；固定层让出空间，键盘聚焦可见且可提交；长错误文本也已复测。",
+                "explanation": "该答案把题面不支持的结论当作事实。仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "frontend.accessibility",
+          "difficulty": "综合",
+          "background_id": "frontend-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "放大后入口被固定层遮挡：条件变化",
+        "task": "同表单在320CSS像素重排，无横向裁剪；固定层让出空间，键盘聚焦可见且可提交；长错误文本也已复测。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "同表单在320CSS像素重排，无横向裁剪；固定层让出空间，键盘聚焦可见且可提交；长错误文本也已复测。",
+            "facts": {
+              "observed_boundary": "同表单在320CSS像素重排，无横向裁剪；固定层让出空间，键盘聚焦可见且可提交；长错误文本也已复测。"
+            },
+            "citations": [
+              {
+                "source_id": "reflow",
+                "quote": "without requiring scrolling in two dimensions"
+              },
+              {
+                "source_id": "keyboard",
+                "quote": "All functionality of the content is operable through a keyboard interface"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-frontend.accessibility-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "记录该矩阵通过，保留未测内容与设备限制",
+              "要求用户缩小字号，桌面通过即可"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-frontend.accessibility-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "此前两类阻断已有可观察结果消除；这不等同所有屏幕和内容都已验证。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "垂直表单在320CSS像素宽度出现横向裁剪；无二维布局必要；底部固定层遮住提交，键盘聚焦后也不能看见或触发；缩小字号能暂时露出。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "同表单在320CSS像素重排，无横向裁剪；固定层让出空间，键盘聚焦可见且可提交；长错误文本也已复测。",
+          "expected_evidence": "同表单在320CSS像素重排，无横向裁剪；固定层让出空间，键盘聚焦可见且可提交；长错误文本也已复测。",
+          "decision_effect": "记录该矩阵通过，保留未测内容与设备限制"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "此前两类阻断已有可观察结果消除；这不等同所有屏幕和内容都已验证。",
+      "cosmetic_variant": {
+        "title": "放大后入口被固定层遮挡（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "仅缩小字绕过了用户阅读需求。该普通表单没有二维例外，应保留信息和操作；同时验证焦点及唯一提交路径。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "network.trace-1",
+      "family": "network.trace",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "tls",
+        "http"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "单个对象或链路边界，依据直接观察选择行动。",
+      "candidate": {
+        "target": {
+          "capability_id": "network.trace",
+          "difficulty": "基础",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "TLS警报前没有HTTP",
+        "task": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。",
+            "facts": {
+              "observed_boundary": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。"
+            },
+            "citations": [
+              {
+                "source_id": "tls",
+                "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.trace-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "先核TLS信任链与服务身份，不修改应用JSON",
+              "先改应用响应JSON来修复本次握手"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.trace-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "同目标TLS验证成功，HTTP已发，应用返回带请求ID的500与异常记录。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。",
+          "expected_evidence": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。",
+          "decision_effect": "先核TLS信任链与服务身份，不修改应用JSON"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "network.trace-1-acceptable",
+          "answer": {
+            "judgment_id": "judge-network.trace-1",
+            "value": 0,
+            "reason": "本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.trace-1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。",
+                    "citation": {
+                      "source_id": "tls",
+                      "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。"
+                  }
+                ],
+                "rule_quote": "本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。",
+                "counterexample_quote": null,
+                "explanation": "本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "network.trace-1-negative",
+          "answer": {
+            "judgment_id": "judge-network.trace-1",
+            "value": 1,
+            "reason": "TCP连通就代表TLS和HTTP都成功。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.trace-1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "TCP连通就代表TLS和HTTP都成功。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。",
+                    "citation": {
+                      "source_id": "tls",
+                      "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。"
+                  }
+                ],
+                "rule_quote": "本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。",
+                "counterexample_quote": "同目标TLS验证成功，HTTP已发，应用返回带请求ID的500与异常记录。",
+                "explanation": "该答案把题面不支持的结论当作事实。本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "network.trace",
+          "difficulty": "基础",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "TLS警报前没有HTTP：条件变化",
+        "task": "同目标TLS验证成功，HTTP已发，应用返回带请求ID的500与异常记录。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "同目标TLS验证成功，HTTP已发，应用返回带请求ID的500与异常记录。",
+            "facts": {
+              "observed_boundary": "同目标TLS验证成功，HTTP已发，应用返回带请求ID的500与异常记录。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "unexpected condition"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.trace-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "转向应用异常及对应请求记录",
+              "先改应用响应JSON来修复本次握手"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.trace-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "失败阶段已跨过握手并有应用500证据，继续只查证书无法解释这个已确认错误。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "客户端DNS解析成功并建立TCP；TLS收到unknown_ca后终止；本次没有发送HTTP请求，服务端应用无该请求ID记录。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "同目标TLS验证成功，HTTP已发，应用返回带请求ID的500与异常记录。",
+          "expected_evidence": "同目标TLS验证成功，HTTP已发，应用返回带请求ID的500与异常记录。",
+          "decision_effect": "转向应用异常及对应请求记录"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "失败阶段已跨过握手并有应用500证据，继续只查证书无法解释这个已确认错误。",
+      "cosmetic_variant": {
+        "title": "TLS警报前没有HTTP（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "本次终止发生在HTTP发送之前；给定unknown_ca线索指向证书链信任检查，不能把它当应用500。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "network.trace-2",
+      "family": "network.trace",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "http"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "至少两个时序或约束同时成立，区分表面成功与实际证据。",
+      "candidate": {
+        "target": {
+          "capability_id": "network.trace",
+          "difficulty": "进阶",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "代理504不等于事务回滚",
+        "task": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。",
+            "facts": {
+              "observed_boundary": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "did not receive a timely response"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.trace-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "定位代理上游等待并补查请求ID提交证据",
+              "将504直接记为上游事务已回滚"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.trace-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "代理仍504，但补得同请求ID已提交成功记录，存储状态与业务结果一致。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。",
+          "expected_evidence": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。",
+          "decision_effect": "定位代理上游等待并补查请求ID提交证据"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "network.trace-2-acceptable",
+          "answer": {
+            "judgment_id": "judge-network.trace-2",
+            "value": 0,
+            "reason": "504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.trace-2",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。",
+                    "citation": {
+                      "source_id": "http",
+                      "quote": "did not receive a timely response"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。"
+                  }
+                ],
+                "rule_quote": "504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。",
+                "counterexample_quote": null,
+                "explanation": "504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "network.trace-2-negative",
+          "answer": {
+            "judgment_id": "judge-network.trace-2",
+            "value": 1,
+            "reason": "代理没及时收响应就是上游没有产生效果。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.trace-2",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "代理没及时收响应就是上游没有产生效果。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。",
+                    "citation": {
+                      "source_id": "http",
+                      "quote": "did not receive a timely response"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。"
+                  }
+                ],
+                "rule_quote": "504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。",
+                "counterexample_quote": "代理仍504，但补得同请求ID已提交成功记录，存储状态与业务结果一致。",
+                "explanation": "该答案把题面不支持的结论当作事实。504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "network.trace",
+          "difficulty": "进阶",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "代理504不等于事务回滚：条件变化",
+        "task": "代理仍504，但补得同请求ID已提交成功记录，存储状态与业务结果一致。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "代理仍504，但补得同请求ID已提交成功记录，存储状态与业务结果一致。",
+            "facts": {
+              "observed_boundary": "代理仍504，但补得同请求ID已提交成功记录，存储状态与业务结果一致。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "did not receive a timely response"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.trace-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "保留已提交结果，继续查响应链路超时",
+              "将504直接记为上游事务已回滚"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.trace-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "新增提交证据排除了未知执行状态；504仍可与上游成功同时发生。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "客户端收到代理504；代理记录等待上游超时；上游是否提交未知，没有对应提交日志。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "代理仍504，但补得同请求ID已提交成功记录，存储状态与业务结果一致。",
+          "expected_evidence": "代理仍504，但补得同请求ID已提交成功记录，存储状态与业务结果一致。",
+          "decision_effect": "保留已提交结果，继续查响应链路超时"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "新增提交证据排除了未知执行状态；504仍可与上游成功同时发生。",
+      "cosmetic_variant": {
+        "title": "代理504不等于事务回滚（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "504说明网关没有及时收到所需上游响应，不说明上游是否已执行或回滚；先补证而非宣判未执行。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "network.trace-3",
+      "family": "network.trace",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "tls",
+        "http"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "在资源、归属、安全或恢复约束下作联合判断，解释不能保证的范围并提出验证。",
+      "candidate": {
+        "target": {
+          "capability_id": "network.trace",
+          "difficulty": "综合",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "两段TLS不能混为一段",
+        "task": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。",
+            "facts": {
+              "observed_boundary": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。"
+            },
+            "citations": [
+              {
+                "source_id": "tls",
+                "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.trace-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "分段查上游信任链，不关闭浏览器证书验证；用同请求ID验证恢复",
+              "全局关闭浏览器证书校验来绕过上游错误"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.trace-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。",
+          "expected_evidence": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。",
+          "decision_effect": "分段查上游信任链，不关闭浏览器证书验证；用同请求ID验证恢复"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "network.trace-3-acceptable",
+          "answer": {
+            "judgment_id": "judge-network.trace-3",
+            "value": 0,
+            "reason": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.trace-3",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。",
+                    "citation": {
+                      "source_id": "tls",
+                      "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。"
+                  }
+                ],
+                "rule_quote": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
+                "counterexample_quote": null,
+                "explanation": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "network.trace-3-negative",
+          "answer": {
+            "judgment_id": "judge-network.trace-3",
+            "value": 1,
+            "reason": "浏览器到边缘的成功代表上游TLS也一定成功。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.trace-3",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "浏览器到边缘的成功代表上游TLS也一定成功。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。",
+                    "citation": {
+                      "source_id": "tls",
+                      "quote": "CA certificate could not be located or could not be matched with a known trust anchor."
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。"
+                  }
+                ],
+                "rule_quote": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
+                "counterexample_quote": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
+                "explanation": "该答案把题面不支持的结论当作事实。前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "network.trace",
+          "difficulty": "综合",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "两段TLS不能混为一段：条件变化",
+        "task": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
+            "facts": {
+              "observed_boundary": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "did not receive a timely response"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.trace-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "保留已提交成果，定位代理等待与响应链路，保留两段TLS验证",
+              "全局关闭浏览器证书校验来绕过上游错误"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.trace-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "两段TLS已成功，且有上游提交证据；504只说明代理未及时收到响应，不证明未提交。应定位超时链路，不关闭证书校验。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "浏览器到边缘代理TLS验证成功；边缘到上游为另一TLS连接，日志显示unknown_ca；无上游HTTP请求，边缘给浏览器502。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
+          "expected_evidence": "两段TLS均验证成功；上游记录同请求ID已经提交，但响应晚于代理超时，浏览器收到504。",
+          "decision_effect": "保留已提交成果，定位代理等待与响应链路，保留两段TLS验证"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "两段TLS已成功，且有上游提交证据；504只说明代理未及时收到响应，不证明未提交。应定位超时链路，不关闭证书校验。",
+      "cosmetic_variant": {
+        "title": "两段TLS不能混为一段（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "前段TLS成功不能证明后段成功。给定失败位于边缘到上游握手，关闭浏览器验证不修复它且破坏保护。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "network.delivery-1",
+      "family": "network.delivery",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "http"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "单个对象或链路边界，依据直接观察选择行动。",
+      "candidate": {
+        "target": {
+          "capability_id": "network.delivery",
+          "difficulty": "基础",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "无响应的请求能否直接重发",
+        "task": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。",
+            "facts": {
+              "observed_boundary": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "non- idempotent method unless it has some means"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.delivery-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "先查提交状态或取得应用幂等保障，不盲目自动重发",
+              "自动重复POST，因为没收到响应必然没创建"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.delivery-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "方法改为PUT设定同一资源的目标状态；服务端符合HTTP幂等语义，无额外业务重复创建动作；连接在响应前断开。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。",
+          "expected_evidence": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。",
+          "decision_effect": "先查提交状态或取得应用幂等保障，不盲目自动重发"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "network.delivery-1-acceptable",
+          "answer": {
+            "judgment_id": "judge-network.delivery-1",
+            "value": 0,
+            "reason": "不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.delivery-1",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。",
+                    "citation": {
+                      "source_id": "http",
+                      "quote": "non- idempotent method unless it has some means"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。"
+                  }
+                ],
+                "rule_quote": "不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。",
+                "counterexample_quote": null,
+                "explanation": "不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "network.delivery-1-negative",
+          "answer": {
+            "judgment_id": "judge-network.delivery-1",
+            "value": 1,
+            "reason": "响应丢失保证服务端没有执行。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.delivery-1",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "响应丢失保证服务端没有执行。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。",
+                    "citation": {
+                      "source_id": "http",
+                      "quote": "non- idempotent method unless it has some means"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。"
+                  }
+                ],
+                "rule_quote": "不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。",
+                "counterexample_quote": "方法改为PUT设定同一资源的目标状态；服务端符合HTTP幂等语义，无额外业务重复创建动作；连接在响应前断开。",
+                "explanation": "该答案把题面不支持的结论当作事实。不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "network.delivery",
+          "difficulty": "基础",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "无响应的请求能否直接重发：条件变化",
+        "task": "方法改为PUT设定同一资源的目标状态；服务端符合HTTP幂等语义，无额外业务重复创建动作；连接在响应前断开。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "方法改为PUT设定同一资源的目标状态；服务端符合HTTP幂等语义，无额外业务重复创建动作；连接在响应前断开。",
+            "facts": {
+              "observed_boundary": "方法改为PUT设定同一资源的目标状态；服务端符合HTTP幂等语义，无额外业务重复创建动作；连接在响应前断开。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "PUT, DELETE, and safe request methods"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.delivery-1",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "可按幂等语义重试同一PUT，但不保证响应或计费相同",
+              "自动重复POST，因为没收到响应必然没创建"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.delivery-1",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "同一请求的预期资源效果具幂等性；这不承诺每次日志、响应或供应商费用一致。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "一个POST创建订单请求已发送，响应连接断开；无幂等约定、无提交查询结果，不知道是否生成订单。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "方法改为PUT设定同一资源的目标状态；服务端符合HTTP幂等语义，无额外业务重复创建动作；连接在响应前断开。",
+          "expected_evidence": "方法改为PUT设定同一资源的目标状态；服务端符合HTTP幂等语义，无额外业务重复创建动作；连接在响应前断开。",
+          "decision_effect": "可按幂等语义重试同一PUT，但不保证响应或计费相同"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "同一请求的预期资源效果具幂等性；这不承诺每次日志、响应或供应商费用一致。",
+      "cosmetic_variant": {
+        "title": "无响应的请求能否直接重发（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "不能由无响应推出未执行；给定POST没有幂等保障，自动重发可能创建重复订单。补证是本题有效结论。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "network.delivery-2",
+      "family": "network.delivery",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "http"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "至少两个时序或约束同时成立，区分表面成功与实际证据。",
+      "candidate": {
+        "target": {
+          "capability_id": "network.delivery",
+          "difficulty": "进阶",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "已经确认的写入不该再新建",
+        "task": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。",
+            "facts": {
+              "observed_boundary": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "non- idempotent method unless it has some means"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.delivery-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "保留既有订单，不另造新ID重复创建",
+              "超时就用新请求ID重新创建"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.delivery-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "查询仍无结论且查询系统可能延迟；重发仍生成新请求ID，没有幂等保证。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。",
+          "expected_evidence": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。",
+          "decision_effect": "保留既有订单，不另造新ID重复创建"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "network.delivery-2-acceptable",
+          "answer": {
+            "judgment_id": "judge-network.delivery-2",
+            "value": 0,
+            "reason": "已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.delivery-2",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。",
+                    "citation": {
+                      "source_id": "http",
+                      "quote": "non- idempotent method unless it has some means"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。"
+                  }
+                ],
+                "rule_quote": "已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。",
+                "counterexample_quote": null,
+                "explanation": "已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "network.delivery-2-negative",
+          "answer": {
+            "judgment_id": "judge-network.delivery-2",
+            "value": 1,
+            "reason": "超时比已提交记录更能证明订单不存在。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.delivery-2",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "超时比已提交记录更能证明订单不存在。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。",
+                    "citation": {
+                      "source_id": "http",
+                      "quote": "non- idempotent method unless it has some means"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。"
+                  }
+                ],
+                "rule_quote": "已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。",
+                "counterexample_quote": "查询仍无结论且查询系统可能延迟；重发仍生成新请求ID，没有幂等保证。",
+                "explanation": "该答案把题面不支持的结论当作事实。已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "network.delivery",
+          "difficulty": "进阶",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "已经确认的写入不该再新建：条件变化",
+        "task": "查询仍无结论且查询系统可能延迟；重发仍生成新请求ID，没有幂等保证。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "查询仍无结论且查询系统可能延迟；重发仍生成新请求ID，没有幂等保证。",
+            "facts": {
+              "observed_boundary": "查询仍无结论且查询系统可能延迟；重发仍生成新请求ID，没有幂等保证。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "non- idempotent method unless it has some means"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.delivery-2",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "保留交付未知并补查，不称已成功或已失败",
+              "超时就用新请求ID重新创建"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.delivery-2",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "原来的成功证据缺失；不能把查不到立即当没执行，也不能伪造已完成记录。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "客户端写请求超时，但状态查询已返回同一请求ID的已提交订单，订单内容核对一致；重发会生成新请求ID。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "查询仍无结论且查询系统可能延迟；重发仍生成新请求ID，没有幂等保证。",
+          "expected_evidence": "查询仍无结论且查询系统可能延迟；重发仍生成新请求ID，没有幂等保证。",
+          "decision_effect": "保留交付未知并补查，不称已成功或已失败"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "原来的成功证据缺失；不能把查不到立即当没执行，也不能伪造已完成记录。",
+      "cosmetic_variant": {
+        "title": "已经确认的写入不该再新建（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "已取得对应提交证据，重复新ID创建不是恢复原结果。网络失败不能抹掉已核实业务成果。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    },
+    {
+      "id": "network.delivery-3",
+      "family": "network.delivery",
+      "origin": "ai_draft",
+      "review_status": "pending_human_review",
+      "human_review": null,
+      "source_ids": [
+        "http"
+      ],
+      "background_scope": "仅限冻结题面语义；Python材料引用v3.14.5、DOM抓取快照、WCAG2.2或RFC所列版本，不外推全部框架。",
+      "difficulty_basis": "在资源、归属、安全或恢复约束下作联合判断，解释不能保证的范围并提出验证。",
+      "candidate": {
+        "target": {
+          "capability_id": "network.delivery",
+          "difficulty": "综合",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "三段响应不是完整交付",
+        "task": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。",
+            "facts": {
+              "observed_boundary": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "non- idempotent method unless it has some means"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.delivery-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "保留前三段与完整性未知，按同任务和偏移续传并校验最终标记",
+              "删除三段并重建任务，或者直接把三段标完整"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.delivery-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "客户端已持久化四段及经校验最终完整标记，随后连接断开；同任务ID与内容摘要匹配。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。",
+          "expected_evidence": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。",
+          "decision_effect": "保留前三段与完整性未知，按同任务和偏移续传并校验最终标记"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "answers": [
+        {
+          "id": "network.delivery-3-acceptable",
+          "answer": {
+            "judgment_id": "judge-network.delivery-3",
+            "value": 0,
+            "reason": "部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.delivery-3",
+                "conclusion": "pass",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。",
+                    "citation": {
+                      "source_id": "http",
+                      "quote": "non- idempotent method unless it has some means"
+                    }
+                  }
+                ],
+                "interpreted_value": 0,
+                "interpreted_reasoning": 0,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。"
+                  }
+                ],
+                "rule_quote": "部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。",
+                "counterexample_quote": null,
+                "explanation": "部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。",
+                "gap": null
+              }
+            ]
+          },
+          "label_basis": "部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        },
+        {
+          "id": "network.delivery-3-negative",
+          "answer": {
+            "judgment_id": "judge-network.delivery-3",
+            "value": 1,
+            "reason": "连接断开意味着已保存内容从未交付，而且任务一定失败。"
+          },
+          "expected_grading": {
+            "items": [
+              {
+                "judgment_id": "judge-network.delivery-3",
+                "conclusion": "evidenced_fail",
+                "answer_quotes": [
+                  {
+                    "input": "original",
+                    "field": "reason",
+                    "quote": "连接断开意味着已保存内容从未交付，而且任务一定失败。"
+                  }
+                ],
+                "grounding": [
+                  {
+                    "evidence_id": "observation",
+                    "fact": "observed_boundary",
+                    "value": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。",
+                    "citation": {
+                      "source_id": "http",
+                      "quote": "non- idempotent method unless it has some means"
+                    }
+                  }
+                ],
+                "interpreted_value": 1,
+                "interpreted_reasoning": 1,
+                "reason_claims": [
+                  {
+                    "answer_quote": 0,
+                    "grounding": 0,
+                    "interpreted_fact_value": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。"
+                  }
+                ],
+                "rule_quote": "部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。",
+                "counterexample_quote": "客户端已持久化四段及经校验最终完整标记，随后连接断开；同任务ID与内容摘要匹配。",
+                "explanation": "该答案把题面不支持的结论当作事实。部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。",
+                "gap": "需要区分题面已证实、未知与不能推出的结论。"
+              }
+            ]
+          },
+          "label_basis": "部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。",
+          "origin": "ai_draft",
+          "review_status": "pending_human_review"
+        }
+      ],
+      "positive_variant": {
+        "target": {
+          "capability_id": "network.delivery",
+          "difficulty": "综合",
+          "background_id": "network-evidence-v1"
+        },
+        "catalog_version": "fullstack-v1.0.0",
+        "title": "三段响应不是完整交付：条件变化",
+        "task": "客户端已持久化四段及经校验最终完整标记，随后连接断开；同任务ID与内容摘要匹配。 请选下一步，并说明依据、不能推出的结论和验证方式。",
+        "assumptions": [
+          "AI起草待人工核验；以下观察为教学假设，不是实际生产日志。",
+          "只按题面给出的对象、时序、协议或资源计量判断；不认证整个语言或框架。"
+        ],
+        "evidence": [
+          {
+            "id": "observation",
+            "label": "教学材料",
+            "text": "客户端已持久化四段及经校验最终完整标记，随后连接断开；同任务ID与内容摘要匹配。",
+            "facts": {
+              "observed_boundary": "客户端已持久化四段及经校验最终完整标记，随后连接断开；同任务ID与内容摘要匹配。"
+            },
+            "citations": [
+              {
+                "source_id": "http",
+                "quote": "non- idempotent method unless it has some means"
+              }
+            ]
+          }
+        ],
+        "judgments": [
+          {
+            "id": "judge-network.delivery-3",
+            "kind": "choice",
+            "prompt": "哪一行动符合当前证据？",
+            "options": [
+              "保留完整成果，不因之后断连撤销完成",
+              "删除三段并重建任务，或者直接把三段标完整"
+            ],
+            "evidence_ids": [
+              "observation"
+            ]
+          }
+        ],
+        "rubric": [
+          {
+            "judgment_id": "judge-network.delivery-3",
+            "acceptable_options": [
+              0
+            ],
+            "acceptable_orders": [],
+            "acceptable_predictions": [],
+            "reasoning": "应用定义的完整证据已先持久化，后来的连接事件不能将原有完整交付改成未交付。",
+            "evidence_ids": [
+              "observation"
+            ],
+            "counterexample": "应用协议声明四段加最终完整标记才算完整；客户端只持久化前三段，连接断开；服务端任务可能完成，续传必须用同任务ID和已持久偏移，协议支持幂等续传。",
+            "help_boundary": "解释一般术语可中性；直接选择本题观察、排除选项或给出下一步属于方向帮助。冻结前交付方向帮助后只作练习。"
+          }
+        ],
+        "variation": {
+          "causal_condition": "客户端已持久化四段及经校验最终完整标记，随后连接断开；同任务ID与内容摘要匹配。",
+          "expected_evidence": "客户端已持久化四段及经校验最终完整标记，随后连接断开；同任务ID与内容摘要匹配。",
+          "decision_effect": "保留完整成果，不因之后断连撤销完成"
+        },
+        "missing_evidence": [],
+        "conflicts": []
+      },
+      "variation_basis": "应用定义的完整证据已先持久化，后来的连接事件不能将原有完整交付改成未交付。",
+      "cosmetic_variant": {
+        "title": "三段响应不是完整交付（换名版）",
+        "expected": "no_qualified_case",
+        "basis": "只改题目标题，实际事实、判断和规则完全不变。"
+      },
+      "help": {
+        "neutral": "证据是用来核对一项判断的材料；没有某条记录时，应区分未知和已经确认相反。",
+        "directional": "部分内容已实际保存，不能归零，也没有第四段和最终标记来宣称完整；新建任务重跑可能重复成本，续传边界须核对。",
+        "uncertain": "当前材料外的实现是否相同尚不明确，需要再核对适用边界。"
+      }
+    }
+  ]
+}
