@@ -194,6 +194,7 @@ export function UnifiedWorkspace({
 }) {
   const [area, setArea] = useState<Area>(initialArea)
   const [requestedRun, setRequestedRun] = useState("")
+  const focusFrame = useRef(0)
   const regions = useRef<Record<Area, HTMLElement | null>>({
     home: null,
     routes: null,
@@ -202,9 +203,11 @@ export function UnifiedWorkspace({
     review: null,
     account: null,
   })
+  useEffect(() => () => cancelAnimationFrame(focusFrame.current), [])
   function go(next: Area, target?: string) {
     setArea(next)
-    requestAnimationFrame(() => {
+    cancelAnimationFrame(focusFrame.current)
+    focusFrame.current = requestAnimationFrame(() => {
       const region = (target ? document.getElementById(target) : null) ?? regions.current[next]
       region?.focus({ preventScroll: true })
       region?.scrollIntoView()
