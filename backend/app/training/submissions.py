@@ -55,7 +55,7 @@ def state(
 ) -> SubmissionState:
     # Every caller has committed its writes before projecting, or has made no
     # changes on an idempotent/terminal return. Preserve its transaction locks.
-    with read_snapshot() as snapshot:
+    with read_snapshot(user_id) as snapshot:
         return _state(snapshot, run_id, user_id, practice_help_id)
 
 

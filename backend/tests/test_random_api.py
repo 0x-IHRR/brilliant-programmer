@@ -99,7 +99,7 @@ def test_preference_cas_owner_replay_fixed_freeze_and_empty_pool(ready, provider
     owner, auth, identity, config, *_ = ready
     control = ready[-1]
     options = json.loads(control.read_text())
-    control.write_text(json.dumps({**options, "before_submission_ok": True}))
+    test_training.write_control(control, {**options, "before_submission_ok": True})
     formal(ready)
     deadline = time.monotonic() + 5
     while not control.with_name(control.name + ".submission_ok_pending").exists():
@@ -107,7 +107,7 @@ def test_preference_cas_owner_replay_fixed_freeze_and_empty_pool(ready, provider
         time.sleep(0.02)
     original = client.get(test_submissions.url(identity), headers=auth).json()
     assert original["submissions"][0]["attempts"][0]["code"] == "unknown"
-    control.write_text(json.dumps(options))
+    test_training.write_control(control, options)
     deadline = time.monotonic() + 5
     while original["submissions"][0]["attempts"][0]["code"] == "unknown":
         assert time.monotonic() < deadline, "final submission attempt was not persisted"
@@ -260,7 +260,7 @@ def test_late_retained_recommended_case_counts_once(ready, provider, tmp_path, m
             finally:
                 settings = json.loads(control.read_text())
                 settings["before_accept"] = False
-                control.write_text(json.dumps(settings))
+                test_training.write_control(control, settings)
             assert stopping.result(5).status_code == 200
         deadline = time.monotonic() + 5
         while (
@@ -295,7 +295,7 @@ def test_late_retained_recommended_case_counts_once(ready, provider, tmp_path, m
     finally:
         settings = json.loads(control.read_text())
         settings["before_accept"] = False
-        control.write_text(json.dumps(settings))
+        test_training.write_control(control, settings)
         test_training.stop_worker(worker)
 
 
@@ -383,8 +383,6 @@ def test_committed_original_counts_before_related_settlement(ready):
             f"/api/v1/training/tasks/{identity}/submissions/{body['request_id']}/stop",
             headers=auth,
         )
-
-
 
 
 @pytest.mark.parametrize("mode", ["unrelated", "auth"])
@@ -488,7 +486,7 @@ def test_cancelled_accept_finishes_before_next_recommendation_snapshot(
         assert not stopping.done() and not starting.done()
         settings = json.loads(control.read_text())
         settings["before_accept"] = False
-        control.write_text(json.dumps(settings))
+        test_training.write_control(control, settings)
         assert stopping.result(timeout=5).status_code == 200
         fifth, _ = starting.result(timeout=5)
         assert fifth.status_code == 202, fifth.text
@@ -504,6 +502,6 @@ def test_cancelled_accept_finishes_before_next_recommendation_snapshot(
     finally:
         settings = json.loads(control.read_text())
         settings["before_accept"] = False
-        control.write_text(json.dumps(settings))
+        test_training.write_control(control, settings)
         pool.shutdown(wait=True)
         test_training.stop_worker(process)

@@ -8,6 +8,7 @@ from sqlmodel import Session, col, select
 
 from app.api.deps import SessionDep
 from app.capabilities.evidence_service import read_evidence
+from app.deletion.service import hidden_ids
 from app.model_config.models import ModelConfig
 from app.model_config.service import lock_owner
 from app.training.jd_models import JDAnalysis, JDDocument, JDTopic
@@ -106,14 +107,14 @@ def view(session: Session, item: Topic) -> JDPublic:
 
 
 def public(identity: uuid.UUID, user_id: uuid.UUID) -> JDPublic:
-    with read_snapshot() as session:
+    with read_snapshot(user_id) as session:
         return view(session, jd_owned(session, identity, user_id))
 
 
 @router.get("")
 def list_jds(user: VerifiedUser, response: Response) -> list[JDPublic]:
     response.headers["Cache-Control"] = "no-store"
-    with read_snapshot() as session:
+    with read_snapshot(user.id) as session:
         return [
             view(session, item)
             for item in session.exec(
@@ -122,6 +123,7 @@ def list_jds(user: VerifiedUser, response: Response) -> list[JDPublic]:
                 .where(Topic.user_id == user.id)
                 .order_by(col(Topic.created_at).desc())
             ).all()
+            if item.id not in hidden_ids(session, user.id, "topic")
         ]
 
 

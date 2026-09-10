@@ -39,7 +39,7 @@ from app.training.queue import queue
 
 SOURCE_RETRYABLE = {"github_rate_limited", "github_temporary"}
 
-TERMINAL = {"completed", "failed", "stopped"}
+TERMINAL = {"completed", "failed", "stopped", "deleted"}
 RETRYABLE = {
     "unknown",
     "cancelled",
@@ -77,6 +77,8 @@ def finish(
         run = session.exec(
             select(ProjectRun).where(ProjectRun.id == identity).with_for_update()
         ).one()
+        if run.status == "deleted":
+            return
         if run.status not in TERMINAL and cancelled_by_revocation(
             session, run.user_id, run.config_version, code
         ):
@@ -108,9 +110,17 @@ def checkpoint(
     if missing:
         result = result.model_copy(update={"missing": result.missing + [missing]})
     with Session(engine) as session:
+        owner_id = session.exec(
+            select(ProjectRun.user_id).where(ProjectRun.id == identity)
+        ).one()
+        # Acquisition yields outside call_credential. Match erasure's User ->
+        # source lock order so its final scope comparison cannot miss new text.
+        lock_owner(session, owner_id)
         run = session.exec(
             select(ProjectRun).where(ProjectRun.id == identity).with_for_update()
         ).one()
+        if run.status == "deleted":
+            return
         run.snapshot = snapshot.model_dump()
         run.project_map = result.model_dump()
         run.acquisition_done = done
@@ -130,6 +140,8 @@ def pin(identity: uuid.UUID, snapshot: Snapshot) -> bool:
         assert run
         lock_owner(session, run.user_id)
         session.refresh(run)
+        if run.status == "deleted":
+            return False
         repository = snapshot.repository
         run.repository_key = (repository.owner + "/" + repository.name).lower()
         run.commit = repository.commit

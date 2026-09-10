@@ -25,6 +25,7 @@ from app.training.evaluation_worker import RETRYABLE, freeze
 from app.training.events import next_event
 from app.training.independent_models import IndependentObservation
 from app.training.independent_service import record_frozen
+from app.training.models import TrainingRun
 from app.training.projection import read_snapshot
 from app.training.queue import DSN
 from app.training.routes import VerifiedUser, owned
@@ -67,7 +68,10 @@ class EvaluationPublic(BaseModel):
 def view(_session: Session, item: Evaluation) -> EvaluationPublic:
     # POST callers commit before returning; retry's eligibility read precedes
     # its mutation and retains the original User lock throughout.
-    with read_snapshot() as snapshot:
+    run = _session.get(TrainingRun, item.run_id)
+    assert run is not None
+    with read_snapshot(run.user_id) as snapshot:
+        owned(snapshot, run.id, run.user_id)
         current = snapshot.get(Evaluation, item.run_id)
         assert current is not None
         return _view(snapshot, current)

@@ -124,9 +124,12 @@ def read_review(
     run_id: uuid.UUID, session: SessionDep, user: VerifiedUser, response: Response
 ) -> ReviewPublic | None:
     response.headers["Cache-Control"] = "no-store"
-    owned(session, run_id, user.id)
-    item = session.get(ScoreReview, run_id)
-    return view(session, item) if item else None
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user.id) as session:
+        owned(session, run_id, user.id)
+        item = session.get(ScoreReview, run_id)
+        return view(session, item) if item else None
 
 
 @router.post("/tasks/{run_id}/review", status_code=202)

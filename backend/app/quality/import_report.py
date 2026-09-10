@@ -143,6 +143,32 @@ def save(
 ) -> QualityReport:
     """Caller commits; receipt identity and predecessor serialize under User."""
     lock_owner(session, report.binding.user_id)
+    from app.deletion.models import ErasedObject, ErasedRow
+    from app.deletion.quality import lock_hashes
+    from app.deletion.scope import references
+
+    markers = session.exec(
+        select(ErasedObject).where(ErasedObject.user_id == report.binding.user_id)
+    ).all()
+    erased_ids = {str(m.object_id) for m in markers}
+    erased_ids.update(
+        session.exec(
+            select(ErasedRow.row_key).where(
+                ErasedRow.user_id == report.binding.user_id,
+                ErasedRow.table_name == "training_submission",
+            )
+        ).all()
+    )
+    if str(report.artifact_id) in erased_ids:
+        raise ValueError("deleted report identity cannot be replayed")
+    for content in (files or {}).values():
+        try:
+            parsed = json.loads(content)
+        except ValueError:
+            continue
+        if references(parsed, erased_ids):
+            raise ValueError("deleted original identity cannot be reattached")
+    lock_hashes(session, set(files or {}))
     existing = session.get(QualityReport, report.artifact_id)
     if existing:
         if (
@@ -156,14 +182,10 @@ def save(
         .where(QualityReport.user_id == report.binding.user_id)
         .order_by(col(QualityReport.sequence).desc())
     ).all()
+    from app.quality.service import same_binding
+
     predecessor = next(
-        (
-            r
-            for r in rows
-            if Report.model_validate_json(json.dumps(r.report)).binding
-            == report.binding
-        ),
-        None,
+        (r for r in rows if same_binding(session, r, report.binding)), None
     )
     if report.supersedes != (predecessor.id if predecessor else None):
         raise ValueError("retest predecessor changed; review the current artifact")

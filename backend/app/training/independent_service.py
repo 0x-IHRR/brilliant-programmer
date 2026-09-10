@@ -54,6 +54,10 @@ def capture_history(session: Session, run: TrainingRun) -> dict[uuid.UUID, Candi
     counts as seen. Unknown help must be reconciled before another check starts.
     Caller holds User through capture/acceptance, serializing new publications.
     """
+    from app.deletion.models import ErasedObject
+
+    if session.exec(select(ErasedObject).where(ErasedObject.user_id == run.user_id, ErasedObject.seen == True)).first():  # noqa: E712
+        raise ValueError("deleted_seen_history_unavailable")
     rows = session.exec(
         select(TrainingRun)
         .where(
@@ -96,6 +100,10 @@ def record_frozen(session: Session, run: TrainingRun, evaluation: Evaluation) ->
     Earlier observations stay immutable; resolving an unknown appends a new fact
     about the same frozen input. Post-freeze help cannot change that outcome.
     """
+    from app.deletion.service import unavailable
+
+    if unavailable(session, run.user_id, run.id):
+        return
     if not evaluation.frozen_sequence or evaluation.status != "completed":
         return
     if run.launch_mode != "independent":

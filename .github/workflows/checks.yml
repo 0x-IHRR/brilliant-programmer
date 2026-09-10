@@ -35,6 +35,7 @@ jobs:
       - run: uv run --directory backend ruff check app tests
       - run: uv run --directory backend mypy app
       - run: uv run --directory backend pytest tests -q
+      - run: (cd backend && ../.venv/bin/python tests/deletion_migration.py)
       - run: bun install --frozen-lockfile
       - run: bun test frontend/unit/draftAutosave.test.ts
       - run: bun run --cwd frontend build
@@ -67,4 +68,5 @@ jobs:
           (cd backend && ../.venv/bin/python tests/project_training_browser.py)
           (cd backend && ../.venv/bin/python -m tests.project_updates_browser)
           (cd backend && ../.venv/bin/python tests/quality_browser.py)
+          (cd backend && ../.venv/bin/python tests/deletion_browser.py)
           bun run --cwd frontend test

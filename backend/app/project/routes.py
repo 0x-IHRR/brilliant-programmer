@@ -54,6 +54,9 @@ def owned(session: Session, identity: uuid.UUID, user_id: uuid.UUID) -> ProjectR
     run = session.get(ProjectRun, identity)
     if not run or run.user_id != user_id:
         raise HTTPException(404, "项目任务不存在")
+    from app.deletion.service import require_available
+
+    require_available(session, user_id, "project", identity)
     return run
 
 
@@ -141,13 +144,19 @@ def latest_projects(
     session: SessionDep, user: VerifiedUser, response: Response
 ) -> list[ProjectPublic]:
     response.headers["Cache-Control"] = "no-store"
-    runs = session.exec(
-        select(ProjectRun)
-        .where(ProjectRun.user_id == user.id)
-        .order_by(col(ProjectRun.created_at).desc())
-        .limit(20)
-    ).all()
-    return [view(session, run) for run in runs]
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user.id) as session:
+        runs = session.exec(
+            select(ProjectRun)
+            .where(ProjectRun.user_id == user.id)
+            .order_by(col(ProjectRun.created_at).desc())
+            .limit(20)
+        ).all()
+        from app.deletion.service import hidden_ids
+
+        hidden = hidden_ids(session, user.id, "project")
+        return [view(session, run) for run in runs if run.id not in hidden]
 
 
 @router.get("/{run_id}")
@@ -155,7 +164,10 @@ def read_project(
     run_id: uuid.UUID, session: SessionDep, user: VerifiedUser, response: Response
 ) -> ProjectPublic:
     response.headers["Cache-Control"] = "no-store"
-    return view(session, owned(session, run_id, user.id))
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user.id) as session:
+        return view(session, owned(session, run_id, user.id))
 
 
 @router.post("/{run_id}/retry", status_code=202)

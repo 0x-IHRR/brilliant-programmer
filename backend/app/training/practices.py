@@ -25,7 +25,7 @@ from app.training.routes import VerifiedUser, owned
 from app.training.schema import Candidate, Source
 from app.training.submission_models import Submission
 from app.training.submission_schema import SubmissionState, Submit, validate_answers
-from app.training.submissions import enqueue, retry_submission, state, stop_submission
+from app.training.submissions import _state, enqueue, retry_submission, stop_submission
 
 router = APIRouter(
     prefix="/training/tasks/{run_id}/help/{help_id}/practice", tags=["practice"]
@@ -56,21 +56,24 @@ def exercise_for(
 
 
 def view(
-    session: Session, run_id: uuid.UUID, help_id: uuid.UUID, user_id: uuid.UUID
+    _session: Session, run_id: uuid.UUID, help_id: uuid.UUID, user_id: uuid.UUID
 ) -> PracticeState:
-    run, exercise = exercise_for(session, run_id, help_id, user_id)
-    records = state(session, run_id, user_id, help_id)
-    return PracticeState(
-        help_id=help_id,
-        exercise=practice_case(
-            Candidate.model_validate(run.candidate),
-            [Source.model_validate(s) for s in run.sources],
-            exercise.judgments[0].id,
-            "",
-        ),
-        records=records,
-        completed=any(item.status == "completed" for item in records.submissions),
-    )
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user_id) as session:
+        run, exercise = exercise_for(session, run_id, help_id, user_id)
+        records = _state(session, run_id, user_id, help_id)
+        return PracticeState(
+            help_id=help_id,
+            exercise=practice_case(
+                Candidate.model_validate(run.candidate),
+                [Source.model_validate(s) for s in run.sources],
+                exercise.judgments[0].id,
+                "",
+            ),
+            records=records,
+            completed=any(item.status == "completed" for item in records.submissions),
+        )
 
 
 @router.get("")
@@ -233,13 +236,16 @@ def read_practice_draft(
     response: Response,
 ) -> DraftSnapshot | None:
     response.headers["Cache-Control"] = "no-store"
-    exercise_for(session, run_id, help_id, user.id)
-    item = session.get(PracticeDraft, help_id)
-    return (
-        DraftSnapshot.model_validate_json(item.model_dump_json(exclude={"help_id"}))
-        if item
-        else None
-    )
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user.id) as session:
+        exercise_for(session, run_id, help_id, user.id)
+        item = session.get(PracticeDraft, help_id)
+        return (
+            DraftSnapshot.model_validate_json(item.model_dump_json(exclude={"help_id"}))
+            if item
+            else None
+        )
 
 
 @router.put("/draft")

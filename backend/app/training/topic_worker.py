@@ -17,7 +17,7 @@ from app.training.topic_models import TopicAttempt, TopicJob
 from app.training.topic_rules import Analysis, propose
 from app.training.topic_service import compare, owned, save_version, version
 
-TERMINAL = {"completed", "failed", "stopped"}
+TERMINAL = {"completed", "failed", "stopped", "deleted"}
 
 
 def read(identity: uuid.UUID) -> TopicJob:

@@ -27,9 +27,12 @@ def read_draft(
     run_id: uuid.UUID, session: SessionDep, user: VerifiedUser, response: Response
 ) -> DraftSnapshot | None:
     response.headers["Cache-Control"] = "no-store"
-    owned(session, run_id, user.id)
-    item = session.get(TrainingDraft, run_id)
-    return snapshot(item) if item else None
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user.id) as session:
+        owned(session, run_id, user.id)
+        item = session.get(TrainingDraft, run_id)
+        return snapshot(item) if item else None
 
 
 @router.put("/tasks/{run_id}/draft")

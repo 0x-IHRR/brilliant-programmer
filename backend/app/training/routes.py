@@ -71,6 +71,9 @@ def owned(session: Session, run_id: uuid.UUID, user_id: uuid.UUID) -> TrainingRu
     run = session.get(TrainingRun, run_id)
     if not run or run.user_id != user_id:
         raise HTTPException(404, "任务不存在")
+    from app.deletion.service import require_available
+
+    require_available(session, user_id, "training", run_id)
     return run
 
 
@@ -385,13 +388,19 @@ def latest(
     session: SessionDep, user: VerifiedUser, response: Response
 ) -> list[TaskPublic]:
     response.headers["Cache-Control"] = "no-store"
-    runs = session.exec(
-        select(TrainingRun)
-        .where(TrainingRun.user_id == user.id)
-        .order_by(col(TrainingRun.created_at).desc())
-        .limit(20)
-    ).all()
-    return [view(session, run) for run in runs]
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user.id) as session:
+        runs = session.exec(
+            select(TrainingRun)
+            .where(TrainingRun.user_id == user.id)
+            .order_by(col(TrainingRun.created_at).desc())
+            .limit(20)
+        ).all()
+        from app.deletion.service import hidden_ids
+
+        hidden = hidden_ids(session, user.id, "training")
+        return [view(session, run) for run in runs if run.id not in hidden]
 
 
 @router.get("/tasks/{run_id}")
@@ -399,7 +408,10 @@ def read(
     run_id: uuid.UUID, session: SessionDep, user: VerifiedUser, response: Response
 ) -> TaskPublic:
     response.headers["Cache-Control"] = "no-store"
-    return view(session, owned(session, run_id, user.id))
+    from app.training.projection import read_snapshot
+
+    with read_snapshot(user.id) as session:
+        return view(session, owned(session, run_id, user.id))
 
 
 @router.post("/tasks/{run_id}/stop")
