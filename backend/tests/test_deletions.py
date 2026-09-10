@@ -3,13 +3,16 @@
 import uuid
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 from sqlmodel import Session
 
 from app.core.db import engine
 from app.deletion.models import ErasedObject, ErasedRow
+from app.main import app
 from app.training.models import TrainingRun
+from tests import test_accounts
 from tests.test_accounts import client
 from tests.test_guided import frozen as frozen_case
 from tests.test_model_config import account
@@ -18,6 +21,16 @@ from tests.test_project_training_rules import material as material
 frozen = frozen_case
 
 URL = "/api/v1/records"
+
+
+@pytest.fixture(autouse=True)
+def isolated_client(monkeypatch):
+    # Independent scenarios must not consume the shared suite's login/IP bucket.
+    # Requests within a scenario still share the real persistent rate limiter.
+    with TestClient(app, client=(f"deletion-{uuid.uuid4()}", 50000)) as scenario:
+        monkeypatch.setattr(test_accounts, "client", scenario)
+        monkeypatch.setitem(globals(), "client", scenario)
+        yield
 
 
 def create_run(owner):
