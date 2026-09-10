@@ -9,6 +9,7 @@ import os
 import secrets
 import subprocess
 import sys
+import time
 import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -64,6 +65,16 @@ def child(mode: str, owner: uuid.UUID, other: uuid.UUID) -> None:
                 session.add(LoginSession(user_id=identity, expires_at=datetime.now(UTC) + timedelta(days=1)))
                 session.add(TrainingDraft(run_id=run.id, version=uuid.uuid4(), request_id=uuid.uuid4(), saved_at=datetime.now(UTC), progress={'answers':[{'judgment_id':candidate.judgments[0].id, 'value':None, 'reason':'synthetic private unfinished draft'}], 'step':'judgments', 'based_on_submission_id':None}))
             session.commit()
+            import procrastinate
+
+            from app.training.queue import DSN
+            from app.training.worker import generate_training
+
+            app_queue = procrastinate.App(connector=procrastinate.SyncPsycopgConnector(conninfo=DSN))
+            task = app_queue.task(name='training.generate')(generate_training.func)
+            old_run = session.execute(text('SELECT id FROM training_run WHERE user_id=:owner'), {'owner':owner}).scalar_one()
+            task.configure(connection=session.connection().connection.driver_connection).defer(run_id=str(old_run))
+            session.commit()
             preserved = snapshot(session, other)
         target = journal.path().parent / 'other-state.json'
         with os.fdopen(os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'w') as output:
@@ -80,7 +91,28 @@ def child(mode: str, owner: uuid.UUID, other: uuid.UUID) -> None:
             assert error.status_code == 503
         else:
             raise AssertionError('Restored old data opened without replay')
-    operations.replay()
+    # Execute the production module, not the tests/training_worker entry point.
+    missing_env = dict(os.environ, ACCOUNT_ERASURE_JOURNAL=str(journal.path().parent / 'missing.sqlite3'))
+    failed = subprocess.run([sys.executable, '-m', 'app.training.worker'], env=missing_env, capture_output=True, timeout=10)
+    assert failed.returncode != 0
+    with Session(engine) as session:
+        assert session.get(User, owner) is not None
+        assert session.execute(text("SELECT count(*) FROM procrastinate_jobs WHERE task_name='training.generate' AND status='todo'")).scalar_one() == 1
+    with (journal.path().parent / 'production-worker.log').open('a') as output:
+        worker = subprocess.Popen([sys.executable, '-m', 'app.training.worker'], stdout=output, stderr=output)
+    try:
+        deadline = time.monotonic() + 15
+        while True:
+            with Session(engine) as session:
+                gone = session.get(User, owner) is None
+            if gone:
+                break
+            assert worker.poll() is None
+            assert time.monotonic() < deadline
+            time.sleep(.05)
+    finally:
+        worker.terminate()
+        worker.wait(timeout=5)
     operations.replay()
     with Session(engine) as session:
         require_ready(session)
@@ -116,6 +148,7 @@ def main() -> None:
     if len(sys.argv) > 1:
         child(sys.argv[1], uuid.UUID(sys.argv[2]), uuid.UUID(sys.argv[3]))
         return
+    container = os.environ.get('ACCOUNT_ERASURE_DB_CONTAINER', 'bp-issue-32-db-1')
     marker = uuid.uuid4().hex[:10]
     source, restored = f'bp32_old_{marker}', f'bp32_restored_{marker}'
     owner, other, request = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
@@ -134,11 +167,11 @@ def main() -> None:
         subprocess.run(command, env=local, check=True)
     run([sys.executable, '-m', 'alembic', 'upgrade', '0028_permanent_deletion'], source)
     run([sys.executable, __file__, 'seed', str(owner), str(other)], source)
-    dump = subprocess.run(['docker', 'exec', 'bp-issue-32-db-1', 'pg_dump', '-U', base.username, '-d', source, '-Fc', '--no-owner'], check=True, capture_output=True).stdout
+    dump = subprocess.run(['docker', 'exec', container, 'pg_dump', '-U', base.username, '-d', source, '-Fc', '--no-owner'], check=True, capture_output=True).stdout
     stored_at = datetime.now(UTC)
     dump_id = retention.store(io.BytesIO(dump), stored_at)
     journal.append(owner, request, stored_at, token_hash(secret))  # After backup; cannot exist inside dump.
-    subprocess.run(['docker', 'exec', '-i', 'bp-issue-32-db-1', 'pg_restore', '-U', base.username, '-d', restored, '--no-owner', '--exit-on-error'], input=dump, check=True)
+    subprocess.run(['docker', 'exec', '-i', container, 'pg_restore', '-U', base.username, '-d', restored, '--no-owner', '--exit-on-error'], input=dump, check=True)
     run([sys.executable, '-m', 'alembic', 'upgrade', 'head'], restored)
     run([sys.executable, __file__, 'verify', str(owner), str(other)], restored)
     assert retention.expire(stored_at + timedelta(days=30)) == 1

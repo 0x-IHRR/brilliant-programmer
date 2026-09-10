@@ -31,11 +31,15 @@ jobs:
       - run: uv sync --all-packages --locked
       - run: python3 -c 'import base64,json,secrets; print("MODEL_ENCRYPTION_KEYS=" + json.dumps({"v1":base64.b64encode(secrets.token_bytes(32)).decode()}))' >> "$GITHUB_ENV"
       - run: uv run --directory backend alembic upgrade head
+      - run: uv run --directory backend python -m app.account_erasure.operations initialize-empty
       - run: uv run --directory backend python -m app.initial_data
       - run: uv run --directory backend ruff check app tests
       - run: uv run --directory backend mypy app
       - run: uv run --directory backend pytest tests -q
       - run: (cd backend && ../.venv/bin/python tests/deletion_migration.py)
+      - run: (cd backend && ../.venv/bin/python -m tests.account_erasure_restore)
+        env:
+          ACCOUNT_ERASURE_DB_CONTAINER: ${{ job.services.postgres.id }}
       - run: bun install --frozen-lockfile
       - run: bun test frontend/unit/draftAutosave.test.ts
       - run: bun run --cwd frontend build
@@ -69,4 +73,5 @@ jobs:
           (cd backend && ../.venv/bin/python -m tests.project_updates_browser)
           (cd backend && ../.venv/bin/python tests/quality_browser.py)
           (cd backend && ../.venv/bin/python tests/deletion_browser.py)
+          (cd backend && ../.venv/bin/python -m tests.account_erasure_browser)
           bun run --cwd frontend test
