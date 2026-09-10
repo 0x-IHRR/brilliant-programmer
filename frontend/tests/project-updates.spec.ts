@@ -44,3 +44,31 @@ test("跨路线保留相同节点身份但本机修改严格隔离", async ({ pa
   await page.screenshot({ path: "test-results/project-updates-200.png" })
   await page.evaluate(() => document.documentElement.style.fontSize = "")
 })
+
+
+test("新项目页继续旧路线时跳转保留实际旧来源身份", async ({ page }) => {
+  test.skip(!process.env.PROJECT_UPDATES_TOKEN, "由本票受控 worker 和真实 API 准备")
+  await page.goto("/")
+  await page.evaluate(token => sessionStorage.setItem("token", token!), process.env.PROJECT_UPDATES_TOKEN)
+  await page.goto(`/?project_run=${process.env.PROJECT_UPDATES_SOURCE}&project_route=${process.env.PROJECT_UPDATES_A}`)
+  const region = page.getByRole("region", { name: "项目模块学习路线", exact: true })
+  await expect(region.getByLabel("已有路线")).toHaveValue(process.env.PROJECT_UPDATES_A!)
+  await region.getByRole("checkbox", { name: "允许发送项目模块片段" }).check()
+  const submitted = page.waitForRequest(r => r.url().endsWith("/start") && r.method() === "POST")
+  await region.getByRole("button", { name: "开始模块教学练习", exact: true }).click()
+  const request = await submitted
+  expect(request.url()).toContain(`/topics/${process.env.PROJECT_UPDATES_A}/start`)
+  await expect(page).toHaveURL(/training_run=/)
+  const url = new URL(page.url())
+  const headers = { Authorization: `Bearer ${process.env.PROJECT_UPDATES_TOKEN}` }
+  let saved: { status: string; project_simulation: { topic_id: string; project_run_id: string }; topic_snapshot: { version_id: string } }
+  await expect.poll(async () => {
+    saved = await (await page.request.get(`/api/v1/training/tasks/${url.searchParams.get("training_run")}`, { headers })).json()
+    return saved.status
+  }, { timeout: 15000 }).toBe("completed")
+  expect(saved!.project_simulation.topic_id).toBe(process.env.PROJECT_UPDATES_A)
+  expect(saved!.project_simulation.project_run_id).toBe(process.env.PROJECT_UPDATES_ORIGINAL_SOURCE)
+  expect(saved!.topic_snapshot.version_id).toBe(request.postDataJSON().expected_version)
+  expect(url.searchParams.get("project_route")).toBe(process.env.PROJECT_UPDATES_A)
+  expect(url.searchParams.get("project_run")).toBe(process.env.PROJECT_UPDATES_ORIGINAL_SOURCE)
+})

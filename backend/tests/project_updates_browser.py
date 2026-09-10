@@ -49,11 +49,12 @@ with tempfile.TemporaryDirectory(prefix="bp24-browser-") as directory:
                 **os.environ,
                 "PROJECT_UPDATES_TOKEN": auth["Authorization"].removeprefix("Bearer "),
                 "PROJECT_UPDATES_SOURCE": str(new_source),
+                "PROJECT_UPDATES_ORIGINAL_SOURCE": str(original.project_run_id),
                 "PROJECT_UPDATES_A": str(topic_a),
                 "PROJECT_UPDATES_B": str(topic_b),
             },
         )
-        assert len(supplier["requests"]) == 2
+        assert len(supplier["requests"]) == 4
     finally:
         stop_worker(worker)
         try:

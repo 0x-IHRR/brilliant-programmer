@@ -74,7 +74,7 @@ export function ProjectTraining({ projectRunId, repository, config }: { projectR
     if (!item || !config?.version || config.revoked || !accepted) return
     const selectedVersion = active ? activeRoute?.route : version
     const selectedTopic = active ? item.active_topic_id : item.topic.id
-    const selectedProject = active ? activeRoute?.project_run_id : projectRunId
+    const selectedProject = active ? activeRoute?.project_run_id : item.project_run_id
     if (!selectedVersion || !selectedTopic || !selectedProject) return
     const key = JSON.stringify([selectedVersion.id, nodeId, config.version])
     if (pendingStart.current?.key !== key) pendingStart.current = { key, id: crypto.randomUUID() }

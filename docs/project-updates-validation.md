@@ -25,3 +25,5 @@
 真正 commit A→B 的新增专项已编写：受控 GitHub 两次实际读取，B 的 commit/tree/blob/源码片段变化；两阶段独立 worker/TLS 生成路线并显式确认，逐字段比较旧 TrainingRun、Evaluation（包含原 inputs/sources/result）、Submission 和唯一奖励。首跑因测试切换模型配置漏 expected_version，被真实配置 CAS 拒绝；改为 GET 当前版本后显式 PUT 并断言 200，再独占执行 1 passed（15.85s）。旧 TrainingRun、Evaluation、原答和奖励完整比较通过。最新 CI 将再执行该用例。
 
 本地完整后端固定 1acd61e 自然完成：829 passed、1 条既有 Starlette warning、1099.28s，临时目录 `/tmp/bp-issue-24-pytest-full-10`。新增 A→B 后来单独通过，不能写作同次 830 全绿；最终同 HEAD 全量以 CI 为准。
+
+815dfd2 的完整共享浏览器按 CI 顺序自然退出 0：22 个专用脚本共 39 passed，最后普通 11 passed/39 skipped。随后新增导航展示断言证明：从新项目页选择旧路线开题，实际请求 Topic/Version 和冻结来源始终是旧 A，但旧构建的 URL 带了新项目 B；只把正常分支 URL 来源改为所选 item.project_run_id 后，受影响脚本 2 passed（2.1s），精确 4 次受控调用，所有 worker/provider 已退出。没有改动服务端来源，不能将其写成旧题数据曾被覆盖。最终同 HEAD CI 待完成。
