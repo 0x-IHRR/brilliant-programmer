@@ -18,7 +18,7 @@ from app.model_config.service import decrypt, encrypt
 from app.models import User
 from app.operations import state
 
-ACTIVE = {
+RESTORE_INCOMPLETE = {
     "training_run": ("queued", "running", "stopping"),
     "project_run": ("queued", "running", "stopping"),
     "topic_job": ("queued", "running", "stopping"),
@@ -58,7 +58,7 @@ def quarantine_restored() -> None:
         for config in session.exec(select(ModelConfig).with_for_update()).all():
             config.revoked = True
             session.add(config)
-        for table, statuses in ACTIVE.items():
+        for table, statuses in RESTORE_INCOMPLETE.items():
             session.execute(
                 text(
                     f"UPDATE \"{table}\" SET stop_requested=true,status='stopped',"

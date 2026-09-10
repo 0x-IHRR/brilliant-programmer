@@ -33,6 +33,8 @@ def exclusive(path: Path, content: str, mode: int = 0o600) -> None:
 
 
 def prepare() -> None:
+    if os.getuid() == 0 or os.getgid() == 0:
+        raise RuntimeError("拒绝将容器配置为 root；请用普通主机用户准备环境")
     ports_available()
     PRIVATE.mkdir(mode=0o700, exist_ok=True)
     state = PRIVATE / "state"

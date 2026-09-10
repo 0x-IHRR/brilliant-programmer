@@ -403,6 +403,36 @@ def main() -> None:
         env=rotated_env,
         cwd=backend,
     )
+    restored_env = database_env(restored) | {
+        "MODEL_ENCRYPTION_KEYS": json.dumps({"v1": key_v1, "v2": key_v2}),
+        "MODEL_ACTIVE_KEY_VERSION": "v2",
+    }
+    command(
+        [sys.executable, "-m", "app.operations.admin", "isolate"],
+        env=restored_env,
+        cwd=backend,
+    )
+    command(
+        [sys.executable, str(Path(__file__).resolve()), "blocked", str(kept)],
+        env=restored_env,
+        cwd=backend,
+    )
+    for entrypoint in ("api", "worker"):
+        denied = subprocess.run(
+            [sys.executable, "-m", "app.operations.runtime", entrypoint],
+            cwd=backend,
+            env=restored_env,
+            capture_output=True,
+            timeout=5,
+        )
+        assert denied.returncode != 0 and b"synthetic-key" not in denied.stderr
+    failed = subprocess.run(
+        [sys.executable, "-m", "app.operations.admin", "check"],
+        cwd=backend,
+        env=restored_env,
+        capture_output=True,
+    )
+    assert failed.returncode != 0 and b"synthetic-key" not in failed.stderr
     command(
         [
             "docker",
@@ -421,27 +451,6 @@ def main() -> None:
         cwd=root,
         data=dump,
     )
-    restored_env = database_env(restored) | {
-        "MODEL_ENCRYPTION_KEYS": json.dumps({"v1": key_v1, "v2": key_v2}),
-        "MODEL_ACTIVE_KEY_VERSION": "v2",
-    }
-    command(
-        [sys.executable, "-m", "app.operations.admin", "isolate"],
-        env=restored_env,
-        cwd=backend,
-    )
-    command(
-        [sys.executable, str(Path(__file__).resolve()), "blocked", str(kept)],
-        env=restored_env,
-        cwd=backend,
-    )
-    failed = subprocess.run(
-        [sys.executable, "-m", "app.operations.admin", "check"],
-        cwd=backend,
-        env=restored_env,
-        capture_output=True,
-    )
-    assert failed.returncode != 0 and b"synthetic-key" not in failed.stderr
     (state_root / "restore.json").write_text("{")
     interrupted = subprocess.run(
         [sys.executable, "-m", "app.operations.admin", "finish-restore"],

@@ -70,6 +70,14 @@ def test_backup_bytes_expire_at_thirty_days_without_erasing_journal(ledger):
     assert journal.read() == (identity, [entry])
 
 
+def test_empty_or_interrupted_backup_is_never_published(ledger):
+    assert not ledger.exists()
+    journal.initialize()
+    with pytest.raises(ValueError, match='空备份'):
+        retention.store(io.BytesIO())
+    assert not list(retention.directory().iterdir())
+
+
 def test_unknown_backup_file_cannot_be_claimed_expired_or_silently_removed(ledger):
     assert not ledger.exists()
     journal.initialize()

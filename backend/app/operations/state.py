@@ -11,26 +11,26 @@ def root() -> Path | None:
     return Path(configured) if configured else None
 
 
-def require_open() -> None:
-    directory = root()
-    if directory is None:
-        return
-    path = directory / "restore.json"
-    if directory.is_symlink() or path.is_symlink():
-        raise RuntimeError("恢复状态路径不能为符号链接")
-    value = json.loads(path.read_text())
-    if value != {"phase": "ready"}:
-        raise RuntimeError("恢复未完成，应用和任务保持隔离")
-
-
-def phase() -> str:
+def _state_path() -> Path:
     directory = root()
     if directory is None:
         raise RuntimeError("须配置独立托管状态目录")
     path = directory / "restore.json"
     if directory.is_symlink() or path.is_symlink():
         raise RuntimeError("恢复状态路径不能为符号链接")
-    value = json.loads(path.read_text())
+    return path
+
+
+def require_open() -> None:
+    if root() is None:
+        return
+    value = json.loads(_state_path().read_text())
+    if value != {"phase": "ready"}:
+        raise RuntimeError("恢复未完成，应用和任务保持隔离")
+
+
+def phase() -> str:
+    value = json.loads(_state_path().read_text())
     if value not in ({"phase": "ready"}, {"phase": "restoring"}):
         raise RuntimeError("未知恢复阶段")
     return str(value["phase"])
@@ -39,12 +39,8 @@ def phase() -> str:
 def publish(phase: str) -> None:
     if phase not in {"ready", "restoring"}:
         raise ValueError("未知恢复阶段")
-    directory = root()
-    if directory is None or directory.is_symlink():
-        raise RuntimeError("须配置独立托管状态目录")
-    path = directory / "restore.json"
-    if path.is_symlink():
-        raise RuntimeError("恢复状态不能为符号链接")
+    path = _state_path()
+    directory = path.parent
     pending = directory / (".restore-" + uuid.uuid4().hex)
     try:
         with os.fdopen(

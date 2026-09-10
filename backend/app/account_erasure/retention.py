@@ -22,14 +22,32 @@ def store(stream: BinaryIO, now: datetime | None = None) -> uuid.UUID:
         raise RuntimeError("备份目录不能是符号链接")
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
     location = root / f"{identity}.dump"
-    with os.fdopen(os.open(location, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "wb") as target:
-        while chunk := stream.read(65536):
-            target.write(chunk)
-        target.flush()
-        os.fsync(target.fileno())
+    pending = root / f".{identity}.partial"
+    try:
+        with os.fdopen(
+            os.open(pending, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "wb"
+        ) as target:
+            size = 0
+            while chunk := stream.read(65536):
+                size += target.write(chunk)
+            if not size:
+                raise ValueError("拒绝登记空备份")
+            target.flush()
+            os.fsync(target.fileno())
+        pending.replace(location)
+        descriptor = os.open(root, os.O_RDONLY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    finally:
+        pending.unlink(missing_ok=True)
     with journal.connect() as connection:
         with connection:
-            connection.execute("INSERT INTO backup VALUES (?,?)", (str(identity), instant.astimezone(UTC).isoformat()))
+            connection.execute(
+                "INSERT INTO backup VALUES (?,?)",
+                (str(identity), instant.astimezone(UTC).isoformat()),
+            )
     return identity
 
 
