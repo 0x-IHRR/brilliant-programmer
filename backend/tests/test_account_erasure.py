@@ -540,3 +540,122 @@ def test_real_boss_review_revalidation_cycle_is_physically_erased(client, tmp_pa
                 assert session.execute(text(f'SELECT count(*) FROM "{table}" t WHERE account_row_key(:table,to_jsonb(t))=ANY(:keys)'), {'table':table, 'keys':list(keys)}).scalar_one() == 0, table
         assert session.get(User, other).model_dump() == foreign
     (tmp_path / 'erased-table-counts.json').write_text(__import__('json').dumps({table:len(keys) for table, keys in before.items() if keys}))
+
+
+@pytest.mark.parametrize('kind', ['topic', 'jd', 'project'])
+def test_valid_sources_account_erasure_preserves_other_owner_readable_graph(client, kind):
+    from app.account_erasure.inventory import TABLES
+    from tests.test_jds import seeded as seed_jd
+    from tests.test_model_config import save
+    from tests.test_project_training_rules import material
+    from tests.test_project_updates import seeded as seed_project
+    from tests.test_topics import seed_route
+
+    participants = [account(), account()]
+    identities = []
+    for owner, auth in participants:
+        config = save(auth).json()
+        if kind == 'topic':
+            identity = seed_route(owner)[0]
+        elif kind == 'jd':
+            identity, document = seed_jd(auth, config)
+            selected = client.post(f'/api/v1/jds/{identity}/select', headers=auth, json={'document_id': document, 'role_index': 0})
+            assert selected.status_code == 200, selected.text
+        else:
+            identity, _ = seed_project(owner, config, material.__wrapped__())
+        identities.append(str(identity))
+    path = {'topic':'/api/v1/topics', 'jd':'/api/v1/jds', 'project':'/api/v1/project-training'}[kind]
+    owner, auth = participants[0]
+    other, other_auth = participants[1]
+    for (_, headers), identity in zip(participants, identities, strict=True):
+        response = client.get(f'{path}/{identity}', headers=headers)
+        assert response.status_code == 200, response.text
+        assert response.json()['current'] is not None
+    before_read = client.get(f'{path}/{identities[1]}', headers=other_auth).json()
+    before_list = client.get(path, headers=other_auth).json()
+    with Session(engine) as session:
+        keys = {
+            table: session.execute(text(f'SELECT account_row_key(:table,to_jsonb(t)) FROM "{table}" t WHERE account_row_owner(:table,to_jsonb(t))=:owner'), {'table':table, 'owner':owner}).scalars().all()
+            for table in TABLES
+        }
+        assert keys['topic_version'] and keys['model_config']
+        if kind == 'jd':
+            assert keys['jd_document'] and keys['jd_analysis'] and keys['jd_route']
+        if kind == 'project':
+            assert keys['project_run'] and keys['project_training_input'] and keys['project_training_version']
+    accepted(client, prepared(client, auth))
+    purge(owner)
+    with Session(engine) as session:
+        for table, captured in keys.items():
+            if captured:
+                assert session.execute(text(f'SELECT count(*) FROM "{table}" t WHERE account_row_key(:table,to_jsonb(t))=ANY(:keys)'), {'table':table, 'keys':list(captured)}).scalar_one() == 0, table
+        assert session.get(User, other) is not None
+    assert client.get(f'{path}/{identities[0]}', headers=auth).status_code == 401
+    after = client.get(f'{path}/{identities[1]}', headers=other_auth)
+    assert after.status_code == 200, after.text
+    assert after.json() == before_read
+    after_list = client.get(path, headers=other_auth)
+    assert after_list.status_code == 200, after_list.text
+    assert after_list.json() == before_list
+
+
+def test_unconsumed_verification_and_reset_private_copies_are_erased(client):
+    import hashlib
+    import secrets
+    from datetime import UTC, datetime, timedelta
+
+    from app.models import EmailVerification, PasswordReset
+
+    participants = [account(), account()]
+    tokens = {}
+    with Session(engine) as session:
+        for owner, _ in participants:
+            user = session.get(User, owner)
+            now = datetime.now(UTC)
+            for model in (EmailVerification, PasswordReset):
+                token = secrets.token_urlsafe(32)
+                tokens[(owner, model)] = token
+                session.merge(model(user_id=owner, email=user.email, token_hash=hashlib.sha256(token.encode()).hexdigest(), expires_at=now+timedelta(hours=1), sent_at=now))
+        session.commit()
+        other = participants[1][0]
+        kept = {model:session.get(model, other).model_dump() for model in (EmailVerification, PasswordReset)}
+    owner, auth = participants[0]
+    accepted(client, prepared(client, auth))
+    purge(owner)
+    with Session(engine) as session:
+        for model in (EmailVerification, PasswordReset):
+            assert session.get(model, owner) is None
+            assert session.get(model, other).model_dump() == kept[model]
+            assert not session.exec(select(model).where(model.token_hash == hashlib.sha256(tokens[(owner, model)].encode()).hexdigest())).all()
+
+
+def test_real_guidance_receipts_and_both_draft_scopes_are_erased(client, tmp_path):
+    from app.account_erasure.inventory import TABLES
+    from tests import test_practices
+    from tests.test_training import provider as provider_fixture
+
+    supplier_fixture = provider_fixture.__wrapped__(tmp_path)
+    supplier = next(supplier_fixture)
+    ready_fixture = test_practices.ready.__wrapped__(tmp_path, supplier)
+    ready = next(ready_fixture)
+    try:
+        test_practices.test_practice_draft_is_separate_and_original_lineage_unchanged(ready, supplier)
+        auth, identity, *_ = ready
+        owner = uuid.UUID(client.get('/api/v1/users/me', headers=auth).json()['id'])
+        with Session(engine) as session:
+            captured = {
+                table: session.execute(text(f'SELECT account_row_key(:table,to_jsonb(t)) FROM "{table}" t WHERE account_row_owner(:table,to_jsonb(t))=:owner'), {'table':table, 'owner':owner}).scalars().all()
+                for table in TABLES
+            }
+            for table in ('concept_help', 'help_delivery', 'practice_draft', 'training_draft', 'draft_collection'):
+                assert captured[table], table
+        accepted(client, prepared(client, auth))
+        purge(owner)
+        with Session(engine) as session:
+            for table, keys in captured.items():
+                if keys:
+                    assert session.execute(text(f'SELECT count(*) FROM "{table}" t WHERE account_row_key(:table,to_jsonb(t))=ANY(:keys)'), {'table':table, 'keys':list(keys)}).scalar_one() == 0, table
+        assert client.get(f'/api/v1/training/tasks/{identity}', headers=auth).status_code == 401
+    finally:
+        ready_fixture.close()
+        supplier_fixture.close()

@@ -1,4 +1,4 @@
-"""Synthetic old records: real 0027 -> 0028, no stamp or source schema mutation."""
+"""Synthetic old records: real 0027 -> current head, no stamp or source schema mutation."""
 
 import os
 import subprocess
@@ -316,6 +316,6 @@ assert snapshots()["user"] == before["user"]
 assert snapshots()["practice_award"] == before["practice_award"]
 assert snapshots()["capability_original_order"] == before["capability_original_order"]
 print(  # noqa: T201 - standalone validation report, no private values
-    f"{schema}: 20 old tables unchanged across 0027→0028; 8 immutable guards; scoped erasure; 3 replay rejections; user/award/order unchanged"
+    f"{schema}: 20 old tables unchanged across 0027→current head; 8 immutable guards; scoped erasure; 3 replay rejections; user/award/order unchanged"
 )
 isolated.dispose()
