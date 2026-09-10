@@ -41,6 +41,13 @@ def github(tmp_path):
     yield from upstream.provider.__wrapped__(directory)
 
 
+def switch_model(auth, destination):
+    current = client.get("/api/v1/model-config", headers=auth).json()
+    response = save(auth, service_url=destination, expected_version=current["version"])
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
 def frozen_material(identity, goal):
     with Session(engine) as session:
         source = session.get(ProjectRun, uuid.UUID(identity))
@@ -89,7 +96,7 @@ def test_new_commit_route_confirmation_keeps_entire_scored_original(
         assert acquired_a["status"] == "completed", acquired_a
     finally:
         stop_worker(worker)
-    config = save(auth, service_url=provider["url"]).json()
+    config = switch_model(auth, provider["url"])
     contents_a = frozen_material(source_a, material[2].goal)
     provider["candidate"] = response_for(contents_a)
     provider["grading"] = grading
@@ -167,7 +174,7 @@ def test_new_commit_route_confirmation_keeps_entire_scored_original(
     )
     monkeypatch.setattr(upstream, "TREE", "d" * 40)
     github["sha"] = "c" * 40
-    save(auth, service_url=github["url"])
+    switch_model(auth, github["url"])
     _, source_b = upstream.start_project(github, auth)
     directory = tmp_path / "read-b"
     directory.mkdir()
@@ -181,7 +188,7 @@ def test_new_commit_route_confirmation_keeps_entire_scored_original(
     contents_b = frozen_material(source_b, material[2].goal)
     assert contents_b[0].repository.commit != contents_a[0].repository.commit
     assert contents_b[0].fragments[0].text != contents_a[0].fragments[0].text
-    config = save(auth, service_url=provider["url"]).json()
+    config = switch_model(auth, provider["url"])
     provider["candidate"] = response_for(contents_b)
     body_b = {
         "request_id": str(uuid.uuid4()),

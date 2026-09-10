@@ -22,4 +22,6 @@
 
 新增浏览器完整脚本最终 1 passed（1.6s）：先前多路线 select 在 320px 实测宽 361px 导致横溢，局部宽度限制后原断言通过；键盘确认、独立 API 重读当前指针、320px/200% 均通过。截图 `/tmp/bp-issue-24-artifacts/project-updates-320.png` 和 `project-updates-200.png`。原生选择框宽度修复不更改服务端行为。前端 7 unit、ruff、backend strict mypy 116、build、diff check 通过。
 
-真正 commit A→B 的新增专项已编写：受控 GitHub 两次实际读取，B 的 commit/tree/blob/源码片段变化；两阶段独立 worker/TLS 生成路线并显式确认，逐字段比较旧 TrainingRun、Evaluation（包含原 inputs/sources/result）、Submission 和唯一奖励。此用例尚待本地原 full 结束后独占运行，最终 CI 也会执行；不预记通过。
+真正 commit A→B 的新增专项已编写：受控 GitHub 两次实际读取，B 的 commit/tree/blob/源码片段变化；两阶段独立 worker/TLS 生成路线并显式确认，逐字段比较旧 TrainingRun、Evaluation（包含原 inputs/sources/result）、Submission 和唯一奖励。首跑因测试切换模型配置漏 expected_version，被真实配置 CAS 拒绝；改为 GET 当前版本后显式 PUT 并断言 200，再独占执行 1 passed（15.85s）。旧 TrainingRun、Evaluation、原答和奖励完整比较通过。最新 CI 将再执行该用例。
+
+本地完整后端固定 1acd61e 自然完成：829 passed、1 条既有 Starlette warning、1099.28s，临时目录 `/tmp/bp-issue-24-pytest-full-10`。新增 A→B 后来单独通过，不能写作同次 830 全绿；最终同 HEAD 全量以 CI 为准。
