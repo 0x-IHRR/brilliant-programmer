@@ -1110,3 +1110,69 @@ def test_source_checkpoint_serializes_final_scope_and_cannot_restore(
     worker.checkpoint(identity, changed)
     with Session(engine) as session:
         assert session.get(ProjectRun, identity).snapshot is None
+
+
+def test_batch_reference_guard_rejects_mixed_delete_and_matches_old_predicate(tmp_path):
+    import hashlib
+
+    from app.deletion.models import DeletionRequest, ErasedAttachment
+    from app.quality.import_report import load
+    from app.quality.import_report import save as import_report
+    from app.quality.models import QualityEvidence
+    from tests.test_model_config import save
+    from tests.test_quality_import import bundle
+
+    owner, auth = account()
+    path, digest, _, _ = bundle(tmp_path, owner, save(auth).json())
+    report, digest, files = load(path, digest, tmp_path)
+    live = report.samples[0].answer_sha256
+    unused_bytes = uuid.uuid4().bytes
+    unused = hashlib.sha256(unused_bytes).hexdigest()
+    with Session(engine) as session:
+        import_report(session, report, digest, files)
+        session.add(QualityEvidence(sha256=unused, content=unused_bytes))
+        session.commit()
+    run = create_run(owner)
+    receipt_id = uuid.UUID(request_preview(auth, run).json()["id"])
+    with Session(engine) as session:
+        assert session.get(DeletionRequest, receipt_id).user_id == owner
+        for sha in (live, unused):
+            session.add(ErasedAttachment(request_id=receipt_id, sha256=sha))
+        session.commit()
+        for sha in (live, unused, report.cases[0].sources[0].text_sha256, "0" * 64):
+            old = session.execute(
+                text(
+                    "SELECT EXISTS (SELECT 1 FROM quality_report WHERE jsonb_path_exists(report::jsonb, '$.** ? (@ == $sha)', jsonb_build_object('sha', CAST(:sha AS text))))"
+                ),
+                {"sha": sha},
+            ).scalar_one()
+            new = session.execute(
+                text(
+                    "SELECT EXISTS (SELECT 1 FROM erasure_referenced_hashes(ARRAY[CAST(:sha AS text)]))"
+                ),
+                {"sha": sha},
+            ).scalar_one()
+            assert new == old
+        with pytest.raises(
+            DBAPIError, match="shared quality evidence remains referenced"
+        ):
+            with session.begin_nested():
+                session.execute(
+                    text("DELETE FROM quality_evidence WHERE sha256=ANY(:values)"),
+                    {"values": [unused, live]},
+                )
+        assert session.get(QualityEvidence, unused).content == unused_bytes
+        assert session.get(QualityEvidence, live).content == files[live]
+        # Unauthorized rows still fail the original per-row immutable guard.
+        with pytest.raises(DBAPIError):
+            with session.begin_nested():
+                session.execute(
+                    text("DELETE FROM quality_evidence WHERE sha256=:sha"),
+                    {"sha": report.cases[0].case_sha256},
+                )
+        # The unreferenced row is individually authorized and can be erased.
+        session.execute(
+            text("DELETE FROM quality_evidence WHERE sha256=:sha"), {"sha": unused}
+        )
+        session.commit()
+        assert session.get(QualityEvidence, live).content == files[live]

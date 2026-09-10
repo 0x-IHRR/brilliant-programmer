@@ -91,10 +91,13 @@ def provider(tmp_path):
                 self.send_header("Content-Length", "0")
                 self.end_headers()
                 return
-            content = state.get("source_text", (
-                "Controlled test reference: missing acknowledgement does not establish that an operation was not executed. "
-                * 3
-            )).encode()
+            content = state.get(
+                "source_text",
+                (
+                    "Controlled test reference: missing acknowledgement does not establish that an operation was not executed. "
+                    * 3
+                ),
+            ).encode()
             self.send_response(200)
             self.send_header("Content-Length", str(len(content)))
             self.end_headers()
@@ -256,6 +259,36 @@ def start_run(provider):
     return owner, auth, response.json()["id"]
 
 
+def write_control(control, value):
+    """Publish a whole control document; strict readers never see truncation."""
+    pending = control.with_name(f".{control.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        pending.write_text(json.dumps(value), encoding="utf-8")
+        pending.replace(control)
+    finally:
+        pending.unlink(missing_ok=True)
+
+
+def test_control_publication_keeps_old_or_new_complete_json(tmp_path, monkeypatch):
+    control = tmp_path / "control.json"
+    old, new = {"before_accept": True}, {"before_accept": False, "observe_accept": True}
+    write_control(control, old)
+    original = Path.replace
+    observed = []
+
+    def before_replace(pending, destination):
+        assert pending.parent == control.parent and destination == control
+        assert json.loads(pending.read_text()) == new
+        observed.append(json.loads(control.read_text()))
+        return original(pending, destination)
+
+    monkeypatch.setattr(Path, "replace", before_replace)
+    write_control(control, new)
+    assert observed == [old]
+    assert json.loads(control.read_text()) == new
+    assert list(tmp_path.iterdir()) == [control]
+
+
 def start_worker(tmp_path, provider, run_id, **options):
     control = tmp_path / "control.json"
     control.write_text(
@@ -372,7 +405,7 @@ def test_stop_before_http_does_not_send_old_key(tmp_path, provider):
         assert provider["requests"] == []
         value = json.loads(control.read_text())
         value["before_http"] = False
-        control.write_text(json.dumps(value))
+        write_control(control, value)
         time.sleep(0.25)
         assert provider["requests"] == []
         assert result.json()["attempts"][0]["total_tokens"] is None
@@ -589,7 +622,7 @@ def test_stop_preserves_late_verified_candidate_and_usage(tmp_path, provider):
             finally:
                 data = json.loads(control.read_text())
                 data["before_accept"] = False
-                control.write_text(json.dumps(data))
+                write_control(control, data)
             result = stopping.result(5)
             assert result.status_code == 200 and result.json()["status"] == "stopped"
         deadline = time.monotonic() + 5
@@ -604,7 +637,7 @@ def test_stop_preserves_late_verified_candidate_and_usage(tmp_path, provider):
     finally:
         data = json.loads(control.read_text())
         data["before_accept"] = False
-        control.write_text(json.dumps(data))
+        write_control(control, data)
         stop_worker(process)
 
 

@@ -111,15 +111,16 @@ def attach(session: Session, user_id: uuid.UUID, scope: Scope) -> None:
 
 
 def erase_unreferenced(session: Session, candidates: set[str]) -> None:
+    if not candidates:
+        return
     lock_hashes(session, candidates)
-    for sha in sorted(candidates):
-        used = session.execute(
-            text(
-                "SELECT EXISTS (SELECT 1 FROM quality_report WHERE jsonb_path_exists(report::jsonb, '$.** ? (@ == $sha)', jsonb_build_object('sha', CAST(:sha AS text))))"
-            ),
-            {"sha": sha},
-        ).scalar_one()
-        if not used:
-            session.execute(
-                text("DELETE FROM quality_evidence WHERE sha256=:sha"), {"sha": sha}
-            )
+    # One statement and one complete current-reference scan, after all SHA locks.
+    # The independent statement trigger rechecks the actually deleted rows.
+    session.execute(
+        text("""WITH referenced AS MATERIALIZED (
+          SELECT erasure_referenced_hashes(CAST(:candidates AS text[])) AS sha
+        ) DELETE FROM quality_evidence q
+          WHERE q.sha256 = ANY(CAST(:candidates AS text[]))
+          AND NOT EXISTS (SELECT 1 FROM referenced r WHERE r.sha=q.sha256)"""),
+        {"candidates": sorted(candidates)},
+    )

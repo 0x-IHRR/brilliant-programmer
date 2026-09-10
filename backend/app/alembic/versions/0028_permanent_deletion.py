@@ -116,8 +116,23 @@ def upgrade():
     op.create_table("erased_attachment", sa.Column("request_id", sa.Uuid(), sa.ForeignKey("deletion_request.id"), primary_key=True), sa.Column("sha256", sa.String(), primary_key=True))
     op.execute("""CREATE FUNCTION erasure_blob_allowed(sha text) RETURNS boolean LANGUAGE sql AS $$
       SELECT EXISTS (SELECT 1 FROM erased_attachment a JOIN deletion_request d ON d.id=a.request_id WHERE a.sha256=sha AND d.completed_at IS NULL)
-      AND NOT EXISTS (SELECT 1 FROM quality_report WHERE jsonb_path_exists(report::jsonb, '$.** ? (@ == $sha)', jsonb_build_object('sha',sha)))
     $$""")
+    op.execute("""CREATE FUNCTION erasure_referenced_hashes(candidates text[]) RETURNS SETOF text LANGUAGE sql STABLE AS $$
+      WITH strings AS MATERIALIZED (
+        SELECT jsonb_path_query(report::jsonb, '$.** ? (@.type() == "string")') #>> '{}' AS value
+        FROM quality_report
+      ) SELECT DISTINCT value FROM strings WHERE value = ANY(candidates)
+    $$""")
+    op.execute("""CREATE FUNCTION protect_live_erasure_references() RETURNS trigger LANGUAGE plpgsql AS $$
+    DECLARE candidates text[];
+    BEGIN
+      SELECT array_agg(sha256) INTO candidates FROM erased_blobs;
+      IF candidates IS NULL THEN RETURN NULL; END IF;
+      IF EXISTS (SELECT 1 FROM erasure_referenced_hashes(candidates)) THEN
+        RAISE EXCEPTION 'shared quality evidence remains referenced';
+      END IF;
+      RETURN NULL;
+    END $$""")
     key_map = json.dumps(KEYS).replace("'", "''")
     op.execute(f"""CREATE FUNCTION erasure_key(t text, r jsonb) RETURNS text LANGUAGE sql IMMUTABLE AS $$ SELECT r ->> ('{key_map}'::jsonb ->> t) $$""")
     op.execute("""CREATE FUNCTION erasure_change_allowed(t text, oldrow jsonb, newrow jsonb) RETURNS boolean LANGUAGE plpgsql AS $$
@@ -162,6 +177,7 @@ def upgrade():
     guarded = set(KEYS) | {"topic", "training_attempt", "submission_attempt", "evaluation_attempt", "concept_attempt", "review_attempt", "project_attempt", "topic_attempt", "practice_award", "review_award", "capability_original_order", "independent_observation", "help_confirmation", "boss_attempt", "boss_promotion", "boss_disposition", "quality_disposition"}
     for table in sorted(guarded):
         op.execute(f"CREATE TRIGGER aa_erasure_guard BEFORE INSERT OR UPDATE ON {table} FOR EACH ROW EXECUTE FUNCTION prevent_erased_write()")
+    op.execute("CREATE TRIGGER erasure_live_references AFTER DELETE ON quality_evidence REFERENCING OLD TABLE AS erased_blobs FOR EACH STATEMENT EXECUTE FUNCTION protect_live_erasure_references()")
     for table in ("erased_object", "erased_row", "erased_attachment"):
         op.execute(f"CREATE TRIGGER deletion_marker_immutable BEFORE UPDATE OR DELETE ON {table} FOR EACH ROW EXECUTE FUNCTION boss_fact_immutable()")
 
@@ -186,6 +202,9 @@ def downgrade():
     op.execute("DROP FUNCTION deletion_receipt_immutable()")
     op.execute("DROP FUNCTION prevent_erased_write()")
     op.execute("DROP FUNCTION erasure_row_owner(text,jsonb)")
+    op.execute("DROP TRIGGER erasure_live_references ON quality_evidence")
+    op.execute("DROP FUNCTION protect_live_erasure_references()")
+    op.execute("DROP FUNCTION erasure_referenced_hashes(text[])")
     op.execute("DROP FUNCTION erasure_blob_allowed(text)")
     op.execute("DROP FUNCTION erasure_change_allowed(text,jsonb,jsonb)")
     op.execute("DROP FUNCTION erasure_key(text,jsonb)")

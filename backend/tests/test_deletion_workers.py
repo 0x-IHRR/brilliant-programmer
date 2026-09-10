@@ -21,6 +21,7 @@ from tests.test_deletions import URL, request_preview
 from tests.test_evaluations import ready as evaluation_ready
 from tests.test_evaluations import start, wait
 from tests.test_training import provider as training_provider
+from tests.test_training import write_control
 
 ready = evaluation_ready
 provider = training_provider
@@ -199,7 +200,7 @@ def test_delete_before_model_permission_prevents_late_worker_and_restart(
         assert provider["requests"] == []
         settings = json.loads(control.read_text())
         settings["before_training_credential"] = False
-        control.write_text(json.dumps(settings))
+        write_control(control, settings)
         marker(".process_finished")
         with Session(engine) as session:
             run = session.get(TrainingRun, uuid.UUID(run_id))
@@ -216,7 +217,6 @@ def test_delete_before_model_permission_prevents_late_worker_and_restart(
         assert provider["requests"] == []
     finally:
         stop_worker(process)
-
 
 
 checked = test_independent_api.checked
