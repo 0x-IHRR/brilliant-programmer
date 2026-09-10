@@ -81,6 +81,9 @@ original_record = project.record_attempt
 
 
 def record(*args):
+    while json.loads(control.read_text()).get("before_record") == args[1]:
+        Path(str(control) + ".recording").touch()
+        time.sleep(0.02)
     original_record(*args)
     while json.loads(control.read_text()).get("after_record") == args[1]:
         Path(str(control) + ".recorded").touch()
