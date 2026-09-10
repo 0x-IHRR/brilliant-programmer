@@ -221,7 +221,7 @@ export function UnifiedWorkspace({
     <div className="space-y-6">
       <nav
         aria-label="主要区域"
-        className="sticky top-0 z-10 flex flex-wrap gap-2 border-y bg-background py-3"
+        className="flex flex-wrap gap-2 border-y bg-background py-3"
       >
         {areas.map((item) => (
           <Button
