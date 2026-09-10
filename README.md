@@ -22,7 +22,7 @@ uv run --directory backend uvicorn app.main:app --host 127.0.0.1 --port 18080 --
 
 打开 http://127.0.0.1:18080 。管理员用 `.env` 中的凭据登录，生成、复制并自行分发邀请码；注册者自设 12–128 字符密码。管理员初始化仅在账号不存在时运行，不覆盖既有账号或密码。不要把真实邮箱密码填入本地测试配置。
 
-前端开发：`bun run --cwd frontend dev`，地址 http://127.0.0.1:18173 ，代理到本机 18080。PostgreSQL 端口可由 `.env` 的 `DB_PORT` 调整，同时修改 `DATABASE_URL`；Compose project 名可另选以隔离并行任务。当前 Compose 提供数据库和仅本机访问的 Mailpit 测试收件端，本票在宿主机运行应用。生产 Compose、TLS 与真实邮件服务兼容性尚未验收。Mailpit 收件页面默认 http://127.0.0.1:18025 ，SMTP 端口 11025；不会向真实收件人投递。
+前端开发：`bun run --cwd frontend dev`，地址 http://127.0.0.1:18173 ，代理到本机 18080。PostgreSQL 端口可由 `.env` 的 `DB_PORT` 调整，同时修改 `DATABASE_URL`；Compose project 名可另选以隔离并行任务。完整本地自托管应用、生产 worker、TLS、备份与旧库恢复见 [ops/README.md](ops/README.md)；它仍只使用 Mailpit，不代表真实邮件或公网部署已验收。Mailpit 收件页面默认 http://127.0.0.1:18025 ，SMTP 端口 11025；不会向真实收件人投递。
 
 ## 验证与生成客户端
 

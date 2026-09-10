@@ -24,7 +24,11 @@ def initialize(*, live_upgrade: bool = False) -> None:
         session.commit()
 
 
-def replay() -> None:
+def replay(*, allow_restore: bool = False) -> None:
+    from app.operations.state import require_open
+
+    if not allow_restore:
+        require_open()
     from app.account_erasure.retention import expire
 
     expire()
