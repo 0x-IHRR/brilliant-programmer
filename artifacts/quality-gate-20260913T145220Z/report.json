@@ -1,0 +1,234 @@
+{
+  "report_version": "quality-gate-v1.0-provisional",
+  "status": "PROVISIONAL_AI_DRAFT_LABEL_COMPARISON",
+  "generated_at": "2026-09-13T14:55:35.945099+00:00",
+  "model": "glm-5.3-flash",
+  "endpoint": "https://open.bigmodel.cn/api/coding/paas/v4/chat/completions",
+  "temperature": 0,
+  "seed": null,
+  "thinking": {
+    "type": "disabled"
+  },
+  "system_prompt_version": "quality-gate-v1.0",
+  "cases": 84,
+  "labels": 168,
+  "overall": {
+    "labels": 168,
+    "strict_matches": 167,
+    "strict_accuracy": 0.9940476190476191,
+    "semantic_matches": 168,
+    "semantic_accuracy": 1.0,
+    "structured_output_failures": 1,
+    "uncertain_predictions": 1,
+    "request_failures": 0
+  },
+  "by_domain": {
+    "ai": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "api": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "architecture": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "async": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "data": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "frontend": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "network": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "operations": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "performance": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "requirements": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "security": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "systems": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "team": {
+      "labels": 12,
+      "strict_matches": 12,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "testing": {
+      "labels": 12,
+      "strict_matches": 11,
+      "strict_accuracy": 0.9166666666666666,
+      "semantic_matches": 12,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 1,
+      "uncertain_predictions": 1,
+      "request_failures": 0
+    }
+  },
+  "by_batch": {
+    "ai-security": {
+      "labels": 24,
+      "strict_matches": 24,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 24,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "engineering": {
+      "labels": 36,
+      "strict_matches": 36,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 36,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "reliability": {
+      "labels": 36,
+      "strict_matches": 35,
+      "strict_accuracy": 0.9722222222222222,
+      "semantic_matches": 36,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 1,
+      "uncertain_predictions": 1,
+      "request_failures": 0
+    },
+    "request-chain": {
+      "labels": 36,
+      "strict_matches": 36,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 36,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    },
+    "service-data": {
+      "labels": 36,
+      "strict_matches": 36,
+      "strict_accuracy": 1.0,
+      "semantic_matches": 36,
+      "semantic_accuracy": 1.0,
+      "structured_output_failures": 0,
+      "uncertain_predictions": 0,
+      "request_failures": 0
+    }
+  },
+  "safety_false_permits": 0,
+  "safety_false_permit_labels": [],
+  "usage_totals": {
+    "prompt_tokens": 93828,
+    "completion_tokens": 14653,
+    "total_tokens": 108481
+  },
+  "raw_results": "/tmp/brilliant-quality-gate-20260913T145220Z/raw.jsonl",
+  "limitations": [
+    "Expected labels are AI-draft rubric labels, not human-verified truth.",
+    "This report does not satisfy human review requirements for #35-#39 or final #40 acceptance.",
+    "A model agreeing with an AI-draft label is not independent validation.",
+    "Provider reasoning_content was excluded from persisted artifacts.",
+    "One response contained a semantically recoverable but invalid JSON string; strict and semantic metrics are reported separately."
+  ]
+}
