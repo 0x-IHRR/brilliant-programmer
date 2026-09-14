@@ -2,6 +2,8 @@
 
 This artifact records the corrected authorized Zhipu Coding Plan run against the five draft benchmark batches for #35–#39.
 
+The reusable evaluation rules are documented in [docs/quality-gate-runbook.md](../../docs/quality-gate-runbook.md), including `thinking.type=disabled`, strict JSON validation, semantic recovery, and separate structured-output failure metrics.
+
 - Model: `glm-5.3-flash`
 - Endpoint: `https://open.bigmodel.cn/api/coding/paas/v4/chat/completions`
 - Temperature: `0`
