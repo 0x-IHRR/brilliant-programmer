@@ -36,8 +36,8 @@ API Key 只从操作者的环境变量或临时剪贴板读取，不能写入仓
 1. **请求层**：没有得到可用 HTTP 响应，或所有重试均失败，记 `request_failure`。该标签没有模型判定，不能当作 `uncertain` 或结构化失败。
 2. **严格 JSON 层**：HTTP 成功后，只对 `choices[0].message.content` 的完整字符串执行一次 `json.loads`。内容必须是一个 JSON 对象，不能有 Markdown、前后解释、尾随字符或截断；必需字段及类型为：`conclusion`（`pass|evidenced_fail|uncertain`）、`reason`（字符串）、`evidence_ids`（字符串数组）、`uncertainties`（字符串数组）。缺字段、类型错误、额外字段、非法枚举值或解析失败，记 `protocol_valid=false` 和 `structured_output_failure`。
 3. **严格匹配层**：只有严格 JSON 通过且 `conclusion` 等于期望标签，才增加 `strict_matches`。严格准确率分母为本轮标签总数；请求失败另行报告，不得静默当成匹配或不匹配。
-4. **语义恢复层（诊断）**：仅当严格解析失败时，允许从同一 `message.content` 提取唯一、明确的 `conclusion`（例如受损 JSON 中的字段）作为 `semantic_conclusion`。恢复必须记录 `recovery_used=true`，并保留原文的协议失败事实；恢复出的匹配增加 `semantic_matches`，绝不增加 `strict_matches`，也不能清除 `structured_output_failure`。
-5. **不确定层**：模型严格结果为 `conclusion=uncertain` 时增加 `uncertain_predictions`。若原文非法但恢复出明确结论，按恢复结论统计语义匹配；不要把“无法解析”本身统计为模型不确定。
+4. **语义恢复层（诊断）**：仅当严格解析失败时，允许从同一 `message.content` 提取唯一、明确的 `conclusion`（例如受损 JSON 中的字段）作为 `semantic_conclusion`。报告生成器应记录 `recovery_used=true`（旧 artifact 可由 `protocol_valid=false` 且 `semantic_conclusion` 非空推导），并保留原文的协议失败事实；恢复出的匹配增加 `semantic_matches`，绝不增加 `strict_matches`，也不能清除 `structured_output_failure`。另计 `semantic_recoveries`，表示发生此类恢复的标签数。
+5. **不确定层**：模型严格结果明确返回 `conclusion=uncertain` 时增加 `uncertain_predictions`。解析失败时使用的 `uncertain` 占位值不是模型预测，不能计入该字段；若原文非法但恢复出明确结论，按恢复结论统计语义匹配。
 
 语义恢复只能用于定位题集或模型的语义问题，不能把非 JSON 输出当作合格的结构化接口。恢复器不得调用外部知识、改写理由或猜测选项索引；无法唯一提取结论时保持 `semantic_conclusion=null`。
 
@@ -49,6 +49,7 @@ API Key 只从操作者的环境变量或临时剪贴板读取，不能写入仓
 | --- | --- |
 | `strict_matches` / `strict_accuracy` | 严格 JSON 且结论匹配的数量 / 总标签数 |
 | `semantic_matches` / `semantic_accuracy` | 包括明确语义恢复后的结论匹配数量 / 总标签数 |
+| `semantic_recoveries` | 严格 JSON 失败但唯一提取出语义结论的数量 |
 | `structured_output_failures` | HTTP 成功但严格 JSON 校验失败的数量 |
 | `uncertain_predictions` | 合法模型结果明确返回 `uncertain` 的数量 |
 | `request_failures` | 重试后仍没有可用 HTTP 响应的数量 |
@@ -70,9 +71,10 @@ artifacts/quality-gate-<UTC>/
 提交或更新 PR 前执行最小检查：
 
 ```bash
-jq empty artifacts/quality-gate-<UTC>/report.json
-test "$(wc -l < artifacts/quality-gate-<UTC>/raw.jsonl)" -eq 168
-! rg -n '"(api_key|authorization|reasoning_content)"[[:space:]]*:[[:space:]]*|Bearer [A-Za-z0-9._-]+|sk-[A-Za-z0-9]' artifacts/quality-gate-<UTC>/raw.jsonl artifacts/quality-gate-<UTC>/report.json
+run_dir=artifacts/quality-gate-20260913T145220Z  # 替换为本次运行目录
+jq empty "$run_dir/report.json"
+test "$(wc -l < "$run_dir/raw.jsonl")" -eq 168
+! rg -n '"(api_key|authorization|reasoning_content)"[[:space:]]*:[[:space:]]*|Bearer [A-Za-z0-9._-]+|sk-[A-Za-z0-9]' "$run_dir/raw.jsonl" "$run_dir/report.json"
 git diff --check
 ```
 

@@ -17,6 +17,6 @@ The reusable evaluation rules are documented in [docs/quality-gate-runbook.md](.
 
 ## Result
 
-Strict structured-output comparison matched the AI-draft rubric labels for 167/168 labels (99.40%). Semantic recovery of the one malformed JSON response matched 168/168 (100%), with one structured-output failure. Every domain met the 90% semantic threshold; security false permits were zero.
+Strict structured-output comparison matched the AI-draft rubric labels for 167/168 labels (99.40%). Every domain met the 90% strict threshold. Semantic recovery of the one malformed JSON response matched 168/168 (100%), with one structured-output failure and one semantic recovery; `uncertain_predictions=0` because the parser placeholder is not a model prediction. Security false permits were zero.
 
 This is **provisional** evidence only. The expected labels are AI drafts marked `pending_human_review`; they are not human truth. This artifact does not satisfy the human-review requirements of #35–#39, does not prove real-world model quality, and does not close #40. Provider `reasoning_content` was excluded from persisted artifacts.

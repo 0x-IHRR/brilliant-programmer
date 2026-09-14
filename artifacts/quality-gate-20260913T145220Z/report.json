@@ -19,8 +19,9 @@
     "semantic_matches": 168,
     "semantic_accuracy": 1.0,
     "structured_output_failures": 1,
-    "uncertain_predictions": 1,
-    "request_failures": 0
+    "uncertain_predictions": 0,
+    "request_failures": 0,
+    "semantic_recoveries": 1
   },
   "by_domain": {
     "ai": {
@@ -31,7 +32,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "api": {
       "labels": 12,
@@ -41,7 +43,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "architecture": {
       "labels": 12,
@@ -51,7 +54,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "async": {
       "labels": 12,
@@ -61,7 +65,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "data": {
       "labels": 12,
@@ -71,7 +76,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "frontend": {
       "labels": 12,
@@ -81,7 +87,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "network": {
       "labels": 12,
@@ -91,7 +98,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "operations": {
       "labels": 12,
@@ -101,7 +109,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "performance": {
       "labels": 12,
@@ -111,7 +120,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "requirements": {
       "labels": 12,
@@ -121,7 +131,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "security": {
       "labels": 12,
@@ -131,7 +142,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "systems": {
       "labels": 12,
@@ -141,7 +153,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "team": {
       "labels": 12,
@@ -151,7 +164,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "testing": {
       "labels": 12,
@@ -160,8 +174,9 @@
       "semantic_matches": 12,
       "semantic_accuracy": 1.0,
       "structured_output_failures": 1,
-      "uncertain_predictions": 1,
-      "request_failures": 0
+      "uncertain_predictions": 0,
+      "request_failures": 0,
+      "semantic_recoveries": 1
     }
   },
   "by_batch": {
@@ -173,7 +188,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "engineering": {
       "labels": 36,
@@ -183,7 +199,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "reliability": {
       "labels": 36,
@@ -192,8 +209,9 @@
       "semantic_matches": 36,
       "semantic_accuracy": 1.0,
       "structured_output_failures": 1,
-      "uncertain_predictions": 1,
-      "request_failures": 0
+      "uncertain_predictions": 0,
+      "request_failures": 0,
+      "semantic_recoveries": 1
     },
     "request-chain": {
       "labels": 36,
@@ -203,7 +221,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     },
     "service-data": {
       "labels": 36,
@@ -213,7 +232,8 @@
       "semantic_accuracy": 1.0,
       "structured_output_failures": 0,
       "uncertain_predictions": 0,
-      "request_failures": 0
+      "request_failures": 0,
+      "semantic_recoveries": 0
     }
   },
   "safety_false_permits": 0,
